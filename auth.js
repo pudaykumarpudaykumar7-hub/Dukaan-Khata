@@ -131,55 +131,54 @@ supabaseClient.auth.onAuthStateChange(async (_event,session)=>{
     }
   }else showLogin();
 })();
-function normalizePhone(v){
-  let p=(v||"").trim().replace(/[\s-]/g,"");
-  if(/^\d{10}$/.test(p)) p="+91"+p;
-  return p;
-}
+function normalizeEmail(v){ return (v||"").trim().toLowerCase(); }
 function showLogin(){
   el("signupBox").classList.add("hidden");
   el("loginBox").classList.remove("hidden");
-  el("authSubtitle").textContent="Owner • Mobile OTP";
+  el("authSubtitle").textContent="Owner • Email OTP";
   authMsg("");
 }
 function showSignup(){
   el("loginBox").classList.add("hidden");
   el("signupBox").classList.remove("hidden");
-  el("authSubtitle").textContent="Owner • Mobile OTP";
+  el("authSubtitle").textContent="Owner • Email OTP";
   authMsg("");
 }
 async function sendOwnerOTP(){
-  const shop=el("shopName").value.trim(), name=el("ownerName").value.trim(), phone=normalizePhone(el("ownerPhone").value);
-  if(!shop||!name||!phone){authMsg("Enter shop name, owner name and mobile number.",true);return}
-  if(!/^\+91\d{10}$/.test(phone)){authMsg("Enter a valid Indian mobile number, e.g. +919876543210.",true);return}
-  authMsg("Sending OTP...");
-  const {error}=await supabaseClient.auth.signInWithOtp({
-    phone,
-    options:{data:{owner_name:name,phone,shop_name:shop}}
+  const shop=el("shopName").value.trim();
+  const name=el("ownerName").value.trim();
+  const email=normalizeEmail(el("ownerEmail")?.value);
+  const phone=(el("ownerPhone").value||"").trim();
+  if(!shop||!name||!email){authMsg("Enter shop name, owner name and email address.",true);return}
+  if(!/^\S+@\S+\.\S+$/.test(email)){authMsg("Enter a valid email address.",true);return}
+  authMsg("Sending OTP to your email...");
+  const {data,error}=await supabaseClient.auth.signInWithOtp({
+    email,
+    options:{data:{owner_name:name,phone,shop_name:shop},shouldCreateUser:true}
   });
   if(error){authMsg(friendlyAuthError(error),true);return}
-  el("loginPhone").value=phone;
+  el("loginEmail").value=email;
   el("otpBox").classList.remove("hidden");
   showLogin();
-  el("loginPhone").value=phone;
+  el("loginEmail").value=email;
   el("otpBox").classList.remove("hidden");
-  authMsg("OTP sent. Enter the 6-digit code.");
+  authMsg("OTP sent. Check your email inbox and Spam folder.");
 }
 async function sendLoginOTP(){
-  const phone=normalizePhone(el("loginPhone").value);
-  if(!/^\+91\d{10}$/.test(phone)){authMsg("Enter a valid Indian mobile number, e.g. +919876543210.",true);return}
-  authMsg("Sending OTP...");
-  const {error}=await supabaseClient.auth.signInWithOtp({phone});
+  const email=normalizeEmail(el("loginEmail").value);
+  if(!/^\S+@\S+\.\S+$/.test(email)){authMsg("Enter a valid email address.",true);return}
+  authMsg("Sending OTP to your email...");
+  const {error}=await supabaseClient.auth.signInWithOtp({email});
   if(error){authMsg(friendlyAuthError(error),true);return}
   el("otpBox").classList.remove("hidden");
-  authMsg("OTP sent. Enter the 6-digit code.");
+  authMsg("OTP sent. Check your email inbox and Spam folder.");
 }
 async function verifyOwnerOTP(){
-  const phone=normalizePhone(el("loginPhone").value);
+  const email=normalizeEmail(el("loginEmail").value);
   const token=el("otpCode").value.trim();
-  if(!/^\+91\d{10}$/.test(phone)||!/^\d{6}$/.test(token)){authMsg("Enter the 6-digit OTP.",true);return}
+  if(!/^\S+@\S+\.\S+$/.test(email)||!/^\d{6}$/.test(token)){authMsg("Enter the 6-digit OTP from your email.",true);return}
   authMsg("Verifying OTP...");
-  const {data,error}=await supabaseClient.auth.verifyOtp({phone,token,type:"sms"});
+  const {data,error}=await supabaseClient.auth.verifyOtp({email,token,type:"email"});
   if(error){authMsg(friendlyAuthError(error),true);return}
   currentUser=data.user;
   try{
@@ -189,7 +188,7 @@ async function verifyOwnerOTP(){
       await createShopForUser();
       member=await getMyShop();
     }
-    if(!member)throw new Error("Shop could not be linked to this mobile number.");
+    if(!member)throw new Error("Shop could not be linked to this account.");
     await startApp();
   }catch(e){
     console.error(e);
