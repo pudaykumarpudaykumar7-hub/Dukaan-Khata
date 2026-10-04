@@ -13,19 +13,19 @@
   <div class="authCard">
     <div class="authLogo">🏪</div>
     <h1>Dukaan Khata</h1>
-    <p id="authSubtitle">Owner • Mobile OTP</p>
+    <p id="authSubtitle">Owner • Email OTP</p>
     <div id="signupBox">
       <h2>Create Owner Account</h2>
       <input id="shopName" placeholder="Shop name">
       <input id="ownerName" placeholder="Owner name">
-      <input id="ownerPhone" type="tel" placeholder="+91 9876543210">
-      <button class="btn" onclick="sendOwnerOTP()">📱 Send OTP</button>
-      <button class="textBtn" onclick="showLogin()">Already registered? Login with OTP</button>
+      <input id="ownerPhone" type="tel" placeholder="Mobile number (optional)">
+      <button class="btn" onclick="sendOwnerOTP()">📧 Send Email OTP</button>
+      <button class="textBtn" onclick="showLogin()">Already registered? Login with Email OTP</button>
     </div>
     <div id="loginBox" class="hidden">
       <h2>Owner Login</h2>
-      <input id="loginPhone" type="tel" placeholder="+91 9876543210">
-      <button class="btn" onclick="sendLoginOTP()">📱 Send OTP</button>
+      <input id="loginEmail" type="email" placeholder="Email address">
+      <button class="btn" onclick="sendLoginOTP()">📧 Send Email OTP</button>
       <div id="otpBox" class="hidden">
         <input id="otpCode" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit OTP">
         <button class="btn" onclick="verifyOwnerOTP()">✅ Verify OTP</button>
