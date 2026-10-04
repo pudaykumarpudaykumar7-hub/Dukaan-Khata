@@ -108,17 +108,23 @@ function saveCustomerEdit(id){
 function addCustomerNumber(id){editCustomer(id)}
 
 function addItem(returnToSale=false){
-  const target=JSON.stringify(returnToSale);
-  modal('<h2>Add Inventory Item</h2><input id="iname" placeholder="Item name"><div class="row"><input id="icost" type="number" placeholder="Item cost"></div><button class="btn primary" onclick="saveItem('+target+')">Save Item</button>');
+  modal('<h2>Add Item</h2><input id="iname" placeholder="Item name" autocomplete="off"><input id="icost" type="number" min="0" step="0.01" placeholder="Item cost"><button class="btn primary" type="button" id="saveItemBtn">Save Item</button>');
+  document.getElementById("saveItemBtn")?.addEventListener("click",()=>saveItem(returnToSale));
+  document.getElementById("iname")?.focus();
 }
-function saveItem(returnToSale){
-  const name=document.getElementById("iname")?.value.trim();
-  const cost=Number(document.getElementById("icost")?.value)||0;
-  if(!name)return toast("Enter item name");
-  if(cost<=0)return toast("Enter item cost");
-  state.items.unshift({id:uid(),name,price:cost,stock:0,cost:cost,unit:"pcs",min:0});
-  saveState();closeModal();render();toast("Item added");
-  if(returnToSale==="many")return openManyItems(pendingManyCustomerId||undefined);
+function saveItem(returnToSale=false){
+  const name=(document.getElementById("iname")?.value||"").trim();
+  const cost=Number(document.getElementById("icost")?.value);
+  if(!name){toast("Enter item name");return false}
+  if(!Number.isFinite(cost)||cost<=0){toast("Enter item cost");return false}
+  const item={id:uid(),name,price:cost,cost:cost,unit:"pcs",stock:0,min:0};
+  state.items.unshift(item);
+  saveState();
+  closeModal();
+  render();
+  toast("Item saved successfully");
+  if(returnToSale==="many")openManyItems(pendingManyCustomerId||undefined);
+  return true;
 }
 function deleteItem(id){const i=state.items.find(x=>x.id===id);if(!i)return;if(!confirm('Delete "'+i.name+'"?'))return;state.items=state.items.filter(x=>x.id!==id);saveState();render();toast("Item deleted")}
 function deleteCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c)return;if(!confirm("Delete "+c.name+"?"))return;state.customers=state.customers.filter(x=>x.id!==id);state.tx=state.tx.filter(x=>x.customerId!==id);state.reminders=state.reminders.filter(x=>x.customerId!==id);saveState();closeModal();render();toast("Customer deleted")}
