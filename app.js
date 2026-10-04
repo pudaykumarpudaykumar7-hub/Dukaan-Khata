@@ -32,10 +32,10 @@ function globalResults(){
 
 function openManyItems(customerId){
   if(!state.customers.length){pendingManyCustomerId=null;return addCustomer("many")}
-  if(!state.items.length){pendingManyCustomerId=customerId||null;return addItem("many")}
   if(!customerId){
-    const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+' • '+money(balance(c.id))+'</option>').join("");
-    modal('<h2>＋ Add Many Items</h2><p class="muted">Choose the customer.</p><select id="manyCustomer">'+opts+'</select><button class="btn primary" onclick="continueManyItems()">Continue</button>');
+    const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join("");
+    modal('<h2>＋ Add Items to Khata</h2><select id="manyCustomer">'+opts+'</select><button class="btn primary" type="button" id="chooseCustomerBtn">Continue</button>');
+    document.getElementById("chooseCustomerBtn")?.addEventListener("click",()=>{const id=document.getElementById("manyCustomer")?.value;if(id)showManyItemsForm(id)});
     return;
   }
   showManyItemsForm(customerId);
@@ -44,46 +44,37 @@ function continueManyItems(){const id=document.getElementById("manyCustomer")?.v
 function openSale(customerId){openManyItems(customerId)}
 function showManyItemsForm(customerId){
   const c=state.customers.find(x=>x.id===customerId);if(!c)return;
-  modal('<h2>＋ Add Many Items</h2><p><b>'+esc(c.name)+'</b></p><div id="manyRows"></div><button class="btn" type="button" id="addManyRowBtn">＋ Add another item</button><div class="line"><b>Total</b><b id="manyTotal">₹0</b></div><button class="btn primary" type="button" id="saveManyBtn">Save to Khata</button>');
+  modal('<h2>＋ Add Items</h2><p><b>'+esc(c.name)+'</b></p><div id="manyRows"></div><button class="btn" type="button" id="addManyRowBtn">＋ Add another item</button><div class="line"><b>Total</b><b id="manyTotal">₹0</b></div><button class="btn primary" type="button" id="saveManyBtn">Save to Khata</button>');
   document.getElementById("addManyRowBtn")?.addEventListener("click",addManyRow);
   document.getElementById("saveManyBtn")?.addEventListener("click",()=>saveManyItems(customerId));
   addManyRow();
 }
 function addManyRow(){
   const box=document.getElementById("manyRows");if(!box)return;
-  const opts=state.items.map(i=>'<option value="'+esc(i.id)+'">'+esc(i.name)+' — '+money(i.price)+'</option>').join("");
   const row=document.createElement("div");row.className="row many-row";row.style.margin="8px 0";
-  row.innerHTML='<select class="many-item"><option value="">Select item</option>'+opts+'</select><input class="many-qty" type="number" min="1" value="1"><button class="btn small many-remove" type="button">✕</button>';
+  row.innerHTML='<input class="many-name" placeholder="Item name"><input class="many-price" type="number" min="0" step="0.01" placeholder="Price"><button class="btn small many-remove" type="button">✕</button>';
   box.appendChild(row);
-  row.querySelector(".many-item").addEventListener("change",recalcManyItems);
-  row.querySelector(".many-qty").addEventListener("input",recalcManyItems);
+  row.querySelector(".many-price").addEventListener("input",recalcManyItems);
   row.querySelector(".many-remove").addEventListener("click",()=>{row.remove();recalcManyItems()});
   recalcManyItems();
 }
 function recalcManyItems(){
   let total=0;
-  document.querySelectorAll("#manyRows .many-row").forEach(r=>{
-    const id=r.querySelector(".many-item")?.value;
-    const i=state.items.find(x=>x.id===id);
-    const q=Math.max(1,Number(r.querySelector(".many-qty")?.value)||1);
-    total+=(Number(i?.price)||0)*q;
-  });
+  document.querySelectorAll("#manyRows .many-row").forEach(r=>total+=Math.max(0,Number(r.querySelector(".many-price")?.value)||0));
   const e=document.getElementById("manyTotal");if(e)e.textContent=money(total);
 }
 function saveManyItems(customerId){
   const lines=[];
-  document.querySelectorAll(".many-row").forEach(r=>{
-    const i=state.items.find(x=>x.id===r.querySelector(".many-item")?.value),q=Math.max(1,Number(r.querySelector(".many-qty")?.value)||1);
-    if(i)lines.push({itemId:i.id,name:i.name,qty:q,price:Number(i.price)||0,total:q*(Number(i.price)||0)});
+  document.querySelectorAll("#manyRows .many-row").forEach(r=>{
+    const name=(r.querySelector(".many-name")?.value||"").trim();
+    const price=Number(r.querySelector(".many-price")?.value)||0;
+    if(name&&price>0)lines.push({name,qty:1,price,total:price});
   });
   const total=lines.reduce((s,x)=>s+x.total,0);
-  if(!lines.length)return toast("Add at least one item");
-  if(total<=0)return toast("Item price must be greater than 0");
+  if(!lines.length)return toast("Add item name and price");
   state.tx.unshift({id:uid(),type:"sale",customerId,total,paid:0,mode:"credit",lines,date:new Date().toISOString()});
-  lines.forEach(l=>{const i=state.items.find(x=>x.id===l.itemId);if(i)i.stock=Math.max(0,(Number(i.stock)||0)-l.qty)});
   saveState();closeModal();render();toast("Items saved to Khata");
 }
-
 function addCustomer(returnToSale=false){
   const target=JSON.stringify(returnToSale);
   modal('<h2>New Customer</h2><input id="cname" placeholder="Customer name"><input id="cphone" inputmode="tel" placeholder="WhatsApp / mobile number"><textarea id="caddress" placeholder="Address (optional)"></textarea><button class="btn primary" onclick="saveCustomer('+target+')">Save Customer</button>');
