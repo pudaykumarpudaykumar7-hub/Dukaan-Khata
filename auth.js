@@ -145,6 +145,7 @@ function showSignup(){
   authMsg("");
 }
 async function sendOwnerOTP(){
+  try {
   const shop=el("shopName").value.trim();
   const name=el("ownerName").value.trim();
   const email=normalizeEmail(el("ownerEmail")?.value);
@@ -163,8 +164,10 @@ async function sendOwnerOTP(){
   el("loginEmail").value=email;
   el("otpBox").classList.remove("hidden");
   authMsg("OTP sent. Check your email inbox and Spam folder.");
+  } catch(e) { console.error(e); authMsg("OTP button error: "+(e?.message||e),true); }
 }
 async function sendLoginOTP(){
+  try {
   const email=normalizeEmail(el("loginEmail").value);
   if(!/^\S+@\S+\.\S+$/.test(email)){authMsg("Enter a valid email address.",true);return}
   authMsg("Sending OTP to your email...");
@@ -172,8 +175,10 @@ async function sendLoginOTP(){
   if(error){authMsg(friendlyAuthError(error),true);return}
   el("otpBox").classList.remove("hidden");
   authMsg("OTP sent. Check your email inbox and Spam folder.");
+  } catch(e) { console.error(e); authMsg("OTP button error: "+(e?.message||e),true); }
 }
 async function verifyOwnerOTP(){
+  try {
   const email=normalizeEmail(el("loginEmail").value);
   const token=el("otpCode").value.trim();
   if(!/^\S+@\S+\.\S+$/.test(email)||!/^\d{6}$/.test(token)){authMsg("Enter the 6-digit OTP from your email.",true);return}
@@ -194,6 +199,7 @@ async function verifyOwnerOTP(){
     console.error(e);
     authMsg("OTP verified, but shop setup failed: "+friendlyAuthError(e),true);
   }
+  } catch(e) { console.error(e); authMsg("Verify button error: "+(e?.message||e),true); }
 }
 window.sendOwnerOTP=sendOwnerOTP;
 window.sendLoginOTP=sendLoginOTP;
@@ -202,3 +208,9 @@ window.showLogin=showLogin;
 window.showSignup=showSignup;
 window.ownerMenu=ownerMenu;
 window.logoutOwner=logoutOwner;
+window.addEventListener("DOMContentLoaded",()=>{
+  const b1=el("sendOwnerOTPBtn"),b2=el("sendLoginOTPBtn"),b3=el("verifyOwnerOTPBtn");
+  if(b1)b1.addEventListener("click",sendOwnerOTP);
+  if(b2)b2.addEventListener("click",sendLoginOTP);
+  if(b3)b3.addEventListener("click",verifyOwnerOTP);
+});
