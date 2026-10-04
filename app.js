@@ -20,13 +20,13 @@ function balance(id){return state.tx.filter(t=>t.customerId===id).reduce((s,t)=>
 function sales(){return state.tx.filter(t=>t.type==="sale")}
 function payments(){return state.tx.filter(t=>t.type==="payment")}
 function openSale(customerId){if(!state.customers.length)return addCustomer(true);if(!state.items.length)return addItem(true);const opts=state.customers.map(c=>'<option value="'+c.id+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");modal('<h2>New Sale / Khata</h2><select id="saleCustomer">'+opts+'</select><div id="saleLines"></div><button class="btn" onclick="addSaleLine()">＋ Add item</button><div class="line"><b>Total</b><b id="saleTotal">₹0</b></div><div class="row"><select id="saleMode"><option value="credit">Khata / Credit</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><input id="salePaid" type="number" min="0" placeholder="Paid now"></div><button class="btn primary" onclick="saveSale()">Save Sale</button>');addSaleLine()}
+function removeSaleLine(btn){btn.closest(".saleLine")?.remove();recalcSale()}
 function addSaleLine(){
   const box=document.getElementById("saleLines");
   if(!box)return;
   const options=state.items.map(i=>'<option value="'+esc(i.id)+'">'+esc(i.name)+' — '+money(i.price)+'</option>').join("");
-  box.insertAdjacentHTML("beforeend",'<div class="row saleLine"><select class="saleItem" onchange="recalcSale()">'+options+'</select><input class="saleQty" type="number" min="1" value="1" oninput="recalcSale()"><button type="button" class="btn small" onclick="this.closest(\\'.saleLine\\').remove();recalcSale()">✕</button></div>');
-  const rows=box.querySelectorAll(".saleLine");
-  const newRow=rows[rows.length-1];
+  box.insertAdjacentHTML("beforeend",'<div class="row saleLine"><select class="saleItem" onchange="recalcSale()"><option value="">Select another item</option>'+options+'</select><input class="saleQty" type="number" min="1" value="1" oninput="recalcSale()"><button type="button" class="btn small" onclick="removeSaleLine(this)">✕</button></div>');
+  const rows=box.querySelectorAll(".saleLine"),newRow=rows[rows.length-1];
   const used=[...box.querySelectorAll(".saleItem")].slice(0,-1).map(x=>x.value);
   const next=state.items.find(i=>!used.includes(i.id));
   if(next)newRow.querySelector(".saleItem").value=next.id;
