@@ -124,3 +124,10 @@ supabaseClient.auth.onAuthStateChange(async (_event,session)=>{
     }
   }else showLogin();
 })();
+// Explicitly expose auth actions for GitHub Pages / mobile browsers.
+window.createOwner=createOwner;
+window.loginOwner=loginOwner;
+window.showLogin=showLogin;
+window.showSignup=showSignup;
+window.ownerMenu=ownerMenu;
+window.logoutOwner=logoutOwner;
