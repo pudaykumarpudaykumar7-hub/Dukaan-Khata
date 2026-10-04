@@ -6,6 +6,13 @@ let authStarting=false;
 
 function el(id){return document.getElementById(id)}
 function authMsg(message,error=false){const x=el("authMessage");if(x){x.textContent=message;x.className="authMessage "+(error?"error":"success")}}
+function friendlyAuthError(e){
+  const m=(e?.message||String(e)||"Unknown error").toLowerCase();
+  if(m.includes("email not confirmed")) return "Email not confirmed. Open the confirmation email from Supabase, confirm your email, then login again.";
+  if(m.includes("invalid login credentials")) return "Email or password is incorrect.";
+  if(m.includes("rate limit")) return "Too many attempts. Please wait a few minutes and try again.";
+  if(m.includes("failed to fetch")||m.includes("network")) return "Internet connection or Supabase connection problem. Check your internet and try again.";
+  return e?.message||String(e)||"Something went wrong."}
 function showLogin(){el("signupBox").classList.add("hidden");el("loginBox").classList.remove("hidden");el("authSubtitle").textContent="Owner Login";authMsg("")}
 function showSignup(){el("loginBox").classList.add("hidden");el("signupBox").classList.remove("hidden");el("authSubtitle").textContent="Cloud Owner Account";authMsg("")}
 function lockApp(){el("authGate").classList.remove("hidden");el("appShell").classList.add("appLocked")}
@@ -57,7 +64,7 @@ async function loginOwner(){
   if(!email||!password){authMsg("Enter your email and password.",true);return}
   authMsg("Signing in...");
   const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
-  if(error){authMsg(error.message,true);return}
+  if(error){authMsg(friendlyAuthError(error),true);return}
   currentUser=data.user;
   try{
     let member=await getMyShop();
@@ -70,7 +77,7 @@ async function loginOwner(){
     await startApp();
   }catch(e){
     console.error(e);
-    authMsg(e.message||"Shop setup failed.",true);
+    authMsg("Login succeeded, but shop setup failed: "+friendlyAuthError(e),true);
   }
 }
 
@@ -131,3 +138,13 @@ window.showLogin=showLogin;
 window.showSignup=showSignup;
 window.ownerMenu=ownerMenu;
 window.logoutOwner=logoutOwner;
+
+async function resendConfirmation(){
+  const email=el("loginEmail").value.trim()||el("ownerEmail").value.trim();
+  if(!email){authMsg("Enter your email first.",true);return}
+  authMsg("Sending confirmation email...");
+  const {error}=await supabaseClient.auth.resend({type:"signup",email});
+  if(error){authMsg(friendlyAuthError(error),true);return}
+  authMsg("Confirmation email sent. Check your inbox and Spam folder.");
+}
+window.resendConfirmation=resendConfirmation;
