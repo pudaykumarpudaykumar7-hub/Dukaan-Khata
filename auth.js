@@ -17,7 +17,7 @@ function authStatus(message){
 function friendlyAuthError(e){
   const m=(e?.message||String(e)||"Unknown error").toLowerCase();
   if(m.includes("email not confirmed"))return "Please confirm your email first, then login.";
-  if(m.includes("invalid login credentials"))return "Email or password is incorrect.";
+  if(m.includes("invalid login credentials"))return "Email or password is incorrect. Use Forgot password to create a new one.";
   if(m.includes("rate limit")||m.includes("too many requests"))return "Supabase temporarily limited requests. Stop retrying and wait before trying again.";
   if(m.includes("user already registered"))return "This email is already registered. Use the Login screen.";
   if(m.includes("password should be at least"))return "Password must be at least 6 characters.";
@@ -32,23 +32,63 @@ function canAttemptAuth(){
 }
 function setBusy(busy){
   authBusy=busy;
-  ["createOwnerBtn","loginOwnerBtn"].forEach(id=>{const b=el(id);if(b)b.disabled=busy});
+  ["createOwnerBtn","loginOwnerBtn","savePasswordBtn"].forEach(id=>{const b=el(id);if(b)b.disabled=busy});
 }
 function showLogin(){
   el("signupBox").classList.add("hidden");
+  el("resetBox").classList.add("hidden");
   el("loginBox").classList.remove("hidden");
   el("authSubtitle").textContent="Owner • Email + Password";
   authMsg("");authStatus("");
 }
 function showSignup(){
   el("loginBox").classList.add("hidden");
+  el("resetBox").classList.add("hidden");
   el("signupBox").classList.remove("hidden");
   el("authSubtitle").textContent="Create your cloud owner account";
   authMsg("");authStatus("");
 }
-function lockApp(){el("authGate").classList.remove("hidden");el("appShell").classList.add("appLocked")}
-function unlockApp(){el("authGate").classList.add("hidden");el("appShell").classList.remove("appLocked")}
-
+function showResetPassword(){
+  el("signupBox").classList.add("hidden");
+  el("loginBox").classList.add("hidden");
+  el("resetBox").classList.remove("hidden");
+  el("authSubtitle").textContent="Owner • Set a new password";
+  authMsg("Enter and confirm your new password.");
+  authStatus("");
+}
+async function forgotOwnerPassword(){
+  if(!canAttemptAuth())return;
+  const email=el("loginEmail").value.trim().toLowerCase();
+  if(!email){authMsg("Enter your Gmail address first.",true);return}
+  if(!supabaseClient){authMsg("App connection is not ready. Refresh once.",true);return}
+  setBusy(true);authMsg("Sending password reset email...");authStatus("Check your Gmail inbox, Spam and Promotions.");
+  try{
+    const redirectTo=window.location.origin+window.location.pathname;
+    const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo});
+    if(error){authMsg(friendlyAuthError(error),true);return}
+    authMsg("Reset email sent. Open Gmail and tap the password-reset link.");
+  }catch(e){console.error(e);authMsg("Could not send reset email: "+friendlyAuthError(e),true)}
+  finally{setBusy(false);authStatus("")}
+}
+async function saveNewPassword(){
+  if(!canAttemptAuth())return;
+  const p=el("resetPassword").value,p2=el("resetPassword2").value;
+  if(!p||!p2){authMsg("Enter the new password twice.",true);return}
+  if(p.length<6){authMsg("Password must be at least 6 characters.",true);return}
+  if(p!==p2){authMsg("Passwords do not match.",true);return}
+  if(!supabaseClient){authMsg("App connection is not ready. Refresh once.",true);return}
+  setBusy(true);authMsg("Saving new password...");authStatus("Please wait.");
+  try{
+    const {error}=await supabaseClient.auth.updateUser({password:p});
+    if(error){authMsg(friendlyAuthError(error),true);return}
+    el("resetPassword").value="";el("resetPassword2").value="";
+    authMsg("Password changed successfully. You can now login.");
+    await supabaseClient.auth.signOut();
+    showLogin();
+    authMsg("Password changed successfully. Login with your new password.");
+  }catch(e){console.error(e);authMsg(friendlyAuthError(e),true)}
+  finally{setBusy(false);authStatus("")}
+}
 async function getMyShop(){
   if(!supabaseClient||!currentUser)throw new Error("Authentication is not ready.");
   const {data,error}=await supabaseClient.from("shop_members").select("shop_id,role,display_name,phone").eq("user_id",currentUser.id).eq("active",true).limit(1).maybeSingle();
@@ -132,11 +172,15 @@ function initAuth(){
     authStatus("Cloud login ready.");
     supabaseClient.auth.onAuthStateChange(async (_event,session)=>{
       currentUser=session?.user||null;
+      if(_event==="PASSWORD_RECOVERY")showResetPassword();
     });
     supabaseClient.auth.getSession().then(async({data})=>{
       if(data?.session){
         currentUser=data.session.user;
-        try{await startApp()}catch(e){console.error(e);authMsg(friendlyAuthError(e),true);showLogin()}
+        try{
+          if(window.location.hash.includes("access_token")&&window.location.hash.includes("type=recovery"))showResetPassword();
+          else await startApp();
+        }catch(e){console.error(e);authMsg(friendlyAuthError(e),true);showLogin()}
       }else showLogin();
     }).catch(e=>{console.error(e);authMsg("Could not connect to Supabase: "+friendlyAuthError(e),true);showLogin()});
   }catch(e){
@@ -147,6 +191,9 @@ window.createOwnerAccount=createOwnerAccount;
 window.loginOwnerAccount=loginOwnerAccount;
 window.showLogin=showLogin;
 window.showSignup=showSignup;
+window.forgotOwnerPassword=forgotOwnerPassword;
+window.showResetPassword=showResetPassword;
+window.saveNewPassword=saveNewPassword;
 window.ownerMenu=ownerMenu;
 window.logoutOwner=logoutOwner;
 window.addEventListener("DOMContentLoaded",initAuth);
