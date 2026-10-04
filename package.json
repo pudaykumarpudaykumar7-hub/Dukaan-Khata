@@ -1,0 +1,20 @@
+{
+  "name": "dukaan-khata-infinity",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "web": "echo \"Static GitHub Pages web app\"",
+    "android": "npx cap sync android",
+    "ios": "npx cap sync ios",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.4.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.0",
+    "@capacitor/android": "^7.4.0",
+    "@capacitor/ios": "^7.4.0"
+  }
+}
