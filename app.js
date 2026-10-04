@@ -24,7 +24,6 @@ function globalResults(){
   const box=document.getElementById("globalResults");if(!box)return;
   const q=(document.getElementById("globalSearch")?.value||"").toLowerCase();
   const c=state.customers.filter(x=>(x.name+" "+x.phone).toLowerCase().includes(q)).slice(0,8);
-  const i=state.items.filter(x=>x.name.toLowerCase().includes(q)).slice(0,8);
   box.innerHTML=c.map(x=>'<div class="customer" onclick="closeModal();customerView(\''+esc(x.id)+'\')"><div><b>'+esc(x.name)+'</b><small>Customer • '+esc(x.phone||"")+'</small></div><b>'+money(balance(x.id))+'</b></div>').join("")+
     i.map(x=>'<div class="item"><div><b>'+esc(x.name)+'</b><small>Inventory</small></div><b>'+money(x.price)+'</b></div>').join("")||
     '<p class="muted">No matches.</p>';
@@ -161,7 +160,7 @@ function exportData(){const a=document.createElement("a");a.href=URL.createObjec
 function importData(e){const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);saveState();closeModal();render();toast("Backup restored")}catch(x){toast("Invalid backup file")}};r.readAsText(f)}
 function openLanguage(){modal('<h2>Language</h2><button class="btn" onclick="setLanguage(\'English\')">English</button><button class="btn" onclick="setLanguage(\'Hindi\')">हिन्दी</button><button class="btn" onclick="setLanguage(\'Telugu\')">తెలుగు</button>')}
 function voiceEntry(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return toast("Voice input is not supported");const r=new R();r.lang=state.settings.language==="Telugu"?"te-IN":state.settings.language==="Hindi"?"hi-IN":"en-IN";r.onresult=e=>toast("Heard: "+e.results[0][0].transcript);r.start()}
-function openAbout(){modal('<h2>✦ Dukaan Khata Infinity</h2><p>Smart digital tools for Indian shops.</p><div class="line"><span>Digital Khata</span><b>✓</b></div><div class="line"><span>UPI QR Receive</span><b>✓</b></div><div class="line"><span>Billing + Inventory</span><b>✓</b></div><div class="line"><span>Backup</span><b>✓</b></div>')}
+function openAbout(){modal('<h2>✦ Dukaan Khata Infinity</h2><p>Smart digital tools for Indian shops.</p><div class="line"><span>Digital Khata</span><b>✓</b></div><div class="line"><span>UPI QR Receive</span><b>✓</b></div><div class="line"><span>Customer Khata Items</span><b>✓</b></div><div class="line"><span>Backup</span><b>✓</b></div>')}
 function toggleTheme(){document.body.classList.toggle("darkmode");state.settings.theme=document.body.classList.contains("darkmode")?"dark":"light";saveState()}
 function clearDemo(){if(confirm("Clear all Dukaan Khata data on this device?")){localStorage.removeItem(KEY);state=loadState();render();toast("Data reset")}}
 
