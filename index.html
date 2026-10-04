@@ -24,6 +24,13 @@
       <button type="button" id="createOwnerBtn" class="btn" onclick="createOwnerAccount()">👤 Create Owner Account</button>
       <button type="button" class="textBtn" onclick="showLogin()">Already registered? Login with Email + Password</button>
     </div>
+    <div id="resetBox" class="hidden">
+      <h2>Set New Password</h2>
+      <input id="resetPassword" type="password" placeholder="New password (6+ characters)">
+      <input id="resetPassword2" type="password" placeholder="Confirm new password">
+      <button type="button" id="savePasswordBtn" class="btn" onclick="saveNewPassword()">🔑 Save New Password</button>
+      <button type="button" class="textBtn" onclick="showLogin()">Back to Login</button>
+    </div>
     <div id="loginBox" class="hidden">
       <h2>Owner Login</h2>
       <input id="loginEmail" type="email" placeholder="Email address">
