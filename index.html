@@ -99,6 +99,31 @@
 <div id="modal" class="modal hidden"><div class="sheet"><button class="close" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script><script src="app.js?v=20261005-8" defer></script><script src="i18n.js?v=20261005-8" defer></script>
 <script src="auth.js?v=20261005-8" defer></script>
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  window.openManyItems=function(customerId){
+    const key="dukaan_khata_infinity_v1";
+    let s={shop:{},customers:[],items:[],tx:[]};
+    try{s=Object.assign(s,JSON.parse(localStorage.getItem(key)||"{}"))}catch(e){}
+    s.customers=s.customers||[];s.items=s.items||[];s.tx=s.tx||[];
+    const save=()=>localStorage.setItem(key,JSON.stringify(s));
+    const money=x=>"₹"+Number(x||0).toLocaleString("en-IN",{maximumFractionDigits:2});
+    const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+    const esc=x=>String(x??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+    const show=html=>{document.getElementById("modalBody").innerHTML=html;document.getElementById("modal").classList.remove("hidden")};
+    if(!s.customers.length){show("<h2>Add Customer</h2><input id='fbName' placeholder='Customer name'><input id='fbPhone' placeholder='Mobile number'><button class='btn primary' id='fbSaveC'>Save & Continue</button>");document.getElementById("fbSaveC").onclick=()=>{let n=document.getElementById("fbName").value.trim();if(!n)return alert("Enter customer name");s.customers.unshift({id:id(),name:n,phone:document.getElementById("fbPhone").value.trim(),address:"",created:new Date().toISOString()});save();openManyItems(s.customers[0].id)};return}
+    if(!s.items.length){show("<h2>Add Inventory Item</h2><input id='fbItem' placeholder='Item name'><input id='fbPrice' type='number' placeholder='Selling price'><input id='fbStock' type='number' placeholder='Opening stock'><button class='btn primary' id='fbSaveI'>Save & Continue</button>");document.getElementById("fbSaveI").onclick=()=>{let n=document.getElementById("fbItem").value.trim(),p=Number(document.getElementById("fbPrice").value)||0;if(!n||!p)return alert("Enter item name and price");s.items.unshift({id:id(),name:n,price:p,stock:Number(document.getElementById("fbStock").value)||0,cost:0,unit:"pcs",min:5});save();openManyItems(customerId||s.customers[0].id)};return}
+    if(!customerId){show("<h2>Add Many Items</h2><select id='fbCustomer'>"+s.customers.map(x=>"<option value='"+esc(x.id)+"'>"+esc(x.name)+"</option>").join("")+"</select><button class='btn primary' id='fbContinue'>Continue</button>");document.getElementById("fbContinue").onclick=()=>openManyItems(document.getElementById("fbCustomer").value);return}
+    const cst=s.customers.find(x=>x.id===customerId);let rows="";
+    const options=s.items.map(x=>"<option value='"+esc(x.id)+"'>"+esc(x.name)+" — "+money(x.price)+"</option>").join("");
+    const renderTotal=()=>{let t=0;document.querySelectorAll(".fbRow").forEach(r=>{let i=s.items.find(x=>x.id===r.querySelector("select").value),q=Math.max(1,Number(r.querySelector("input").value)||1);t+=(i?.price||0)*q});let el=document.getElementById("fbTotal");if(el)el.textContent=money(t)};
+    const add=()=>{let d=document.createElement("div");d.className="row fbRow";d.style.margin="8px 0";d.innerHTML="<select>"+options+"</select><input type='number' min='1' value='1'><button class='btn small' type='button'>✕</button>";d.querySelector("button").onclick=()=>{d.remove();renderTotal()};d.querySelector("select").onchange=renderTotal;d.querySelector("input").oninput=renderTotal;document.getElementById("fbRows").appendChild(d);renderTotal()};
+    show("<h2>Add Many Items to "+esc(cst?.name||"Customer")+"</h2><div id='fbRows'></div><button class='btn' id='fbAdd'>＋ Add another item</button><div class='line'><b>Total</b><b id='fbTotal'>₹0</b></div><button class='btn primary' id='fbSave'>Save to Khata</button>");
+    document.getElementById("fbAdd").onclick=add;document.getElementById("fbSave").onclick=()=>{let lines=[];document.querySelectorAll(".fbRow").forEach(r=>{let i=s.items.find(x=>x.id===r.querySelector("select").value),q=Math.max(1,Number(r.querySelector("input").value)||1);if(i)lines.push({itemId:i.id,name:i.name,qty:q,price:Number(i.price)||0,total:(Number(i.price)||0)*q})});let total=lines.reduce((a,x)=>a+x.total,0);if(!lines.length||!total)return alert("Add an item with a price");s.tx.unshift({id:id(),type:"sale",customerId,total,paid:0,mode:"credit",lines,date:new Date().toISOString()});lines.forEach(l=>{let i=s.items.find(x=>x.id===l.itemId);if(i)i.stock=Math.max(0,(Number(i.stock)||0)-l.qty)});save();document.getElementById("modal").classList.add("hidden");if(window.render)window.render();alert("Saved to "+(cst?.name||"Khata"));};add();
+  };
+  window.openSale=window.openManyItems;
+});
+</script>
 </div>
 </body>
 </html>
