@@ -109,12 +109,12 @@ function addCustomerNumber(id){editCustomer(id)}
 
 function addItem(returnToSale=false){
   const target=JSON.stringify(returnToSale);
-  modal('<h2>Add Inventory Item</h2><input id="iname" placeholder="Item name"><div class="row"><input id="iprice" type="number" placeholder="Selling price"><input id="istock" type="number" placeholder="Opening stock"></div><div class="row"><input id="icost" type="number" placeholder="Cost price"><input id="iunit" placeholder="Unit (pcs/kg)"></div><input id="imin" type="number" placeholder="Low-stock alert level"><button class="btn primary" onclick="saveItem('+target+')">Save Item</button>');
+  modal('<h2>Add Inventory Item</h2><input id="iname" placeholder="Item name"><div class="row"><input id="iprice" type="number" placeholder="Selling price"></div><div class="row"><input id="icost" type="number" placeholder="Cost price"><input id="iunit" placeholder="Unit (pcs/kg)"></div><button class="btn primary" onclick="saveItem('+target+')">Save Item</button>');
 }
 function saveItem(returnToSale){
   const name=document.getElementById("iname")?.value.trim(),price=Number(document.getElementById("iprice")?.value)||0;
   if(!name)return toast("Enter item name");
-  state.items.unshift({id:uid(),name,price,stock:Number(document.getElementById("istock")?.value)||0,cost:Number(document.getElementById("icost")?.value)||0,unit:document.getElementById("iunit")?.value.trim()||"pcs",min:Number(document.getElementById("imin")?.value)||5});
+  state.items.unshift({id:uid(),name,price,stock:0,cost:Number(document.getElementById("icost")?.value)||0,unit:document.getElementById("iunit")?.value.trim()||"pcs",min:0});
   saveState();closeModal();render();toast("Inventory item added");
   if(returnToSale==="many")return openManyItems(pendingManyCustomerId||undefined);
 }
