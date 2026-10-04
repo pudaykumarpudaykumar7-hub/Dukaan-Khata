@@ -37,17 +37,66 @@ function editCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c)retur
 function saveCustomerEdit(id){const c=state.customers.find(x=>x.id===id);if(!c)return;const name=document.getElementById("editCName").value.trim();if(!name)return toast("Enter customer name");c.name=name;c.phone=document.getElementById("editCPhone").value.trim();c.address=document.getElementById("editCAddress").value.trim();saveState();closeModal();toast("Customer updated");render()}
 function addItem(returnToSale=false){modal('<h2>Add Inventory Item</h2><input id="iname" placeholder="Item name"><div class="row"><input id="iprice" type="number" placeholder="Selling price"><input id="istock" type="number" placeholder="Opening stock"></div><div class="row"><input id="icost" type="number" placeholder="Cost price"><input id="iunit" placeholder="Unit (pcs/kg)"></div><input id="imin" type="number" placeholder="Low-stock alert level"><button class="btn primary" onclick="saveItem('+returnToSale+')">Save Item</button>')}
 function saveItem(returnToSale){const name=document.getElementById("iname").value.trim(),price=Number(document.getElementById("iprice").value)||0;if(!name)return toast("Enter item name");state.items.unshift({id:uid(),name,price,stock:Number(document.getElementById("istock").value)||0,cost:Number(document.getElementById("icost").value)||0,unit:document.getElementById("iunit").value.trim()||"pcs",min:Number(document.getElementById("imin").value)||5});saveState();closeModal();toast("Inventory item added");render();if(returnToSale)openSale()}
+function openCustomerKhataItems(customerId){
+  const c=state.customers.find(x=>x.id===customerId);
+  if(!c)return;
+  if(!state.items.length)return toast("Add inventory items first");
+  modal('<h2>＋ Add Items to '+esc(c.name)+"'s Khata</h2><p class="muted">Add many items together under this customer's name.</p><div id="customerKhataLines"></div><button class="btn" onclick="addCustomerKhataLine()">＋ Add another item</button><div class="line"><b>Total</b><b id="customerKhataTotal">₹0</b></div><button class="btn primary" onclick="saveCustomerKhata('"+customerId+"')">Save to "+esc(c.name)+"'s Khata</button>");
+  addCustomerKhataLine();
+}
+function addCustomerKhataLine(){
+  const box=document.getElementById("customerKhataLines");
+  if(!box)return;
+  const options=state.items.map(i=>'<option value="'+esc(i.id)+'">'+esc(i.name)+' — '+money(i.price)+'</option>').join("");
+  box.insertAdjacentHTML("beforeend",'<div class="row customerKhataLine"><select class="khataItem">'+options+'</select><input class="khataQty" type="number" min="1" value="1" oninput="recalcCustomerKhata()"></div>');
+  box.lastElementChild.querySelector(".khataItem").addEventListener("change",recalcCustomerKhata);
+  recalcCustomerKhata();
+}
+function recalcCustomerKhata(){
+  let total=0;
+  document.querySelectorAll(".customerKhataLine").forEach(r=>{
+    const i=state.items.find(x=>x.id===r.querySelector(".khataItem")?.value);
+    total+=(Number(i?.price)||0)*(Number(r.querySelector(".khataQty")?.value)||0);
+  });
+  const el=document.getElementById("customerKhataTotal");
+  if(el)el.textContent=money(total);
+}
+function saveCustomerKhata(customerId){
+  const lines=[];
+  document.querySelectorAll(".customerKhataLine").forEach(r=>{
+    const i=state.items.find(x=>x.id===r.querySelector(".khataItem")?.value);
+    const q=Math.max(1,Number(r.querySelector(".khataQty")?.value)||1);
+    if(i)lines.push({itemId:i.id,name:i.name,qty:q,price:Number(i.price)||0,total:q*(Number(i.price)||0)});
+  });
+  const total=lines.reduce((s,x)=>s+x.total,0);
+  if(!lines.length||!total)return toast("Add at least one item");
+  state.tx.unshift({id:uid(),type:"sale",customerId,total,paid:0,mode:"credit",lines,date:new Date().toISOString()});
+  lines.forEach(l=>{const i=state.items.find(x=>x.id===l.itemId);if(i)i.stock=Math.max(0,(Number(i.stock)||0)-l.qty)});
+  saveState();
+  closeModal();
+  toast("Items added to customer's Khata");
+  customerView(customerId);
+  render();
+}
 function customerView(id){
-const c=state.customers.find(x=>x.id===id),b=balance(id),tx=state.tx.filter(x=>x.customerId===id).slice(0,30);
-if(!c)return;
-const history=tx.map(t=>{
-  if(t.type==="sale"){
-    const itemText=(t.lines||[]).map(l=>esc(l.name)+" × "+l.qty).join(" • ")||"Sale";
-    return '<div class="card" style="margin:8px 0"><div class="line"><span>🧾 <b>Sale</b><small> • '+new Date(t.date).toLocaleDateString("en-IN")+'</small></span><b>'+money(t.total)+'</b></div><div style="color:var(--muted);font-size:13px;margin-top:6px">'+itemText+'</div></div>';
-  }
-  return '<div class="line"><span>💰 Payment<small> • '+new Date(t.date).toLocaleDateString("en-IN")+' • '+esc(t.mode||"")+'</small></span><b>'+money(t.amount)+'</b></div>';
-}).join("");
-modal('<h2>'+esc(c.name)+'</h2><p>'+esc(c.phone||"No phone added")+'</p><div class="'+(b>0?"due":"paid")+'" style="font-size:28px;margin:10px 0">'+money(b)+' <small style="font-size:12px">'+(b>0?"due":"clear")+'</small></div><div class="row"><button class="btn" onclick="editCustomer(\''+id+'\')">✎ Edit / Add Number</button><button class="btn" onclick="closeModal();openSale(\''+id+'\')">＋ Add Sale</button></div><div class="row"><button class="btn" onclick="closeModal();openReceive(\''+id+'\')">⌁ Receive</button><button class="btn" onclick="shareCustomer(\''+id+'\')">💬 WhatsApp</button></div><div class="row"><button class="btn" onclick="callCustomer(\''+id+'\')">☎ Call</button><button class="btn" onclick="remindCustomer(\''+id+'\')">🔔 Send Reminder</button></div><h3>Khata History</h3><p class="muted">Each sale contains all its items in one entry.</p>'+ (history||'<p class="muted">No transactions yet.</p>'));
+  const c=state.customers.find(x=>x.id===id),b=balance(id),tx=state.tx.filter(x=>x.customerId===id).slice(0,30);
+  if(!c)return;
+  const grouped={};
+  state.tx.filter(t=>t.customerId===id&&t.type==="sale").forEach(t=>(t.lines||[]).forEach(l=>{
+    const key=l.itemId||l.name;
+    if(!grouped[key])grouped[key]={name:l.name,qty:0,total:0};
+    grouped[key].qty+=Number(l.qty)||0;
+    grouped[key].total+=Number(l.total)||0;
+  }));
+  const itemRows=Object.values(grouped).map(x=>'<div class="line"><span>📦 '+esc(x.name)+' <small>× '+x.qty+'</small></span><b>'+money(x.total)+'</b></div>').join("");
+  const history=tx.map(t=>{
+    if(t.type==="sale"){
+      const itemText=(t.lines||[]).map(l=>esc(l.name)+" × "+l.qty).join(" • ")||"Sale";
+      return '<div class="card" style="margin:8px 0"><div class="line"><span>🧾 <b>Sale</b><small> • '+new Date(t.date).toLocaleDateString("en-IN")+'</small></span><b>'+money(t.total)+'</b></div><div style="color:var(--muted);font-size:13px;margin-top:6px">'+itemText+'</div></div>';
+    }
+    return '<div class="line"><span>💰 Payment<small> • '+new Date(t.date).toLocaleDateString("en-IN")+' • '+esc(t.mode||"")+'</small></span><b>'+money(t.amount)+'</b></div>';
+  }).join("");
+  modal('<h2>'+esc(c.name)+'</h2><p>'+esc(c.phone||"No phone added")+'</p><div class="'+(b>0?"due":"paid")+'" style="font-size:28px;margin:10px 0">'+money(b)+' <small style="font-size:12px">'+(b>0?"due":"clear")+'</small></div><button class="btn primary" onclick="openCustomerKhataItems(''+id+'')">＋ Add Many Items to This Khata</button><h3 style="margin-top:16px">Items in '+esc(c.name)+"'s Khata</h3>"+(itemRows||'<p class="muted">No items added yet.</p>')+'<div class="row"><button class="btn" onclick="editCustomer(''+id+'')">✎ Edit / Add Number</button><button class="btn" onclick="closeModal();openReceive(''+id+'')">⌁ Receive</button></div><div class="row"><button class="btn" onclick="shareCustomer(''+id+'')">💬 WhatsApp</button><button class="btn" onclick="callCustomer(''+id+'')">☎ Call</button></div><div class="row"><button class="btn" onclick="remindCustomer(''+id+'')">🔔 Send Reminder</button></div><h3>Khata History</h3>'+ (history||'<p class="muted">No transactions yet.</p>'));
 }
 function phoneNumber(c){return(c?.phone||"").replace(/\D/g,"")}
 function shareCustomer(id){const c=state.customers.find(x=>x.id===id),b=balance(id),phone=phoneNumber(c);if(!phone)return toast("Add customer phone first");const msg="Hello "+c.name+" 👋\nYour Dukaan Khata balance is "+money(b)+"."+ (b>0?" Kindly clear it when convenient.":" Thank you for your payment.");window.open("https://wa.me/"+(phone.length===10?"91":"")+phone+"?text="+encodeURIComponent(msg),"_blank")}
