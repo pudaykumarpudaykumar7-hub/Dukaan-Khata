@@ -1,57 +1,41 @@
+// Dukaan Khata: no-login mode
+// The app opens directly. Cloud data is accessed using the existing Supabase client.
 const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
+let supabaseClient=null,currentUser=null,currentShopId=null;
 
-let supabaseClient=null;
-let currentUser=null,currentShopId=null,authStarting=false;
-
-function friendlyError(e){
-  const m=(e?.message||String(e)||"Unknown error").toLowerCase();
-  if(m.includes("anonymous")||m.includes("signups not allowed"))return "Anonymous access is not enabled in Supabase. Turn on Authentication → Providers → Anonymous, then refresh.";
-  if(m.includes("function")&&m.includes("create_owner_shop"))return "Shop setup is missing in Supabase. The create_owner_shop function must be enabled.";
-  if(m.includes("permission denied")||m.includes("row-level security"))return "Cloud permission is not ready. Check the Supabase database policies.";
-  return e?.message||String(e)||"Something went wrong.";
-}
-async function getMyShop(){
-  const {data,error}=await supabaseClient.from("shop_members").select("shop_id,role,display_name,phone").eq("user_id",currentUser.id).eq("active",true).limit(1).maybeSingle();
-  if(error)throw error;
-  if(!data)return null;
-  currentShopId=data.shop_id;return data;
-}
-async function createShopForGuest(){
-  const {data,error}=await supabaseClient.rpc("create_owner_shop",{p_shop_name:"My Shop",p_owner_name:"Shop Owner",p_phone:null});
-  if(error)throw error;
-  currentShopId=data;
-}
-async function startApp(){
-  if(!currentUser||authStarting)return;
-  authStarting=true;
-  try{
-    let member=await getMyShop();
-    if(!member){await createShopForGuest();member=await getMyShop()}
-    if(!member)throw new Error("No shop is linked to this session.");
-    document.getElementById("ownerHeader").textContent="Shop • "+(member.display_name||"Cloud");
-    if(typeof initCloudApp==="function")await initCloudApp(currentShopId,currentUser.id);
-  }catch(e){
-    console.error(e);
-    document.getElementById("ownerHeader").textContent="Cloud setup needed";
-    alert(friendlyError(e));
-  }finally{authStarting=false}
-}
 async function initAuth(){
   try{
     if(!window.supabase)throw new Error("Supabase library did not load.");
     supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
     window.supabaseClient=supabaseClient;
     const {data,error}=await supabaseClient.auth.getSession();
-    if(error)throw error;
-    if(data?.session){currentUser=data.session.user;await startApp();return}
-    const {data:guest,error:guestError}=await supabaseClient.auth.signInAnonymously();
-    if(guestError)throw guestError;
-    currentUser=guest.user;
-    await startApp();
+    if(error)console.warn("Cloud session unavailable:",error.message);
+    currentUser=data?.session?.user||null;
+
+    // No login, OTP, password, phone, or anonymous authentication.
+    // Use a local browser shop identifier when no authenticated owner exists.
+    currentShopId=localStorage.getItem("dukaan_khata_shop_id");
+    if(!currentShopId){
+      currentShopId=crypto.randomUUID();
+      localStorage.setItem("dukaan_khata_shop_id",currentShopId);
+    }
+
+    const header=document.getElementById("ownerHeader");
+    if(header)header.textContent="Shop • No Login";
+
+    if(typeof initCloudApp==="function"){
+      try{
+        await initCloudApp(currentShopId,currentUser?.id||null);
+      }catch(e){
+        console.warn("Cloud data is unavailable in no-login mode:",e.message);
+        if(header)header.textContent="Shop • Local Mode";
+      }
+    }
   }catch(e){
     console.error(e);
-    alert(friendlyError(e));
+    const header=document.getElementById("ownerHeader");
+    if(header)header.textContent="Shop • Local Mode";
   }
 }
 window.addEventListener("DOMContentLoaded",initAuth);
