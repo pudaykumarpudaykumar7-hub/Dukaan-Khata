@@ -109,7 +109,7 @@ function addCustomerNumber(id){editCustomer(id)}
 
 function addItem(returnToSale=false){
   const target=JSON.stringify(returnToSale);
-  modal('<h2>Add Inventory Item</h2><input id="iname" placeholder="Item name"><div class="row"><input id="iprice" type="number" placeholder="Selling price"></div><div class="row"><input id="icost" type="number" placeholder="Cost price"><input id="iunit" placeholder="Unit (pcs/kg)"></div><button class="btn primary" onclick="saveItem('+target+')">Save Item</button>');
+  modal('<h2>Add Inventory Item</h2><input id="iname" placeholder="Item name"><div class="row"><input id="icost" type="number" placeholder="Item cost"></div><button class="btn primary" onclick="saveItem('+target+')">Save Item</button>');
 }
 function saveItem(returnToSale){
   const name=document.getElementById("iname")?.value.trim(),price=Number(document.getElementById("iprice")?.value)||0;
