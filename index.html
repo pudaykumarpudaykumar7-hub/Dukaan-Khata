@@ -8,61 +8,74 @@
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>\n<div id="authGate" class="authGate"><div class="authCard"><div class="authLogo">🏪</div><h1>Dukaan Khata</h1><p id="authSubtitle">Owner login</p><div id="setupOwner"><h2>Set up Owner</h2><p class="muted">Create your shop owner profile and a 4-digit PIN.</p><input id="ownerName" placeholder="Owner name"><input id="ownerPhone" type="tel" inputmode="numeric" placeholder="Mobile number"><input id="ownerPin" type="password" inputmode="numeric" maxlength="4" placeholder="Create 4-digit PIN"><input id="ownerPin2" type="password" inputmode="numeric" maxlength="4" placeholder="Confirm PIN"><button class="btn" onclick="createOwner()">Create Owner Account</button></div><div id="ownerLogin" class="hidden"><h2>Welcome back</h2><p id="welcomeOwner" class="muted"></p><input id="loginPin" type="password" inputmode="numeric" maxlength="4" placeholder="Enter 4-digit PIN"><button class="btn" onclick="loginOwner()">Login as Owner</button><button class="textBtn" onclick="resetOwner()">Reset owner on this device</button></div></div></div>\n<div id="appShell" class="appLocked">
+<body>
+<div id="authGate" class="authGate">
+  <div class="authCard">
+    <div class="authLogo">🏪</div>
+    <h1>Dukaan Khata</h1>
+    <p id="authSubtitle">Cloud Owner Account</p>
+    <div id="signupBox">
+      <h2>Create Owner Account</h2>
+      <input id="shopName" placeholder="Shop name">
+      <input id="ownerName" placeholder="Owner name">
+      <input id="ownerPhone" type="tel" placeholder="Mobile number">
+      <input id="ownerEmail" type="email" placeholder="Email address">
+      <input id="ownerPassword" type="password" placeholder="Password (min 6 characters)">
+      <button class="btn" onclick="createOwner()">Create Owner Account</button>
+      <button class="textBtn" onclick="showLogin()">Already have an account? Login</button>
+    </div>
+    <div id="loginBox" class="hidden">
+      <h2>Owner Login</h2>
+      <input id="loginEmail" type="email" placeholder="Email address">
+      <input id="loginPassword" type="password" placeholder="Password">
+      <button class="btn" onclick="loginOwner()">Login</button>
+      <button class="textBtn" onclick="showSignup()">Create a new owner account</button>
+    </div>
+    <p id="authMessage" class="authMessage"></p>
+  </div>
+</div>
+
+<div id="appShell" class="appLocked">
 <header>
   <div>
     <h1>🏪 Dukaan Khata</h1>
-    <small id="ownerHeader">Owner • Simple • Fast</small>
+    <small id="ownerHeader">Owner • Cloud</small>
   </div>
   <div class="headerActions"><button class="icon" onclick="toggleTheme()">☾</button><button class="icon" onclick="ownerMenu()">👤</button></div>
 </header>
-
 <main>
 <section id="home" class="page active">
   <div class="hero"><div><span>Total to receive</span><strong id="totalDue">₹0</strong></div><div class="heroIcon">₹</div></div>
-  <div class="stats">
-    <div><span>Customers</span><b id="customerCount">0</b></div>
-    <div><span>Today received</span><b id="todayPaid">₹0</b></div>
-  </div>
-  <div class="quick">
-    <button onclick="openSale()">＋ New Khata</button>
-    <button onclick="openPayment()">₹ Receive Payment</button>
-  </div>
+  <div class="stats"><div><span>Customers</span><b id="customerCount">0</b></div><div><span>Today received</span><b id="todayPaid">₹0</b></div></div>
+  <div class="quick"><button onclick="openSale()">＋ New Khata</button><button onclick="openPayment()">₹ Receive Payment</button></div>
   <div class="sectionTitle"><h2>Recent Khata</h2><button class="link" onclick="showPage('customers')">View all</button></div>
   <div id="recent"></div>
 </section>
-
 <section id="customers" class="page">
   <div class="topline"><h2>Customers</h2><button class="primary small" onclick="addCustomer()">＋ Add</button></div>
   <input class="search" id="customerSearch" placeholder="🔍 Search customer or phone" oninput="renderCustomers()">
   <div id="customerList"></div>
 </section>
-
 <section id="items" class="page">
   <div class="topline"><h2>Items</h2><button class="primary small" onclick="addItem()">＋ Add</button></div>
   <p class="muted">Save common items so sales are faster.</p>
   <div id="itemList"></div>
 </section>
-
 <section id="reports" class="page">
   <h2>Reports</h2>
-  <div class="reportGrid">
-    <div><span>Total credit</span><b id="rCredit">₹0</b></div>
-    <div><span>Total received</span><b id="rPaid">₹0</b></div>
-    <div><span>Transactions</span><b id="rTx">0</b></div>
-  </div>
-  <div class="card"><h3>How Dukaan Khata works</h3><p>1. Add customers and common items.<br>2. Create a Khata with items, quantity and price.<br>3. Record partial/full payments.<br>4. Share the customer's balance from their Khata.</p></div>
+  <div class="reportGrid"><div><span>Total credit</span><b id="rCredit">₹0</b></div><div><span>Total received</span><b id="rPaid">₹0</b></div><div><span>Transactions</span><b id="rTx">0</b></div></div>
+  <div class="card"><h3>Cloud Dukaan Khata</h3><p>Your customers, items, Khata and payments are stored in your Supabase cloud database and linked to your owner account.</p></div>
 </section>
 </main>
-
 <nav>
 <button onclick="showPage('home')" data-page="home">⌂<span>Home</span></button>
 <button onclick="showPage('customers')" data-page="customers">👥<span>Customers</span></button>
 <button onclick="showPage('items')" data-page="items">📦<span>Items</span></button>
 <button onclick="showPage('reports')" data-page="reports">📊<span>Reports</span></button>
 </nav>
-
 <div id="modal" class="modal hidden"><div class="sheet"><button class="close" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
-<script src="app.js"></script>\n<script src="auth.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script src="auth.js"></script>
 </body>
 </html>
