@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>Dukaan Khata</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div>
+    <h1>🏪 Dukaan Khata</h1>
+    <small>Simple • Fast • Local</small>
+  </div>
+  <button class="icon" onclick="toggleTheme()">☾</button>
+</header>
+
+<main>
+<section id="home" class="page active">
+  <div class="hero"><div><span>Total to receive</span><strong id="totalDue">₹0</strong></div><div class="heroIcon">₹</div></div>
+  <div class="stats">
+    <div><span>Customers</span><b id="customerCount">0</b></div>
+    <div><span>Today received</span><b id="todayPaid">₹0</b></div>
+  </div>
+  <div class="quick">
+    <button onclick="openSale()">＋ New Khata</button>
+    <button onclick="openPayment()">₹ Receive Payment</button>
+  </div>
+  <div class="sectionTitle"><h2>Recent Khata</h2><button class="link" onclick="showPage('customers')">View all</button></div>
+  <div id="recent"></div>
+</section>
+
+<section id="customers" class="page">
+  <div class="topline"><h2>Customers</h2><button class="primary small" onclick="addCustomer()">＋ Add</button></div>
+  <input class="search" id="customerSearch" placeholder="🔍 Search customer or phone" oninput="renderCustomers()">
+  <div id="customerList"></div>
+</section>
+
+<section id="items" class="page">
+  <div class="topline"><h2>Items</h2><button class="primary small" onclick="addItem()">＋ Add</button></div>
+  <p class="muted">Save common items so sales are faster.</p>
+  <div id="itemList"></div>
+</section>
+
+<section id="reports" class="page">
+  <h2>Reports</h2>
+  <div class="reportGrid">
+    <div><span>Total credit</span><b id="rCredit">₹0</b></div>
+    <div><span>Total received</span><b id="rPaid">₹0</b></div>
+    <div><span>Transactions</span><b id="rTx">0</b></div>
+  </div>
+  <div class="card"><h3>How Dukaan Khata works</h3><p>1. Add customers and common items.<br>2. Create a Khata with items, quantity and price.<br>3. Record partial/full payments.<br>4. Share the customer's balance from their Khata.</p></div>
+</section>
+</main>
+
+<nav>
+<button onclick="showPage('home')" data-page="home">⌂<span>Home</span></button>
+<button onclick="showPage('customers')" data-page="customers">👥<span>Customers</span></button>
+<button onclick="showPage('items')" data-page="items">📦<span>Items</span></button>
+<button onclick="showPage('reports')" data-page="reports">📊<span>Reports</span></button>
+</nav>
+
+<div id="modal" class="modal hidden"><div class="sheet"><button class="close" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
+<script src="app.js"></script>
+</body>
+</html>
