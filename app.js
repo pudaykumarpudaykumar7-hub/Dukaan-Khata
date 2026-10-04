@@ -1,5 +1,5 @@
 const KEY="dukaan_khata_infinity_v1";
-let state=loadState(),khataFilter="all";
+let state=loadState(),khataFilter="all",pendingManyCustomerId=null;
 
 function loadState(){
   try{const x=JSON.parse(localStorage.getItem(KEY));if(x)return x}catch(e){}
@@ -20,8 +20,8 @@ function balance(id){return state.tx.filter(t=>t.customerId===id).reduce((s,t)=>
 function sales(){return state.tx.filter(t=>t.type==="sale")}
 function payments(){return state.tx.filter(t=>t.type==="payment")}
 function openManyItems(customerId){
-  if(!state.customers.length)return addCustomer(false);
-  if(!state.items.length)return addItem(false);
+  if(!state.customers.length){pendingManyCustomerId=null;return addCustomer("many");}
+  if(!state.items.length){pendingManyCustomerId=customerId||null;return addItem("many");}
   if(!customerId){
     const opts=state.customers.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' • '+money(balance(x.id))+'</option>').join("");
     modal('<h2>＋ Add Many Items</h2><p class="muted">Choose the customer, then add as many different items as you need.</p><select id="manyItemsCustomer">'+opts+'</select><button class="btn primary" onclick="openCustomerKhataItems(document.getElementById(\'manyItemsCustomer\').value)">Continue → Add Items</button>');
@@ -40,11 +40,15 @@ function sharePaymentLink(){const link=upiLink();if(!link)return toast("Add UPI 
 function openPayment(customerId){openReceive(customerId);setTimeout(()=>{document.querySelector('.receive-tabs button:nth-child(2)')?.click()},60)}
 function savePayment(){const amount=Number(document.getElementById("payAmount").value)||0;if(amount<=0)return toast("Enter a valid amount");state.tx.unshift({id:uid(),type:"payment",customerId:document.getElementById("payCustomer").value,amount,mode:document.getElementById("payMode").value,date:new Date().toISOString()});saveState();closeModal();toast("Payment recorded");render()}
 function addCustomer(returnToSale=false){modal('<h2>New Customer</h2><input id="cname" placeholder="Customer name"><input id="cphone" inputmode="tel" placeholder="WhatsApp / mobile number"><textarea id="caddress" placeholder="Address (optional)"></textarea><button class="btn primary" onclick="saveCustomer('+returnToSale+')">Save Customer</button>')}
-function saveCustomer(returnToSale){const name=document.getElementById("cname").value.trim();if(!name)return toast("Enter customer name");const c={id:uid(),name,phone:document.getElementById("cphone").value.trim(),address:document.getElementById("caddress").value.trim(),created:new Date().toISOString()};state.customers.unshift(c);saveState();closeModal();toast("Customer added");render();if(returnToSale)openSale(c.id);else if(!c.phone)editCustomer(c.id)}
+function saveCustomer(returnToSale){const name=document.getElementById("cname").value.trim();if(!name)return toast("Enter customer name");const c={id:uid(),name,phone:document.getElementById("cphone").value.trim(),address:document.getElementById("caddress").value.trim(),created:new Date().toISOString()};state.customers.unshift(c);saveState();closeModal();toast("Customer added");render();
+  if(returnToSale==="many"){pendingManyCustomerId=c.id;return openManyItems(c.id)}
+  if(returnToSale)openSale(c.id);else if(!c.phone)editCustomer(c.id)}
 function editCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c)return;modal('<h2>Edit Customer</h2><input id="editCName" value="'+esc(c.name)+'" placeholder="Customer name"><input id="editCPhone" inputmode="tel" value="'+esc(c.phone||"")+'" placeholder="WhatsApp / mobile number"><textarea id="editCAddress" placeholder="Address (optional)">'+esc(c.address||"")+'</textarea><button class="btn primary" data-customer-id="'+esc(id)+'" onclick="saveCustomerEdit(this.dataset.customerId)">Save Customer</button>')}
 function saveCustomerEdit(id){const c=state.customers.find(x=>x.id===id);if(!c)return;const name=document.getElementById("editCName").value.trim();if(!name)return toast("Enter customer name");c.name=name;c.phone=document.getElementById("editCPhone").value.trim();c.address=document.getElementById("editCAddress").value.trim();saveState();closeModal();toast("Customer updated");render()}
 function addItem(returnToSale=false){modal('<h2>Add Inventory Item</h2><input id="iname" placeholder="Item name"><div class="row"><input id="iprice" type="number" placeholder="Selling price"><input id="istock" type="number" placeholder="Opening stock"></div><div class="row"><input id="icost" type="number" placeholder="Cost price"><input id="iunit" placeholder="Unit (pcs/kg)"></div><input id="imin" type="number" placeholder="Low-stock alert level"><button class="btn primary" onclick="saveItem('+returnToSale+')">Save Item</button>')}
-function saveItem(returnToSale){const name=document.getElementById("iname").value.trim(),price=Number(document.getElementById("iprice").value)||0;if(!name)return toast("Enter item name");state.items.unshift({id:uid(),name,price,stock:Number(document.getElementById("istock").value)||0,cost:Number(document.getElementById("icost").value)||0,unit:document.getElementById("iunit").value.trim()||"pcs",min:Number(document.getElementById("imin").value)||5});saveState();closeModal();toast("Inventory item added");render();if(returnToSale)openSale()}
+function saveItem(returnToSale){const name=document.getElementById("iname").value.trim(),price=Number(document.getElementById("iprice").value)||0;if(!name)return toast("Enter item name");state.items.unshift({id:uid(),name,price,stock:Number(document.getElementById("istock").value)||0,cost:Number(document.getElementById("icost").value)||0,unit:document.getElementById("iunit").value.trim()||"pcs",min:Number(document.getElementById("imin").value)||5});saveState();closeModal();toast("Inventory item added");render();
+  if(returnToSale==="many")return openManyItems(pendingManyCustomerId||undefined);
+  if(returnToSale)openSale()}
 function openCustomerKhataItems(customerId){
   const c=state.customers.find(x=>x.id===customerId);
   if(!c)return;
