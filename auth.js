@@ -131,86 +131,58 @@ supabaseClient.auth.onAuthStateChange(async (_event,session)=>{
     }
   }else showLogin();
 })();
-function normalizeEmail(v){ return (v||"").trim().toLowerCase(); }
+
 function showLogin(){
   el("signupBox").classList.add("hidden");
   el("loginBox").classList.remove("hidden");
-  el("authSubtitle").textContent="Owner • Email OTP";
+  el("authSubtitle").textContent="Owner • Email + Password";
   authMsg("");
 }
 function showSignup(){
   el("loginBox").classList.add("hidden");
   el("signupBox").classList.remove("hidden");
-  el("authSubtitle").textContent="Owner • Email OTP";
+  el("authSubtitle").textContent="Owner • Email + Password";
   authMsg("");
 }
-async function sendOwnerOTP(){
-  try {
-  const shop=el("shopName").value.trim();
-  const name=el("ownerName").value.trim();
-  const email=normalizeEmail(el("ownerEmail")?.value);
-  const phone=(el("ownerPhone").value||"").trim();
-  if(!shop||!name||!email){authMsg("Enter shop name, owner name and email address.",true);return}
-  if(!/^\S+@\S+\.\S+$/.test(email)){authMsg("Enter a valid email address.",true);return}
-  authMsg("Sending OTP to your email...");
-  const {data,error}=await supabaseClient.auth.signInWithOtp({
-    email,
-    options:{data:{owner_name:name,phone,shop_name:shop},shouldCreateUser:true}
-  });
+async function createOwnerAccount(){
+  const shop=el("shopName").value.trim(),name=el("ownerName").value.trim(),phone=el("ownerPhone").value.trim();
+  const email=el("ownerEmail").value.trim().toLowerCase(),password=el("ownerPassword").value;
+  if(!shop||!name||!email||!password){authMsg("Please fill shop name, owner name, email and password.",true);return}
+  if(password.length<6){authMsg("Password must be at least 6 characters.",true);return}
+  authMsg("Creating owner account...");
+  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{owner_name:name,phone,shop_name:shop}}});
   if(error){authMsg(friendlyAuthError(error),true);return}
-  el("loginEmail").value=email;
-  el("otpBox").classList.remove("hidden");
-  showLogin();
-  el("loginEmail").value=email;
-  el("otpBox").classList.remove("hidden");
-  authMsg("OTP sent. Check your email inbox and Spam folder.");
-  } catch(e) { console.error(e); authMsg("OTP button error: "+(e?.message||e),true); }
+  currentUser=data.user;
+  if(!data.session){
+    authMsg("Account created. Please check your email and confirm it, then login with your password.");
+    el("loginEmail").value=email; showLogin(); return;
+  }
+  try{
+    await createShopForUser();
+    await startApp();
+  }catch(e){authMsg("Account created, but shop setup failed: "+friendlyAuthError(e),true)}
 }
-async function sendLoginOTP(){
-  try {
-  const email=normalizeEmail(el("loginEmail").value);
-  if(!/^\S+@\S+\.\S+$/.test(email)){authMsg("Enter a valid email address.",true);return}
-  authMsg("Sending OTP to your email...");
-  const {error}=await supabaseClient.auth.signInWithOtp({email});
-  if(error){authMsg(friendlyAuthError(error),true);return}
-  el("otpBox").classList.remove("hidden");
-  authMsg("OTP sent. Check your email inbox and Spam folder.");
-  } catch(e) { console.error(e); authMsg("OTP button error: "+(e?.message||e),true); }
-}
-async function verifyOwnerOTP(){
-  try {
-  const email=normalizeEmail(el("loginEmail").value);
-  const token=el("otpCode").value.trim();
-  if(!/^\S+@\S+\.\S+$/.test(email)||!/^\d{6}$/.test(token)){authMsg("Enter the 6-digit OTP from your email.",true);return}
-  authMsg("Verifying OTP...");
-  const {data,error}=await supabaseClient.auth.verifyOtp({email,token,type:"email"});
+async function loginOwnerAccount(){
+  const email=el("loginEmail").value.trim().toLowerCase(),password=el("loginPassword").value;
+  if(!email||!password){authMsg("Enter your email and password.",true);return}
+  authMsg("Logging in...");
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
   if(error){authMsg(friendlyAuthError(error),true);return}
   currentUser=data.user;
   try{
     let member=await getMyShop();
-    if(!member){
-      authMsg("Creating your shop...");
-      await createShopForUser();
-      member=await getMyShop();
-    }
+    if(!member){await createShopForUser();member=await getMyShop();}
     if(!member)throw new Error("Shop could not be linked to this account.");
     await startApp();
-  }catch(e){
-    console.error(e);
-    authMsg("OTP verified, but shop setup failed: "+friendlyAuthError(e),true);
-  }
-  } catch(e) { console.error(e); authMsg("Verify button error: "+(e?.message||e),true); }
+  }catch(e){authMsg("Login succeeded, but shop setup failed: "+friendlyAuthError(e),true)}
 }
-window.sendOwnerOTP=sendOwnerOTP;
-window.sendLoginOTP=sendLoginOTP;
-window.verifyOwnerOTP=verifyOwnerOTP;
+window.createOwnerAccount=createOwnerAccount;
+window.loginOwnerAccount=loginOwnerAccount;
 window.showLogin=showLogin;
 window.showSignup=showSignup;
 window.ownerMenu=ownerMenu;
 window.logoutOwner=logoutOwner;
 window.addEventListener("DOMContentLoaded",()=>{
-  const b1=el("sendOwnerOTPBtn"),b2=el("sendLoginOTPBtn"),b3=el("verifyOwnerOTPBtn");
-  if(b1)b1.addEventListener("click",sendOwnerOTP);
-  if(b2)b2.addEventListener("click",sendLoginOTP);
-  if(b3)b3.addEventListener("click",verifyOwnerOTP);
+  el("createOwnerBtn")?.addEventListener("click",createOwnerAccount);
+  el("loginOwnerBtn")?.addEventListener("click",loginOwnerAccount);
 });
