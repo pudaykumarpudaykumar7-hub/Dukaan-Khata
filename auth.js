@@ -1,0 +1,11 @@
+const OWNER_KEY="dukaanOwnerV1",SESSION_KEY="dukaanOwnerSessionV1";
+function owner(){try{return JSON.parse(localStorage.getItem(OWNER_KEY)||"null")}catch{return null}}
+function authInit(){const o=owner();if(o){setupOwner.classList.add("hidden");ownerLogin.classList.remove("hidden");authSubtitle.textContent="Owner login";welcomeOwner.textContent="Login as "+o.name;ownerHeader.textContent="Owner • "+o.name}else{setupOwner.classList.remove("hidden");ownerLogin.classList.add("hidden");authSubtitle.textContent="First-time owner setup"}if(sessionStorage.getItem(SESSION_KEY)==="1")unlockApp();else lockApp()}
+function createOwner(){const name=ownerName.value.trim(),phone=ownerPhone.value.trim(),pin=ownerPin.value.trim(),pin2=ownerPin2.value.trim();if(!name)return alert("Enter owner name");if(!/^\d{4}$/.test(pin))return alert("PIN must be exactly 4 digits");if(pin!==pin2)return alert("PINs do not match");localStorage.setItem(OWNER_KEY,JSON.stringify({name,phone,pin}));sessionStorage.setItem(SESSION_KEY,"1");ownerHeader.textContent="Owner • "+name;unlockApp()}
+function loginOwner(){const o=owner(),pin=loginPin.value.trim();if(!o)return authInit();if(pin!==o.pin)return alert("Incorrect PIN");sessionStorage.setItem(SESSION_KEY,"1");ownerHeader.textContent="Owner • "+o.name;unlockApp()}
+function unlockApp(){authGate.classList.add("hidden");appShell.classList.remove("appLocked")}
+function lockApp(){authGate.classList.remove("hidden");appShell.classList.add("appLocked")}
+function ownerMenu(){const o=owner();modal(`<h2>Owner Account</h2><p><b>${esc(o?.name||"Owner")}</b></p><p>${esc(o?.phone||"")}</p><button class="btn" onclick="logoutOwner()">🔒 Logout</button>`)}
+function logoutOwner(){closeModal();sessionStorage.removeItem(SESSION_KEY);loginPin.value="";lockApp();authInit()}
+function resetOwner(){if(confirm("Reset the owner account on this device? Your Khata data will not be deleted.")){localStorage.removeItem(OWNER_KEY);sessionStorage.removeItem(SESSION_KEY);location.reload()}}
+authInit();
