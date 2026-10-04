@@ -27,3 +27,16 @@
 .top-menu button:hover{background:#ffffff16;color:#fff}
 @media(max-width:720px){.top-menu{display:none}}
 @media(min-width:721px){.topbar{padding-left:max(18px,calc((100vw - 1180px)/2));padding-right:max(18px,calc((100vw - 1180px)/2))}main{max-width:1180px}.bottom-nav{width:min(1180px,100%)}}
+
+/* Bills screen fit */
+#bills{width:100%;max-width:100%;overflow:hidden}
+#bills .page-title{gap:10px;flex-wrap:nowrap}
+#bills .page-title>div{min-width:0}
+#bills .page-title h2{white-space:nowrap}
+#bills .page-title .small{flex:0 0 auto;white-space:nowrap}
+#bills .bill-tools{width:100%;max-width:100%;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+#bills .bill-tools::-webkit-scrollbar{display:none}
+#bills .bill{width:100%;min-width:0}
+#bills .bill>div{min-width:0;overflow:hidden}
+#bills .bill h3,#bills .bill small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:480px){#bills .page-title h2{font-size:22px}#bills .page-title .small{padding:9px 10px!important;font-size:11px}#bills .bill{padding:12px}#bills .bill b{flex:0 0 auto} }
