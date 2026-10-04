@@ -20,18 +20,18 @@
       <input id="ownerName" placeholder="Owner name">
       <input id="ownerPhone" type="tel" placeholder="Mobile number (optional)">
       <input id="ownerEmail" type="email" placeholder="Email address">
-      <button class="btn" onclick="sendOwnerOTP()">📧 Send Email OTP</button>
-      <button class="textBtn" onclick="showLogin()">Already registered? Login with Email OTP</button>
+      <button type="button" id="sendOwnerOTPBtn" class="btn">📧 Send Email OTP</button>
+      <button type="button" class="textBtn" onclick="showLogin()">Already registered? Login with Email OTP</button>
     </div>
     <div id="loginBox" class="hidden">
       <h2>Owner Login</h2>
       <input id="loginEmail" type="email" placeholder="Email address">
-      <button class="btn" onclick="sendLoginOTP()">📧 Send Email OTP</button>
+      <button type="button" id="sendLoginOTPBtn" class="btn">📧 Send Email OTP</button>
       <div id="otpBox" class="hidden">
         <input id="otpCode" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit OTP">
-        <button class="btn" onclick="verifyOwnerOTP()">✅ Verify OTP</button>
+        <button type="button" id="verifyOwnerOTPBtn" class="btn">✅ Verify OTP</button>
       </div>
-      <button class="textBtn" onclick="showSignup()">Create a new owner account</button>
+      <button type="button" class="textBtn" onclick="showSignup()">Create a new owner account</button>
     </div>
     <p id="authMessage" class="authMessage"></p>
   </div>
