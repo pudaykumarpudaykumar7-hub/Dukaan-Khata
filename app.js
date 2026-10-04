@@ -50,7 +50,11 @@ function showManyItemsForm(customerId){
 }
 function addManyRow(){
   const box=document.getElementById("manyRows");if(!box)return;
-  box.insertAdjacentHTML("beforeend",'<div class="row many-row" style="margin:8px 0"><select class="many-item" onchange="recalcManyItems()">'+(window.__manyOptions||"")+'</select><input class="many-qty" type="number" min="1" value="1" oninput="recalcManyItems()"><button class="btn small" type="button" onclick="this.closest(\'.many-row\').remove();recalcManyItems()">✕</button></div>');
+  const used=[...box.querySelectorAll(".many-item")].map(x=>x.value);
+  const available=state.items.filter(i=>!used.includes(i.id));
+  const source=available.length?available:state.items;
+  const opts=source.map(i=>'<option value="'+esc(i.id)+'">'+esc(i.name)+' — '+money(i.price)+'</option>').join("");
+  box.insertAdjacentHTML("beforeend",'<div class="row many-row" style="margin:8px 0"><select class="many-item" onchange="recalcManyItems()"><option value="">Select item</option>'+opts+'</select><input class="many-qty" type="number" min="1" value="1" oninput="recalcManyItems()"><button class="btn small" type="button" onclick="this.closest(\'.many-row\').remove();recalcManyItems()">✕</button></div>');
   recalcManyItems();
 }
 function recalcManyItems(){
