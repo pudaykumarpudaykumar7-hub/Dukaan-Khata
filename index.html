@@ -30,7 +30,7 @@
     <button class="quick primary" onclick="openManyItems()">＋<span>Add Many Items</span><small>Many Items / Khata</small></button>
     <button class="quick blue" onclick="openReceive()">⌁<span>Receive</span><small>QR • UPI • Cash</small></button>
     <button class="quick orange" onclick="addCustomer()">♙<span>Customer</span><small>Add new</small></button>
-    <button class="quick purple" onclick="addItem()">▦<span>Inventory</span><small>Add item</small></button><button class="quick gold" onclick="openCustomerHub()">◉<span>Customer Hub</span><small>Chat • Call • Remind</small></button>
+    <button class="quick purple" onclick="addItem()">＋<span>Add Item</span><small>Name • Cost</small></button><button class="quick gold" onclick="openCustomerHub()">◉<span>Customer Hub</span><small>Chat • Call • Remind</small></button>
   </div>
   <div class="section-head"><h3>Needs attention</h3></div>
   <div id="attention"></div>
@@ -52,9 +52,9 @@
   <div id="customerList"></div>
 </section>
 
-<section id="inventory" class="page">
+<section id="inventory" class="page" style="display:none">
   <div class="page-title"><div><span class="eyebrow">STOCK</span><h2>Inventory</h2></div><button class="primary small" onclick="addItem()">＋ Item</button></div>
-  <div><span>Stock value</span><b id="stockValue">₹0</b></div><div><span>Low stock</span><b id="inventoryLow">0</b></div></div>
+  </div>
   <input class="search" id="itemSearch" placeholder="⌕ Search item..." oninput="renderItems()">
   <div id="itemList"></div>
 </section>
@@ -97,7 +97,7 @@
 </nav>
 <div id="toast" class="toast"></div>
 <div id="modal" class="modal hidden"><div class="sheet"><button class="close" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script><script src="app.js?v=20261005-16" defer></script><script src="i18n.js?v=20261005-10" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script><script src="app.js?v=20261005-17" defer></script><script src="i18n.js?v=20261005-10" defer></script>
 <script src="auth.js?v=20261005-10" defer></script>
 </div>
 </body>
