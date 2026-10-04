@@ -16,7 +16,6 @@
   <nav class="top-menu" aria-label="Main navigation">
     <button onclick="showPage('home')">Home</button>
     <button onclick="showPage('khata')">Khata</button>
-    <button onclick="showPage('inventory')">Stock</button>
     <button onclick="showPage('bills')">Bills</button>
     <button onclick="showPage('tools')">More</button>
   </nav>
@@ -57,12 +56,6 @@
   <div class="mini-stats"><span><b id="customerDueCount">0</b> with due</span><span><b id="customerPaidCount">0</b> clear</span></div>
   <input class="search" id="customerSearch" placeholder="⌕ Name or phone..." oninput="renderCustomers()">
   <div id="customerList"></div>
-</section>
-
-<section id="inventory" class="page">
-  <div class="page-title"><div><span class="eyebrow">STOCK</span><h2>Stock</h2></div><button class="primary small" onclick="addItem()">＋ Item</button></div>
-  <input class="search" id="itemSearch" placeholder="⌕ Search item..." oninput="renderItems()">
-  <div id="itemList"></div>
 </section>
 
 <section id="bills" class="page">
