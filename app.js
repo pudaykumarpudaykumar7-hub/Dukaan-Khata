@@ -100,9 +100,9 @@ function customerView(id){
   const history=tx.map(t=>{
     if(t.type==="sale"){
       const itemText=(t.lines||[]).map(l=>esc(l.name)+" × "+l.qty).join(" • ")||"Sale";
-      return '<div class="card" style="margin:8px 0"><div class="line"><span>🧾 <b>Sale</b><small> • '+new Date(t.date).toLocaleDateString("en-IN")+'</small></span><b>'+money(t.total)+'</b></div><div style="color:var(--muted);font-size:13px;margin-top:6px">'+itemText+'</div></div>';
+      return '<div class="card" style="margin:8px 0" data-long-delete data-delete-type="sale" data-delete-id="'+esc(t.id)+'" title="Long-press to delete"><div class="line"><span>🧾 <b>Sale</b><small> • '+new Date(t.date).toLocaleDateString("en-IN")+'</small></span><b>'+money(t.total)+'</b></div><div style="color:var(--muted);font-size:13px;margin-top:6px">'+itemText+'</div></div>';
     }
-    return '<div class="line"><span>💰 Payment<small> • '+new Date(t.date).toLocaleDateString("en-IN")+' • '+esc(t.mode||"")+'</small></span><b>'+money(t.amount)+'</b></div>';
+    return '<div class="line" data-long-delete data-delete-type="payment" data-delete-id="'+esc(t.id)+'" title="Long-press to delete"><span>💰 Payment<small> • '+new Date(t.date).toLocaleDateString("en-IN")+' • '+esc(t.mode||"")+'</small></span><b>'+money(t.amount)+'</b></div>';
   }).join("");
   modal('<h2>'+esc(c.name)+'</h2><p>'+esc(c.phone||"No phone added")+'</p><div class="'+(b>0?"due":"paid")+'" style="font-size:28px;margin:10px 0">'+money(b)+' <small style="font-size:12px">'+(b>0?"due":"clear")+'</small></div><button class="btn primary" onclick="openCustomerKhataItems(''+id+'')">＋ Add Many Items to This Khata</button><h3 style="margin-top:16px">Items in '+esc(c.name)+"'s Khata</h3>"+(itemRows||'<p class="muted">No items added yet.</p>')+'<div class="row"><button class="btn" onclick="editCustomer(''+id+'')">✎ Edit / Add Number</button><button class="btn" onclick="closeModal();openReceive(''+id+'')">⌁ Receive</button></div><div class="row"><button class="btn" onclick="shareCustomer(''+id+'')">💬 WhatsApp</button><button class="btn" onclick="callCustomer(''+id+'')">☎ Call</button></div><div class="row"><button class="btn" onclick="remindCustomer(''+id+'')">🔔 Send Reminder</button></div><h3>Khata History</h3>'+ (history||'<p class="muted">No transactions yet.</p>'));
 }
@@ -127,6 +127,7 @@ function deleteRecord(type,id){
   if(type==="customer")return deleteCustomer(id);
   if(type==="item")return deleteItem(id);
   if(type==="sale")return deleteSale(id);
+  if(type==="payment")return deletePayment(id);
 }
 function deleteSale(id){
   const t=state.tx.find(x=>x.id===id&&x.type==="sale");
@@ -137,6 +138,13 @@ function deleteSale(id){
   saveState();render();toast("Sale deleted");
 }
 let longPressState=null;
+function deletePayment(id){
+  const t=state.tx.find(x=>x.id===id&&x.type==="payment");
+  if(!t)return;
+  if(!confirm("Delete this payment record of "+money(t.amount)+"?"))return;
+  state.tx=state.tx.filter(x=>x.id!==id);
+  saveState();render();toast("Payment deleted");
+}
 function setupLongPressDelete(){
   document.addEventListener("pointerdown",e=>{
     const el=e.target.closest?.("[data-long-delete]");
