@@ -1,209 +1,206 @@
 const KEY="dukaan_khata_infinity_v1";
-let state=loadState(),khataFilter="all",pendingManyCustomerId=null;
+let state=loadState(), khataFilter="all", pendingManyCustomerId=null;
 
 function loadState(){
-  try{const x=JSON.parse(localStorage.getItem(KEY));if(x)return x}catch(e){}
+  try{
+    const x=JSON.parse(localStorage.getItem(KEY));
+    if(x) return x;
+  }catch(e){}
   return {shop:{name:"My Dukaan",owner:"Shop Owner",phone:"",upi:"",address:""},customers:[],items:[],tx:[],expenses:[],returns:[],reminders:[],settings:{theme:"light",language:"English"}};
 }
 function saveState(){localStorage.setItem(KEY,JSON.stringify(state))}
-function uid(){return crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random()}
-const money=n=>"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2});
-const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-const today=()=>new Date().toDateString();
-function toast(msg){const t=document.getElementById("toast");if(!t)return;t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2300)}
-function showPage(id){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(id)?.classList.add("active");document.querySelectorAll(".bottom-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));render()}
-function modal(body){document.getElementById("modalBody").innerHTML=body;document.getElementById("modal").classList.remove("hidden")}
-function closeModal(){document.getElementById("modal").classList.add("hidden")}
-function openSearch(){modal('<h2>Infinity Search</h2><input id="globalSearch" autofocus placeholder="Customer, item, bill, phone..." oninput="globalResults()"><div id="globalResults"></div>');globalResults()}
-function globalResults(){const q=(document.getElementById("globalSearch")?.value||"").toLowerCase();const c=state.customers.filter(x=>(x.name+" "+x.phone).toLowerCase().includes(q)).slice(0,7);const i=state.items.filter(x=>x.name.toLowerCase().includes(q)).slice(0,7);document.getElementById("globalResults").innerHTML=[...c.map(x=>'<div class="customer" onclick="closeModal();customerView(\''+x.id+'\')"><div><b>'+esc(x.name)+'</b><small>Customer • '+esc(x.phone||"")+'</small></div><b>'+money(balance(x.id))+'</b></div>'),...i.map(x=>'<div class="item"><div><b>'+esc(x.name)+'</b><small>Inventory</small></div><b>'+money(x.price)+'</b></div>')].join("")||'<p style="color:var(--muted)">No matches.</p>'}
-function balance(id){return state.tx.filter(t=>t.customerId===id).reduce((s,t)=>s+(t.type==="sale"?t.total:-t.amount),0)}
+function uid(){return (crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now()+"-"+Math.random().toString(16).slice(2)}
+function money(n){return "₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2})}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function balance(id){return state.tx.filter(t=>t.customerId===id).reduce((s,t)=>s+(t.type==="sale"?Number(t.total)||0:-(Number(t.amount)||0)),0)}
 function sales(){return state.tx.filter(t=>t.type==="sale")}
 function payments(){return state.tx.filter(t=>t.type==="payment")}
+function toast(msg){const t=document.getElementById("toast");if(!t)return;t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
+function modal(html){const m=document.getElementById("modal"),b=document.getElementById("modalBody");if(!m||!b)return;b.innerHTML=html;m.classList.remove("hidden")}
+function closeModal(){document.getElementById("modal")?.classList.add("hidden")}
+function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById(id)?.classList.add("active");document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));render()}
+function openSearch(){modal('<h2>Search</h2><input id="globalSearch" autofocus placeholder="Customer, item, phone..." oninput="globalResults()"><div id="globalResults"></div>');globalResults()}
+function globalResults(){
+  const box=document.getElementById("globalResults");if(!box)return;
+  const q=(document.getElementById("globalSearch")?.value||"").toLowerCase();
+  const c=state.customers.filter(x=>(x.name+" "+x.phone).toLowerCase().includes(q)).slice(0,8);
+  const i=state.items.filter(x=>x.name.toLowerCase().includes(q)).slice(0,8);
+  box.innerHTML=c.map(x=>'<div class="customer" onclick="closeModal();customerView(\''+esc(x.id)+'\')"><div><b>'+esc(x.name)+'</b><small>Customer • '+esc(x.phone||"")+'</small></div><b>'+money(balance(x.id))+'</b></div>').join("")+
+    i.map(x=>'<div class="item"><div><b>'+esc(x.name)+'</b><small>Inventory</small></div><b>'+money(x.price)+'</b></div>').join("")||
+    '<p class="muted">No matches.</p>';
+}
+
 function openManyItems(customerId){
-  if(!state.customers.length){pendingManyCustomerId=null;return addCustomer("many");}
-  if(!state.items.length){pendingManyCustomerId=customerId||null;return addItem("many");}
+  if(!state.customers.length){pendingManyCustomerId=null;return addCustomer("many")}
+  if(!state.items.length){pendingManyCustomerId=customerId||null;return addItem("many")}
   if(!customerId){
-    const opts=state.customers.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' • '+money(balance(x.id))+'</option>').join("");
-    modal('<h2>＋ Add Many Items</h2><p class="muted">Choose the customer, then add as many different items as you need.</p><select id="manyItemsCustomer">'+opts+'</select><button class="btn primary" onclick="openCustomerKhataItems(document.getElementById(\'manyItemsCustomer\').value)">Continue → Add Items</button>');
+    const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+' • '+money(balance(c.id))+'</option>').join("");
+    modal('<h2>＋ Add Many Items</h2><p class="muted">Choose the customer.</p><select id="manyCustomer">'+opts+'</select><button class="btn primary" onclick="continueManyItems()">Continue</button>');
     return;
   }
-  openCustomerKhataItems(customerId);
+  showManyItemsForm(customerId);
 }
-function openSale(customerId){ openManyItems(customerId); }
-
-function openReceive(customerId){const opts=state.customers.length?state.customers.map(c=>'<option value="'+c.id+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join(""):'<option value="">Walk-in / No customer</option>';modal('<h2>Smart Receive</h2><div class="receive-tabs"><button class="active" onclick="switchReceiveTab(\'qr\',this)">UPI QR</button><button onclick="switchReceiveTab(\'record\',this)">Record payment</button></div><div id="receiveQR"><p class="muted">Show this QR to receive money directly to your UPI ID.</p><input id="qrAmount" type="number" min="1" placeholder="Amount (optional)" oninput="refreshQR()"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add your UPI ID in Shop Profile")+'</b></div><div class="row"><button class="btn primary" onclick="sharePaymentLink()">↗ Share</button><button class="btn" onclick="copyUPILink()">Copy UPI link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer">'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" onclick="savePayment()">Save Payment</button></div>');setTimeout(refreshQR,50)}
-function switchReceiveTab(tab,el){document.querySelectorAll(".receive-tabs button").forEach(x=>x.classList.remove("active"));el.classList.add("active");document.getElementById("receiveQR").classList.toggle("hidden",tab!=="qr");document.getElementById("receiveRecord").classList.toggle("hidden",tab!=="record");if(tab==="qr")refreshQR()}
-function upiLink(){const id=(state.shop.upi||"").trim();if(!id)return"";const amt=Number(document.getElementById("qrAmount")?.value||0);return"upi://pay?pa="+encodeURIComponent(id)+"&pn="+encodeURIComponent(state.shop.name||"Dukaan Khata")+(amt>0?"&am="+amt:"")+"&cu=INR"}
-function refreshQR(){const box=document.getElementById("qrBox"),caption=document.getElementById("qrCaption");if(!box)return;box.innerHTML="";const link=upiLink();if(!link){box.innerHTML='<div class="qr-empty">Add UPI ID in Shop Profile</div>';if(caption)caption.textContent="No UPI ID configured";return}if(window.QRCode)new QRCode(box,{text:link,width:190,height:190,correctLevel:QRCode.CorrectLevel.M});if(caption)caption.textContent=state.shop.upi}
-function copyUPILink(){const link=upiLink();if(!link)return toast("Add UPI ID first");navigator.clipboard?.writeText(link).then(()=>toast("UPI payment link copied")).catch(()=>toast(link))}
-function sharePaymentLink(){const link=upiLink();if(!link)return toast("Add UPI ID first");const text="Pay "+(document.getElementById("qrAmount")?.value?money(document.getElementById("qrAmount").value):"securely")+" to "+state.shop.name+"\n"+link;if(navigator.share)navigator.share({title:"Pay "+state.shop.name,text});else window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank")}
-function openPayment(customerId){openReceive(customerId);setTimeout(()=>{document.querySelector('.receive-tabs button:nth-child(2)')?.click()},60)}
-function savePayment(){const amount=Number(document.getElementById("payAmount").value)||0;if(amount<=0)return toast("Enter a valid amount");state.tx.unshift({id:uid(),type:"payment",customerId:document.getElementById("payCustomer").value,amount,mode:document.getElementById("payMode").value,date:new Date().toISOString()});saveState();closeModal();toast("Payment recorded");render()}
-function addCustomer(returnToSale=false){const target=JSON.stringify(returnToSale);modal('<h2>New Customer</h2><input id="cname" placeholder="Customer name"><input id="cphone" inputmode="tel" placeholder="WhatsApp / mobile number"><textarea id="caddress" placeholder="Address (optional)"></textarea><button class="btn primary" onclick="saveCustomer('+target+')">Save Customer</button>')}
-function saveCustomer(returnToSale){const name=document.getElementById("cname").value.trim();if(!name)return toast("Enter customer name");const c={id:uid(),name,phone:document.getElementById("cphone").value.trim(),address:document.getElementById("caddress").value.trim(),created:new Date().toISOString()};state.customers.unshift(c);saveState();closeModal();toast("Customer added");render();
-  if(returnToSale==="many"){pendingManyCustomerId=c.id;return openManyItems(c.id)}
-  if(returnToSale)openSale(c.id);else if(!c.phone)editCustomer(c.id)}
-function editCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c)return;modal('<h2>Edit Customer</h2><input id="editCName" value="'+esc(c.name)+'" placeholder="Customer name"><input id="editCPhone" inputmode="tel" value="'+esc(c.phone||"")+'" placeholder="WhatsApp / mobile number"><textarea id="editCAddress" placeholder="Address (optional)">'+esc(c.address||"")+'</textarea><button class="btn primary" data-customer-id="'+esc(id)+'" onclick="saveCustomerEdit(this.dataset.customerId)">Save Customer</button>')}
-function saveCustomerEdit(id){const c=state.customers.find(x=>x.id===id);if(!c)return;const name=document.getElementById("editCName").value.trim();if(!name)return toast("Enter customer name");c.name=name;c.phone=document.getElementById("editCPhone").value.trim();c.address=document.getElementById("editCAddress").value.trim();saveState();closeModal();toast("Customer updated");render()}
-function addItem(returnToSale=false){const target=JSON.stringify(returnToSale);modal('<h2>Add Inventory Item</h2><input id="iname" placeholder="Item name"><div class="row"><input id="iprice" type="number" placeholder="Selling price"><input id="istock" type="number" placeholder="Opening stock"></div><div class="row"><input id="icost" type="number" placeholder="Cost price"><input id="iunit" placeholder="Unit (pcs/kg)"></div><input id="imin" type="number" placeholder="Low-stock alert level"><button class="btn primary" onclick="saveItem('+target+')">Save Item</button>')}
-function saveItem(returnToSale){const name=document.getElementById("iname").value.trim(),price=Number(document.getElementById("iprice").value)||0;if(!name)return toast("Enter item name");state.items.unshift({id:uid(),name,price,stock:Number(document.getElementById("istock").value)||0,cost:Number(document.getElementById("icost").value)||0,unit:document.getElementById("iunit").value.trim()||"pcs",min:Number(document.getElementById("imin").value)||5});saveState();closeModal();toast("Inventory item added");render();
-  if(returnToSale==="many")return openManyItems(pendingManyCustomerId||undefined);
-  if(returnToSale)openSale()}
-function openCustomerKhataItems(customerId){
-  const c=state.customers.find(x=>x.id===customerId);
-  if(!c)return;
-  if(!state.items.length)return toast("Add inventory items first");
-  modal('<h2>＋ Add Items to '+esc(c.name)+"'s Khata</h2><p class="muted">Add many items together under this customer's name.</p><div id="customerKhataLines"></div><button class="btn" onclick="addCustomerKhataLine()">＋ Add another item</button><div class="line"><b>Total</b><b id="customerKhataTotal">₹0</b></div><button class="btn primary" onclick="saveCustomerKhata('"+customerId+"')">Save to "+esc(c.name)+"'s Khata</button>");
-  addCustomerKhataLine();
+function continueManyItems(){const id=document.getElementById("manyCustomer")?.value;if(id)showManyItemsForm(id)}
+function openSale(customerId){openManyItems(customerId)}
+function showManyItemsForm(customerId){
+  const c=state.customers.find(x=>x.id===customerId);if(!c)return;
+  const opts=state.items.map(i=>'<option value="'+esc(i.id)+'">'+esc(i.name)+' — '+money(i.price)+'</option>').join("");
+  modal('<h2>＋ Add Many Items</h2><p><b>'+esc(c.name)+'</b></p><div id="manyRows"></div><button class="btn" type="button" onclick="addManyRow()">＋ Add another item</button><div class="line"><b>Total</b><b id="manyTotal">₹0</b></div><button class="btn primary" type="button" onclick="saveManyItems(\''+esc(customerId)+'\')">Save to Khata</button>');
+  window.__manyOptions=opts;addManyRow();
 }
-function addCustomerKhataLine(){
-  const box=document.getElementById("customerKhataLines");
-  if(!box)return;
-  const options=state.items.map(i=>'<option value="'+esc(i.id)+'">'+esc(i.name)+' — '+money(i.price)+'</option>').join("");
-  box.insertAdjacentHTML("beforeend",'<div class="row customerKhataLine"><select class="khataItem">'+options+'</select><input class="khataQty" type="number" min="1" value="1" oninput="recalcCustomerKhata()"></div>');
-  box.lastElementChild.querySelector(".khataItem").addEventListener("change",recalcCustomerKhata);
-  recalcCustomerKhata();
+function addManyRow(){
+  const box=document.getElementById("manyRows");if(!box)return;
+  box.insertAdjacentHTML("beforeend",'<div class="row many-row" style="margin:8px 0"><select class="many-item" onchange="recalcManyItems()">'+(window.__manyOptions||"")+'</select><input class="many-qty" type="number" min="1" value="1" oninput="recalcManyItems()"><button class="btn small" type="button" onclick="this.closest(\'.many-row\').remove();recalcManyItems()">✕</button></div>');
+  recalcManyItems();
 }
-function recalcCustomerKhata(){
+function recalcManyItems(){
   let total=0;
-  document.querySelectorAll(".customerKhataLine").forEach(r=>{
-    const i=state.items.find(x=>x.id===r.querySelector(".khataItem")?.value);
-    total+=(Number(i?.price)||0)*(Number(r.querySelector(".khataQty")?.value)||0);
-  });
-  const el=document.getElementById("customerKhataTotal");
-  if(el)el.textContent=money(total);
+  document.querySelectorAll(".many-row").forEach(r=>{const i=state.items.find(x=>x.id===r.querySelector(".many-item")?.value);total+=(Number(i?.price)||0)*(Math.max(1,Number(r.querySelector(".many-qty")?.value)||1))});
+  const e=document.getElementById("manyTotal");if(e)e.textContent=money(total);
 }
-function saveCustomerKhata(customerId){
+function saveManyItems(customerId){
   const lines=[];
-  document.querySelectorAll(".customerKhataLine").forEach(r=>{
-    const i=state.items.find(x=>x.id===r.querySelector(".khataItem")?.value);
-    const q=Math.max(1,Number(r.querySelector(".khataQty")?.value)||1);
+  document.querySelectorAll(".many-row").forEach(r=>{
+    const i=state.items.find(x=>x.id===r.querySelector(".many-item")?.value),q=Math.max(1,Number(r.querySelector(".many-qty")?.value)||1);
     if(i)lines.push({itemId:i.id,name:i.name,qty:q,price:Number(i.price)||0,total:q*(Number(i.price)||0)});
   });
   const total=lines.reduce((s,x)=>s+x.total,0);
-  if(!lines.length||!total)return toast("Add at least one item");
+  if(!lines.length)return toast("Add at least one item");
+  if(total<=0)return toast("Item price must be greater than 0");
   state.tx.unshift({id:uid(),type:"sale",customerId,total,paid:0,mode:"credit",lines,date:new Date().toISOString()});
   lines.forEach(l=>{const i=state.items.find(x=>x.id===l.itemId);if(i)i.stock=Math.max(0,(Number(i.stock)||0)-l.qty)});
-  saveState();
-  closeModal();
-  toast("Items added to customer's Khata");
-  customerView(customerId);
-  render();
+  saveState();closeModal();render();toast("Items saved to Khata");
 }
+
+function addCustomer(returnToSale=false){
+  const target=JSON.stringify(returnToSale);
+  modal('<h2>New Customer</h2><input id="cname" placeholder="Customer name"><input id="cphone" inputmode="tel" placeholder="WhatsApp / mobile number"><textarea id="caddress" placeholder="Address (optional)"></textarea><button class="btn primary" onclick="saveCustomer('+target+')">Save Customer</button>');
+}
+function saveCustomer(returnToSale){
+  const name=document.getElementById("cname")?.value.trim();if(!name)return toast("Enter customer name");
+  const c={id:uid(),name,phone:document.getElementById("cphone")?.value.trim()||"",address:document.getElementById("caddress")?.value.trim()||"",created:new Date().toISOString()};
+  state.customers.unshift(c);saveState();closeModal();render();
+  if(returnToSale==="many"){pendingManyCustomerId=c.id;return openManyItems(c.id)}
+  toast("Customer added");
+}
+function editCustomer(id){
+  const c=state.customers.find(x=>x.id===id);if(!c)return;
+  modal('<h2>Edit Customer</h2><input id="editCName" value="'+esc(c.name)+'" placeholder="Customer name"><input id="editCPhone" inputmode="tel" value="'+esc(c.phone)+'" placeholder="WhatsApp / mobile number"><textarea id="editCAddress" placeholder="Address">'+esc(c.address)+'</textarea><button class="btn primary" onclick="saveCustomerEdit(\''+esc(id)+'\')">Save Customer</button>');
+}
+function saveCustomerEdit(id){
+  const c=state.customers.find(x=>x.id===id);if(!c)return;
+  const name=document.getElementById("editCName")?.value.trim();if(!name)return toast("Enter customer name");
+  c.name=name;c.phone=document.getElementById("editCPhone")?.value.trim()||"";c.address=document.getElementById("editCAddress")?.value.trim()||"";
+  saveState();closeModal();render();toast("Customer updated");
+}
+function addCustomerNumber(id){editCustomer(id)}
+
+function addItem(returnToSale=false){
+  const target=JSON.stringify(returnToSale);
+  modal('<h2>Add Inventory Item</h2><input id="iname" placeholder="Item name"><div class="row"><input id="iprice" type="number" placeholder="Selling price"><input id="istock" type="number" placeholder="Opening stock"></div><div class="row"><input id="icost" type="number" placeholder="Cost price"><input id="iunit" placeholder="Unit (pcs/kg)"></div><input id="imin" type="number" placeholder="Low-stock alert level"><button class="btn primary" onclick="saveItem('+target+')">Save Item</button>');
+}
+function saveItem(returnToSale){
+  const name=document.getElementById("iname")?.value.trim(),price=Number(document.getElementById("iprice")?.value)||0;
+  if(!name)return toast("Enter item name");
+  state.items.unshift({id:uid(),name,price,stock:Number(document.getElementById("istock")?.value)||0,cost:Number(document.getElementById("icost")?.value)||0,unit:document.getElementById("iunit")?.value.trim()||"pcs",min:Number(document.getElementById("imin")?.value)||5});
+  saveState();closeModal();render();toast("Inventory item added");
+  if(returnToSale==="many")return openManyItems(pendingManyCustomerId||undefined);
+}
+function deleteItem(id){const i=state.items.find(x=>x.id===id);if(!i)return;if(!confirm('Delete "'+i.name+'"?'))return;state.items=state.items.filter(x=>x.id!==id);saveState();render();toast("Item deleted")}
+function deleteCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c)return;if(!confirm("Delete "+c.name+"?"))return;state.customers=state.customers.filter(x=>x.id!==id);state.tx=state.tx.filter(x=>x.customerId!==id);state.reminders=state.reminders.filter(x=>x.customerId!==id);saveState();closeModal();render();toast("Customer deleted")}
+
 function customerView(id){
-  const c=state.customers.find(x=>x.id===id),b=balance(id),tx=state.tx.filter(x=>x.customerId===id).slice(0,30);
-  if(!c)return;
+  const c=state.customers.find(x=>x.id===id);if(!c)return;
+  const b=balance(id),tx=state.tx.filter(x=>x.customerId===id).slice(0,30);
   const grouped={};
-  state.tx.filter(t=>t.customerId===id&&t.type==="sale").forEach(t=>(t.lines||[]).forEach(l=>{
-    const key=l.itemId||l.name;
-    if(!grouped[key])grouped[key]={name:l.name,qty:0,total:0};
-    grouped[key].qty+=Number(l.qty)||0;
-    grouped[key].total+=Number(l.total)||0;
-  }));
-  const itemRows=Object.values(grouped).map(x=>'<div class="line"><span>📦 '+esc(x.name)+' <small>× '+x.qty+'</small></span><b>'+money(x.total)+'</b></div>').join("");
-  const history=tx.map(t=>{
-    if(t.type==="sale"){
-      const itemText=(t.lines||[]).map(l=>esc(l.name)+" × "+l.qty).join(" • ")||"Sale";
-      return '<div class="card" style="margin:8px 0" data-long-delete data-delete-type="sale" data-delete-id="'+esc(t.id)+'" title="Long-press to delete"><div class="line"><span>🧾 <b>Sale</b><small> • '+new Date(t.date).toLocaleDateString("en-IN")+'</small></span><b>'+money(t.total)+'</b></div><div style="color:var(--muted);font-size:13px;margin-top:6px">'+itemText+'</div></div>';
-    }
-    return '<div class="line" data-long-delete data-delete-type="payment" data-delete-id="'+esc(t.id)+'" title="Long-press to delete"><span>💰 Payment<small> • '+new Date(t.date).toLocaleDateString("en-IN")+' • '+esc(t.mode||"")+'</small></span><b>'+money(t.amount)+'</b></div>';
-  }).join("");
-  modal('<h2>'+esc(c.name)+'</h2><p>'+esc(c.phone||"No phone added")+'</p><div class="'+(b>0?"due":"paid")+'" style="font-size:28px;margin:10px 0">'+money(b)+' <small style="font-size:12px">'+(b>0?"due":"clear")+'</small></div><button class="btn primary" onclick="openCustomerKhataItems(''+id+'')">＋ Add Many Items to This Khata</button><h3 style="margin-top:16px">Items in '+esc(c.name)+"'s Khata</h3>"+(itemRows||'<p class="muted">No items added yet.</p>')+'<div class="row"><button class="btn" onclick="editCustomer(''+id+'')">✎ Edit / Add Number</button><button class="btn" onclick="closeModal();openReceive(''+id+'')">⌁ Receive</button></div><div class="row"><button class="btn" onclick="shareCustomer(''+id+'')">💬 WhatsApp</button><button class="btn" onclick="callCustomer(''+id+'')">☎ Call</button></div><div class="row"><button class="btn" onclick="remindCustomer(''+id+'')">🔔 Send Reminder</button></div><h3>Khata History</h3>'+ (history||'<p class="muted">No transactions yet.</p>'));
+  tx.filter(t=>t.type==="sale").forEach(t=>(t.lines||[]).forEach(l=>{const k=l.itemId||l.name;grouped[k]??={name:l.name,qty:0,total:0};grouped[k].qty+=Number(l.qty)||0;grouped[k].total+=Number(l.total)||0}));
+  const items=Object.values(grouped).map(x=>'<div class="line"><span>📦 '+esc(x.name)+' × '+x.qty+'</span><b>'+money(x.total)+'</b></div>').join("")||'<p class="muted">No items yet.</p>';
+  const history=tx.map(t=>t.type==="sale"?'<div class="card"><div class="line"><span>🧾 Sale</span><b>'+money(t.total)+'</b></div><small>'+esc((t.lines||[]).map(l=>l.name+" × "+l.qty).join(" • "))+'</small></div>':'<div class="line"><span>💰 Payment • '+esc(t.mode||"")+'</span><b>'+money(t.amount)+'</b></div>').join("")||'<p class="muted">No transactions.</p>';
+  modal('<h2>'+esc(c.name)+'</h2><p>'+esc(c.phone||"No phone added")+'</p><div class="'+(b>0?"due":"paid")+'" style="font-size:28px;margin:10px 0">'+money(b)+' <small>'+(b>0?"due":"clear")+'</small></div><button class="btn primary" onclick="openManyItems(\''+esc(id)+'\')">＋ Add Many Items to This Khata</button><h3>Items in Khata</h3>'+items+'<div class="row"><button class="btn" onclick="editCustomer(\''+esc(id)+'\')">✎ Edit / Add Number</button><button class="btn" onclick="openReceive(\''+esc(id)+'\')">⌁ Receive</button></div><div class="row"><button class="btn" onclick="shareCustomer(\''+esc(id)+'\')">💬 WhatsApp</button><button class="btn" onclick="callCustomer(\''+esc(id)+'\')">☎ Call</button></div><h3>History</h3>'+history);
 }
-function phoneNumber(c){return(c?.phone||"").replace(/\D/g,"")}
-function shareCustomer(id){const c=state.customers.find(x=>x.id===id),b=balance(id),phone=phoneNumber(c);if(!phone)return toast("Add customer phone first");const msg="Hello "+c.name+" 👋\nYour Dukaan Khata balance is "+money(b)+"."+ (b>0?" Kindly clear it when convenient.":" Thank you for your payment.");window.open("https://wa.me/"+(phone.length===10?"91":"")+phone+"?text="+encodeURIComponent(msg),"_blank")}
-function callCustomer(id){const c=state.customers.find(x=>x.id===id),p=phoneNumber(c);if(!p)return toast("Add customer phone first");window.location.href="tel:"+p}
-function remindCustomer(id){const c=state.customers.find(x=>x.id===id),b=balance(id),p=phoneNumber(c);if(!c||b<=0)return toast("No due balance to remind");const r={id:uid(),customerId:id,amount:b,date:new Date().toISOString(),channel:p?"whatsapp":"manual"};state.reminders.unshift(r);saveState();if(p){const msg="Reminder from "+state.shop.name+": "+c.name+", your outstanding balance is "+money(b)+". Please pay when convenient. Thank you 🙏";window.open("https://wa.me/"+(p.length===10?"91":"")+p+"?text="+encodeURIComponent(msg),"_blank")}toast("Reminder prepared")}
-function openCustomerHub(){const opts=state.customers.map(c=>'<option value="'+c.id+'">'+esc(c.name)+' • '+money(balance(c.id))+'</option>').join("");modal('<h2>Customer Connect</h2>'+ (opts?'<select id="hubCustomer">'+opts+'</select><div class="hub-actions"><button class="btn" onclick="hubWhatsApp()">💬 WhatsApp Chat</button><button class="btn" onclick="hubCall()">☎ Call Customer</button><button class="btn" onclick="hubReminder()">🔔 WhatsApp Reminder</button><button class="btn" onclick="hubView()">◉ Open Customer</button></div>':'<div class="card"><b>No customers yet</b><p>Add a customer to unlock chat, calls and smart reminders.</p><button class="btn primary" onclick="closeModal();addCustomer()">＋ Add Customer</button></div>'))}
-function hubId(){return document.getElementById("hubCustomer")?.value}
-function hubWhatsApp(){const id=hubId();closeModal();if(id)shareCustomer(id)}
-function hubCall(){const id=hubId();closeModal();if(id)callCustomer(id)}
-function hubReminder(){const id=hubId();closeModal();if(id)remindCustomer(id)}
-function hubView(){const id=hubId();closeModal();if(id)customerView(id)}
-function openReminderCenter(){const due=state.customers.filter(c=>balance(c.id)>0);modal('<h2>Reminder Center</h2><p class="muted">Follow up with customers without typing the message again.</p>'+ (due.map(c=>'<div class="customer"><div><b>'+esc(c.name)+'</b><small>Due '+money(balance(c.id))+'</small></div><button class="btn small" onclick="remindCustomer(\''+c.id+'\')">🔔 Remind</button></div>').join("")||'<div class="card"><b>Everything clear 🎉</b><p>No outstanding customers.</p></div>'))}
+
+function openReceive(customerId){
+  const opts=state.customers.length?state.customers.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join(""):'<option value="">Walk-in</option>';
+  modal('<h2>Smart Receive</h2><div class="receive-tabs"><button class="active" onclick="switchReceiveTab(\'qr\',this)">UPI QR</button><button onclick="switchReceiveTab(\'record\',this)">Record payment</button></div><div id="receiveQR"><p class="muted">Show this QR to receive money.</p><input id="qrAmount" type="number" min="1" placeholder="Amount (optional)" oninput="refreshQR()"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div class="row"><button class="btn primary" onclick="sharePaymentLink()">↗ Share</button><button class="btn" onclick="copyUPILink()">Copy UPI link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer">'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" onclick="savePayment()">Save Payment</button></div>');
+  setTimeout(refreshQR,100);
+}
+function switchReceiveTab(tab,el){document.querySelectorAll(".receive-tabs button").forEach(x=>x.classList.remove("active"));el?.classList.add("active");document.getElementById("receiveQR")?.classList.toggle("hidden",tab!=="qr");document.getElementById("receiveRecord")?.classList.toggle("hidden",tab!=="record");if(tab==="qr")refreshQR()}
+function upiLink(){const id=(state.shop.upi||"").trim();if(!id)return"";const a=Number(document.getElementById("qrAmount")?.value||0);return"upi://pay?pa="+encodeURIComponent(id)+"&pn="+encodeURIComponent(state.shop.name)+"&cu=INR"+(a>0?"&am="+a:"")}
+function refreshQR(){const box=document.getElementById("qrBox"),cap=document.getElementById("qrCaption");if(!box)return;box.innerHTML="";const link=upiLink();if(!link){box.innerHTML='<div class="qr-empty">Add UPI ID in Shop Profile</div>';if(cap)cap.textContent="No UPI ID configured";return}if(window.QRCode)new QRCode(box,{text:link,width:190,height:190,correctLevel:QRCode.CorrectLevel.M});if(cap)cap.textContent=state.shop.upi}
+function copyUPILink(){const x=upiLink();if(!x)return toast("Add UPI ID first");if(navigator.clipboard?.writeText)navigator.clipboard.writeText(x).then(()=>toast("UPI link copied")).catch(()=>toast(x));else toast(x)}
+function sharePaymentLink(){const x=upiLink();if(!x)return toast("Add UPI ID first");const text="Pay "+state.shop.name+"\n"+x;if(navigator.share)navigator.share({title:"Payment",text}).catch(()=>{});else window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank")}
+function savePayment(){const a=Number(document.getElementById("payAmount")?.value)||0;if(a<=0)return toast("Enter a valid amount");state.tx.unshift({id:uid(),type:"payment",customerId:document.getElementById("payCustomer")?.value||"",amount:a,mode:document.getElementById("payMode")?.value||"cash",date:new Date().toISOString()});saveState();closeModal();render();toast("Payment recorded")}
+
+function shareCustomer(id){const c=state.customers.find(x=>x.id===id),p=(c?.phone||"").replace(/\D/g,"");if(!p)return toast("Add customer phone first");window.open("https://wa.me/"+(p.length===10?"91":"")+p+"?text="+encodeURIComponent("Hello "+c.name+" 👋 Your Dukaan Khata balance is "+money(balance(id))+".") ,"_blank")}
+function callCustomer(id){const c=state.customers.find(x=>x.id===id),p=(c?.phone||"").replace(/\D/g,"");if(!p)return toast("Add customer phone first");location.href="tel:"+p}
+function remindCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c||balance(id)<=0)return toast("No due balance");const p=(c.phone||"").replace(/\D/g,"");state.reminders.unshift({id:uid(),customerId:id,amount:balance(id),date:new Date().toISOString()});saveState();if(p)window.open("https://wa.me/"+(p.length===10?"91":"")+p+"?text="+encodeURIComponent("Reminder from "+state.shop.name+": outstanding "+money(balance(id))),"_blank");toast("Reminder prepared")}
+function openCustomerHub(){if(!state.customers.length)return modal('<h2>Customer Connect</h2><p>No customers yet.</p><button class="btn primary" onclick="closeModal();addCustomer()">＋ Add Customer</button>');const o=state.customers.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join("");modal('<h2>Customer Connect</h2><select id="hubCustomer">'+o+'</select><button class="btn" onclick="shareCustomer(document.getElementById(\'hubCustomer\').value)">💬 WhatsApp</button><button class="btn" onclick="callCustomer(document.getElementById(\'hubCustomer\').value)">☎ Call</button><button class="btn" onclick="customerView(document.getElementById(\'hubCustomer\').value)">◉ Open Customer</button>')}
+function openReminderCenter(){const a=state.customers.filter(c=>balance(c.id)>0);modal('<h2>Reminder Center</h2>'+(a.map(c=>'<div class="customer"><div><b>'+esc(c.name)+'</b><small>Due '+money(balance(c.id))+'</small></div><button class="btn small" onclick="remindCustomer(\''+esc(c.id)+'\')">🔔 Remind</button></div>').join("")||'<p class="muted">No outstanding customers.</p>'))}
 function openDigitalPass(){const s=state.shop;modal('<h2>✦ Digital Shop Pass</h2><div class="digital-pass"><div class="pass-logo">₹</div><h3>'+esc(s.name)+'</h3><p>'+esc(s.owner)+'</p><p>'+esc(s.address||"Indian small business")+'</p><b>'+esc(s.upi||"UPI not configured")+'</b></div><button class="btn primary" onclick="shareShopPass()">↗ Share Shop Pass</button>')}
-function shareShopPass(){const text=state.shop.name+"\n"+(state.shop.address||"")+" \nPay via UPI: "+(state.shop.upi||"Not configured");if(navigator.share)navigator.share({title:state.shop.name,text});else window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank")}
-function filterKhata(f,el){khataFilter=f;document.querySelectorAll(".segmented button").forEach(x=>x.classList.remove("active"));el.classList.add("active");renderKhata()}
-function addCustomerNumber(id){editCustomer(id)}
-function deleteCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c)return;if(!confirm('Delete '+c.name+' and all customer information? This cannot be undone.'))return;state.customers=state.customers.filter(x=>x.id!==id);state.tx=state.tx.filter(t=>t.customerId!==id);state.reminders=state.reminders.filter(r=>r.customerId!==id);saveState();closeModal();render();toast("Customer deleted")}
-function addCustomerNumber(id){editCustomer(id)}
-function deleteRecord(type,id){
-  if(type==="customer")return deleteCustomer(id);
-  if(type==="item")return deleteItem(id);
-  if(type==="sale")return deleteSale(id);
-  if(type==="payment")return deletePayment(id);
-}
-function deleteSale(id){
-  const t=state.tx.find(x=>x.id===id&&x.type==="sale");
-  if(!t)return;
-  const c=state.customers.find(x=>x.id===t.customerId);
-  if(!confirm("Delete this "+(c?c.name+" ":"")+"sale? This removes the bill from records."))return;
-  state.tx=state.tx.filter(x=>x.id!==id && !(x.type==="payment"&&x.linkedSale&&x.customerId===t.customerId&&Math.abs((Number(x.amount)||0)-(Number(t.paid)||0))<0.001&&new Date(x.date).getTime()>=new Date(t.date).getTime()));
-  saveState();render();toast("Sale deleted");
-}
-let longPressState=null;
-function deletePayment(id){
-  const t=state.tx.find(x=>x.id===id&&x.type==="payment");
-  if(!t)return;
-  if(!confirm("Delete this payment record of "+money(t.amount)+"?"))return;
-  state.tx=state.tx.filter(x=>x.id!==id);
-  saveState();render();toast("Payment deleted");
-}
-function setupLongPressDelete(){
-  document.addEventListener("pointerdown",e=>{
-    const el=e.target.closest?.("[data-long-delete]");
-    if(!el||e.button>0)return;
-    if(longPressState?.timer)clearTimeout(longPressState.timer);
-    const x=e.clientX,y=e.clientY;
-    longPressState={el,x,y,fired:false,timer:setTimeout(()=>{
-      if(!longPressState)return;
-      longPressState.fired=true;
-      el.classList.add("long-press-delete");
-      const type=el.dataset.deleteType,id=el.dataset.deleteId;
-      setTimeout(()=>el.classList.remove("long-press-delete"),250);
-      deleteRecord(type,id);
-    },700)};
-  });
-  const cancel=e=>{
-    if(!longPressState)return;
-    if(e.type==="pointermove" && Math.hypot(e.clientX-longPressState.x,e.clientY-longPressState.y)<12)return;
-    clearTimeout(longPressState.timer);longPressState=null;
-  };
-  document.addEventListener("pointermove",cancel,{passive:true});
-  document.addEventListener("pointercancel",cancel,{passive:true});
-  document.addEventListener("pointerup",e=>{
-    if(!longPressState)return;
-    const fired=longPressState.fired;
-    clearTimeout(longPressState.timer);longPressState=null;
-    if(fired){e.preventDefault();window.__suppressNextClick=true}
-  });
-  document.addEventListener("click",e=>{
-    if(window.__suppressNextClick){window.__suppressNextClick=false;e.preventDefault();e.stopPropagation()}
-  },true);
-}
-function renderKhata(){const q=(document.getElementById("khataSearch")?.value||"").toLowerCase(),list=document.getElementById("khataList");if(!list)return;list.innerHTML=state.customers.filter(c=>{const b=balance(c.id),match=(c.name+" "+c.phone).toLowerCase().includes(q);return match&&(khataFilter==="all"||(khataFilter==="due"&&b>0)||(khataFilter==="paid"&&b<=0))}).map(c=>{const id=esc(c.id);return '<div class="customer" data-customer-id="'+id+'" data-long-delete data-delete-type="customer" data-delete-id="'+id+'" title="Long-press to delete"><div onclick="customerView(this.dataset.id)" data-id="'+id+'" style="flex:1;cursor:pointer"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small></div><div style="text-align:right"><div class="'+(balance(c.id)>0?"due":"paid")+'">'+money(balance(c.id))+'</div>'+(!c.phone?'<button class="btn small" data-customer-id="'+id+'" style="margin-top:6px" onclick="event.stopPropagation();addCustomerNumber(this.dataset.customerId)">＋ Add Mobile Number</button>':"")+'</div></div>'}).join("")||'<p style="color:var(--muted)">No matching customers.</p>'}
-let customerLongPressTimer=null;
-function startCustomerLongPress(e,id){if(e.touches&&e.touches.length>1)return;customerLongPressTimer=setTimeout(()=>{customerLongPressTimer=null;deleteCustomer(id)},700)}
-function cancelCustomerLongPress(){if(customerLongPressTimer){clearTimeout(customerLongPressTimer);customerLongPressTimer=null}}
-function renderCustomers(){const q=(document.getElementById("customerSearch")?.value||"").toLowerCase(),list=document.getElementById("customerList");if(!list)return;list.innerHTML=state.customers.filter(c=>(c.name+" "+c.phone).toLowerCase().includes(q)).map(c=>'<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" onclick="customerView(\''+c.id+'\')" title="Long-press to delete"><div><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone")+'</small></div><div class="'+(balance(c.id)>0?"due":"paid")+'">'+money(balance(c.id))+'</div></div>').join("")||'<p style="color:var(--muted)">No customers yet.</p>';const due=state.customers.filter(c=>balance(c.id)>0).length;document.getElementById("customerDueCount").textContent=due;document.getElementById("customerPaidCount").textContent=state.customers.length-due}
-function deleteItem(id){const i=state.items.find(x=>x.id===id);if(!i)return;if(!confirm('Delete "'+i.name+'" from inventory? Sales history will stay safe.'))return;state.items=state.items.filter(x=>x.id!==id);saveState();render();toast("Item deleted")}
-function renderItems(){const q=(document.getElementById("itemSearch")?.value||"").toLowerCase(),list=document.getElementById("itemList");if(!list)return;list.innerHTML=state.items.filter(i=>i.name.toLowerCase().includes(q)).map(i=>'<div class="item" data-long-delete data-delete-type="item" data-delete-id="'+esc(i.id)+'" title="Long-press to delete"><div><h3>'+esc(i.name)+'</h3><small>'+money(i.price)+' / '+esc(i.unit)+' • Stock '+i.stock+'</small></div><div class="'+(i.stock<=i.min?"due":"paid")+'">'+(i.stock<=i.min?"LOW":"OK")+'</div></div>').join("")||'<p style="color:var(--muted)">No inventory items.</p>'}
-function openExpenses(){modal('<h2>Record Expense</h2><input id="exName" placeholder="Expense name"><input id="exAmount" type="number" placeholder="Amount"><select id="exMode"><option>cash</option><option>upi</option><option>bank</option><option>card</option></select><button class="btn" onclick="saveExpense()">Save Expense</button>')}
-function saveExpense(){const name=document.getElementById("exName").value.trim(),amount=Number(document.getElementById("exAmount").value)||0;if(!name||!amount)return toast("Enter expense details");state.expenses.unshift({id:uid(),name,amount,mode:document.getElementById("exMode").value,date:new Date().toISOString()});saveState();closeModal();toast("Expense saved");render()}
-function openReturns(){modal('<h2>Record Return</h2><input id="retName" placeholder="Item / customer"><input id="retAmount" type="number" placeholder="Return amount"><button class="btn" onclick="saveReturn()">Save Return</button>')}
-function saveReturn(){const name=document.getElementById("retName").value.trim(),amount=Number(document.getElementById("retAmount").value)||0;if(!name||!amount)return toast("Enter return details");state.returns.unshift({id:uid(),name,amount,date:new Date().toISOString()});saveState();closeModal();toast("Return recorded");render()}
-function renderBills(){const list=document.getElementById("billList");if(!list)return;list.innerHTML=sales().slice(0,40).map(t=>{const c=state.customers.find(x=>x.id===t.customerId);return '<div class="bill" data-long-delete data-delete-type="sale" data-delete-id="'+esc(t.id)+'" title="Long-press to delete"><div><h3>'+esc(c?.name||"Walk-in")+'</h3><small>'+new Date(t.date).toLocaleString("en-IN")+' • '+esc(t.mode)+'</small></div><div><b>'+money(t.total)+'</b><small style="display:block">'+(t.paid>=t.total?"Paid":"Due "+money(t.total-t.paid))+'</small></div></div>'}).join("")||'<p style="color:var(--muted)">No bills yet.</p>'}
-function openShopSettings(){modal('<h2>Shop Profile</h2><input id="shopName" value="'+esc(state.shop.name)+'" placeholder="Shop name"><input id="shopOwner" value="'+esc(state.shop.owner)+'" placeholder="Owner name"><input id="shopPhone" value="'+esc(state.shop.phone)+'" placeholder="Shop phone"><input id="shopUpi" value="'+esc(state.shop.upi||"")+'" placeholder="UPI ID e.g. shop@upi"><textarea id="shopAddress" placeholder="Shop address">'+esc(state.shop.address)+'</textarea><p class="muted">Your UPI ID is used to generate a customer payment QR.</p><button class="btn primary" onclick="saveShopSettings()">Save Profile</button>')}
-function saveShopSettings(){state.shop={name:document.getElementById("shopName").value.trim()||"My Dukaan",owner:document.getElementById("shopOwner").value.trim()||"Shop Owner",phone:document.getElementById("shopPhone").value.trim(),upi:document.getElementById("shopUpi").value.trim(),address:document.getElementById("shopAddress").value.trim()};saveState();closeModal();toast("Shop + UPI profile updated");render()}
-function openBackup(){modal('<h2>Backup & Restore</h2><p>Your data is currently stored on this device. Export a backup regularly.</p><button class="btn" onclick="exportData()">⇩ Download backup</button><label class="btn" style="display:block;text-align:center;margin-top:8px">⇧ Restore backup<input type="file" accept=".json" onchange="importData(event)" hidden></label>')}
-function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="dukaan-khata-infinity-"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(a.href);toast("Backup downloaded")}
-function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);saveState();closeModal();render();toast("Backup restored")}catch(x){toast("Invalid backup file")}};r.readAsText(f)}
+function shareShopPass(){const text=state.shop.name+"\n"+(state.shop.address||"")+"\nUPI: "+(state.shop.upi||"Not configured");if(navigator.share)navigator.share({title:state.shop.name,text}).catch(()=>{});else window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank")}
+
+function openExpenses(){modal('<h2>Record Expense</h2><input id="exName" placeholder="Expense name"><input id="exAmount" type="number" placeholder="Amount"><select id="exMode"><option>cash</option><option>upi</option><option>bank</option><option>card</option></select><button class="btn primary" onclick="saveExpense()">Save Expense</button>')}
+function saveExpense(){const n=document.getElementById("exName")?.value.trim(),a=Number(document.getElementById("exAmount")?.value)||0;if(!n||a<=0)return toast("Enter expense details");state.expenses.unshift({id:uid(),name:n,amount:a,mode:document.getElementById("exMode")?.value,date:new Date().toISOString()});saveState();closeModal();render();toast("Expense saved")}
+function openReturns(){modal('<h2>Record Return</h2><input id="retName" placeholder="Item / customer"><input id="retAmount" type="number" placeholder="Return amount"><button class="btn primary" onclick="saveReturn()">Save Return</button>')}
+function saveReturn(){const n=document.getElementById("retName")?.value.trim(),a=Number(document.getElementById("retAmount")?.value)||0;if(!n||a<=0)return toast("Enter return details");state.returns.unshift({id:uid(),name:n,amount:a,date:new Date().toISOString()});saveState();closeModal();render();toast("Return recorded")}
+function openShopSettings(){const s=state.shop;modal('<h2>Shop Profile</h2><input id="shopName" value="'+esc(s.name)+'" placeholder="Shop name"><input id="shopOwner" value="'+esc(s.owner)+'" placeholder="Owner name"><input id="shopPhone" value="'+esc(s.phone)+'" placeholder="Shop phone"><input id="shopUpi" value="'+esc(s.upi)+'" placeholder="UPI ID e.g. shop@upi"><textarea id="shopAddress" placeholder="Shop address">'+esc(s.address)+'</textarea><button class="btn primary" onclick="saveShopSettings()">Save Profile</button>')}
+function saveShopSettings(){state.shop={name:document.getElementById("shopName")?.value.trim()||"My Dukaan",owner:document.getElementById("shopOwner")?.value.trim()||"Shop Owner",phone:document.getElementById("shopPhone")?.value.trim()||"",upi:document.getElementById("shopUpi")?.value.trim()||"",address:document.getElementById("shopAddress")?.value.trim()||""};saveState();closeModal();render();toast("Profile saved")}
+function openBackup(){modal('<h2>Backup & Restore</h2><p>Your data is stored on this device.</p><button class="btn" onclick="exportData()">⇩ Download backup</button><label class="btn" style="display:block;text-align:center;margin-top:8px">⇧ Restore backup<input type="file" accept=".json" onchange="importData(event)" hidden></label>')}
+function exportData(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:"application/json"}));a.download="dukaan-khata-backup.json";a.click();toast("Backup downloaded")}
+function importData(e){const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);saveState();closeModal();render();toast("Backup restored")}catch(x){toast("Invalid backup file")}};r.readAsText(f)}
 function openLanguage(){modal('<h2>Language</h2><button class="btn" onclick="setLanguage(\'English\')">English</button><button class="btn" onclick="setLanguage(\'Hindi\')">हिन्दी</button><button class="btn" onclick="setLanguage(\'Telugu\')">తెలుగు</button>')}
-function setLanguage(x){state.settings.language=x;saveState();closeModal();toast("Language set to "+x)}
-function voiceEntry(){if(!("webkitSpeechRecognition"in window||"SpeechRecognition"in window))return toast("Voice input is not supported");const R=window.SpeechRecognition||window.webkitSpeechRecognition,r=new R();r.lang=state.settings.language==="Telugu"?"te-IN":state.settings.language==="Hindi"?"hi-IN":"en-IN";r.onresult=e=>{const t=e.results[0][0].transcript;modal('<h2>Voice Note</h2><textarea>'+esc(t)+'</textarea><button class="btn" onclick="closeModal();toast(\'Voice note captured\')">Done</button>')};r.start();toast("Listening…")}
-function openAbout(){modal('<h2>✦ Dukaan Khata Infinity</h2><p>A luxury local-first digital operating system for Indian shops.</p><div class="line"><span>Digital Khata</span><b>✓</b></div><div class="line"><span>UPI QR Receive</span><b>✓</b></div><div class="line"><span>WhatsApp + Calls</span><b>✓</b></div><div class="line"><span>Smart Reminders</span><b>✓</b></div><div class="line"><span>Billing + Inventory</span><b>✓</b></div><div class="line"><span>Backup + PWA</span><b>✓</b></div>')}
+function voiceEntry(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return toast("Voice input is not supported");const r=new R();r.lang=state.settings.language==="Telugu"?"te-IN":state.settings.language==="Hindi"?"hi-IN":"en-IN";r.onresult=e=>toast("Heard: "+e.results[0][0].transcript);r.start()}
+function openAbout(){modal('<h2>✦ Dukaan Khata Infinity</h2><p>Smart digital tools for Indian shops.</p><div class="line"><span>Digital Khata</span><b>✓</b></div><div class="line"><span>UPI QR Receive</span><b>✓</b></div><div class="line"><span>Billing + Inventory</span><b>✓</b></div><div class="line"><span>Backup</span><b>✓</b></div>')}
 function toggleTheme(){document.body.classList.toggle("darkmode");state.settings.theme=document.body.classList.contains("darkmode")?"dark":"light";saveState()}
 function clearDemo(){if(confirm("Clear all Dukaan Khata data on this device?")){localStorage.removeItem(KEY);state=loadState();render();toast("Data reset")}}
-function render(){const now=new Date(),tod=state.tx.filter(t=>new Date(t.date).toDateString()===today()),sToday=tod.filter(t=>t.type==="sale").reduce((a,t)=>a+t.total,0),pToday=tod.filter(t=>t.type==="payment").reduce((a,t)=>a+t.amount,0),due=state.customers.reduce((a,c)=>a+Math.max(0,balance(c.id)),0),revenue=sales().reduce((a,t)=>a+t.total,0),received=payments().reduce((a,t)=>a+t.amount,0),expenses=state.expenses.reduce((a,t)=>a+t.amount,0),low=state.items.filter(i=>Number(i.stock)<=Number(i.min)).length;const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set("ownerHeader",state.shop.name+" • Infinity");set("greeting",(now.getHours()<12?"Good morning":now.getHours()<17?"Good afternoon":"Good evening")+" 👋");set("todayLabel",now.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"}));set("totalDue",money(due));set("todaySales",money(sToday));set("todaySalesCount",tod.filter(t=>t.type==="sale").length+" bills");set("todayPaid",money(pToday));set("customerCount",state.customers.length);set("newCustomers",state.customers.length+" active");set("lowStockCount",low);set("overdueCount",state.customers.filter(c=>balance(c.id)>0).length+" with due");set("collectionRate",revenue?Math.round(received/revenue*100)+"% collected":"0% collected");set("rRevenue",money(revenue));set("rCredit",money(Math.max(0,revenue-received)));set("rPaid",money(received));set("rExpense",money(expenses));set("rTx",state.tx.length);set("itemCount",state.items.length);set("stockValue",money(state.items.reduce((a,i)=>a+(Number(i.stock)||0)*(Number(i.cost)||0),0)));set("inventoryLow",low);const attention=document.getElementById("attention");if(attention)attention.innerHTML=state.items.filter(i=>i.stock<=i.min).slice(0,4).map(i=>'<div class="item"><div><h3>⚠ '+esc(i.name)+'</h3><small>Only '+i.stock+' '+esc(i.unit)+' left</small></div><b class="due">Restock</b></div>').join("")||'<div class="card"><b>All clear 🎉</b><p style="color:var(--muted)">No low-stock items right now.</p></div>';const recent=document.getElementById("recent");if(recent)recent.innerHTML=state.tx.slice(0,6).map(t=>'<div class="activity"><div style="display:flex;justify-content:space-between"><span>'+(t.type==="sale"?"🧾":"💰")+' '+esc(state.customers.find(c=>c.id===t.customerId)?.name||"Customer")+'</span><b>'+(t.type==="sale"?money(t.total):money(t.amount))+'</b></div><small style="color:var(--muted)">'+(t.type==="sale"?"Sale":"Payment")+" • "+new Date(t.date).toLocaleString("en-IN")+'</small></div>').join("")||'<p style="color:var(--muted)">No activity yet. Start with New Sale.</p>';renderKhata();renderCustomers();renderItems();renderBills();renderReports();if(state.settings.theme==="dark")document.body.classList.add("darkmode");else document.body.classList.remove("darkmode")}
-function renderReports(){const days=[];for(let n=6;n>=0;n--){const d=new Date();d.setDate(d.getDate()-n);const val=sales().filter(t=>new Date(t.date).toDateString()===d.toDateString()).reduce((a,t)=>a+t.total,0);days.push({label:d.toLocaleDateString("en-IN",{weekday:"short"}),val})}const max=Math.max(...days.map(x=>x.val),1),chart=document.getElementById("activityChart");if(chart)chart.innerHTML=days.map(x=>'<div class="bar" style="height:'+Math.max(7,x.val/max*125)+'px"><small>'+x.label+'</small></div>').join("");const top=document.getElementById("topCustomers");if(top)top.innerHTML=state.customers.map(c=>({c,v:balance(c.id)})).sort((a,b)=>b.v-a.v).slice(0,5).map(x=>'<div class="line"><span>'+esc(x.c.name)+'</span><b class="'+(x.v>0?"due":"paid")+'">'+money(x.v)+'</b></div>').join("")||'<p style="color:var(--muted)">No customers yet.</p>'}
+
+function renderKhata(){
+  const box=document.getElementById("khataList");if(!box)return;
+  const q=(document.getElementById("khataSearch")?.value||"").toLowerCase();
+  box.innerHTML=state.customers.filter(c=>{const b=balance(c.id);return(c.name+" "+c.phone).toLowerCase().includes(q)&&(khataFilter==="all"||(khataFilter==="due"&&b>0)||(khataFilter==="paid"&&b<=0))}).map(c=>'<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'"><div onclick="customerView(\''+esc(c.id)+'\')" style="flex:1;cursor:pointer"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small></div><div style="text-align:right"><div class="'+(balance(c.id)>0?"due":"paid")+'">'+money(balance(c.id))+'</div>'+(!c.phone?'<button class="btn small" onclick="event.stopPropagation();addCustomerNumber(\''+esc(c.id)+'\')">＋ Add Mobile</button>':"")+'</div></div>').join("")||'<p class="muted">No customers found.</p>';
+}
+function renderCustomers(){
+  const box=document.getElementById("customerList");if(!box)return;const q=(document.getElementById("customerSearch")?.value||"").toLowerCase();
+  box.innerHTML=state.customers.filter(c=>(c.name+" "+c.phone).toLowerCase().includes(q)).map(c=>'<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" onclick="customerView(\''+esc(c.id)+'\')"><div><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone")+'</small></div><div class="'+(balance(c.id)>0?"due":"paid")+'">'+money(balance(c.id))+'</div></div>').join("")||'<p class="muted">No customers yet.</p>';
+  const due=state.customers.filter(c=>balance(c.id)>0).length;document.getElementById("customerDueCount")&&(document.getElementById("customerDueCount").textContent=due);document.getElementById("customerPaidCount")&&(document.getElementById("customerPaidCount").textContent=state.customers.length-due);
+}
+function renderItems(){
+  const box=document.getElementById("itemList");if(!box)return;const q=(document.getElementById("itemSearch")?.value||"").toLowerCase();
+  box.innerHTML=state.items.filter(i=>i.name.toLowerCase().includes(q)).map(i=>'<div class="item" data-long-delete data-delete-type="item" data-delete-id="'+esc(i.id)+'"><div><h3>'+esc(i.name)+'</h3><small>'+money(i.price)+' / '+esc(i.unit)+' • Stock '+i.stock+'</small></div><b class="'+(i.stock<=i.min?"due":"paid")+'">'+(i.stock<=i.min?"LOW":"OK")+'</b></div>').join("")||'<p class="muted">No inventory items.</p>';
+}
+function renderBills(){
+  const box=document.getElementById("billList");if(!box)return;
+  box.innerHTML=sales().slice(0,40).map(t=>{const c=state.customers.find(x=>x.id===t.customerId);return '<div class="bill" data-long-delete data-delete-type="sale" data-delete-id="'+esc(t.id)+'"><div><h3>'+esc(c?.name||"Walk-in")+'</h3><small>'+new Date(t.date).toLocaleString("en-IN")+'</small></div><b>'+money(t.total)+'</b></div>'}).join("")||'<p class="muted">No bills yet.</p>';
+}
+function deleteSale(id){const t=state.tx.find(x=>x.id===id);if(!t)return;if(!confirm("Delete this sale?"))return;state.tx=state.tx.filter(x=>x.id!==id);saveState();render();toast("Sale deleted")}
+function deletePayment(id){state.tx=state.tx.filter(x=>x.id!==id);saveState();render();toast("Payment deleted")}
+function filterKhata(f,el){khataFilter=f;document.querySelectorAll(".segmented button").forEach(x=>x.classList.remove("active"));el?.classList.add("active");renderKhata()}
+
+function render(){
+  const now=new Date(),today=now.toDateString(),tod=state.tx.filter(t=>new Date(t.date).toDateString()===today);
+  const sToday=tod.filter(t=>t.type==="sale").reduce((a,t)=>a+(Number(t.total)||0),0),pToday=tod.filter(t=>t.type==="payment").reduce((a,t)=>a+(Number(t.amount)||0),0);
+  const revenue=sales().reduce((a,t)=>a+(Number(t.total)||0),0),received=payments().reduce((a,t)=>a+(Number(t.amount)||0),0),due=state.customers.reduce((a,c)=>a+Math.max(0,balance(c.id)),0),low=state.items.filter(i=>Number(i.stock)<=Number(i.min)).length,expenses=state.expenses.reduce((a,t)=>a+(Number(t.amount)||0),0);
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set("ownerHeader",state.shop.name+" • Infinity");set("greeting",(now.getHours()<12?"Good morning":now.getHours()<17?"Good afternoon":"Good evening")+" 👋");set("todayLabel",now.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"}));set("totalDue",money(due));set("todaySales",money(sToday));set("todaySalesCount",tod.filter(t=>t.type==="sale").length+" bills");set("todayPaid",money(pToday));set("customerCount",state.customers.length);set("newCustomers",state.customers.length+" active");set("lowStockCount",low);set("overdueCount",state.customers.filter(c=>balance(c.id)>0).length+" with due");set("collectionRate",revenue?Math.round(received/revenue*100)+"% collected":"0% collected");set("rRevenue",money(revenue));set("rCredit",money(Math.max(0,revenue-received)));set("rPaid",money(received));set("rExpense",money(expenses));set("rTx",state.tx.length);set("itemCount",state.items.length);set("stockValue",money(state.items.reduce((a,i)=>a+(Number(i.stock)||0)*(Number(i.cost)||0),0)));set("inventoryLow",low);
+  const att=document.getElementById("attention");if(att)att.innerHTML=state.items.filter(i=>i.stock<=i.min).slice(0,4).map(i=>'<div class="item"><div><b>⚠ '+esc(i.name)+'</b><small>Only '+i.stock+' '+esc(i.unit)+' left</small></div><b class="due">Restock</b></div>').join("")||'<div class="card"><b>All clear 🎉</b><p class="muted">No low-stock items.</p></div>';
+  const rec=document.getElementById("recent");if(rec)rec.innerHTML=state.tx.slice(0,6).map(t=>'<div class="activity"><div style="display:flex;justify-content:space-between"><span>'+(t.type==="sale"?"🧾":"💰")+' '+esc(state.customers.find(c=>c.id===t.customerId)?.name||"Customer")+'</span><b>'+money(t.type==="sale"?t.total:t.amount)+'</b></div><small class="muted">'+(t.type==="sale"?"Sale":"Payment")+'</small></div>').join("")||'<p class="muted">No activity yet.</p>';
+  renderKhata();renderCustomers();renderItems();renderBills();renderReports();
+  document.body.classList.toggle("darkmode",state.settings.theme==="dark");
+  if(window.applyLanguage)setTimeout(window.applyLanguage,0);
+}
+function renderReports(){
+  const chart=document.getElementById("activityChart");if(chart){const days=[];for(let n=6;n>=0;n--){const d=new Date();d.setDate(d.getDate()-n);days.push({d,v:sales().filter(t=>new Date(t.date).toDateString()===d.toDateString()).reduce((a,t)=>a+t.total,0)})}const max=Math.max(1,...days.map(x=>x.v));chart.innerHTML=days.map(x=>'<div class="bar" style="height:'+Math.max(7,x.v/max*125)+'px"><small>'+x.d.toLocaleDateString("en-IN",{weekday:"short"})+'</small></div>').join("")}
+  const top=document.getElementById("topCustomers");if(top)top.innerHTML=state.customers.map(c=>({c,v:balance(c.id)})).sort((a,b)=>b.v-a.v).slice(0,5).map(x=>'<div class="line"><span>'+esc(x.c.name)+'</span><b class="'+(x.v>0?"due":"paid")+'">'+money(x.v)+'</b></div>').join("")||'<p class="muted">No customers yet.</p>';
+}
+
+let lp=null;
+function setupLongPressDelete(){
+  document.addEventListener("pointerdown",e=>{const el=e.target.closest?.("[data-long-delete]");if(!el)return;lp={el,t:setTimeout(()=>{lp.fired=true;deleteRecord(el.dataset.deleteType,el.dataset.deleteId)},700),fired:false}});
+  const cancel=()=>{if(lp){clearTimeout(lp.t);lp=null}};
+  document.addEventListener("pointerup",()=>{if(lp?.fired){lp=null}else cancel()});
+  document.addEventListener("pointercancel",cancel);
+  document.addEventListener("pointermove",e=>{if(lp&&Math.abs(e.movementX)+Math.abs(e.movementY)>12)cancel()});
+}
+function deleteRecord(type,id){if(type==="customer")deleteCustomer(id);else if(type==="item")deleteItem(id);else if(type==="sale")deleteSale(id);else if(type==="payment")deletePayment(id)}
+
 document.addEventListener("DOMContentLoaded",()=>{setupLongPressDelete();render()});
