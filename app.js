@@ -24,10 +24,7 @@ function globalResults(){
   const box=document.getElementById("globalResults");if(!box)return;
   const q=(document.getElementById("globalSearch")?.value||"").toLowerCase();
   const c=state.customers.filter(x=>(x.name+" "+x.phone).toLowerCase().includes(q)).slice(0,8);
-  box.innerHTML=c.map(x=>'<div class="customer" onclick="closeModal();customerView(\''+esc(x.id)+'\')"><div><b>'+esc(x.name)+'</b><small>Customer • '+esc(x.phone||"")+'</small></div><b>'+money(balance(x.id))+'</b></div>').join("")+
-    i.map(x=>'<div class="item"><div><b>'+esc(x.name)+'</b><small>Inventory</small></div><b>'+money(x.price)+'</b></div>').join("")||
-    '<p class="muted">No matches.</p>';
-}
+  box.innerHTML=c.map(x=>'<div class="customer" onclick="closeModal();customerView(\\''+esc(x.id)+'\\')"><div><b>'+esc(x.name)+'</b><small>Customer • '+esc(x.phone||"")+'</small></div><b>'+money(balance(x.id))+'</b></div>').join("")||'<p class="muted">No customers found.</p>';\n}
 
 function openManyItems(customerId){
   if(!state.customers.length){pendingManyCustomerId=null;return addCustomer("many")}
