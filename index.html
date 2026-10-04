@@ -14,6 +14,7 @@
     <div class="authLogo">🏪</div>
     <h1>Dukaan Khata</h1>
     <p id="authSubtitle">Owner • Email + Password</p>
+
     <div id="signupBox">
       <h2>Create Owner Account</h2>
       <input id="shopName" placeholder="Shop name">
@@ -22,23 +23,17 @@
       <input id="ownerEmail" type="email" placeholder="Email address">
       <input id="ownerPassword" type="password" placeholder="Create password (6+ characters)">
       <button type="button" id="createOwnerBtn" class="btn" onclick="createOwnerAccount()">👤 Create Owner Account</button>
-      <button type="button" class="textBtn" onclick="showLogin()">Already registered? Login with Email + Password</button>
+      <button type="button" class="textBtn" onclick="showLogin()">Already have an account? Login</button>
     </div>
-    <div id="resetBox" class="hidden">
-      <h2>Set New Password</h2>
-      <input id="resetPassword" type="password" placeholder="New password (6+ characters)">
-      <input id="resetPassword2" type="password" placeholder="Confirm new password">
-      <button type="button" id="savePasswordBtn" class="btn" onclick="saveNewPassword()">🔑 Save New Password</button>
-      <button type="button" class="textBtn" onclick="showLogin()">Back to Login</button>
-    </div>
+
     <div id="loginBox" class="hidden">
       <h2>Owner Login</h2>
       <input id="loginEmail" type="email" placeholder="Email address">
       <input id="loginPassword" type="password" placeholder="Password">
       <button type="button" id="loginOwnerBtn" class="btn" onclick="loginOwnerAccount()">🔐 Login</button>
-      <button type="button" class="textBtn" onclick="resetOwnerPassword()">Forgot password?</button>
       <button type="button" class="textBtn" onclick="showSignup()">Create a new owner account</button>
     </div>
+
     <p id="authMessage" class="authMessage"></p>
     <small id="authStatus" class="muted"></small>
   </div>
