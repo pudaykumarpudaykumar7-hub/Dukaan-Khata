@@ -20,16 +20,77 @@ function balance(id){return state.tx.filter(t=>t.customerId===id).reduce((s,t)=>
 function sales(){return state.tx.filter(t=>t.type==="sale")}
 function payments(){return state.tx.filter(t=>t.type==="payment")}
 function openManyItems(customerId){
-  if(!state.customers.length){pendingManyCustomerId=null;return addCustomer("many");}
-  if(!state.items.length){pendingManyCustomerId=customerId||null;return addItem("many");}
-  if(!customerId){
-    const opts=state.customers.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+' • '+money(balance(x.id))+'</option>').join("");
-    modal('<h2>＋ Add Many Items</h2><p class="muted">Choose the customer, then add as many different items as you need.</p><select id="manyItemsCustomer">'+opts+'</select><button class="btn primary" onclick="openCustomerKhataItems(document.getElementById(\'manyItemsCustomer\').value)">Continue → Add Items</button>');
+  if(!state.customers.length){
+    pendingManyCustomerId=null;
+    return addCustomer("many");
+  }
+  if(!state.items.length){
+    pendingManyCustomerId=customerId||null;
+    return addItem("many");
+  }
+  const customer=customerId?state.customers.find(x=>x.id===customerId):null;
+  if(!customer){
+    const opts=state.customers.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join("");
+    modal('<h2>Add Many Items</h2><p class="muted">First choose the customer.</p><select id="manyCustomerSelect">'+opts+'</select><button class="btn primary" onclick="startManyItems()">Continue</button>');
     return;
   }
-  openCustomerKhataItems(customerId);
+  showManyItemsForm(customer.id);
 }
-function openSale(customerId){ openManyItems(customerId); }
+function startManyItems(){
+  const id=document.getElementById("manyCustomerSelect")?.value;
+  if(!id)return toast("Choose a customer");
+  showManyItemsForm(id);
+}
+function showManyItemsForm(customerId){
+  const c=state.customers.find(x=>x.id===customerId);
+  if(!c)return;
+  const opts=state.items.map(i=>'<option value="'+esc(i.id)+'">'+esc(i.name)+' — '+money(i.price)+'</option>').join("");
+  modal('<h2>Add Many Items</h2><p><b>'+esc(c.name)+'</b></p><div id="manyRows"></div><button class="btn" type="button" onclick="addManyRow()">＋ Add another item</button><div class="line"><b>Total</b><b id="manyTotal">'+money(0)+'</b></div><button class="btn primary" type="button" onclick="saveManyItems(\''+esc(customerId)+'\')">Save to Khata</button>');
+  window.__manyOptions=opts;
+  addManyRow();
+}
+function addManyRow(){
+  const box=document.getElementById("manyRows");
+  if(!box)return;
+  const opts=window.__manyOptions||"";
+  box.insertAdjacentHTML("beforeend",'<div class="row many-row" style="margin:8px 0"><select class="many-item" onchange="recalcManyItems()">'+opts+'</select><input class="many-qty" type="number" min="1" value="1" oninput="recalcManyItems()"><button class="btn small" type="button" onclick="this.closest(\'.many-row\').remove();recalcManyItems()">✕</button></div>');
+  recalcManyItems();
+}
+function recalcManyItems(){
+  let total=0;
+  document.querySelectorAll("#manyRows .many-row").forEach(row=>{
+    const item=state.items.find(x=>x.id===row.querySelector(".many-item")?.value);
+    const qty=Math.max(1,Number(row.querySelector(".many-qty")?.value)||1);
+    total+=(Number(item?.price)||0)*qty;
+  });
+  const el=document.getElementById("manyTotal");
+  if(el)el.textContent=money(total);
+}
+function saveManyItems(customerId){
+  const lines=[];
+  document.querySelectorAll("#manyRows .many-row").forEach(row=>{
+    const item=state.items.find(x=>x.id===row.querySelector(".many-item")?.value);
+    const qty=Math.max(1,Number(row.querySelector(".many-qty")?.value)||1);
+    if(item)lines.push({itemId:item.id,name:item.name,qty,price:Number(item.price)||0,total:(Number(item.price)||0)*qty});
+  });
+  const total=lines.reduce((sum,x)=>sum+x.total,0);
+  if(!lines.length)return toast("Add at least one item");
+  if(!total)return toast("Item price must be greater than 0");
+  state.tx.unshift({id:uid(),type:"sale",customerId,total,paid:0,mode:"credit",lines,date:new Date().toISOString()});
+  lines.forEach(l=>{
+    const item=state.items.find(x=>x.id===l.itemId);
+    if(item)item.stock=Math.max(0,(Number(item.stock)||0)-l.qty);
+  });
+  saveState();
+  closeModal();
+  render();
+  toast("Items saved to Khata");
+}
+function openCustomerKhataItems(customerId){openManyItems(customerId)}
+function addCustomerKhataLine(){addManyRow()}
+function recalcCustomerKhata(){recalcManyItems()}
+function saveCustomerKhata(customerId){saveManyItems(customerId)}
+function openSale(customerId){openManyItems(customerId)}
 
 function openReceive(customerId){const opts=state.customers.length?state.customers.map(c=>'<option value="'+c.id+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join(""):'<option value="">Walk-in / No customer</option>';modal('<h2>Smart Receive</h2><div class="receive-tabs"><button class="active" onclick="switchReceiveTab(\'qr\',this)">UPI QR</button><button onclick="switchReceiveTab(\'record\',this)">Record payment</button></div><div id="receiveQR"><p class="muted">Show this QR to receive money directly to your UPI ID.</p><input id="qrAmount" type="number" min="1" placeholder="Amount (optional)" oninput="refreshQR()"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add your UPI ID in Shop Profile")+'</b></div><div class="row"><button class="btn primary" onclick="sharePaymentLink()">↗ Share</button><button class="btn" onclick="copyUPILink()">Copy UPI link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer">'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" onclick="savePayment()">Save Payment</button></div>');setTimeout(refreshQR,50)}
 function switchReceiveTab(tab,el){document.querySelectorAll(".receive-tabs button").forEach(x=>x.classList.remove("active"));el.classList.add("active");document.getElementById("receiveQR").classList.toggle("hidden",tab!=="qr");document.getElementById("receiveRecord").classList.toggle("hidden",tab!=="record");if(tab==="qr")refreshQR()}
