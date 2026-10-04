@@ -13,24 +13,22 @@
   <div class="authCard">
     <div class="authLogo">🏪</div>
     <h1>Dukaan Khata</h1>
-    <p id="authSubtitle">Owner • Email OTP</p>
+    <p id="authSubtitle">Owner • Email + Password</p>
     <div id="signupBox">
       <h2>Create Owner Account</h2>
       <input id="shopName" placeholder="Shop name">
       <input id="ownerName" placeholder="Owner name">
       <input id="ownerPhone" type="tel" placeholder="Mobile number (optional)">
       <input id="ownerEmail" type="email" placeholder="Email address">
-      <button type="button" id="sendOwnerOTPBtn" class="btn">📧 Send Email OTP</button>
-      <button type="button" class="textBtn" onclick="showLogin()">Already registered? Login with Email OTP</button>
+      <input id="ownerPassword" type="password" placeholder="Create password (6+ characters)">
+      <button type="button" id="createOwnerBtn" class="btn">👤 Create Owner Account</button>
+      <button type="button" class="textBtn" onclick="showLogin()">Already registered? Login with Email + Password</button>
     </div>
     <div id="loginBox" class="hidden">
       <h2>Owner Login</h2>
       <input id="loginEmail" type="email" placeholder="Email address">
-      <button type="button" id="sendLoginOTPBtn" class="btn">📧 Send Email OTP</button>
-      <div id="otpBox" class="hidden">
-        <input id="otpCode" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit OTP">
-        <button type="button" id="verifyOwnerOTPBtn" class="btn">✅ Verify OTP</button>
-      </div>
+      <input id="loginPassword" type="password" placeholder="Password">
+      <button type="button" id="loginOwnerBtn" class="btn">🔐 Login</button>
       <button type="button" class="textBtn" onclick="showSignup()">Create a new owner account</button>
     </div>
     <p id="authMessage" class="authMessage"></p>
