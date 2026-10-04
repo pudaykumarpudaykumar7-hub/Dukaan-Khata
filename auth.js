@@ -36,12 +36,14 @@ function setBusy(busy){
 }
 function showLogin(){
   el("signupBox").classList.add("hidden");
+  el("resetBox").classList.add("hidden");
   el("loginBox").classList.remove("hidden");
   el("authSubtitle").textContent="Owner • Email + Password";
   authMsg(""); authStatus("");
 }
 function showSignup(){
   el("loginBox").classList.add("hidden");
+  el("resetBox").classList.add("hidden");
   el("signupBox").classList.remove("hidden");
   el("authSubtitle").textContent="Create your cloud owner account";
   authMsg(""); authStatus("");
@@ -122,6 +124,31 @@ async function loginOwnerAccount(){
   }catch(e){console.error(e);authMsg("Login succeeded, but shop setup failed: "+friendlyAuthError(e),true)}
   finally{setBusy(false);authStatus("")}
 }
+function showResetPassword(){
+  el("signupBox").classList.add("hidden");
+  el("loginBox").classList.add("hidden");
+  el("resetBox").classList.remove("hidden");
+  el("authSubtitle").textContent="Owner • Set a new password";
+  authMsg("Enter and confirm your new password.");
+  authStatus("");
+}
+async function saveNewPassword(){
+  const p=el("resetPassword").value;
+  const p2=el("resetPassword2").value;
+  if(!p||!p2){authMsg("Enter the new password twice.",true);return}
+  if(p.length<6){authMsg("Password must be at least 6 characters.",true);return}
+  if(p!==p2){authMsg("Passwords do not match.",true);return}
+  if(!supabaseClient){authMsg("App connection is not ready. Refresh the page once.",true);return}
+  setBusy(true);authMsg("Saving new password...");
+  try{
+    const {error}=await supabaseClient.auth.updateUser({password:p});
+    if(error){authMsg(friendlyAuthError(error),true);return}
+    el("resetPassword").value="";el("resetPassword2").value="";
+    showLogin();
+    authMsg("Password changed successfully. You can now login with your new password.");
+  }catch(e){console.error(e);authMsg(friendlyAuthError(e),true)}
+  finally{setBusy(false);authStatus("")}
+}
 async function resetOwnerPassword(){
   if(!canAttemptAuth())return;
   const email=el("loginEmail").value.trim().toLowerCase();
@@ -155,7 +182,10 @@ function initAuth(){
     if(!window.supabase)throw new Error("Supabase library did not load.");
     supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
     authStatus("Cloud login ready.");
-    supabaseClient.auth.onAuthStateChange((_event,session)=>{currentUser=session?.user||null});
+    supabaseClient.auth.onAuthStateChange(async (_event,session)=>{
+  currentUser=session?.user||null;
+  if(_event==="PASSWORD_RECOVERY") showResetPassword();
+});
     supabaseClient.auth.getSession().then(async({data})=>{
       if(data?.session){
         currentUser=data.session.user;
@@ -169,6 +199,8 @@ function initAuth(){
 window.createOwnerAccount=createOwnerAccount;
 window.loginOwnerAccount=loginOwnerAccount;
 window.resetOwnerPassword=resetOwnerPassword;
+window.showResetPassword=showResetPassword;
+window.saveNewPassword=saveNewPassword;
 window.showLogin=showLogin;
 window.showSignup=showSignup;
 window.ownerMenu=ownerMenu;
