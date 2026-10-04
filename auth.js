@@ -131,20 +131,75 @@ supabaseClient.auth.onAuthStateChange(async (_event,session)=>{
     }
   }else showLogin();
 })();
-// Explicitly expose auth actions for GitHub Pages / mobile browsers.
-window.createOwner=createOwner;
-window.loginOwner=loginOwner;
+function normalizePhone(v){
+  let p=(v||"").trim().replace(/[\s-]/g,"");
+  if(/^\d{10}$/.test(p)) p="+91"+p;
+  return p;
+}
+function showLogin(){
+  el("signupBox").classList.add("hidden");
+  el("loginBox").classList.remove("hidden");
+  el("authSubtitle").textContent="Owner • Mobile OTP";
+  authMsg("");
+}
+function showSignup(){
+  el("loginBox").classList.add("hidden");
+  el("signupBox").classList.remove("hidden");
+  el("authSubtitle").textContent="Owner • Mobile OTP";
+  authMsg("");
+}
+async function sendOwnerOTP(){
+  const shop=el("shopName").value.trim(), name=el("ownerName").value.trim(), phone=normalizePhone(el("ownerPhone").value);
+  if(!shop||!name||!phone){authMsg("Enter shop name, owner name and mobile number.",true);return}
+  if(!/^\+91\d{10}$/.test(phone)){authMsg("Enter a valid Indian mobile number, e.g. +919876543210.",true);return}
+  authMsg("Sending OTP...");
+  const {error}=await supabaseClient.auth.signInWithOtp({
+    phone,
+    options:{data:{owner_name:name,phone,shop_name:shop}}
+  });
+  if(error){authMsg(friendlyAuthError(error),true);return}
+  el("loginPhone").value=phone;
+  el("otpBox").classList.remove("hidden");
+  showLogin();
+  el("loginPhone").value=phone;
+  el("otpBox").classList.remove("hidden");
+  authMsg("OTP sent. Enter the 6-digit code.");
+}
+async function sendLoginOTP(){
+  const phone=normalizePhone(el("loginPhone").value);
+  if(!/^\+91\d{10}$/.test(phone)){authMsg("Enter a valid Indian mobile number, e.g. +919876543210.",true);return}
+  authMsg("Sending OTP...");
+  const {error}=await supabaseClient.auth.signInWithOtp({phone});
+  if(error){authMsg(friendlyAuthError(error),true);return}
+  el("otpBox").classList.remove("hidden");
+  authMsg("OTP sent. Enter the 6-digit code.");
+}
+async function verifyOwnerOTP(){
+  const phone=normalizePhone(el("loginPhone").value);
+  const token=el("otpCode").value.trim();
+  if(!/^\+91\d{10}$/.test(phone)||!/^\d{6}$/.test(token)){authMsg("Enter the 6-digit OTP.",true);return}
+  authMsg("Verifying OTP...");
+  const {data,error}=await supabaseClient.auth.verifyOtp({phone,token,type:"sms"});
+  if(error){authMsg(friendlyAuthError(error),true);return}
+  currentUser=data.user;
+  try{
+    let member=await getMyShop();
+    if(!member){
+      authMsg("Creating your shop...");
+      await createShopForUser();
+      member=await getMyShop();
+    }
+    if(!member)throw new Error("Shop could not be linked to this mobile number.");
+    await startApp();
+  }catch(e){
+    console.error(e);
+    authMsg("OTP verified, but shop setup failed: "+friendlyAuthError(e),true);
+  }
+}
+window.sendOwnerOTP=sendOwnerOTP;
+window.sendLoginOTP=sendLoginOTP;
+window.verifyOwnerOTP=verifyOwnerOTP;
 window.showLogin=showLogin;
 window.showSignup=showSignup;
 window.ownerMenu=ownerMenu;
 window.logoutOwner=logoutOwner;
-
-async function resendConfirmation(){
-  const email=el("loginEmail").value.trim()||el("ownerEmail").value.trim();
-  if(!email){authMsg("Enter your email first.",true);return}
-  authMsg("Sending confirmation email...");
-  const {error}=await supabaseClient.auth.resend({type:"signup",email});
-  if(error){authMsg(friendlyAuthError(error),true);return}
-  authMsg("Confirmation email sent. Check your inbox and Spam folder.");
-}
-window.resendConfirmation=resendConfirmation;
