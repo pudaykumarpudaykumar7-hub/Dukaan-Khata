@@ -2,50 +2,103 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#111827">
-<title>Dukaan Khata</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="Dukaan Khata — smart digital khata, billing, inventory and business dashboard for Indian shops.">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
+<title>Dukaan Khata • Smart Business</title>
 </head>
 <body>
-<div id="appShell">
-<header>
-  <div><h1>🏪 Dukaan Khata</h1><small id="ownerHeader">Shop • Cloud</small></div>
-  <div class="headerActions"><button class="icon" onclick="toggleTheme()">☾</button></div>
+<div class="app">
+<header class="topbar">
+  <div class="brand"><div class="logo">₹</div><div><h1>Dukaan Khata</h1><small id="ownerHeader">Smart Business</small></div></div>
+  <div class="top-actions"><button class="round" onclick="openSearch()" aria-label="Search">⌕</button><button class="round" onclick="toggleTheme()" aria-label="Theme">◐</button></div>
 </header>
+
 <main>
 <section id="home" class="page active">
-  <div class="hero"><div><span>Total to receive</span><strong id="totalDue">₹0</strong></div><div class="heroIcon">₹</div></div>
-  <div class="stats"><div><span>Customers</span><b id="customerCount">0</b></div><div><span>Today received</span><b id="todayPaid">₹0</b></div></div>
-  <div class="quick"><button onclick="openSale()">＋ New Khata</button><button onclick="openPayment()">₹ Receive Payment</button></div>
-  <div class="sectionTitle"><h2>Recent Khata</h2><button class="link" onclick="showPage('customers')">View all</button></div>
+  <div class="welcome"><div><span id="greeting">Good morning 👋</span><h2>Your shop at a glance</h2><small id="todayLabel"></small></div><button class="store-pill" onclick="openShopSettings()">⚙</button></div>
+  <div class="balance-hero"><div><span>Outstanding to receive</span><strong id="totalDue">₹0</strong><div class="hero-meta"><span id="overdueCount">0 overdue</span><span id="collectionRate">0% collected</span></div></div><div class="hero-ring"><span>₹</span></div></div>
+  <div class="stat-grid">
+    <div class="stat"><span>Sales today</span><b id="todaySales">₹0</b><small id="todaySalesCount">0 bills</small></div>
+    <div class="stat"><span>Received today</span><b id="todayPaid">₹0</b><small>All methods</small></div>
+    <div class="stat"><span>Customers</span><b id="customerCount">0</b><small id="newCustomers">0 active</small></div>
+    <div class="stat"><span>Low stock</span><b id="lowStockCount">0</b><small>Needs attention</small></div>
+  </div>
+  <div class="quick-grid">
+    <button class="quick primary" onclick="openSale()">＋<span>New Sale</span><small>Bill / Khata</small></button>
+    <button class="quick blue" onclick="openPayment()">₹<span>Receive</span><small>Payment</small></button>
+    <button class="quick orange" onclick="addCustomer()">♙<span>Customer</span><small>Add new</small></button>
+    <button class="quick purple" onclick="addItem()">▦<span>Inventory</span><small>Add item</small></button>
+  </div>
+  <div class="section-head"><h3>Needs attention</h3><button class="text-link" onclick="showPage('inventory')">View all</button></div>
+  <div id="attention"></div>
+  <div class="section-head"><h3>Recent activity</h3><button class="text-link" onclick="showPage('reports')">Reports</button></div>
   <div id="recent"></div>
 </section>
+
+<section id="khata" class="page">
+  <div class="page-title"><div><span class="eyebrow">LEDGER</span><h2>Khata</h2></div><button class="primary small" onclick="openSale()">＋ New</button></div>
+  <div class="segmented"><button class="active" onclick="filterKhata('all',this)">All</button><button onclick="filterKhata('due',this)">Due</button><button onclick="filterKhata('paid',this)">Paid</button></div>
+  <input class="search" id="khataSearch" placeholder="⌕ Search customer..." oninput="renderKhata()">
+  <div id="khataList"></div>
+</section>
+
 <section id="customers" class="page">
-  <div class="topline"><h2>Customers</h2><button class="primary small" onclick="addCustomer()">＋ Add</button></div>
-  <input class="search" id="customerSearch" placeholder="🔍 Search customer or phone" oninput="renderCustomers">
+  <div class="page-title"><div><span class="eyebrow">PEOPLE</span><h2>Customers</h2></div><button class="primary small" onclick="addCustomer()">＋ Add</button></div>
+  <div class="mini-stats"><span><b id="customerDueCount">0</b> with due</span><span><b id="customerPaidCount">0</b> clear</span></div>
+  <input class="search" id="customerSearch" placeholder="⌕ Name or phone..." oninput="renderCustomers()">
   <div id="customerList"></div>
 </section>
-<section id="items" class="page">
-  <div class="topline"><h2>Items</h2><button class="primary small" onclick="addItem()">＋ Add</button></div>
-  <p class="muted">Save common items so sales are faster.</p><div id="itemList"></div>
+
+<section id="inventory" class="page">
+  <div class="page-title"><div><span class="eyebrow">STOCK</span><h2>Inventory</h2></div><button class="primary small" onclick="addItem()">＋ Item</button></div>
+  <div class="inventory-cards"><div><span>Items</span><b id="itemCount">0</b></div><div><span>Stock value</span><b id="stockValue">₹0</b></div><div><span>Low stock</span><b id="inventoryLow">0</b></div></div>
+  <input class="search" id="itemSearch" placeholder="⌕ Search item..." oninput="renderItems()">
+  <div id="itemList"></div>
 </section>
+
+<section id="bills" class="page">
+  <div class="page-title"><div><span class="eyebrow">BILLING</span><h2>Bills & Sales</h2></div><button class="primary small" onclick="openSale()">＋ Bill</button></div>
+  <div class="bill-tools"><button onclick="exportData()">⇩ Backup</button><button onclick="openExpenses()">₹ Expenses</button><button onclick="openReturns()">↩ Returns</button></div>
+  <div id="billList"></div>
+</section>
+
 <section id="reports" class="page">
-  <h2>Reports</h2>
-  <div class="reportGrid"><div><span>Total credit</span><b id="rCredit">₹0</b></div><div><span>Total received</span><b id="rPaid">₹0</b></div><div><span>Transactions</span><b id="rTx">0</b></div></div>
-  <div class="card"><h3>Cloud Dukaan Khata</h3><p>Your data is stored in Supabase cloud. No login screen is required.</p></div>
+  <div class="page-title"><div><span class="eyebrow">INSIGHTS</span><h2>Reports</h2></div><button class="text-link" onclick="exportData()">Export</button></div>
+  <div class="report-hero"><span>Business value</span><strong id="rRevenue">₹0</strong><small>All recorded sales</small></div>
+  <div class="report-grid"><div><span>Credit sales</span><b id="rCredit">₹0</b></div><div><span>Received</span><b id="rPaid">₹0</b></div><div><span>Expenses</span><b id="rExpense">₹0</b></div><div><span>Transactions</span><b id="rTx">0</b></div></div>
+  <div class="card"><h3>7-day activity</h3><div id="activityChart" class="bars"></div></div>
+  <div class="card"><h3>Top customers</h3><div id="topCustomers"></div></div>
+</section>
+
+<section id="tools" class="page">
+  <div class="page-title"><div><span class="eyebrow">TOOLS</span><h2>More</h2></div></div>
+  <div class="tools-grid">
+    <button onclick="openShopSettings()">🏪<b>Shop profile</b><small>Name, phone, address</small></button>
+    <button onclick="openExpenses()">💸<b>Expenses</b><small>Track shop spending</small></button>
+    <button onclick="openReturns()">↩<b>Returns</b><small>Record returns</small></button>
+    <button onclick="openBackup()">☁<b>Backup & restore</b><small>Protect your data</small></button>
+    <button onclick="openLanguage()">文<b>Language</b><small>English / Hindi / Telugu</small></button>
+    <button onclick="voiceEntry()">🎙<b>Voice entry</b><small>Speak a note or customer</small></button>
+    <button onclick="openAbout()">★<b>Dukaan Khata Pro</b><small>Smart shop toolkit</small></button>
+    <button onclick="clearDemo()">↻<b>Reset demo</b><small>Clear local data</small></button>
+  </div>
 </section>
 </main>
-<nav>
-<button onclick="showPage('home')" data-page="home">⌂<span>Home</span></button>
-<button onclick="showPage('customers')" data-page="customers">👥<span>Customers</span></button>
-<button onclick="showPage('items')" data-page="items">📦<span>Items</span></button>
-<button onclick="showPage('reports')" data-page="reports">📊<span>Reports</span></button>
+
+<nav class="bottom-nav">
+<button class="active" onclick="showPage('home')" data-page="home">⌂<span>Home</span></button>
+<button onclick="showPage('khata')" data-page="khata">₹<span>Khata</span></button>
+<button onclick="showPage('inventory')" data-page="inventory">▦<span>Stock</span></button>
+<button onclick="showPage('bills')" data-page="bills">▤<span>Bills</span></button>
+<button onclick="showPage('tools')" data-page="tools">•••<span>More</span></button>
 </nav>
+<div id="toast" class="toast"></div>
 <div id="modal" class="modal hidden"><div class="sheet"><button class="close" onclick="closeModal()">×</button><div id="modalBody"></div></div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script src="auth.js"></script>
+</div>
 </body>
 </html>
