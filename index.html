@@ -9,52 +9,10 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="authGate" class="authGate">
-  <div class="authCard">
-    <div class="authLogo">🏪</div>
-    <h1>Dukaan Khata</h1>
-    <p id="authSubtitle">Owner • Email + Password</p>
-
-    <div id="signupBox">
-      <h2>Create Owner Account</h2>
-      <input id="shopName" placeholder="Shop name">
-      <input id="ownerName" placeholder="Owner name">
-      <input id="ownerPhone" type="tel" placeholder="Mobile number (optional)">
-      <input id="ownerEmail" type="email" placeholder="Email address">
-      <input id="ownerPassword" type="password" placeholder="Create password (6+ characters)">
-      <button type="button" id="createOwnerBtn" class="btn" onclick="createOwnerAccount()">👤 Create Owner Account</button>
-      <button type="button" class="textBtn" onclick="showLogin()">Already have an account? Login</button>
-    </div>
-
-    <div id="loginBox" class="hidden">
-      <h2>Owner Login</h2>
-      <input id="loginEmail" type="email" placeholder="Email address">
-      <input id="loginPassword" type="password" placeholder="Password">
-      <button type="button" id="loginOwnerBtn" class="btn" onclick="loginOwnerAccount()">🔐 Login</button>
-      <button type="button" class="textBtn" onclick="forgotOwnerPassword()">Forgot password? Send reset email</button>
-      <button type="button" class="textBtn" onclick="showSignup()">Create a new owner account</button>
-    </div>
-
-    <div id="resetBox" class="hidden">
-      <h2>Set New Password</h2>
-      <input id="resetPassword" type="password" placeholder="New password (6+ characters)">
-      <input id="resetPassword2" type="password" placeholder="Confirm new password">
-      <button type="button" id="savePasswordBtn" class="btn" onclick="saveNewPassword()">🔑 Save New Password</button>
-      <button type="button" class="textBtn" onclick="showLogin()">Back to Login</button>
-    </div>
-
-    <p id="authMessage" class="authMessage"></p>
-    <small id="authStatus" class="muted"></small>
-  </div>
-</div>
-
-<div id="appShell" class="appLocked">
+<div id="appShell">
 <header>
-  <div>
-    <h1>🏪 Dukaan Khata</h1>
-    <small id="ownerHeader">Owner • Cloud</small>
-  </div>
-  <div class="headerActions"><button class="icon" onclick="toggleTheme()">☾</button><button class="icon" onclick="ownerMenu()">👤</button></div>
+  <div><h1>🏪 Dukaan Khata</h1><small id="ownerHeader">Shop • Cloud</small></div>
+  <div class="headerActions"><button class="icon" onclick="toggleTheme()">☾</button></div>
 </header>
 <main>
 <section id="home" class="page active">
@@ -66,18 +24,17 @@
 </section>
 <section id="customers" class="page">
   <div class="topline"><h2>Customers</h2><button class="primary small" onclick="addCustomer()">＋ Add</button></div>
-  <input class="search" id="customerSearch" placeholder="🔍 Search customer or phone" oninput="renderCustomers()">
+  <input class="search" id="customerSearch" placeholder="🔍 Search customer or phone" oninput="renderCustomers">
   <div id="customerList"></div>
 </section>
 <section id="items" class="page">
   <div class="topline"><h2>Items</h2><button class="primary small" onclick="addItem()">＋ Add</button></div>
-  <p class="muted">Save common items so sales are faster.</p>
-  <div id="itemList"></div>
+  <p class="muted">Save common items so sales are faster.</p><div id="itemList"></div>
 </section>
 <section id="reports" class="page">
   <h2>Reports</h2>
   <div class="reportGrid"><div><span>Total credit</span><b id="rCredit">₹0</b></div><div><span>Total received</span><b id="rPaid">₹0</b></div><div><span>Transactions</span><b id="rTx">0</b></div></div>
-  <div class="card"><h3>Cloud Dukaan Khata</h3><p>Your customers, items, Khata and payments are stored in your Supabase cloud database and linked to your owner account.</p></div>
+  <div class="card"><h3>Cloud Dukaan Khata</h3><p>Your data is stored in Supabase cloud. No login screen is required.</p></div>
 </section>
 </main>
 <nav>
