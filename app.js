@@ -44,22 +44,30 @@ function continueManyItems(){const id=document.getElementById("manyCustomer")?.v
 function openSale(customerId){openManyItems(customerId)}
 function showManyItemsForm(customerId){
   const c=state.customers.find(x=>x.id===customerId);if(!c)return;
-  const opts=state.items.map(i=>'<option value="'+esc(i.id)+'">'+esc(i.name)+' — '+money(i.price)+'</option>').join("");
-  modal('<h2>＋ Add Many Items</h2><p><b>'+esc(c.name)+'</b></p><div id="manyRows"></div><button class="btn" type="button" onclick="addManyRow()">＋ Add another item</button><div class="line"><b>Total</b><b id="manyTotal">₹0</b></div><button class="btn primary" type="button" onclick="saveManyItems(\''+esc(customerId)+'\')">Save to Khata</button>');
-  window.__manyOptions=opts;addManyRow();
+  modal('<h2>＋ Add Many Items</h2><p><b>'+esc(c.name)+'</b></p><div id="manyRows"></div><button class="btn" type="button" id="addManyRowBtn">＋ Add another item</button><div class="line"><b>Total</b><b id="manyTotal">₹0</b></div><button class="btn primary" type="button" id="saveManyBtn">Save to Khata</button>');
+  document.getElementById("addManyRowBtn")?.addEventListener("click",addManyRow);
+  document.getElementById("saveManyBtn")?.addEventListener("click",()=>saveManyItems(customerId));
+  addManyRow();
 }
 function addManyRow(){
   const box=document.getElementById("manyRows");if(!box)return;
-  const used=[...box.querySelectorAll(".many-item")].map(x=>x.value);
-  const available=state.items.filter(i=>!used.includes(i.id));
-  const source=available.length?available:state.items;
-  const opts=source.map(i=>'<option value="'+esc(i.id)+'">'+esc(i.name)+' — '+money(i.price)+'</option>').join("");
-  box.insertAdjacentHTML("beforeend",'<div class="row many-row" style="margin:8px 0"><select class="many-item" onchange="recalcManyItems()"><option value="">Select item</option>'+opts+'</select><input class="many-qty" type="number" min="1" value="1" oninput="recalcManyItems()"><button class="btn small" type="button" onclick="this.closest(\'.many-row\').remove();recalcManyItems()">✕</button></div>');
+  const opts=state.items.map(i=>'<option value="'+esc(i.id)+'">'+esc(i.name)+' — '+money(i.price)+'</option>').join("");
+  const row=document.createElement("div");row.className="row many-row";row.style.margin="8px 0";
+  row.innerHTML='<select class="many-item"><option value="">Select item</option>'+opts+'</select><input class="many-qty" type="number" min="1" value="1"><button class="btn small many-remove" type="button">✕</button>';
+  box.appendChild(row);
+  row.querySelector(".many-item").addEventListener("change",recalcManyItems);
+  row.querySelector(".many-qty").addEventListener("input",recalcManyItems);
+  row.querySelector(".many-remove").addEventListener("click",()=>{row.remove();recalcManyItems()});
   recalcManyItems();
 }
 function recalcManyItems(){
   let total=0;
-  document.querySelectorAll(".many-row").forEach(r=>{const i=state.items.find(x=>x.id===r.querySelector(".many-item")?.value);total+=(Number(i?.price)||0)*(Math.max(1,Number(r.querySelector(".many-qty")?.value)||1))});
+  document.querySelectorAll("#manyRows .many-row").forEach(r=>{
+    const id=r.querySelector(".many-item")?.value;
+    const i=state.items.find(x=>x.id===id);
+    const q=Math.max(1,Number(r.querySelector(".many-qty")?.value)||1);
+    total+=(Number(i?.price)||0)*q;
+  });
   const e=document.getElementById("manyTotal");if(e)e.textContent=money(total);
 }
 function saveManyItems(customerId){
