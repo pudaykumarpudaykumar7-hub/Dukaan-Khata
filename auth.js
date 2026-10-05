@@ -29,7 +29,7 @@ function authUI(){
     <input id="authEmail" type="email" placeholder="Email address" autocomplete="email">
     <input id="authPassword" type="password" placeholder="Password (minimum 6 characters)" autocomplete="current-password">
     <div id="authMsg" class="auth-msg"></div>
-    <button id="authMain" class="auth-primary">Login</button>
+    <button id="authMain" class="auth-primary">Login</button><div class="auth-divider">OR</div><button id="googleAuth" class="auth-google">🔵 Continue with Google</button><button id="phoneAuth" class="auth-otp">📱 Continue with Phone OTP</button>
     <div class="auth-switch"><span id="authSwitchText">New owner?</span> <button id="authSwitch">Create owner account</button></div>
   </div>`;
   document.body.appendChild(d);
@@ -45,6 +45,25 @@ function refreshAuthMode(){
   document.getElementById("authSwitch").textContent=authSignup?"Login":"Create owner account";
   authMsg("");
 }
+async function loginWithGoogle(){
+  authMsg("Opening Google login...",true);
+  const {error}=await supabaseClient.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.origin+window.location.pathname}});
+  if(error)authMsg(error.message||"Google login is not available yet.");
+}
+async function loginWithPhone(){
+  const phone=prompt("Enter your phone number with country code, e.g. +919876543210");
+  if(!phone)return;
+  authMsg("Sending OTP...",true);
+  const {error}=await supabaseClient.auth.signInWithOtp({phone:phone.trim()});
+  if(error)return authMsg(error.message||"Could not send OTP.");
+  const otp=prompt("Enter the OTP you received");
+  if(!otp)return;
+  authMsg("Verifying OTP...",true);
+  const {data,error:verifyError}=await supabaseClient.auth.verifyOtp({phone:phone.trim(),token:otp.trim(),type:"sms"});
+  if(verifyError)return authMsg(verifyError.message||"Invalid OTP.");
+  try{await ensureOwnerShop(data.user);await startOwner(data.user)}catch(e){authMsg(e.message||"Login succeeded, but shop setup is incomplete.")}
+}
+
 async function createOwnerAccount(){
   const shop=document.getElementById("authShop").value.trim(),owner=document.getElementById("authOwner").value.trim(),phone=document.getElementById("authPhone").value.trim(),email=document.getElementById("authEmail").value.trim(),password=document.getElementById("authPassword").value;
   if(!shop||!owner||!email||password.length<6)return authMsg("Enter shop name, owner name, email and a 6+ character password.");
@@ -130,6 +149,8 @@ async function initOwnerAuth(){
   authUI();refreshAuthMode();
   document.getElementById("authSwitch").onclick=()=>{authSignup=!authSignup;refreshAuthMode()};
   document.getElementById("authMain").onclick=()=>authSignup?createOwnerAccount():loginOwner();
+  document.getElementById("googleAuth").onclick=loginWithGoogle;
+  document.getElementById("phoneAuth").onclick=loginWithPhone;
   const {data}=await supabaseClient.auth.getSession();
   if(data.session){
     try{await startOwner(data.session.user)}
