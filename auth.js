@@ -268,14 +268,15 @@ function updateDukaanProfileButton(){
   const user=window.DukaanKhataUser;
   if(!user){
     btn.innerHTML="👤 <span>Sign in</span>";
+    btn.title="Sign in";
     btn.setAttribute("aria-label","Sign in");
     return;
   }
-  const name=String(user.user_metadata?.full_name||user.user_metadata?.name||user.user_metadata?.owner_name||user.email?.split("@")[0]||user.phone||"Account").trim();
-  const email=String(user.email||user.phone||"").trim().replace(/[<>&"]/g,"");
-  btn.innerHTML="👤 <span>"+(email||name)+" · India</span>";
-  btn.title=(email||name)+" · India";
-  btn.setAttribute("aria-label","Open account");
+  const email=String(user.email||"").trim().replace(/[<>&"]/g,"");
+  const label=email||"Google Account";
+  btn.innerHTML="👤 <span>"+label+"</span>";
+  btn.title="Signed in as "+(email||"Google Account");
+  btn.setAttribute("aria-label","Open account profile");
 }
 function openDukaanProfile(){
   const user=window.DukaanKhataUser;
