@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1220">
 <meta name="description" content="Dukaan Khata Infinity — digital khata, UPI QR payments, billing, WhatsApp customer care, reminders and business tools for Indian shops.">
+<meta name="google-site-verification" content="yxGmsKLNh80x8p2xAea4jExg0TK-CKe7ma8ZC">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
 <title>Dukaan Khata • Smart Business</title>
@@ -21,7 +22,6 @@
   </nav>
   <div class="top-actions"><button class="round" onclick="openSearch()" aria-label="Search">⌕</button><button class="round" onclick="toggleTheme()" aria-label="Theme">◐</button></div>
 </header>
-
 <main>
 <section id="home" class="page active">
   <div class="welcome"><div><span id="greeting">Good morning 👋</span><h2>Your shop at a glance</h2><small id="todayLabel"></small></div><button class="store-pill" onclick="openShopSettings()">⚙</button></div>
@@ -30,7 +30,7 @@
     <div class="stat"><span>Sales today</span><b id="todaySales">₹0</b><small id="todaySalesCount">0 bills</small></div>
     <div class="stat"><span>Received today</span><b id="todayPaid">₹0</b><small>All methods</small></div>
     <div class="stat"><span>Customers</span><b id="customerCount">0</b><small id="newCustomers">0 active</small></div>
-    </div>
+  </div>
   <div class="quick-grid">
     <button class="quick primary" onclick="openManyItems()">＋<span>Add Many Items</span><small>Many Items / Khata</small></button>
     <button class="quick blue" onclick="openReceive()">⌁<span>Receive</span><small>QR • UPI • Cash</small></button>
@@ -40,27 +40,23 @@
   <div class="section-head"><h3>Recent activity</h3><button class="text-link" onclick="showPage('reports')">Reports</button></div>
   <div id="recent"></div>
 </section>
-
 <section id="khata" class="page">
   <div class="page-title"><div><span class="eyebrow">LEDGER</span><h2>Khata</h2></div><button class="primary small" onclick="openSale()">＋ Add Many Items</button></div>
   <div class="segmented"><button class="active" onclick="filterKhata('all',this)">All</button><button onclick="filterKhata('due',this)">Due</button><button onclick="filterKhata('paid',this)">Paid</button></div>
   <input class="search" id="khataSearch" placeholder="⌕ Search customer..." oninput="renderKhata()">
   <div id="khataList"></div>
 </section>
-
 <section id="customers" class="page">
   <div class="page-title"><div><span class="eyebrow">PEOPLE</span><h2>Customers</h2></div><button class="primary small" onclick="addCustomer()">＋ Add</button></div>
   <div class="mini-stats"><span><b id="customerDueCount">0</b> with due</span><span><b id="customerPaidCount">0</b> clear</span></div>
   <input class="search" id="customerSearch" placeholder="⌕ Name or phone..." oninput="renderCustomers()">
   <div id="customerList"></div>
 </section>
-
 <section id="bills" class="page">
   <div class="page-title"><div><span class="eyebrow">BILLING</span><h2>Bills & Sales</h2></div><button class="primary small" onclick="openSale()">＋ Add Many Items</button></div>
   <div class="bill-tools"><button onclick="exportData()">⇩ Backup</button><button onclick="openExpenses()">₹ Expenses</button><button onclick="openReturns()">↩ Returns</button></div>
   <div id="billList"></div>
 </section>
-
 <section id="reports" class="page">
   <div class="page-title"><div><span class="eyebrow">INSIGHTS</span><h2>Reports</h2></div><button class="text-link" onclick="exportData()">Export</button></div>
   <div class="report-hero"><span>Business value</span><strong id="rRevenue">₹0</strong><small>All recorded sales</small></div>
@@ -68,7 +64,6 @@
   <div class="card"><h3>7-day activity</h3><div id="activityChart" class="bars"></div></div>
   <div class="card"><h3>Top customers</h3><div id="topCustomers"></div></div>
 </section>
-
 <section id="tools" class="page">
   <div class="page-title"><div><span class="eyebrow">TOOLS</span><h2>More</h2></div></div>
   <div class="tools-grid"><button class="luxury-tool" onclick="openReceive()">⌁<b>Smart Receive</b><small>UPI QR + payment links</small></button><button class="luxury-tool" onclick="openCustomerHub()">💬<b>Customer Connect</b><small>WhatsApp + calls + reminders</small></button><button class="luxury-tool" onclick="openReminderCenter()">🔔<b>Reminder Center</b><small>Due follow-ups</small></button><button class="luxury-tool" onclick="openDigitalPass()">✦<b>Digital Shop Pass</b><small>Share your shop identity</small></button>
@@ -83,7 +78,6 @@
   </div>
 </section>
 </main>
-
 <nav class="bottom-nav">
 <button class="active" onclick="showPage('home')" data-page="home">⌂<span>Home</span></button>
 <button onclick="showPage('khata')" data-page="khata">₹<span>Khata</span></button>
