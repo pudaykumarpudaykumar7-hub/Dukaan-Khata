@@ -194,6 +194,16 @@ async function logoutDukaanKhata(){
   const a=document.getElementById("ownerAuth");
   if(a){a.classList.remove("hidden");authRole="owner";authSignup=false;setAuthRole("owner");refreshAuthMode();}
 }
+function openDukaanLogin(){
+  const overlay=document.getElementById("ownerAuth");
+  if(window.DukaanKhataUser){
+    logoutDukaanKhata();
+    return;
+  }
+  if(overlay){overlay.classList.remove("hidden");authRole="owner";authSignup=false;setAuthRole("owner");refreshAuthMode();}
+}
+window.openDukaanLogin=openDukaanLogin;
+
 function openDukaanProfile(){
   const user=window.DukaanKhataUser;
   const overlay=document.getElementById("ownerAuth");
