@@ -12,7 +12,7 @@ function authStyles(){
     #ownerAuth.hidden{display:none!important}.auth-card{width:min(440px,100%);background:#fff;border-radius:24px;padding:25px;box-shadow:0 25px 70px #0007}
     .auth-logo{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#36c47b,#176b4d);color:#fff;display:grid;place-items:center;font-size:28px;font-weight:900;margin-bottom:14px}
     .auth-card h2{margin:0 0 5px}.auth-card p{color:#667085;font-size:13px;margin:0 0 18px}.auth-card input{width:100%;padding:13px;border:1px solid #dfe4ea;border-radius:12px;margin:0 0 9px}.auth-card button{width:100%;padding:13px;border:0;border-radius:12px;font-weight:800;margin-top:5px}.auth-primary{background:#176b4d;color:#fff}.auth-secondary{background:#eef2f6;color:#101828}.auth-msg{min-height:20px;margin:10px 0;font-size:12px;font-weight:700}.auth-switch{text-align:center;margin-top:12px;font-size:12px;color:#667085}.auth-switch button{display:inline;width:auto;background:none;color:#176b4d;padding:0;margin:0}
-    .auth-google{background:#fff;color:#101828;border:1px solid #dfe4ea!important}.auth-otp{background:#f4f8f6;color:#176b4d}.auth-divider{display:flex;align-items:center;gap:8px;color:#98a2b3;font-size:11px;margin:12px 0}.auth-divider:before,.auth-divider:after{content:"";height:1px;background:#e4e7ec;flex:1}
+    .profile-login-btn{border:1px solid #dfe4ea;background:#fff;color:#176b4d;border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer}.profile-login-btn span{font-size:12px;margin-left:3px}.profile-card{text-align:center;padding:8px}.profile-avatar{width:64px;height:64px;border-radius:50%;background:#eef7f2;display:grid;place-items:center;font-size:30px;margin:0 auto 10px}.profile-card h2{margin:4px 0}.profile-card p{margin:0 0 5px;color:#176b4d;font-weight:800}.profile-card small{display:block;color:#667085;margin-bottom:16px}.profile-card button{width:100%;padding:12px;border:0;border-radius:12px;font-weight:800}.auth-google{background:#fff;color:#101828;border:1px solid #dfe4ea!important}.auth-otp{background:#f4f8f6;color:#176b4d}.auth-divider{display:flex;align-items:center;gap:8px;color:#98a2b3;font-size:11px;margin:12px 0}.auth-divider:before,.auth-divider:after{content:"";height:1px;background:#e4e7ec;flex:1}
     .role-tabs{display:flex;gap:6px;margin:0 0 14px}.role-tab{flex:1!important;background:#eef2f6;color:#475467!important;margin:0!important;padding:9px 6px!important}.role-tab.active{background:#176b4d!important;color:#fff!important}
   `;document.head.appendChild(s);
 }
@@ -194,4 +194,20 @@ async function logoutDukaanKhata(){
   const a=document.getElementById("ownerAuth");
   if(a){a.classList.remove("hidden");authRole="owner";authSignup=false;setAuthRole("owner");refreshAuthMode();}
 }
+function openDukaanProfile(){
+  const user=window.DukaanKhataUser;
+  const overlay=document.getElementById("ownerAuth");
+  if(!user){
+    if(overlay){overlay.classList.remove("hidden");authRole="owner";authSignup=false;setAuthRole("owner");refreshAuthMode();}
+    return;
+  }
+  const name=user.user_metadata?.full_name||user.user_metadata?.name||user.user_metadata?.owner_name||user.email||user.phone||"User";
+  const shop=window.DukaanKhataShop?.name||state?.shop?.name||"My Dukaan";
+  if(window.openModal){
+    openModal("Profile",`<div class="profile-card"><div class="profile-avatar">👤</div><h2>${name}</h2><p>${shop}</p><small>${user.email||user.phone||""}</small><button class="primary" onclick="closeModal();logoutDukaanKhata()">↪ Logout / Switch account</button></div>`);
+  }else{
+    alert(name+"\n"+shop);
+  }
+}
+window.openDukaanProfile=openDukaanProfile;
 window.logoutDukaanKhata=logoutDukaanKhata;
