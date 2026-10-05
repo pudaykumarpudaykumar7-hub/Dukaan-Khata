@@ -114,17 +114,33 @@ async function createOwnerAccount(){
   }catch(e){authMsg(e.message||"Could not create account.");}
   document.getElementById("authMain").disabled=false;
 }
-async function changeOwnerPassword(){
-  const password=prompt("Enter your new password (minimum 6 characters):");
-  if(!password)return;
-  if(password.length<6)return authMsg("Password must be at least 6 characters.");
-  authMsg("Updating password...",true);
-  const {error}=await supabaseClient.auth.updateUser({password});
-  if(error)return authMsg(error.message||"Could not change password.");
-  authMsg("Password changed successfully. You can now login.",true);
-  await supabaseClient.auth.signOut({scope:"local"});
-  const a=document.getElementById("ownerAuth");
-  if(a)a.classList.remove("hidden");
+function showPasswordResetScreen(){
+  const overlay=document.getElementById("ownerAuth");
+  if(!overlay)return;
+  overlay.classList.remove("hidden");
+  const card=overlay.querySelector(".auth-card");
+  if(!card)return;
+  card.innerHTML=`
+    <div class="auth-logo">₹</div>
+    <h2>Set New Password</h2>
+    <p>Enter a new password for your Dukaan Khata account.</p>
+    <input id="newPassword" type="password" placeholder="New password (minimum 6 characters)" autocomplete="new-password">
+    <input id="confirmPassword" type="password" placeholder="Confirm new password" autocomplete="new-password">
+    <div id="authMsg" class="auth-msg"></div>
+    <button id="saveNewPassword" class="auth-primary">Save New Password</button>
+  `;
+  document.getElementById("saveNewPassword").onclick=async()=>{
+    const p=document.getElementById("newPassword").value;
+    const cp=document.getElementById("confirmPassword").value;
+    if(p.length<6)return authMsg("Password must be at least 6 characters.");
+    if(p!==cp)return authMsg("Passwords do not match.");
+    authMsg("Saving password...",true);
+    const {error}=await supabaseClient.auth.updateUser({password:p});
+    if(error)return authMsg(error.message||"Could not change password.");
+    authMsg("Password changed successfully. You can now login.",true);
+    await supabaseClient.auth.signOut({scope:"local"});
+    setTimeout(()=>location.reload(),800);
+  };
 }
 async function resetOwnerPassword(){
   const email=document.getElementById("authEmail").value.trim();
