@@ -12,7 +12,7 @@ function authStyles(){
     #ownerAuth.hidden{display:none!important}.auth-card{width:min(440px,100%);background:#fff;border-radius:24px;padding:25px;box-shadow:0 25px 70px #0007}
     .auth-logo{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#36c47b,#176b4d);color:#fff;display:grid;place-items:center;font-size:28px;font-weight:900;margin-bottom:14px}
     .auth-card h2{margin:0 0 5px}.auth-card p{color:#667085;font-size:13px;margin:0 0 18px}.auth-card input{width:100%;padding:13px;border:1px solid #dfe4ea;border-radius:12px;margin:0 0 9px}.auth-card button{width:100%;padding:13px;border:0;border-radius:12px;font-weight:800;margin-top:5px}.auth-primary{background:#176b4d;color:#fff}.auth-secondary{background:#eef2f6;color:#101828}.auth-msg{min-height:20px;margin:10px 0;font-size:12px;font-weight:700}.auth-switch{text-align:center;margin-top:12px;font-size:12px;color:#667085}.auth-switch button{display:inline;width:auto;background:none;color:#176b4d;padding:0;margin:0}
-    .profile-login-btn{border:1px solid #dfe4ea;background:#fff;color:#176b4d;border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer}.profile-login-btn span{font-size:12px;margin-left:3px}.profile-card{text-align:center;padding:8px}.profile-avatar{width:64px;height:64px;border-radius:50%;background:#eef7f2;display:grid;place-items:center;font-size:30px;margin:0 auto 10px}.profile-card h2{margin:4px 0}.profile-card p{margin:0 0 5px;color:#176b4d;font-weight:800}.profile-card small{display:block;color:#667085;margin-bottom:16px}.profile-card button{width:100%;padding:12px;border:0;border-radius:12px;font-weight:800}.auth-google{background:#fff;color:#101828;border:1px solid #dfe4ea!important}.auth-otp{background:#f4f8f6;color:#176b4d}.auth-divider{display:flex;align-items:center;gap:8px;color:#98a2b3;font-size:11px;margin:12px 0}.auth-divider:before,.auth-divider:after{content:"";height:1px;background:#e4e7ec;flex:1}
+    .profile-login-btn{border:1px solid #dfe4ea;background:#fff;color:#176b4d;border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer}.profile-login-btn span{font-size:12px;margin-left:3px}.profile-card{text-align:center;padding:8px}.profile-avatar{width:64px;height:64px;border-radius:50%;background:#eef7f2;display:grid;place-items:center;font-size:30px;margin:0 auto 10px}.profile-card h2{margin:4px 0}.profile-card p{margin:0 0 5px;color:#176b4d;font-weight:800}.profile-card small{display:block;color:#667085;margin-bottom:16px}.profile-card button{width:100%;padding:12px;border:0;border-radius:12px;font-weight:800}.auth-google{background:#fff;color:#101828;border:1px solid #dfe4ea!important}.auth-otp{background:#f4f8f6;color:#176b4d}.auth-divider{display:flex;align-items:center;gap:8px;color:#98a2b3;font-size:11px;margin:12px 0}.auth-divider:before,.auth-divider:after{content:"";height:1px;background:#e4e7ec;flex:1}.auth-account-note{background:#f4f8f6;color:#475467;padding:12px;border-radius:12px;font-size:12px;line-height:1.45;margin-bottom:10px}
     .role-tabs{display:flex;gap:6px;margin:0 0 14px}.role-tab{flex:1!important;background:#eef2f6;color:#475467!important;margin:0!important;padding:9px 6px!important}.role-tab.active{background:#176b4d!important;color:#fff!important}
   `;document.head.appendChild(s);
 }
@@ -21,18 +21,11 @@ function authUI(){
   const d=document.createElement("div");d.id="ownerAuth";
   d.innerHTML=`<div class="auth-card">
     <div class="auth-logo">₹</div>
-    <div class="role-tabs"><button id="roleOwner" class="role-tab active">Owner</button><button id="roleStaff" class="role-tab">Supervisor</button><button id="roleCustomer" class="role-tab">Customer</button></div><h2 id="authTitle">Owner Login</h2>
-    <p id="authSub">Login to manage your Dukaan Khata shop.</p>
-    <div id="signupFields" style="display:none">
-      <input id="authShop" placeholder="Shop name" autocomplete="organization">
-      <input id="authOwner" placeholder="Owner name" autocomplete="name">
-      <input id="authPhone" placeholder="Phone number (required if no email)" inputmode="tel" autocomplete="tel">
-    </div>
-    <input id="authEmail" type="email" placeholder="Email address (optional)" autocomplete="email">
-    <input id="authPassword" type="password" placeholder="Password (minimum 6 characters)" autocomplete="current-password">
-    <div id="authMsg" class="auth-msg"></div>
-    <button id="authMain" class="auth-primary">Login</button><button id="forgotAuth" class="auth-secondary">Forgot password?</button><div class="auth-divider">OR</div><button id="googleAuth" class="auth-google">🔵 Continue with Google</button><button id="phoneAuth" class="auth-otp">📱 Continue with Phone OTP</button>
-    <div class="auth-switch"><span id="authSwitchText">New owner?</span> <button id="authSwitch">Create owner account</button></div>
+    <h2 id="authTitle">Welcome to Dukaan Khata</h2>
+    <p id="authSub">Sign in with your Google account to open your shop.</p>
+    <div class="auth-account-note">Use your Google account to sign in. Your shop profile will be created automatically on first sign-in.</div>
+    <div class="auth-divider">OR</div><button id="googleAuth" class="auth-google">🔵 Continue with Google</button><button id="phoneAuth" class="auth-otp">📱 Continue with Phone OTP</button>
+
   </div>`;
   document.body.appendChild(d);
 }
@@ -198,12 +191,12 @@ async function startStaff(user){
   const {data,error}=await supabaseClient.from("shop_members").select("shop_id,role,display_name,shops(*)").eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
   if(error)throw error;if(!data)throw new Error("No supervisor account is linked to this shop. Ask the owner to add you.");
   if(data.role!=="supervisor"&&data.role!=="staff")throw new Error("This account is not a supervisor account.");
-  window.DukaanKhataUser=user;window.DukaanKhataShop=data.shops;
+  window.DukaanKhataUser=user;window.DukaanKhataShop=data.shops;updateDukaanProfileButton();
   document.getElementById("ownerHeader").textContent=(data.shops?.name||"My Dukaan")+" • "+(data.display_name||"Supervisor");
   document.getElementById("ownerAuth").classList.add("hidden");
 }
 async function startCustomer(user){
-  window.DukaanKhataUser=user;document.getElementById("ownerHeader").textContent="Customer";document.getElementById("ownerAuth").classList.add("hidden");if(window.showPage)showPage("home");
+  window.DukaanKhataUser=user;updateDukaanProfileButton();document.getElementById("ownerHeader").textContent="Customer";document.getElementById("ownerAuth").classList.add("hidden");if(window.showPage)showPage("home");
 }
 async function startOwner(user){
   let {data,error}=await supabaseClient.from("shop_members").select("shop_id,role,display_name,shops(*)").eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
@@ -220,7 +213,7 @@ async function startOwner(user){
   document.getElementById("ownerAuth").classList.add("hidden");authMsg("");
 }
 async function initOwnerAuth(){
-  authUI();refreshAuthMode();
+  authUI();updateDukaanProfileButton();
   supabaseClient.auth.onAuthStateChange(async(event,session)=>{
     if(event==="PASSWORD_RECOVERY"){setTimeout(()=>showPasswordResetScreen(),100);return;}
     if(session&&!document.getElementById("ownerAuth").classList.contains("hidden")){try{await routeUser(session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}
@@ -228,10 +221,10 @@ async function initOwnerAuth(){
   // Always show login until Supabase confirms an existing session.
   const initialOverlay=document.getElementById("ownerAuth");
   if(initialOverlay) initialOverlay.classList.remove("hidden");
-  document.getElementById("roleOwner").onclick=()=>setAuthRole("owner");document.getElementById("roleStaff").onclick=()=>setAuthRole("staff");document.getElementById("roleCustomer").onclick=()=>setAuthRole("customer");
-  document.getElementById("authSwitch").onclick=()=>{authSignup=!authSignup;refreshAuthMode()};
+  
+  
   document.getElementById("authMain").onclick=()=>authRole==="owner"?(authSignup?createOwnerAccount():loginOwner()):authRole==="staff"?authMsg("Supervisor accounts are created by the shop owner. Use Google or Phone OTP after the owner adds you.",true):authMsg("Use Google or Phone OTP to enter as a customer.",true);
-  document.getElementById("forgotAuth").onclick=resetOwnerPassword;document.getElementById("googleAuth").onclick=loginWithGoogle;document.getElementById("phoneAuth").onclick=loginWithPhone;
+  document.getElementById("googleAuth").onclick=loginWithGoogle;document.getElementById("phoneAuth").onclick=loginWithPhone;
   if(window.location.hash.includes("access_token=")||window.location.search.includes("code=")){setTimeout(()=>{if(window.location.hash.includes("type=recovery")||window.location.hash.includes("access_token="))showPasswordResetScreen();},500);}
   const {data}=await supabaseClient.auth.getSession();
   if(data.session){try{await routeUser(data.session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}
@@ -241,20 +234,30 @@ window.addEventListener("DOMContentLoaded",initOwnerAuth);
 async function logoutDukaanKhata(){
   const {error}=await supabaseClient.auth.signOut({scope:"local"});
   if(error){authMsg(error.message||"Could not log out.");return;}
-  window.DukaanKhataUser=null;window.DukaanKhataShop=null;
+  window.DukaanKhataUser=null;window.DukaanKhataShop=null;updateDukaanProfileButton();
   const a=document.getElementById("ownerAuth");
   if(a){a.classList.remove("hidden");authRole="owner";authSignup=false;setAuthRole("owner");refreshAuthMode();}
 }
 function openDukaanLogin(){
+  if(window.DukaanKhataUser){openDukaanProfile();return;}
   const overlay=document.getElementById("ownerAuth");
-  if(window.DukaanKhataUser){
-    logoutDukaanKhata();
-    return;
-  }
   if(overlay){overlay.classList.remove("hidden");authRole="owner";authSignup=false;setAuthRole("owner");refreshAuthMode();}
 }
 window.openDukaanLogin=openDukaanLogin;
 
+function updateDukaanProfileButton(){
+  const btn=document.querySelector(".profile-login-btn");
+  if(!btn)return;
+  const user=window.DukaanKhataUser;
+  if(!user){
+    btn.innerHTML="👤 <span>Sign in</span>";
+    btn.setAttribute("aria-label","Sign in");
+    return;
+  }
+  const name=String(user.user_metadata?.full_name||user.user_metadata?.name||user.user_metadata?.owner_name||user.email?.split("@")[0]||user.phone||"Account").trim();
+  btn.innerHTML="👤 <span>"+name.replace(/[<>&"]/g,"")+"</span>";
+  btn.setAttribute("aria-label","Open account");
+}
 function openDukaanProfile(){
   const user=window.DukaanKhataUser;
   const overlay=document.getElementById("ownerAuth");
