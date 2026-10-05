@@ -367,26 +367,20 @@ async function logoutDukaanKhata(){
   showDukaanLoginPanel();
 }
 function showDukaanLoginPanel(){
-  const overlay=document.getElementById("ownerAuth");
-  if(!overlay)return;
-  const card=document.getElementById("accountAuthCard");
-  if(!card)return;
-  card.innerHTML=`
-    <div class="auth-logo">₹</div>
-    <h2>Login / Sign up</h2>
-    <p>Choose how you want to access your Dukaan Khata account.</p>
-    <div class="auth-account-note">Google and Phone OTP are available for both new users and returning users.</div>
-    <button id="googleAuth" class="auth-google">🔵 Continue with Google</button>
-    <div class="auth-divider">OR</div>
-    <button id="phoneAuth" class="auth-otp">📱 Continue with Phone OTP</button>
-    <button class="auth-secondary" style="margin-top:12px" onclick="closeDukaanAuthPanel()">✕ Close</button>
-  `;
-  const googleBtn=document.getElementById("googleAuth");
-  const phoneBtn=document.getElementById("phoneAuth");
-  if(googleBtn)googleBtn.onclick=loginWithGoogle;
-  if(phoneBtn)phoneBtn.onclick=loginWithPhone;
-  overlay.classList.remove("hidden");
-  overlay.style.display="flex";
+  const overlay=document.getElementById('ownerAuth');
+  const card=document.getElementById('accountAuthCard');
+  if(!overlay||!card)return;
+  let signupMode=false;
+  const render=()=>{
+    card.innerHTML=signupMode ? "<div class='auth-logo'>₹</div><h2>Create your Dukaan Khata</h2><p>Anyone can create their own separate shop account.</p><input id='authShop' type='text' placeholder='Shop name' autocomplete='organization'><input id='authOwner' type='text' placeholder='Owner name' autocomplete='name'><input id='authEmail' type='email' placeholder='Email address' autocomplete='email'><input id='authPhone' type='tel' placeholder='Phone number (optional)' autocomplete='tel'><input id='authPassword' type='password' placeholder='Password (minimum 6 characters)' autocomplete='new-password'><div id='authMsg' class='auth-msg'></div><button id='authMain' class='auth-primary'>Create Account</button><div class='auth-switch'>Already have an account? <button id='authSwitch'>Login</button></div><button id='googleAuth' class='auth-google'>🔵 Continue with Google</button><button id='phoneAuth' class='auth-otp'>📱 Phone OTP (requires SMS provider)</button><button class='auth-secondary' onclick='closeDukaanAuthPanel()'>✕ Close</button>"
+    : "<div class='auth-logo'>₹</div><h2>Login / Sign up</h2><p>Use your own account. Your shop data stays separate from other users.</p><input id='authEmail' type='email' placeholder='Email address' autocomplete='email'><input id='authPassword' type='password' placeholder='Password' autocomplete='current-password'><div id='authMsg' class='auth-msg'></div><button id='authMain' class='auth-primary'>Login</button><button id='resetPasswordBtn' class='auth-secondary'>Forgot password?</button><div class='auth-divider'>OR</div><button id='googleAuth' class='auth-google'>🔵 Continue with Google</button><button id='phoneAuth' class='auth-otp'>📱 Phone OTP (requires SMS provider)</button><div class='auth-switch'>New to Dukaan Khata? <button id='authSwitch'>Create account</button></div><button class='auth-secondary' onclick='closeDukaanAuthPanel()'>✕ Close</button>";
+    document.getElementById('authSwitch').onclick=()=>{signupMode=!signupMode;render();};
+    document.getElementById('authMain').onclick=async()=>{if(signupMode)await createOwnerAccount();else await loginOwner();};
+    const googleBtn=document.getElementById('googleAuth'); if(googleBtn)googleBtn.onclick=loginWithGoogle;
+    const phoneBtn=document.getElementById('phoneAuth'); if(phoneBtn)phoneBtn.onclick=loginWithPhone;
+    const resetBtn=document.getElementById('resetPasswordBtn'); if(resetBtn)resetBtn.onclick=resetOwnerPassword;
+  };
+  render(); overlay.classList.remove('hidden'); overlay.style.display='flex';
 }
 function showDukaanAccountPanel(){
   const overlay=document.getElementById("ownerAuth");
