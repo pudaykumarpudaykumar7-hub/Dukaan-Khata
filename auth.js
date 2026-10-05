@@ -1,4 +1,4 @@
-// Dukaan Khata Owner Cloud Login
+// Dukaan Khata Public Role-Based Cloud Login
 const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
@@ -19,7 +19,7 @@ function authUI(){
   const d=document.createElement("div");d.id="ownerAuth";
   d.innerHTML=`<div class="auth-card">
     <div class="auth-logo">₹</div>
-    <h2 id="authTitle">Owner Login</h2>
+    <div class="role-tabs"><button id="roleOwner" class="role-tab active">Owner</button><button id="roleStaff" class="role-tab">Supervisor</button><button id="roleCustomer" class="role-tab">Customer</button></div><h2 id="authTitle">Owner Login</h2>
     <p id="authSub">Login to manage your Dukaan Khata shop.</p>
     <div id="signupFields" style="display:none">
       <input id="authShop" placeholder="Shop name" autocomplete="organization">
@@ -34,8 +34,19 @@ function authUI(){
   </div>`;
   document.body.appendChild(d);
 }
-let authSignup=false;
+let authSignup=false;let authRole="owner";
 function authMsg(t,ok=false){const e=document.getElementById("authMsg");if(e){e.textContent=t;e.style.color=ok?"#176b4d":"#b42318"}}
+function setAuthRole(role){
+  authRole=role;authSignup=role==="owner"&&authSignup;
+  document.querySelectorAll(".role-tab").forEach(b=>b.classList.remove("active"));
+  document.getElementById(role==="owner"?"roleOwner":role==="staff"?"roleStaff":"roleCustomer").classList.add("active");
+  document.getElementById("signupFields").style.display=role==="owner"&&authSignup?"block":"none";
+  document.getElementById("authMain").style.display=role==="owner"?"block":"none";
+  document.getElementById("authSwitch").parentElement.style.display=role==="owner"?"block":"none";
+  document.getElementById("authTitle").textContent=role==="owner"?(authSignup?"Create Owner Account":"Owner Login"):role==="staff"?"Supervisor Login":"Customer Login";
+  document.getElementById("authSub").textContent=role==="owner"?"Login or create your shop owner account.":role==="staff"?"Sign in to a shop account created by the owner.":"Sign in to view your own khata, bills and payments.";
+  authMsg("");
+}
 function refreshAuthMode(){
   document.getElementById("authTitle").textContent=authSignup?"Create Owner Account":"Owner Login";
   document.getElementById("authSub").textContent=authSignup?"Create your shop owner account.":"Login to manage your Dukaan Khata shop.";
@@ -47,21 +58,21 @@ function refreshAuthMode(){
 }
 async function loginWithGoogle(){
   authMsg("Opening Google login...",true);
-  const {error}=await supabaseClient.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.origin+window.location.pathname}});
+  const {error}=await supabaseClient.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.origin+window.location.pathname,data:{login_role:authRole}}});
   if(error)authMsg(error.message||"Google login is not available yet.");
 }
 async function loginWithPhone(){
-  const phone=prompt("Enter your phone number with country code, e.g. +919876543210");
+  const phone=prompt("Enter your mobile number");
   if(!phone)return;
   authMsg("Sending OTP...",true);
-  const {error}=await supabaseClient.auth.signInWithOtp({phone:phone.trim()});
+  const {error}=await supabaseClient.auth.signInWithOtp({phone:phone.trim(),options:{data:{login_role:authRole}}});
   if(error)return authMsg(error.message||"Could not send OTP.");
   const otp=prompt("Enter the OTP you received");
   if(!otp)return;
   authMsg("Verifying OTP...",true);
   const {data,error:verifyError}=await supabaseClient.auth.verifyOtp({phone:phone.trim(),token:otp.trim(),type:"sms"});
   if(verifyError)return authMsg(verifyError.message||"Invalid OTP.");
-  try{await ensureOwnerShop(data.user);await startOwner(data.user)}catch(e){authMsg(e.message||"Login succeeded, but shop setup is incomplete.")}
+  try{await routeUser(data.user)}catch(e){authMsg(e.message||"Login succeeded, but your account could not be loaded.")}
 }
 
 async function createOwnerAccount(){
@@ -118,6 +129,38 @@ async function ensureOwnerShop(user){
   }
   return null;
 }
+async function routeUser(user){
+  const role=authRole||user.user_metadata?.login_role||"owner";
+  if(role==="owner"){await ensureOwnerShopForPublicOwner(user);return startOwner(user);}
+  if(role==="staff"){return startStaff(user);}
+  return startCustomer(user);
+}
+async function ensureOwnerShopForPublicOwner(user){
+  const existing=await supabaseClient.from("shop_members").select("shop_id,role,display_name,shops(*)").eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
+  if(existing.error)throw existing.error;
+  if(existing.data)return existing.data;
+  const meta=user.user_metadata||{};
+  const owner=String(meta.full_name||meta.name||meta.owner_name||user.email?.split("@")[0]||"Owner").trim();
+  const shop=String(meta.shop_name||"My Dukaan").trim();
+  const phone=meta.phone?String(meta.phone).trim():null;
+  const {error}=await supabaseClient.rpc("create_owner_shop",{p_shop_name:shop,p_owner_name:owner,p_phone:phone});
+  if(error)throw new Error("Owner setup is not available yet. Please ask the shop owner to finish shop setup.");
+}
+async function startStaff(user){
+  const {data,error}=await supabaseClient.from("shop_members").select("shop_id,role,display_name,shops(*)").eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
+  if(error)throw error;
+  if(!data)throw new Error("No supervisor account is linked to this shop. Ask the owner to add you.");
+  if(data.role!=="supervisor"&&data.role!=="staff")throw new Error("This account is not a supervisor account.");
+  window.DukaanKhataUser=user;window.DukaanKhataShop=data.shops;
+  document.getElementById("ownerHeader").textContent=(data.shops?.name||"My Dukaan")+" • "+(data.display_name||"Supervisor");
+  document.getElementById("ownerAuth").classList.add("hidden");
+}
+async function startCustomer(user){
+  window.DukaanKhataUser=user;
+  document.getElementById("ownerHeader").textContent="Customer";
+  document.getElementById("ownerAuth").classList.add("hidden");
+  if(window.showPage)showPage("home");
+}
 async function startOwner(user){
   let {data,error}=await supabaseClient.from("shop_members")
     .select("shop_id,role,display_name,shops(*)")
@@ -147,18 +190,21 @@ async function startOwner(user){
 }
 async function initOwnerAuth(){
   authUI();refreshAuthMode();
+  document.getElementById("roleOwner").onclick=()=>setAuthRole("owner");
+  document.getElementById("roleStaff").onclick=()=>setAuthRole("staff");
+  document.getElementById("roleCustomer").onclick=()=>setAuthRole("customer");
   document.getElementById("authSwitch").onclick=()=>{authSignup=!authSignup;refreshAuthMode()};
-  document.getElementById("authMain").onclick=()=>authSignup?createOwnerAccount():loginOwner();
+  document.getElementById("authMain").onclick=()=>authRole==="owner"?(authSignup?createOwnerAccount():loginOwner()):authRole==="staff"?authMsg("Supervisor accounts are created by the shop owner. Use Google or Phone OTP after the owner adds you.",true):authMsg("Use Google or Phone OTP to enter as a customer.",true);
   document.getElementById("googleAuth").onclick=loginWithGoogle;
   document.getElementById("phoneAuth").onclick=loginWithPhone;
   const {data}=await supabaseClient.auth.getSession();
   if(data.session){
-    try{await startOwner(data.session.user)}
+    try{await routeUser(data.session.user)}
     catch(e){authMsg(e.message||"Your shop could not be loaded.")}
   }
   supabaseClient.auth.onAuthStateChange(async(event,session)=>{
     if(session&&!document.getElementById("ownerAuth").classList.contains("hidden")){
-      try{await startOwner(session.user)}
+      try{await routeUser(session.user)}
       catch(e){authMsg(e.message||"Your shop could not be loaded.")}
     }
   });
