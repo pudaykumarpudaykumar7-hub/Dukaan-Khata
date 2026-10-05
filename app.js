@@ -2,14 +2,11 @@ const KEY="dukaan_khata_infinity_v1";
 let state=loadState(), khataFilter="all", pendingManyCustomerId=null;
 
 function loadState(){
-  try{
-    const x=JSON.parse(localStorage.getItem(KEY));
-    if(x) return x;
-  }catch(e){}
-  return {shop:{name:"My Dukaan",owner:"Shop Owner",phone:"",upi:"",address:""},customers:[],items:[],tx:[],expenses:[],returns:[],reminders:[],settings:{theme:"light",language:"English"}};
+  const d={shop:{name:"My Dukaan",owner:"Shop Owner",phone:"",upi:"",address:""},customers:[],items:[],tx:[],expenses:[],returns:[],reminders:[],settings:{theme:"light",language:"English"}};
+  try{const x=JSON.parse(localStorage.getItem(KEY)||"null")||{};return {...d,...x,shop:{...d.shop,...(x.shop||{})},settings:{...d.settings,...(x.settings||{})},customers:Array.isArray(x.customers)?x.customers:[],items:Array.isArray(x.items)?x.items:[],tx:Array.isArray(x.tx)?x.tx:[],expenses:Array.isArray(x.expenses)?x.expenses:[],returns:Array.isArray(x.returns)?x.returns:[],reminders:Array.isArray(x.reminders)?x.reminders:[]}}catch(e){return d}
 }
 function saveState(){localStorage.setItem(KEY,JSON.stringify(state))}
-function uid(){return (crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now()+"-"+Math.random().toString(16).slice(2)}
+function uid(){return (typeof crypto!=="undefined"&&crypto.randomUUID)?crypto.randomUUID():Date.now()+"-"+Math.random().toString(16).slice(2)}
 function money(n){return "₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2})}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 function balance(id){return state.tx.filter(t=>t.customerId===id).reduce((s,t)=>s+(t.type==="sale"?Number(t.total)||0:-(Number(t.amount)||0)),0)}
