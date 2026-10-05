@@ -186,3 +186,12 @@ async function initOwnerAuth(){
   supabaseClient.auth.onAuthStateChange(async(event,session)=>{if(session&&!document.getElementById("ownerAuth").classList.contains("hidden")){try{await routeUser(session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}});
 }
 window.addEventListener("DOMContentLoaded",initOwnerAuth);
+
+async function logoutDukaanKhata(){
+  const {error}=await supabaseClient.auth.signOut({scope:"local"});
+  if(error){authMsg(error.message||"Could not log out.");return;}
+  window.DukaanKhataUser=null;window.DukaanKhataShop=null;
+  const a=document.getElementById("ownerAuth");
+  if(a){a.classList.remove("hidden");authRole="owner";authSignup=false;setAuthRole("owner");refreshAuthMode();}
+}
+window.logoutDukaanKhata=logoutDukaanKhata;
