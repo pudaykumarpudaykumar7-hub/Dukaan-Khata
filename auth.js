@@ -31,7 +31,7 @@ function authUI(){
     <input id="authEmail" type="email" placeholder="Email address (optional)" autocomplete="email">
     <input id="authPassword" type="password" placeholder="Password (minimum 6 characters)" autocomplete="current-password">
     <div id="authMsg" class="auth-msg"></div>
-    <button id="authMain" class="auth-primary">Login</button><div class="auth-divider">OR</div><button id="googleAuth" class="auth-google">🔵 Continue with Google</button><button id="phoneAuth" class="auth-otp">📱 Continue with Phone OTP</button>
+    <button id="authMain" class="auth-primary">Login</button><button id="forgotAuth" class="auth-secondary">Forgot password?</button><div class="auth-divider">OR</div><button id="googleAuth" class="auth-google">🔵 Continue with Google</button><button id="phoneAuth" class="auth-otp">📱 Continue with Phone OTP</button>
     <div class="auth-switch"><span id="authSwitchText">New owner?</span> <button id="authSwitch">Create owner account</button></div>
   </div>`;
   document.body.appendChild(d);
@@ -114,6 +114,14 @@ async function createOwnerAccount(){
   }catch(e){authMsg(e.message||"Could not create account.");}
   document.getElementById("authMain").disabled=false;
 }
+async function resetOwnerPassword(){
+  const email=document.getElementById("authEmail").value.trim();
+  if(!email)return authMsg("Enter your email address first.");
+  authMsg("Sending password reset email...",true);
+  const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:"https://pudaykumarpudaykumar7-hub.github.io/Dukaan-Khata/"});
+  if(error)return authMsg(error.message||"Could not send reset email.");
+  authMsg("Password reset email sent. Check your inbox.",true);
+}
 async function loginOwner(){
   const email=document.getElementById("authEmail").value.trim(),password=document.getElementById("authPassword").value,phone=document.getElementById("authPhone").value.trim();
   if(!email||!password)return authMsg("For password login, enter your email and password. For phone-only login, use Phone OTP.");
@@ -183,7 +191,7 @@ async function initOwnerAuth(){
   document.getElementById("roleOwner").onclick=()=>setAuthRole("owner");document.getElementById("roleStaff").onclick=()=>setAuthRole("staff");document.getElementById("roleCustomer").onclick=()=>setAuthRole("customer");
   document.getElementById("authSwitch").onclick=()=>{authSignup=!authSignup;refreshAuthMode()};
   document.getElementById("authMain").onclick=()=>authRole==="owner"?(authSignup?createOwnerAccount():loginOwner()):authRole==="staff"?authMsg("Supervisor accounts are created by the shop owner. Use Google or Phone OTP after the owner adds you.",true):authMsg("Use Google or Phone OTP to enter as a customer.",true);
-  document.getElementById("googleAuth").onclick=loginWithGoogle;document.getElementById("phoneAuth").onclick=loginWithPhone;
+  document.getElementById("forgotAuth").onclick=resetOwnerPassword;document.getElementById("googleAuth").onclick=loginWithGoogle;document.getElementById("phoneAuth").onclick=loginWithPhone;
   const {data}=await supabaseClient.auth.getSession();
   if(data.session){try{await routeUser(data.session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}
   supabaseClient.auth.onAuthStateChange(async(event,session)=>{if(session&&!document.getElementById("ownerAuth").classList.contains("hidden")){try{await routeUser(session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}});
