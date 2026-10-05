@@ -263,7 +263,7 @@ function updateDukaanProfileButton(){
   const name=String(user.user_metadata?.full_name||user.user_metadata?.name||user.user_metadata?.owner_name||user.email?.split("@")[0]||user.phone||"Account").trim();
   const email=String(user.email||"").trim();
   const label=name.replace(/[<>&"]/g,"");
-  btn.innerHTML="👤 <span>"+label+"</span>";
+  btn.innerHTML="👤 <span>"+(email||label)+"</span>";
   btn.title=email?email:label;
   btn.setAttribute("aria-label","Open account");
 }
