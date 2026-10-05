@@ -60,7 +60,8 @@ function refreshAuthMode(){
 }
 async function loginWithGoogle(){
   authMsg("Opening Google login...",true);
-  const {error}=await supabaseClient.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.origin+window.location.pathname}});
+  const redirectTo="https://pudaykumarpudaykumar7-hub.github.io/Dukaan-Khata/";
+  const {error}=await supabaseClient.auth.signInWithOAuth({provider:"google",options:{redirectTo}});
   if(error)authMsg(error.message||"Google login is not available yet.");
 }
 async function loginWithPhone(){
@@ -181,10 +182,17 @@ async function routeUser(user){
 }
 async function ensureOwnerShopForPublicOwner(user){
   const existing=await supabaseClient.from("shop_members").select("shop_id,role,display_name,shops(*)").eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
-  if(existing.error)throw existing.error;if(existing.data)return existing.data;
-  const meta=user.user_metadata||{},owner=String(meta.full_name||meta.name||meta.owner_name||user.email?.split("@")[0]||user.phone||"Owner").trim(),shop=String(meta.shop_name||"My Dukaan").trim(),phone=meta.phone?String(meta.phone).trim():user.phone||null;
-  const {error}=await supabaseClient.rpc("create_owner_shop",{p_shop_name:shop,p_owner_name:owner,p_phone:phone});
-  if(error)throw new Error("Owner setup is not available yet. Please ask the shop owner to finish shop setup.");
+  if(existing.error)throw existing.error;
+  if(existing.data)return existing.data;
+  const meta=user.user_metadata||{};
+  const googleName=String(meta.full_name||meta.name||"").trim();
+  const emailName=String(user.email||"").split("@")[0].trim();
+  const owner=String(meta.owner_name||googleName||emailName||user.phone||"Owner").trim();
+  const shop=String(meta.shop_name||((googleName||emailName||"My")+" Shop")).trim();
+  const phone=meta.phone?String(meta.phone).trim():(user.phone||null);
+  const {data:createData,error}=await supabaseClient.rpc("create_owner_shop",{p_shop_name:shop,p_owner_name:owner,p_phone:phone});
+  if(error)throw new Error("Google login succeeded, but your shop profile could not be created. Please make sure the Supabase create_owner_shop function is enabled, then login again.");
+  return {shop_id:createData,role:"owner",display_name:owner,shops:{name:shop,phone:phone}};
 }
 async function startStaff(user){
   const {data,error}=await supabaseClient.from("shop_members").select("shop_id,role,display_name,shops(*)").eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
@@ -214,7 +222,7 @@ async function startOwner(user){
 async function initOwnerAuth(){
   authUI();refreshAuthMode();
   supabaseClient.auth.onAuthStateChange(async(event,session)=>{
-    if(event==="PASSWORD_RECOVERY"){setTimeout(()=>changeOwnerPassword(),100);}
+    if(event==="PASSWORD_RECOVERY"){setTimeout(()=>showPasswordResetScreen(),100);return;}
     if(session&&!document.getElementById("ownerAuth").classList.contains("hidden")){try{await routeUser(session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}
   });
   // Always show login until Supabase confirms an existing session.
@@ -224,6 +232,7 @@ async function initOwnerAuth(){
   document.getElementById("authSwitch").onclick=()=>{authSignup=!authSignup;refreshAuthMode()};
   document.getElementById("authMain").onclick=()=>authRole==="owner"?(authSignup?createOwnerAccount():loginOwner()):authRole==="staff"?authMsg("Supervisor accounts are created by the shop owner. Use Google or Phone OTP after the owner adds you.",true):authMsg("Use Google or Phone OTP to enter as a customer.",true);
   document.getElementById("forgotAuth").onclick=resetOwnerPassword;document.getElementById("googleAuth").onclick=loginWithGoogle;document.getElementById("phoneAuth").onclick=loginWithPhone;
+  if(window.location.hash.includes("access_token=")||window.location.search.includes("code=")){setTimeout(()=>{if(window.location.hash.includes("type=recovery")||window.location.hash.includes("access_token="))showPasswordResetScreen();},500);}
   const {data}=await supabaseClient.auth.getSession();
   if(data.session){try{await routeUser(data.session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}
 }
