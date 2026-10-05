@@ -246,8 +246,19 @@ async function logoutDukaanKhata(){
 }
 function openDukaanLogin(){
   if(window.DukaanKhataUser){openDukaanProfile();return;}
-  const overlay=document.getElementById("ownerAuth");
-  if(overlay){overlay.classList.remove("hidden");authRole="owner";authSignup=false;setAuthRole("owner");refreshAuthMode();}
+  let overlay=document.getElementById("ownerAuth");
+  if(!overlay){
+    authUI();
+    overlay=document.getElementById("ownerAuth");
+    const googleBtn=document.getElementById("googleAuth");
+    const phoneBtn=document.getElementById("phoneAuth");
+    if(googleBtn)googleBtn.onclick=loginWithGoogle;
+    if(phoneBtn)phoneBtn.onclick=loginWithPhone;
+  }
+  if(overlay){
+    overlay.classList.remove("hidden");
+    overlay.style.display="flex";
+  }
 }
 window.openDukaanLogin=openDukaanLogin;
 
