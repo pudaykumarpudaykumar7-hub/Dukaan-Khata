@@ -50,14 +50,16 @@ async function createOwnerAccount(){
   if(!shop||!owner||!email||password.length<6)return authMsg("Enter shop name, owner name, email and a 6+ character password.");
   authMsg("Creating account...",true);document.getElementById("authMain").disabled=true;
   try{
-    const {data,error}=await supabaseClient.auth.signUp({email,password});
+    const {data,error}=await supabaseClient.auth.signUp({
+      email,password,
+      options:{data:{shop_name:shop,owner_name:owner,phone:phone||null}}
+    });
     if(error)throw error;
     if(data.session){
-      const {error:e}=await supabaseClient.rpc("create_owner_shop",{p_shop_name:shop,p_owner_name:owner,p_phone:phone||null});
-      if(e)throw e;
-      await startOwner(data.session.user);
+      await ensureOwnerShop(data.user);
+      await startOwner(data.user);
     }else{
-      authMsg("Account created. Check your email, confirm it, then return here and login.",true);
+      authMsg("Account created. Confirm your email, then return here and login.",true);
     }
   }catch(e){authMsg(e.message||"Could not create account.");}
   document.getElementById("authMain").disabled=false;
@@ -69,17 +71,55 @@ async function loginOwner(){
   try{
     const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
     if(error)throw error;
+    await ensureOwnerShop(data.user);
     await startOwner(data.user);
-  }catch(e){authMsg(e.message||"Login failed.");}
+  }catch(e){
+    authMsg(e.message||"Login failed.");
+  }
   document.getElementById("authMain").disabled=false;
 }
-async function startOwner(user){
-  const {data,error}=await supabaseClient.from("shop_members").select("shop_id,role,display_name,shops(*)").eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
+async function ensureOwnerShop(user){
+  const {data,error}=await supabaseClient.from("shop_members")
+    .select("shop_id,role,display_name,shops(*)")
+    .eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
   if(error)throw error;
-  if(!data){throw new Error("Owner account exists, but no shop is linked. Please create the owner account again or run the database owner setup.");}
+  if(data)return data;
+  const meta=user.user_metadata||{};
+  const shop=String(meta.shop_name||"").trim();
+  const owner=String(meta.owner_name||"").trim();
+  const phone=meta.phone?String(meta.phone).trim():null;
+  if(!shop||!owner){
+    throw new Error("Your account is confirmed, but shop details are missing. Please create the owner account again.");
+  }
+  const {error:createError}=await supabaseClient.rpc("create_owner_shop",{
+    p_shop_name:shop,p_owner_name:owner,p_phone:phone||null
+  });
+  if(createError){
+    throw new Error("Your account is confirmed, but the shop could not be linked. Please run the owner setup SQL in Supabase, then login again.");
+  }
+  return null;
+}
+async function startOwner(user){
+  let {data,error}=await supabaseClient.from("shop_members")
+    .select("shop_id,role,display_name,shops(*)")
+    .eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
+  if(error)throw error;
+  if(!data){
+    await ensureOwnerShop(user);
+    const retry=await supabaseClient.from("shop_members")
+      .select("shop_id,role,display_name,shops(*)")
+      .eq("user_id",user.id).eq("active",true).limit(1).maybeSingle();
+    data=retry.data;error=retry.error;
+    if(error)throw error;
+  }
+  if(!data)throw new Error("Owner account exists, but no shop is linked.");
   window.DukaanKhataUser=user;window.DukaanKhataShop=data.shops;
   if(window.state&&data.shops){
-    state.shop.name=data.shops.name||state.shop.name;state.shop.phone=data.shops.phone||state.shop.phone;state.shop.address=data.shops.address||state.shop.address;state.shop.upi=data.shops.upi_id||state.shop.upi;state.shop.owner=data.display_name||state.shop.owner;
+    state.shop.name=data.shops.name||state.shop.name;
+    state.shop.phone=data.shops.phone||state.shop.phone;
+    state.shop.address=data.shops.address||state.shop.address;
+    state.shop.upi=data.shops.upi_id||state.shop.upi;
+    state.shop.owner=data.display_name||state.shop.owner;
     saveState();
   }
   document.getElementById("ownerHeader").textContent=(data.shops.name||"My Dukaan")+" • "+(data.display_name||"Owner");
@@ -91,9 +131,15 @@ async function initOwnerAuth(){
   document.getElementById("authSwitch").onclick=()=>{authSignup=!authSignup;refreshAuthMode()};
   document.getElementById("authMain").onclick=()=>authSignup?createOwnerAccount():loginOwner();
   const {data}=await supabaseClient.auth.getSession();
-  if(data.session){try{await startOwner(data.session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}
+  if(data.session){
+    try{await startOwner(data.session.user)}
+    catch(e){authMsg(e.message||"Your shop could not be loaded.")}
+  }
   supabaseClient.auth.onAuthStateChange(async(event,session)=>{
-    if(session&&!document.getElementById("ownerAuth").classList.contains("hidden")){try{await startOwner(session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}
+    if(session&&!document.getElementById("ownerAuth").classList.contains("hidden")){
+      try{await startOwner(session.user)}
+      catch(e){authMsg(e.message||"Your shop could not be loaded.")}
+    }
   });
 }
 window.addEventListener("DOMContentLoaded",initOwnerAuth);
