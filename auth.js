@@ -52,19 +52,146 @@ async function loginWithGoogle(){
   const {error}=await supabaseClient.auth.signInWithOAuth({provider:"google",options:{redirectTo}});
   if(error)authMsg(error.message||"Google login is not available yet.");
 }
-async function loginWithPhone(){
-  const phone=prompt("Enter your mobile number with country code, e.g. +919876543210");
-  if(!phone)return;
-  authMsg("Sending OTP...",true);
-  const {error}=await supabaseClient.auth.signInWithOtp({phone:phone.trim(),options:{data:{login_role:authRole}}});
-  if(error)return authMsg(error.message||"Could not send OTP.");
-  const otp=prompt("Enter the OTP you received");
-  if(!otp)return;
-  authMsg("Verifying OTP...",true);
-  const {data,error:verifyError}=await supabaseClient.auth.verifyOtp({phone:phone.trim(),token:otp.trim(),type:"sms"});
-  if(verifyError)return authMsg(verifyError.message||"Invalid OTP.");
-  try{await routeUser(data.user)}catch(e){authMsg(e.message||"Login succeeded, but your account could not be loaded.")}
+function normalizeDukaanPhone(raw){
+  let s=String(raw||"").trim().replace(/[^\\d+]/g,"");
+  if(s.startsWith("+")){
+    return /^\\+\\d{10,15}$/.test(s)?s:null;
+  }
+  s=s.replace(/\\D/g,"");
+  if(s.length===10)return "+91"+s;
+  if(s.length===12&&s.startsWith("91"))return "+"+s;
+  return null;
 }
+async function loginWithPhone(){
+  const overlay=document.getElementById("ownerAuth");
+  const card=document.getElementById("accountAuthCard");
+  if(!overlay||!card)return;
+
+  card.innerHTML=`
+    <div class="auth-logo">📱</div>
+    <h2>Phone OTP Login</h2>
+    <p>Enter your mobile number. We will send a 6-digit verification code.</p>
+    <input id="dkPhoneNumber" type="tel" inputmode="tel" autocomplete="tel" placeholder="Mobile number (e.g. 9876543210)">
+    <div id="phoneAuthMsg" class="auth-msg"></div>
+    <button id="sendPhoneOtp" class="auth-primary">Send OTP</button>
+    <button class="auth-secondary" onclick="showDukaanLoginPanel()">← Back</button>
+  `;
+  overlay.classList.remove("hidden");
+  overlay.style.display="flex";
+
+  const msg=document.getElementById("phoneAuthMsg");
+  const input=document.getElementById("dkPhoneNumber");
+  const sendBtn=document.getElementById("sendPhoneOtp");
+
+  const setMsg=(t,ok=false)=>{if(msg){msg.textContent=t;msg.style.color=ok?"#176b4d":"#b42318";}};
+
+  sendBtn.onclick=async()=>{
+    const phone=normalizeDukaanPhone(input.value);
+    if(!phone){
+      setMsg("Enter a valid Indian mobile number, for example 9876543210, or use +919876543210.");
+      return;
+    }
+
+    sendBtn.disabled=true;
+    setMsg("Sending OTP...",true);
+
+    const {error}=await supabaseClient.auth.signInWithOtp({
+      phone,
+      options:{
+        shouldCreateUser:true,
+        data:{login_role:"owner"},
+        channel:"sms"
+      }
+    });
+
+    if(error){
+      sendBtn.disabled=false;
+      const message=error.message||"Could not send OTP.";
+      setMsg(message.includes("provider")||message.includes("phone")?message:"Could not send OTP. Please check phone authentication and SMS provider settings.");
+      return;
+    }
+
+    card.innerHTML=`
+      <div class="auth-logo">🔐</div>
+      <h2>Enter OTP</h2>
+      <p>We sent a 6-digit OTP to <b>${phone}</b>.</p>
+      <input id="dkPhoneOtp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="Enter 6-digit OTP">
+      <div id="phoneAuthMsg" class="auth-msg"></div>
+      <button id="verifyPhoneOtp" class="auth-primary">Verify & Login</button>
+      <button id="resendPhoneOtp" class="auth-secondary" disabled>Resend OTP in 60s</button>
+      <button class="auth-secondary" onclick="showDukaanLoginPanel()">← Back</button>
+    `;
+
+    const otpInput=document.getElementById("dkPhoneOtp");
+    const verifyBtn=document.getElementById("verifyPhoneOtp");
+    const resendBtn=document.getElementById("resendPhoneOtp");
+    const otpMsg=document.getElementById("phoneAuthMsg");
+    const setOtpMsg=(t,ok=false)=>{otpMsg.textContent=t;otpMsg.style.color=ok?"#176b4d":"#b42318";};
+
+    let seconds=60;
+    const timer=setInterval(()=>{
+      seconds--;
+      if(seconds<=0){
+        clearInterval(timer);
+        resendBtn.disabled=false;
+        resendBtn.textContent="Resend OTP";
+      }else{
+        resendBtn.textContent="Resend OTP in "+seconds+"s";
+      }
+    },1000);
+
+    verifyBtn.onclick=async()=>{
+      const otp=otpInput.value.trim();
+      if(!/^\\d{6}$/.test(otp)){
+        setOtpMsg("Enter the 6-digit OTP.");
+        return;
+      }
+      verifyBtn.disabled=true;
+      setOtpMsg("Verifying OTP...",true);
+      const {data,error}=await supabaseClient.auth.verifyOtp({phone,token:otp,type:"sms"});
+      if(error){
+        verifyBtn.disabled=false;
+        setOtpMsg(error.message||"Invalid or expired OTP.");
+        return;
+      }
+      setOtpMsg("Phone verified. Logging you in...",true);
+      try{
+        await routeUser(data.user);
+      }catch(e){
+        verifyBtn.disabled=false;
+        setOtpMsg(e.message||"Login succeeded, but your account could not be loaded.");
+      }
+    };
+
+    resendBtn.onclick=async()=>{
+      resendBtn.disabled=true;
+      resendBtn.textContent="Sending OTP...";
+      const {error}=await supabaseClient.auth.signInWithOtp({
+        phone,
+        options:{shouldCreateUser:true,data:{login_role:"owner"},channel:"sms"}
+      });
+      if(error){
+        resendBtn.disabled=false;
+        resendBtn.textContent="Resend OTP";
+        setOtpMsg(error.message||"Could not resend OTP.");
+        return;
+      }
+      seconds=60;
+      setOtpMsg("A new OTP has been sent.",true);
+      const countdown=setInterval(()=>{
+        seconds--;
+        if(seconds<=0){
+          clearInterval(countdown);
+          resendBtn.disabled=false;
+          resendBtn.textContent="Resend OTP";
+        }else{
+          resendBtn.textContent="Resend OTP in "+seconds+"s";
+        }
+      },1000);
+    };
+  };
+}
+
 async function createOwnerAccount(){
   const shop=document.getElementById("authShop").value.trim(),owner=document.getElementById("authOwner").value.trim(),phone=document.getElementById("authPhone").value.trim(),email=document.getElementById("authEmail").value.trim(),password=document.getElementById("authPassword").value;
   if(!shop||!owner||password.length<6)return authMsg("Enter shop name, owner name and a 6+ character password.");
