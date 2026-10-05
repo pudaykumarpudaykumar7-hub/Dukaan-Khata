@@ -1,5 +1,5 @@
 const KEY="dukaan_khata_infinity_v2";
-let state=loadState(),khataFilter="all",longPress=null;
+let state=loadState(),khataFilter="all",longPress=null,suppressClickUntil=0;
 
 function defaults(){return{shop:{name:"My Dukaan",owner:"Shop Owner",phone:"",upi:"",address:""},customers:[],tx:[],expenses:[],returns:[],reminders:[],settings:{theme:"light",language:"English"}}}
 function loadState(){
@@ -113,7 +113,7 @@ function setupLongPress(){
   document.addEventListener("pointerdown",e=>{
     const el=e.target.closest?.("[data-long-delete]");if(!el)return;
     longPress={el,fired:false,t:setTimeout(()=>{
-      longPress.fired=true;el.classList.add("long-press-delete");
+      longPress.fired=true;suppressClickUntil=Date.now()+900;el.classList.add("long-press-delete");
       if(el.dataset.deleteType==="customer")deleteCustomer(el.dataset.deleteId);
       else if(el.dataset.deleteType==="sale")deleteSale(el.dataset.deleteId);
       else if(el.dataset.deleteType==="transaction")deleteTransaction(el.dataset.deleteId);
