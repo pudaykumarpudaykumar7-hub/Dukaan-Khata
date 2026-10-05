@@ -27,6 +27,7 @@ function authUI(){
     <div class="auth-divider">OR</div><button id="googleAuth" class="auth-google">🔵 Continue with Google</button><button id="phoneAuth" class="auth-otp">📱 Continue with Phone OTP</button>
 
   </div>`;
+  d.classList.add("hidden");
   document.body.appendChild(d);
 }
 let authSignup=false;let authRole="owner";
@@ -218,12 +219,11 @@ async function initOwnerAuth(){
     if(event==="PASSWORD_RECOVERY"){setTimeout(()=>showPasswordResetScreen(),100);return;}
     if(session&&!document.getElementById("ownerAuth").classList.contains("hidden")){try{await routeUser(session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}
   });
-  // Always show login until Supabase confirms an existing session.
+  // Login is opened only from More → Login / My Account.
   const initialOverlay=document.getElementById("ownerAuth");
-  if(initialOverlay) initialOverlay.classList.remove("hidden");
-  
-  
-  // Wire only controls that actually exist in the simplified public login UI.
+  if(initialOverlay) initialOverlay.classList.add("hidden");
+
+  // Wire only controls that actually exist in the public login UI.
   const googleBtn=document.getElementById("googleAuth");
   const phoneBtn=document.getElementById("phoneAuth");
   if(googleBtn) googleBtn.onclick=loginWithGoogle;
@@ -242,7 +242,8 @@ async function logoutDukaanKhata(){
   if(error){authMsg(error.message||"Could not log out.");return;}
   window.DukaanKhataUser=null;window.DukaanKhataShop=null;updateDukaanProfileButton();
   const a=document.getElementById("ownerAuth");
-  if(a){a.classList.remove("hidden");authRole="owner";authSignup=false;setAuthRole("owner");refreshAuthMode();}
+  if(a){a.classList.add("hidden");}
+  if(window.showPage)showPage("home");
 }
 function openDukaanLogin(){
   if(window.DukaanKhataUser){openDukaanProfile();return;}
@@ -264,19 +265,32 @@ window.openDukaanLogin=openDukaanLogin;
 
 function updateDukaanProfileButton(){
   const btn=document.querySelector(".profile-login-btn");
-  if(!btn)return;
+  const accountBtn=document.getElementById("moreAccountButton");
   const user=window.DukaanKhataUser;
-  if(!user){
-    btn.innerHTML="👤 <span>Sign in</span>";
-    btn.title="Sign in";
-    btn.setAttribute("aria-label","Sign in");
-    return;
+  const email=user?String(user.email||user.phone||"").trim().replace(/[<>&"]/g,""):"";
+
+  if(btn){
+    if(!user){
+      btn.innerHTML="👤 <span>Sign in</span>";
+      btn.title="Sign in";
+      btn.setAttribute("aria-label","Sign in");
+    }else{
+      const label=email||"Account";
+      btn.innerHTML="👤 <span>"+label+"</span>";
+      btn.title="Signed in as "+label;
+      btn.setAttribute("aria-label","Open account profile");
+    }
   }
-  const email=String(user.email||"").trim().replace(/[<>&"]/g,"");
-  const label=email||"Google Account";
-  btn.innerHTML="👤 <span>"+label+"</span>";
-  btn.title="Signed in as "+(email||"Google Account");
-  btn.setAttribute("aria-label","Open account profile");
+
+  if(accountBtn){
+    if(!user){
+      accountBtn.innerHTML="🔐<b>Login / Sign up</b><small>Google or Phone OTP</small>";
+      accountBtn.setAttribute("aria-label","Login or sign up");
+    }else{
+      accountBtn.innerHTML="👤<b>My Account</b><small>"+(email||"Signed in")+" · Logout available</small>";
+      accountBtn.setAttribute("aria-label","Open my account");
+    }
+  }
 }
 function openDukaanProfile(){
   const user=window.DukaanKhataUser;
