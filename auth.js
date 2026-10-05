@@ -18,15 +18,9 @@ function authStyles(){
 }
 function authUI(){
   authStyles();
-  const d=document.createElement("div");d.id="ownerAuth";
-  d.innerHTML=`<div class="auth-card">
-    <div class="auth-logo">₹</div>
-    <h2 id="authTitle">Welcome to Dukaan Khata</h2>
-    <p id="authSub">Sign in with your Google account to open your shop.</p>
-    <div class="auth-account-note">Use your Google account to sign in. Your shop profile will be created automatically on first sign-in.</div>
-    <div class="auth-divider">OR</div><button id="googleAuth" class="auth-google">🔵 Continue with Google</button><button id="phoneAuth" class="auth-otp">📱 Continue with Phone OTP</button>
-
-  </div>`;
+  const d=document.createElement("div");
+  d.id="ownerAuth";
+  d.innerHTML=`<div class="auth-card" id="accountAuthCard"></div>`;
   d.classList.add("hidden");
   document.body.appendChild(d);
 }
@@ -240,26 +234,73 @@ window.addEventListener("DOMContentLoaded",initOwnerAuth);
 async function logoutDukaanKhata(){
   const {error}=await supabaseClient.auth.signOut({scope:"local"});
   if(error){authMsg(error.message||"Could not log out.");return;}
-  window.DukaanKhataUser=null;window.DukaanKhataShop=null;updateDukaanProfileButton();
-  const a=document.getElementById("ownerAuth");
-  if(a){a.classList.add("hidden");}
-  if(window.showPage)showPage("home");
+  window.DukaanKhataUser=null;
+  window.DukaanKhataShop=null;
+  updateDukaanProfileButton();
+  showDukaanLoginPanel();
+}
+function showDukaanLoginPanel(){
+  const overlay=document.getElementById("ownerAuth");
+  if(!overlay)return;
+  const card=document.getElementById("accountAuthCard");
+  if(!card)return;
+  card.innerHTML=`
+    <div class="auth-logo">₹</div>
+    <h2>Login / Sign up</h2>
+    <p>Choose how you want to access your Dukaan Khata account.</p>
+    <div class="auth-account-note">Google and Phone OTP are available for both new users and returning users.</div>
+    <button id="googleAuth" class="auth-google">🔵 Continue with Google</button>
+    <div class="auth-divider">OR</div>
+    <button id="phoneAuth" class="auth-otp">📱 Continue with Phone OTP</button>
+    <button class="auth-secondary" style="margin-top:12px" onclick="closeDukaanAuthPanel()">✕ Close</button>
+  `;
+  const googleBtn=document.getElementById("googleAuth");
+  const phoneBtn=document.getElementById("phoneAuth");
+  if(googleBtn)googleBtn.onclick=loginWithGoogle;
+  if(phoneBtn)phoneBtn.onclick=loginWithPhone;
+  overlay.classList.remove("hidden");
+  overlay.style.display="flex";
+}
+function showDukaanAccountPanel(){
+  const overlay=document.getElementById("ownerAuth");
+  if(!overlay)return;
+  const card=document.getElementById("accountAuthCard");
+  if(!card)return;
+  const user=window.DukaanKhataUser;
+  const email=String(user?.email||user?.phone||"Account").replace(/[<>&"]/g,"");
+  const shop=String(window.DukaanKhataShop?.name||"My Dukaan").replace(/[<>&"]/g,"");
+  card.innerHTML=`
+    <div class="auth-logo">👤</div>
+    <h2>My Account</h2>
+    <p>Account and logout options</p>
+    <div class="profile-card">
+      <h2 style="font-size:18px">${email}</h2>
+      <p>${shop}</p>
+      <small>Country: India</small>
+    </div>
+    <button class="auth-primary" onclick="closeDukaanAuthPanel();if(window.showPage)showPage('home')">🏠 Dashboard</button>
+    <button class="auth-secondary" onclick="switchDukaanAccount()">🔄 Login with another account</button>
+    <button class="auth-otp" onclick="logoutDukaanKhata()">↪ Logout</button>
+    <button class="auth-secondary" style="margin-top:12px" onclick="closeDukaanAuthPanel()">✕ Close</button>
+  `;
+  overlay.classList.remove("hidden");
+  overlay.style.display="flex";
+}
+function closeDukaanAuthPanel(){
+  const overlay=document.getElementById("ownerAuth");
+  if(overlay){overlay.classList.add("hidden");overlay.style.display="none";}
+}
+async function switchDukaanAccount(){
+  const {error}=await supabaseClient.auth.signOut({scope:"local"});
+  if(error){authMsg(error.message||"Could not switch account.");return;}
+  window.DukaanKhataUser=null;
+  window.DukaanKhataShop=null;
+  updateDukaanProfileButton();
+  showDukaanLoginPanel();
 }
 function openDukaanLogin(){
-  if(window.DukaanKhataUser){openDukaanProfile();return;}
-  let overlay=document.getElementById("ownerAuth");
-  if(!overlay){
-    authUI();
-    overlay=document.getElementById("ownerAuth");
-    const googleBtn=document.getElementById("googleAuth");
-    const phoneBtn=document.getElementById("phoneAuth");
-    if(googleBtn)googleBtn.onclick=loginWithGoogle;
-    if(phoneBtn)phoneBtn.onclick=loginWithPhone;
-  }
-  if(overlay){
-    overlay.classList.remove("hidden");
-    overlay.style.display="flex";
-  }
+  if(window.DukaanKhataUser)showDukaanAccountPanel();
+  else showDukaanLoginPanel();
 }
 window.openDukaanLogin=openDukaanLogin;
 
