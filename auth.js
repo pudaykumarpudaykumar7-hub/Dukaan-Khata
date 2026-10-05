@@ -272,7 +272,9 @@ function updateDukaanProfileButton(){
     return;
   }
   const name=String(user.user_metadata?.full_name||user.user_metadata?.name||user.user_metadata?.owner_name||user.email?.split("@")[0]||user.phone||"Account").trim();
-  btn.innerHTML="👤 <span>"+name.replace(/[<>&"]/g,"")+"</span>";
+  const email=String(user.email||user.phone||"").trim().replace(/[<>&"]/g,"");
+  btn.innerHTML="👤 <span>"+(email||name)+" · India</span>";
+  btn.title=(email||name)+" · India";
   btn.setAttribute("aria-label","Open account");
 }
 function openDukaanProfile(){
@@ -285,7 +287,7 @@ function openDukaanProfile(){
   const name=user.user_metadata?.full_name||user.user_metadata?.name||user.user_metadata?.owner_name||user.email||user.phone||"User";
   const shop=window.DukaanKhataShop?.name||state?.shop?.name||"My Dukaan";
   if(window.openModal){
-    openModal("Profile",`<div class="profile-card"><div class="profile-avatar">👤</div><h2>${name}</h2><p>${shop}</p><small>${user.email||user.phone||""}</small><button class="primary" onclick="closeModal();logoutDukaanKhata()">↪ Logout / Switch account</button></div>`);
+    openModal("Profile",`<div class="profile-card"><div class="profile-avatar">👤</div><h2>${name}</h2><p>${shop}</p><small>Gmail: ${user.email||user.phone||"Not available"}<br>Country: India</small><button class="primary" onclick="closeModal();if(window.showPage)showPage('home')">🏠 Dashboard</button><button class="auth-secondary" onclick="closeModal();logoutDukaanKhata()">↪ Logout / Switch account</button></div>`);
   }else{
     alert(name+"\n"+shop);
   }
