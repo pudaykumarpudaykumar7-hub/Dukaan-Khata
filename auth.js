@@ -114,6 +114,18 @@ async function createOwnerAccount(){
   }catch(e){authMsg(e.message||"Could not create account.");}
   document.getElementById("authMain").disabled=false;
 }
+async function changeOwnerPassword(){
+  const password=prompt("Enter your new password (minimum 6 characters):");
+  if(!password)return;
+  if(password.length<6)return authMsg("Password must be at least 6 characters.");
+  authMsg("Updating password...",true);
+  const {error}=await supabaseClient.auth.updateUser({password});
+  if(error)return authMsg(error.message||"Could not change password.");
+  authMsg("Password changed successfully. You can now login.",true);
+  await supabaseClient.auth.signOut({scope:"local"});
+  const a=document.getElementById("ownerAuth");
+  if(a)a.classList.remove("hidden");
+}
 async function resetOwnerPassword(){
   const email=document.getElementById("authEmail").value.trim();
   if(!email)return authMsg("Enter your email address first.");
@@ -185,6 +197,10 @@ async function startOwner(user){
 }
 async function initOwnerAuth(){
   authUI();refreshAuthMode();
+  supabaseClient.auth.onAuthStateChange(async(event,session)=>{
+    if(event==="PASSWORD_RECOVERY"){setTimeout(()=>changeOwnerPassword(),100);}
+    if(session&&!document.getElementById("ownerAuth").classList.contains("hidden")){try{await routeUser(session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}
+  });
   // Always show login until Supabase confirms an existing session.
   const initialOverlay=document.getElementById("ownerAuth");
   if(initialOverlay) initialOverlay.classList.remove("hidden");
@@ -194,7 +210,6 @@ async function initOwnerAuth(){
   document.getElementById("forgotAuth").onclick=resetOwnerPassword;document.getElementById("googleAuth").onclick=loginWithGoogle;document.getElementById("phoneAuth").onclick=loginWithPhone;
   const {data}=await supabaseClient.auth.getSession();
   if(data.session){try{await routeUser(data.session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}
-  supabaseClient.auth.onAuthStateChange(async(event,session)=>{if(session&&!document.getElementById("ownerAuth").classList.contains("hidden")){try{await routeUser(session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}});
 }
 window.addEventListener("DOMContentLoaded",initOwnerAuth);
 
