@@ -223,11 +223,17 @@ async function initOwnerAuth(){
   if(initialOverlay) initialOverlay.classList.remove("hidden");
   
   
-  document.getElementById("authMain").onclick=()=>authRole==="owner"?(authSignup?createOwnerAccount():loginOwner()):authRole==="staff"?authMsg("Supervisor accounts are created by the shop owner. Use Google or Phone OTP after the owner adds you.",true):authMsg("Use Google or Phone OTP to enter as a customer.",true);
-  document.getElementById("googleAuth").onclick=loginWithGoogle;document.getElementById("phoneAuth").onclick=loginWithPhone;
-  if(window.location.hash.includes("access_token=")||window.location.search.includes("code=")){setTimeout(()=>{if(window.location.hash.includes("type=recovery")||window.location.hash.includes("access_token="))showPasswordResetScreen();},500);}
+  // Wire only controls that actually exist in the simplified public login UI.
+  const googleBtn=document.getElementById("googleAuth");
+  const phoneBtn=document.getElementById("phoneAuth");
+  if(googleBtn) googleBtn.onclick=loginWithGoogle;
+  if(phoneBtn) phoneBtn.onclick=loginWithPhone;
+  if(window.location.hash.includes("type=recovery")){setTimeout(()=>showPasswordResetScreen(),500);}
   const {data}=await supabaseClient.auth.getSession();
-  if(data.session){try{await routeUser(data.session.user)}catch(e){authMsg(e.message||"Your shop could not be loaded.")}}
+  if(data.session){
+    try{await routeUser(data.session.user)}
+    catch(e){authMsg(e.message||"Your shop could not be loaded.");}
+  }
 }
 window.addEventListener("DOMContentLoaded",initOwnerAuth);
 
