@@ -24,7 +24,7 @@ function globalResults(){
   const box=document.getElementById("globalResults");if(!box)return;
   const q=(document.getElementById("globalSearch")?.value||"").toLowerCase();
   const c=state.customers.filter(x=>(x.name+" "+x.phone).toLowerCase().includes(q)).slice(0,8);
-  box.innerHTML=c.map(x=>'<div class="customer" onclick="closeModal();customerView(\\''+esc(x.id)+'\\')"><div><b>'+esc(x.name)+'</b><small>Customer • '+esc(x.phone||"")+'</small></div><b>'+money(balance(x.id))+'</b></div>').join("")||'<p class="muted">No customers found.</p>';
+  box.innerHTML=c.map(x=>`<div class="customer" onclick="closeModal();customerView('${esc(x.id)}')"><div><b>${esc(x.name)}</b><small>Customer • ${esc(x.phone||"")}</small></div><b>${money(balance(x.id))}</b></div>`).join("")||'<p class="muted">No customers found.</p>';
 }
 
 function openManyItems(customerId){
