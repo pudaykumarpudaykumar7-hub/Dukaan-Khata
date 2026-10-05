@@ -85,14 +85,14 @@ async function createOwnerAccount(){
     if(email){
       const {data,error}=await supabaseClient.auth.signUp({
         email,password,
-        options:{data:{shop_name:shop,owner_name:owner,phone:phone||null,login_role:"owner"}}
+        options:{data:{shop_name:shop,owner_name:owner,phone:phone||null,login_role:"owner"},emailRedirectTo:"https://pudaykumarpudaykumar7-hub.github.io/Dukaan-Khata/"}
       });
       if(error)throw error;
       if(data.session){
         await ensureOwnerShop(data.user);
         await startOwner(data.user);
       }else{
-        authMsg("Account created. Confirm your email, then return here and login.",true);
+        authMsg("Account created. If email confirmation is enabled, check your email and tap the confirmation link. You will return to Dukaan Khata automatically.",true);
       }
     }else{
       const {data,error}=await supabaseClient.auth.signUp({
