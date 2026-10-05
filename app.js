@@ -27,20 +27,27 @@ function openSearch(){modal('<h2>Search</h2><input id="globalSearch" placeholder
 function globalResults(){const q=(document.getElementById("globalSearch")?.value||"").toLowerCase();const box=document.getElementById("globalResults");if(!box)return;const a=state.customers.filter(c=>(c.name+" "+c.phone).toLowerCase().includes(q)).slice(0,10);box.innerHTML=a.map(c=>'<div class="customer" onclick="closeModal();customerView(\''+esc(c.id)+'\')"><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><b>'+money(balance(c.id))+'</b></div>').join("")||'<p class="muted">No customers found.</p>'}
 
 function addCustomer(mode=""){modal('<h2>New Customer</h2><input id="cname" placeholder="Customer name" autocomplete="name"><input id="cphone" inputmode="tel" placeholder="Mobile / WhatsApp number"><textarea id="caddress" placeholder="Address (optional)"></textarea><button class="btn primary" id="saveCustomerBtn">Save Customer</button>');document.getElementById("saveCustomerBtn")?.addEventListener("click",()=>saveCustomer(mode))}
-function saveCustomer(mode=""){const name=(document.getElementById("cname")?.value||"").trim();if(!name)return toast("Enter customer name");const c={id:uid(),name,phone:(document.getElementById("cphone")?.value||"").trim(),address:(document.getElementById("caddress")?.value||"").trim(),created:new Date().toISOString()};state.customers.unshift(c);saveState();closeModal();render();toast("Customer added");if(mode==="many")openManyItems(c.id)}
+function saveCustomer(mode=""){const name=(document.getElementById("cname")?.value||"").trim();if(!name)return toast("Enter customer name");const c={id:uid(),name,phone:(document.getElementById("cphone")?.value||"").trim(),address:(document.getElementById("caddress")?.value||"").trim(),created:new Date().toISOString()};state.customers.unshift(c);saveState();closeModal();render();toast("Customer added");if(mode==="many")openManyItems(c.id);if(mode==="many-picker")openManyItems()}
 function editCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c)return;modal('<h2>Edit Customer</h2><input id="editCName" value="'+esc(c.name)+'" placeholder="Customer name"><input id="editCPhone" value="'+esc(c.phone)+'" inputmode="tel" placeholder="Mobile number"><textarea id="editCAddress" placeholder="Address">'+esc(c.address)+'</textarea><button class="btn primary" id="editCustomerBtn">Save Customer</button>');document.getElementById("editCustomerBtn")?.addEventListener("click",()=>saveCustomerEdit(id))}
 function saveCustomerEdit(id){const c=state.customers.find(x=>x.id===id);if(!c)return;const name=(document.getElementById("editCName")?.value||"").trim();if(!name)return toast("Enter customer name");c.name=name;c.phone=(document.getElementById("editCPhone")?.value||"").trim();c.address=(document.getElementById("editCAddress")?.value||"").trim();saveState();closeModal();render();toast("Customer updated")}
 function addCustomerNumber(id){editCustomer(id)}
 
 function openManyItems(customerId){
-  if(!state.customers.length)return addCustomer("many");
-  if(!customerId){const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join("");modal('<h2>＋ Add Items to Khata</h2><select id="manyCustomer">'+opts+'</select><button class="btn primary" id="chooseCustomerBtn">Continue</button>');document.getElementById("chooseCustomerBtn")?.addEventListener("click",()=>showManyItemsForm(document.getElementById("manyCustomer")?.value));return}
+  if(!state.customers.length)return addCustomer("many-picker");
+  if(!customerId){
+    const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+(c.phone?' • '+esc(c.phone):'')+'</option>').join("");
+    modal('<h2>＋ New Sell</h2><p class="muted">Select any customer for this sale.</p><select id="manyCustomer">'+opts+'</select><button class="btn primary" id="chooseCustomerBtn">Continue</button><button class="btn" id="addSellCustomerBtn">＋ Add New Customer</button>');
+    document.getElementById("chooseCustomerBtn")?.addEventListener("click",()=>showManyItemsForm(document.getElementById("manyCustomer")?.value));
+    document.getElementById("addSellCustomerBtn")?.addEventListener("click",()=>addCustomer("many-picker"));
+    return
+  }
   showManyItemsForm(customerId)
 }
 function openSale(customerId){openManyItems(customerId)}
 function showManyItemsForm(customerId){
   const c=state.customers.find(x=>x.id===customerId);if(!c)return;
-  modal('<h2>＋ Add Items</h2><p><b>'+esc(c.name)+'</b></p><div id="manyRows"></div><button class="btn" id="addManyRowBtn">＋ Add another item</button><div class="line"><b>Total</b><b id="manyTotal">₹0</b></div><button class="btn primary" id="saveManyBtn">Save to Khata</button>');
+  modal('<h2>＋ Add Items</h2><p><b>'+esc(c.name)+'</b></p><button class="btn small" id="changeSellCustomerBtn">↔ Change Customer</button><div id="manyRows"></div><button class="btn" id="addManyRowBtn">＋ Add another item</button><div class="line"><b>Total</b><b id="manyTotal">₹0</b></div><button class="btn primary" id="saveManyBtn">Save to Khata</button>');
+  document.getElementById("changeSellCustomerBtn")?.addEventListener("click",()=>openManyItems());
   document.getElementById("addManyRowBtn")?.addEventListener("click",addManyRow);
   document.getElementById("saveManyBtn")?.addEventListener("click",()=>saveManyItems(customerId));addManyRow()
 }
