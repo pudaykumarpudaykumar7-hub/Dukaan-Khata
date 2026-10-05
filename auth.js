@@ -177,6 +177,9 @@ async function startOwner(user){
 }
 async function initOwnerAuth(){
   authUI();refreshAuthMode();
+  // Always show login until Supabase confirms an existing session.
+  const initialOverlay=document.getElementById("ownerAuth");
+  if(initialOverlay) initialOverlay.classList.remove("hidden");
   document.getElementById("roleOwner").onclick=()=>setAuthRole("owner");document.getElementById("roleStaff").onclick=()=>setAuthRole("staff");document.getElementById("roleCustomer").onclick=()=>setAuthRole("customer");
   document.getElementById("authSwitch").onclick=()=>{authSignup=!authSignup;refreshAuthMode()};
   document.getElementById("authMain").onclick=()=>authRole==="owner"?(authSignup?createOwnerAccount():loginOwner()):authRole==="staff"?authMsg("Supervisor accounts are created by the shop owner. Use Google or Phone OTP after the owner adds you.",true):authMsg("Use Google or Phone OTP to enter as a customer.",true);
