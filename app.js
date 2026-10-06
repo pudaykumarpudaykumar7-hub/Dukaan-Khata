@@ -222,4 +222,4 @@ function setupLongPress(){
     if(Date.now()<suppressClickUntil && e.target.closest?.("[data-long-delete]")){e.preventDefault();e.stopPropagation();}
   },true);
 }
-document.addEventListener("DOMContentLoaded",()=>{setupLongPress();render();window.__DUKAAN_READY__=true});
+document.addEventListener("DOMContentLoaded",()=>{setupLongPress();render();const logo=localStorage.getItem("dukaan_khata_logo");const el=document.getElementById("brandLogo");if(logo&&el)el.textContent=logo;window.__DUKAAN_READY__=true});
