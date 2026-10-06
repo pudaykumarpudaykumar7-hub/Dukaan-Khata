@@ -65,7 +65,7 @@ function openLogoEditor(){
     const reader=new FileReader();
     reader.onload=()=>{
       selectedImage=String(reader.result||"");
-      if(preview)preview.innerHTML='<img src="'+selectedImage+'" alt="Logo preview">';
+      if(preview)preview.innerHTML='<img class="logo-crop-preview" src="'+selectedImage+'" alt="Logo preview">';
     };
     reader.readAsDataURL(file);
   });
@@ -86,7 +86,7 @@ function applyHomeLogo(){
   const text=localStorage.getItem("dukaan_khata_logo_text")||"₹";
   if(!el)return;
   if(image){
-    if(img){img.src=image;img.hidden=false}
+    if(img){img.src=image;img.hidden=false;img.classList.add("brand-logo-image")}
     if(mark)mark.hidden=true;
   }else{
     if(img){img.hidden=true;img.removeAttribute("src")}
