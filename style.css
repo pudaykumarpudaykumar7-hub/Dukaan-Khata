@@ -77,3 +77,13 @@
 .brand-logo-image{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;padding:4px;border-radius:13px;background:#fff}
 .logo-editor-preview .logo-crop-preview{width:100%;height:100%;object-fit:contain;object-position:center;background:#fff;border-radius:18px;padding:4px}
 .logo-upload{position:relative;min-height:72px}
+
+
+/* Final logo fit + text overflow fix */
+.logo-editable{width:43px!important;height:43px!important;min-width:43px;min-height:43px;box-sizing:border-box;display:grid;place-items:center}
+.logo-editable .brand-logo-mark{width:100%;height:100%;max-width:100%;max-height:100%;display:grid;place-items:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:2px;box-sizing:border-box;font-size:clamp(14px,6vw,25px);line-height:1}
+.brand-logo-image{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center!important;padding:2px!important;margin:0!important;border-radius:11px!important;background:#fff;box-sizing:border-box}
+.logo-editor-preview{box-sizing:border-box}
+.logo-editor-preview .logo-crop-preview{display:block;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center!important;padding:2px!important;margin:0!important;border-radius:16px;background:#fff;box-sizing:border-box}
+.logo-editor #logoText{display:block;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logo-editor{width:100%;max-width:100%;box-sizing:border-box;overflow:hidden}
