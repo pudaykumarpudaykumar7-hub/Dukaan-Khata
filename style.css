@@ -102,3 +102,9 @@
 .uvms-logo:after{transform:rotate(188deg);opacity:.65}
 .uvms-logo .uvms-crown{position:absolute;top:3px;color:#ffd45a;font-size:9px;z-index:3;filter:drop-shadow(0 0 4px #ffca3a)}
 .uvms-logo i{position:absolute;width:24px;height:2px;background:linear-gradient(90deg,transparent,#ffd45a,transparent);bottom:7px;z-index:3}
+
+/* UVMS logo in Home outstanding card */
+.uvms-hero-logo{position:relative;overflow:hidden!important;background:radial-gradient(circle at 50% 35%,#17346e 0,#08111f 62%,#02050a 100%)!important;border:1px solid #35a8ff;box-shadow:0 0 0 2px rgba(255,255,255,.08),0 0 20px rgba(37,99,235,.4),inset 0 0 14px rgba(0,212,255,.16)}
+.uvms-hero-logo:before,.uvms-hero-logo:after{content:"";position:absolute;width:62px;height:28px;border:2px solid #f4c34d;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-10deg);opacity:.9}
+.uvms-hero-logo:after{transform:translate(-50%,-50%) rotate(170deg);opacity:.55}
+.uvms-hero-logo span{position:relative;z-index:2;font-size:12px!important;font-weight:1000!important;letter-spacing:-.7px;background:linear-gradient(180deg,#fff,#5ddcff 48%,#2463ff);-webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:0 1px 8px rgba(0,153,255,.35)}
