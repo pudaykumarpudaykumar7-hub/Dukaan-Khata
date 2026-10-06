@@ -132,3 +132,11 @@ body.uvms-logo-open{overflow:hidden}
 .hub-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin:12px 0!important;width:100%!important}
 .hub-actions .btn{display:flex!important;align-items:center!important;justify-content:center!important;min-height:50px!important;margin-top:0!important;white-space:normal!important;visibility:visible!important;opacity:1!important}
 @media(max-width:720px){.hub-actions{grid-template-columns:1fr!important}.hub-actions .btn{min-height:48px!important}}
+
+/* UVMS popup: exact same logo artwork as header, only enlarged */
+.uvms-popup-logo{width:180px!important;height:180px!important;min-width:180px!important;border-radius:44px!important}
+.uvms-popup-logo strong{font-size:34px!important;letter-spacing:-2px!important}
+.uvms-popup-logo:before,.uvms-popup-logo:after{width:142px!important;height:62px!important;left:19px!important;top:58px!important}
+.uvms-popup-logo .uvms-crown{top:15px!important;font-size:18px!important}
+.uvms-popup-logo i{width:90px!important;bottom:25px!important}
+@media(max-width:720px){.uvms-popup-logo{width:155px!important;height:155px!important;min-width:155px!important}.uvms-popup-logo strong{font-size:30px!important}.uvms-popup-logo:before,.uvms-popup-logo:after{width:122px!important;height:54px!important;left:16px!important;top:50px!important}.uvms-popup-logo .uvms-crown{top:13px!important;font-size:16px!important}.uvms-popup-logo i{width:78px!important;bottom:22px!important}}
