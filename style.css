@@ -127,3 +127,8 @@
 .uvms-fullscreen-close:hover{background:rgba(255,255,255,.18)}
 body.uvms-logo-open{overflow:hidden}
 @media(max-width:720px){.uvms-fullscreen-logo{min-height:330px;border-radius:28px}.uvms-popup-logo{width:155px!important;height:155px!important}.uvms-popup-title{font-size:28px}}
+
+/* Customer Contact: keep every action clearly visible on laptop + desktop */
+.hub-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin:12px 0!important;width:100%!important}
+.hub-actions .btn{display:flex!important;align-items:center!important;justify-content:center!important;min-height:50px!important;margin-top:0!important;white-space:normal!important;visibility:visible!important;opacity:1!important}
+@media(max-width:720px){.hub-actions{grid-template-columns:1fr!important}.hub-actions .btn{min-height:48px!important}}
