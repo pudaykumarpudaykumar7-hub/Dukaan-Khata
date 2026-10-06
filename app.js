@@ -14,6 +14,19 @@ function loadState(){
   }catch(e){return defaults()}
 }
 function saveState(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){toast("Could not save data")}}
+function openUVMSLogo(){
+  const m=document.getElementById("modal"),b=document.getElementById("modalBody");
+  if(!m||!b)return;
+  b.innerHTML='<div class="uvms-fullscreen-logo" role="dialog" aria-modal="true" aria-label="UVMS logo"><button class="uvms-fullscreen-close" type="button" aria-label="Close UVMS logo" onclick="closeUVMSLogo()">×</button><div class="uvms-popup-logo uvms-hero-logo" aria-label="UVMS"><span>UVMS</span></div><div class="uvms-popup-title">UVMS</div><div class="uvms-popup-sub">Dukaan Khata</div></div>';
+  m.classList.remove("hidden");
+  m.classList.add("uvms-logo-modal");
+  document.body.classList.add("uvms-logo-open");
+}
+function closeUVMSLogo(){
+  document.getElementById("modal")?.classList.add("hidden");
+  document.getElementById("modal")?.classList.remove("uvms-logo-modal");
+  document.body.classList.remove("uvms-logo-open");
+}
 function openDigitalPassword(){
   if(typeof modal!=="function")return;
   const s=state.shop||{};
@@ -140,7 +153,7 @@ function sales(){return state.tx.filter(t=>t.type==="sale")}
 function payments(){return state.tx.filter(t=>t.type==="payment")}
 function toast(msg){const e=document.getElementById("toast");if(!e)return;e.textContent=msg;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2200)}
 function modal(html){const m=document.getElementById("modal"),b=document.getElementById("modalBody");if(!m||!b)return;b.innerHTML=html;m.classList.remove("hidden")}
-function closeModal(){document.getElementById("modal")?.classList.add("hidden")}
+function closeModal(){document.getElementById("modal")?.classList.add("hidden");document.getElementById("modal")?.classList.remove("uvms-logo-modal");document.body.classList.remove("uvms-logo-open")}
 function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById(id)?.classList.add("active");document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));render()}
 function openSearch(){modal('<h2>Search</h2><input id="globalSearch" placeholder="Customer or phone..." autocomplete="off"><div id="globalResults"></div>');document.getElementById("globalSearch")?.addEventListener("input",globalResults);globalResults();document.getElementById("globalSearch")?.focus()}
 function globalResults(){const q=(document.getElementById("globalSearch")?.value||"").toLowerCase();const box=document.getElementById("globalResults");if(!box)return;const a=state.customers.filter(c=>(c.name+" "+c.phone).toLowerCase().includes(q)).slice(0,10);box.innerHTML=a.map(c=>'<div class="customer" onclick="closeModal();customerView(\''+esc(c.id)+'\')"><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><b>'+money(balance(c.id))+'</b></div>').join("")||'<p class="muted">No customers found.</p>'}
