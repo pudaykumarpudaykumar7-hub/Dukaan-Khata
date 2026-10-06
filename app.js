@@ -19,7 +19,7 @@ function openDigitalPassword(){
   const s=state.shop||{};
   const name=s.name||"My Dukaan", owner=s.owner||"Shop Owner", phone=s.phone||"Not added", upi=s.upi||"Not added", address=s.address||"Not added";
   const passBg=localStorage.getItem("dukaan_khata_pass_color")||"linear-gradient(135deg,#111827,#4f46e5,#06b6d4)";
-  modal('<div style="padding:2px;border-radius:24px;background:\${passBg};box-shadow:0 20px 60px rgba(0,0,0,.35)">'+
+  modal('<div class="digital-pass-shell" style="padding:2px;border-radius:24px;background:'+passBg+';box-shadow:0 20px 60px rgba(0,0,0,.35)">'+
     '<div style="background:rgba(255,255,255,.97);border-radius:22px;padding:22px">'+
     '<div style="display:flex;align-items:center;gap:12px;margin-bottom:18px"><div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#4f46e5,#06b6d4);color:#fff;display:grid;place-items:center;font-size:25px">🎫</div><div><div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;opacity:.6">DIGITAL APP PASS</div><h2 style="margin:2px 0">Shop & Owner Profile</h2></div></div>'+
     '<div style="padding:16px;border-radius:18px;background:linear-gradient(135deg,#eef2ff,#ecfeff);margin-bottom:12px"><div style="font-size:12px;opacity:.6">SHOP</div><div style="font-size:22px;font-weight:800">'+esc(name)+'</div><div style="margin-top:8px">📍 '+esc(address)+'</div></div>'+
