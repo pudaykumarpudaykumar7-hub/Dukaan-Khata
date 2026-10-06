@@ -135,6 +135,7 @@ function uid(){return typeof crypto!=="undefined"&&crypto.randomUUID?crypto.rand
 function money(n){return"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2})}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 function balance(id){return state.tx.filter(t=>t.customerId===id).reduce((s,t)=>s+(t.type==="sale"?Number(t.total)||0:-(Number(t.amount)||0)),0)}
+function receivedTotal(id){return state.tx.filter(t=>t.customerId===id&&t.type==="payment").reduce((s,t)=>s+(Number(t.amount)||0),0)}
 function sales(){return state.tx.filter(t=>t.type==="sale")}
 function payments(){return state.tx.filter(t=>t.type==="payment")}
 function toast(msg){const e=document.getElementById("toast");if(!e)return;e.textContent=msg;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2200)}
