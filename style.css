@@ -108,14 +108,3 @@
 .uvms-hero-logo:before,.uvms-hero-logo:after{content:"";position:absolute;width:62px;height:28px;border:2px solid #f4c34d;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-10deg);opacity:.9}
 .uvms-hero-logo:after{transform:translate(-50%,-50%) rotate(170deg);opacity:.55}
 .uvms-hero-logo span{position:relative;z-index:2;font-size:12px!important;font-weight:1000!important;letter-spacing:-.7px;background:linear-gradient(180deg,#fff,#5ddcff 48%,#2463ff);-webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:0 1px 8px rgba(0,153,255,.35)}
-
-/* UVMS logo shortcut popup */
-.uvms-hero-logo{border:0;cursor:pointer;padding:0;font:inherit}
-.uvms-popup{text-align:center;position:relative;padding:34px 24px 30px;border-radius:28px;background:linear-gradient(145deg,#07111f,#101d38 55%,#07101d);border:1px solid rgba(93,220,255,.35);box-shadow:0 24px 80px rgba(0,0,0,.45),inset 0 0 35px rgba(37,99,235,.12);color:#fff;overflow:hidden}
-.uvms-popup-logo{width:150px!important;height:150px!important;margin:8px auto 20px;border-radius:34px!important;display:grid!important;place-items:center!important;transform:none!important}
-.uvms-popup-logo:before,.uvms-popup-logo:after{width:118px;height:52px}
-.uvms-popup-logo span{font-size:30px!important;letter-spacing:-1.8px}
-.uvms-popup-title{font-size:28px;font-weight:1000;letter-spacing:2px}
-.uvms-popup-sub{margin-top:6px;color:#9fb4d2;font-size:14px}
-.uvms-popup-close{position:absolute;right:12px;top:10px;width:42px;height:42px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-size:28px;line-height:1;cursor:pointer}
-@media(max-width:720px){.uvms-popup{width:min(92vw,420px);padding:30px 18px 26px}.uvms-popup-logo{width:135px!important;height:135px!important}.uvms-popup-logo span{font-size:27px!important}}
