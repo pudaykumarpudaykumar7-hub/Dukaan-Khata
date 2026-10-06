@@ -18,7 +18,8 @@ function openDigitalPassword(){
   if(typeof modal!=="function")return;
   const s=state.shop||{};
   const name=s.name||"My Dukaan", owner=s.owner||"Shop Owner", phone=s.phone||"Not added", upi=s.upi||"Not added", address=s.address||"Not added";
-  modal('<div style="padding:2px;border-radius:24px;background:linear-gradient(135deg,#111827,#4f46e5,#06b6d4);box-shadow:0 20px 60px rgba(0,0,0,.35)">'+
+  const passBg=localStorage.getItem("dukaan_khata_pass_color")||"linear-gradient(135deg,#111827,#4f46e5,#06b6d4)";
+  modal('<div style="padding:2px;border-radius:24px;background:\${passBg};box-shadow:0 20px 60px rgba(0,0,0,.35)">'+
     '<div style="background:rgba(255,255,255,.97);border-radius:22px;padding:22px">'+
     '<div style="display:flex;align-items:center;gap:12px;margin-bottom:18px"><div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#4f46e5,#06b6d4);color:#fff;display:grid;place-items:center;font-size:25px">🎫</div><div><div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;opacity:.6">DIGITAL APP PASS</div><h2 style="margin:2px 0">Shop & Owner Profile</h2></div></div>'+
     '<div style="padding:16px;border-radius:18px;background:linear-gradient(135deg,#eef2ff,#ecfeff);margin-bottom:12px"><div style="font-size:12px;opacity:.6">SHOP</div><div style="font-size:22px;font-weight:800">'+esc(name)+'</div><div style="margin-top:8px">📍 '+esc(address)+'</div></div>'+
@@ -28,10 +29,22 @@ function openDigitalPassword(){
     '<div style="padding:13px;border:1px solid #e5e7eb;border-radius:14px">💳 <b>UPI ID</b><br><span style="margin-left:26px">'+esc(upi)+'</span></div>'+
     '<div style="padding:13px;border:1px solid #e5e7eb;border-radius:14px">🏠 <b>Shop Address</b><br><span style="margin-left:26px">'+esc(address)+'</span></div>'+
     '</div>'+
-    '<button class="primary" style="width:100%;margin-top:16px" onclick="openShopSettings()">✏️ Edit All Shop Details</button>'+
+    '<button class="primary" style="width:100%;margin-top:16px" onclick="openShopSettings()">✏️ Edit All Shop Details</button><button class="btn" style="width:100%;margin-top:8px" onclick="openDigitalPassColor()">🎨 Change Pass Background</button>'+
     '</div></div>');
 }
 
+function openDigitalPassColor(){
+  const saved=localStorage.getItem("dukaan_khata_pass_color")||"#4f46e5";
+  const colors=["#111827","#176b4d","#1d4ed8","#4f46e5","#7c3aed","#b45309","#be123c","#0f766e","#334155"];
+  modal('<div class="outstanding-color-editor"><span class="eyebrow">DIGITAL APP PASS</span><h2>🎨 Pass Background</h2><p class="muted">Choose the background color for your Digital App Pass.</p><div class="color-preview" id="passColorPreview"><span>🎫 DIGITAL APP PASS</span><strong>Shop & Owner Profile</strong></div><div class="color-swatches">'+colors.map(c=>'<button type="button" class="color-swatch" data-color="'+c+'" style="background:'+c+'" aria-label="Choose '+c+'"></button>').join("")+'</div><label class="color-custom-label">Custom color<input type="color" id="passColorInput" value="'+saved+'"></label><div class="logo-editor-actions"><button class="btn" id="resetPassColor" type="button">↩ Default</button><button class="primary" id="savePassColor" type="button">✓ Save Color</button></div></div>');
+  let selected=saved,preview=document.getElementById("passColorPreview");
+  const update=()=>{if(preview)preview.style.background=selected};
+  document.querySelectorAll(".color-swatch").forEach(b=>b.addEventListener("click",()=>{selected=b.dataset.color;document.getElementById("passColorInput").value=selected;update()}));
+  document.getElementById("passColorInput")?.addEventListener("input",e=>{selected=e.target.value;update()});
+  document.getElementById("resetPassColor")?.addEventListener("click",()=>{selected="linear-gradient(135deg,#111827,#4f46e5,#06b6d4)";update()});
+  document.getElementById("savePassColor")?.addEventListener("click",()=>{localStorage.setItem("dukaan_khata_pass_color",selected);closeModal();toast("Digital App Pass color updated");});
+  update();
+}
 function openOutstandingColor(){
   const saved=localStorage.getItem("dukaan_khata_outstanding_color")||"";
   const colors=["#0b1220","#176b4d","#1d4ed8","#7c3aed","#b45309","#be123c","#0f766e","#334155"];
