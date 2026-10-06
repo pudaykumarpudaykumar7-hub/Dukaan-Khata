@@ -36,8 +36,19 @@
   };
   window.openLanguage=function(){
     const L=T[current()];
-    modal("<h2>🌐 "+L.language+"</h2><p class='muted'>Choose your app language.</p>"+
-      keys.map(x=>"<button class='btn' style='width:100%;margin:6px 0' onclick=\"setLanguage('"+x+"')\">"+({English:"English",Telugu:"తెలుగు",Hindi:"हिन्दी",Kannada:"ಕನ್ನಡ",Marathi:"मराठी"}[x])+"</button>").join(""));
+    const names={English:"English",Telugu:"తెలుగు",Hindi:"हिन्दी",Kannada:"ಕನ್ನಡ",Marathi:"मराठी"};
+    modal("<h2>🌐 "+L.language+"</h2><p class='muted'>Choose your app language.</p><div id='languageChoices'></div>");
+    const box=document.getElementById("languageChoices");
+    if(!box)return;
+    keys.forEach(x=>{
+      const b=document.createElement("button");
+      b.className="btn";
+      b.style.cssText="width:100%;margin:6px 0";
+      b.type="button";
+      b.textContent=names[x];
+      b.addEventListener("click",()=>window.setLanguage(x));
+      box.appendChild(b);
+    });
   };
   document.addEventListener("DOMContentLoaded",()=>setTimeout(window.applyLanguage,100));
 })();
