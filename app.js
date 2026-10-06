@@ -29,7 +29,7 @@ function openDigitalPassword(){
     '<div style="padding:13px;border:1px solid #e5e7eb;border-radius:14px">💳 <b>UPI ID</b><br><span style="margin-left:26px">'+esc(upi)+'</span></div>'+
     '<div style="padding:13px;border:1px solid #e5e7eb;border-radius:14px">🏠 <b>Shop Address</b><br><span style="margin-left:26px">'+esc(address)+'</span></div>'+
     '</div>'+
-    '<button class="primary" style="width:100%;margin-top:16px" onclick="openShopSettings()">✏️ Edit All Shop Details</button><button class="btn" style="width:100%;margin-top:8px" onclick="openDigitalPassColor()">🎨 Change Pass Background</button>'+
+    '<button class="btn" style="width:100%;margin-top:8px" onclick="openDigitalPassColor()">🎨 Change Pass Background</button>'+
     '</div></div>');
 }
 
