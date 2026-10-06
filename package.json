@@ -10,7 +10,8 @@
     "open:ios": "npx cap open ios"
   },
   "dependencies": {
-    "@capacitor/core": "^7.4.0"
+    "@capacitor/core": "^7.4.0",
+    "paytmchecksum": "^1.5.1"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.0",
