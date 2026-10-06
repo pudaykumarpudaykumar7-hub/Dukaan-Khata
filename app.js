@@ -16,24 +16,22 @@ function loadState(){
 function saveState(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){toast("Could not save data")}}
 function openDigitalPassword(){
   if(typeof modal!=="function")return;
-  const has=!!localStorage.getItem("dukaan_khata_app_password");
-  modal('<h2>🔒 Digital App Password</h2><p class="muted">Protect your Dukaan Khata app with a digital password.</p>'+
-    '<input class="input" id="appPasswordNew" type="password" placeholder="'+(has?'Enter new password':'Create password')+'" autocomplete="new-password">'+
-    '<input class="input" id="appPasswordConfirm" type="password" placeholder="Confirm password" autocomplete="new-password">'+
-    '<button class="primary" id="saveAppPassword">Save Password</button>'+
-    (has?'<button class="btn" id="removeAppPassword">Remove Password</button>':'')+
-    '<p class="muted">The password is stored only on this device.</p>');
-  document.getElementById("saveAppPassword")?.addEventListener("click",()=>{
-    const a=document.getElementById("appPasswordNew")?.value||"",b=document.getElementById("appPasswordConfirm")?.value||"";
-    if(a.length<4){toast("Password must be at least 4 characters");return}
-    if(a!==b){toast("Passwords do not match");return}
-    localStorage.setItem("dukaan_khata_app_password",a);
-    closeModal();toast("Digital app password saved");
-  });
-  document.getElementById("removeAppPassword")?.addEventListener("click",()=>{
-    localStorage.removeItem("dukaan_khata_app_password");closeModal();toast("Digital app password removed");
-  });
+  const s=state.shop||{};
+  const owner=s.owner||"Not added";
+  const name=s.name||"My Dukaan";
+  const phone=s.phone||"Not added";
+  const upi=s.upi||"Not added";
+  const address=s.address||"Not added";
+  modal('<h2>🎫 Digital App Pass</h2>'+
+    '<p class="muted">Complete shop and owner details</p>'+
+    '<div class="card" style="text-align:left;line-height:1.8">'+
+    '<b>🏪 Shop Details</b><br>Shop Name: '+esc(name)+'<br>Address: '+esc(address)+
+    '<br><br><b>👤 Owner Details</b><br>Owner Name: '+esc(owner)+'<br>Phone: '+esc(phone)+
+    '<br><br><b>💳 Payment Details</b><br>UPI ID: '+esc(upi)+
+    '</div>'+
+    '<button class="primary" onclick="openShopSettings()">✏️ Edit Shop & Owner Details</button>');
 }
+
 function uid(){return typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(16).slice(2)}
 function money(n){return"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2})}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
