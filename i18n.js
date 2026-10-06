@@ -27,12 +27,14 @@
   window.setLanguage=function(x){
     if(!keys.includes(x))return;
     localStorage.setItem("dukaan_khata_language",x);
-    if(window.state&&window.state.settings){window.state.settings.language=x;if(typeof window.saveState==="function")window.saveState();}
-    window.applyLanguage();
-    if(typeof closeModal==="function")closeModal();
-    if(typeof render==="function")render();
-    setTimeout(window.applyLanguage,30);
-    if(typeof toast==="function")toast((T[x].languageSet||"Language set to ")+x);
+    try{
+      if(window.state&&window.state.settings){
+        window.state.settings.language=x;
+        if(typeof window.saveState==="function")window.saveState();
+      }
+    }catch(e){}
+    // Reload the complete app so every screen is rebuilt in the selected language.
+    window.location.reload();
   };
   window.openLanguage=function(){
     const L=T[current()];
