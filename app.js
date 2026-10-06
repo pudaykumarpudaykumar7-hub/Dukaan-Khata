@@ -17,7 +17,7 @@ function saveState(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e
 function openUVMSLogo(){
   const m=document.getElementById("modal"),b=document.getElementById("modalBody");
   if(!m||!b)return;
-  b.innerHTML='<div class="uvms-fullscreen-logo" role="dialog" aria-modal="true" aria-label="UVMS logo"><button class="uvms-fullscreen-close" type="button" aria-label="Close UVMS logo" onclick="closeUVMSLogo()">×</button><div class="uvms-popup-logo uvms-hero-logo" aria-label="UVMS"><span>UVMS</span></div><div class="uvms-popup-title">UVMS</div><div class="uvms-popup-sub">Dukaan Khata</div></div>';
+  b.innerHTML='<div class="uvms-fullscreen-logo" role="dialog" aria-modal="true" aria-label="UVMS logo"><button class="uvms-fullscreen-close" type="button" aria-label="Close UVMS logo" onclick="closeUVMSLogo()">×</button><div class="uvms-popup-logo uvms-logo" aria-label="UVMS"><span class="uvms-crown">◆</span><strong>UVMS</strong><i></i></div><div class="uvms-popup-title">UVMS</div><div class="uvms-popup-sub">Dukaan Khata</div></div>';
   m.classList.remove("hidden");
   m.classList.add("uvms-logo-modal");
   document.body.classList.add("uvms-logo-open");
