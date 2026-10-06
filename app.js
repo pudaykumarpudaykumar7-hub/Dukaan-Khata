@@ -32,6 +32,21 @@ function openDigitalPassword(){
     '</div></div>');
 }
 
+function openLogoEditor(){
+  const saved=localStorage.getItem("dukaan_khata_logo")||"DK";
+  modal('<h2>✨ Dukaan Khata Logo</h2><p class="muted">Choose your Home logo or enter your own short logo.</p>'+
+    '<input class="input" id="logoText" maxlength="4" value="'+esc(saved)+'" placeholder="DK">'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">'+
+    ['DK','₹K','D₹','🛍️'].map(x=>'<button class="btn logo-choice" type="button" data-logo="'+x+'">'+x+'</button>').join("")+
+    '</div><button class="primary" id="saveLogo">Save Logo</button>');
+  document.querySelectorAll(".logo-choice").forEach(b=>b.addEventListener("click",()=>{document.getElementById("logoText").value=b.dataset.logo}));
+  document.getElementById("saveLogo")?.addEventListener("click",()=>{
+    const v=(document.getElementById("logoText")?.value||"DK").trim().slice(0,4)||"DK";
+    localStorage.setItem("dukaan_khata_logo",v);
+    const e=document.getElementById("brandLogo");if(e)e.textContent=v;
+    closeModal();toast("Logo updated");
+  });
+}
 function uid(){return typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(16).slice(2)}
 function money(n){return"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2})}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
