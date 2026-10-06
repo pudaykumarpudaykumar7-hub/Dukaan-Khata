@@ -10,7 +10,11 @@
   const keys=Object.keys(T);
   function current(){
     const saved=localStorage.getItem("dukaan_khata_language");
-    return keys.includes(saved)?saved:(window.state?.settings?.language&&keys.includes(window.state.settings.language)?window.state.settings.language:"English");
+    if(keys.includes(saved)) return saved;
+    try{
+      if(window.state&&window.state.settings&&keys.includes(window.state.settings.language)) return window.state.settings.language;
+    }catch(e){}
+    return "English";
   }
   window.applyLanguage=function(){
     const L=Object.assign({},T.English,T[current()]||{});
