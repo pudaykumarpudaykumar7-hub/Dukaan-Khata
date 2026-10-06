@@ -49,3 +49,26 @@
 .sell-customer-choice small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sell-customer-choice strong{font-size:22px;color:var(--primary);margin-left:10px}
 .sell-customer-choice:hover{border-color:#69a98c;transform:translateY(-1px)}
+
+/* Premium custom Home logo editor */
+.logo-editable{position:relative;overflow:hidden;padding:0}
+.logo-editable .brand-logo-mark{display:grid;place-items:center;width:100%;height:100%;font-size:25px;font-weight:950}
+.logo-editable img{width:100%;height:100%;object-fit:cover;border-radius:13px}
+.logo-editable:after{content:"✎";position:absolute;right:2px;bottom:2px;width:17px;height:17px;border-radius:50%;background:#fff;color:#176b4d;font-size:10px;display:grid;place-items:center;box-shadow:0 2px 6px #0005}
+.logo-editor{padding:4px 0}
+.logo-editor-hero{display:flex;gap:14px;align-items:center;padding:16px;border-radius:22px;background:linear-gradient(135deg,#0b1220,#173c2d);color:#fff;margin-bottom:14px}
+.logo-editor-hero h2{margin:2px 0 4px}
+.logo-editor-hero .muted{color:#c4cedb}
+.logo-editor-preview{width:76px;height:76px;flex:0 0 76px;border-radius:22px;background:linear-gradient(135deg,#36c47b,#176b4d);display:grid;place-items:center;overflow:hidden;box-shadow:0 10px 25px #0005}
+.logo-editor-preview span{font-size:40px;font-weight:950;color:#fff}
+.logo-editor-preview img{width:100%;height:100%;object-fit:cover}
+.logo-upload{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:16px;border:1px dashed #8aa497;border-radius:18px;background:var(--surface);cursor:pointer}
+.logo-upload input{display:none}
+.logo-upload span{font-weight:850}
+.logo-upload small{width:100%;color:var(--muted);margin-left:31px}
+.logo-editor-or{text-align:center;color:var(--muted);font-size:11px;font-weight:800;margin:12px}
+.logo-presets{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.logo-presets .logo-choice{width:auto;min-width:58px;margin:0;background:#111827}
+.logo-editor-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.logo-editor-actions button{margin:0}
+@media(max-width:480px){.logo-editor-hero{align-items:flex-start}.logo-editor-actions{grid-template-columns:1fr}.logo-upload small{margin-left:0}}
