@@ -42,7 +42,7 @@
   };
   window.openLanguage=function(){
     const L=T[lang()]||T.English;
-    if(typeof modal==="function")modal("<h2>"+L.language+"</h2><button class='btn' onclick=\"setLanguage('English')\">English</button><button class='btn' onclick=\"setLanguage('Hindi')\">हिन्दी</button><button class='btn' onclick=\"setLanguage('Telugu')\">తెలుగు</button>");
+    if(typeof modal==="function")modal("<h2>"+L.language+"</h2><button class='btn' onclick="setLanguage('English')">English</button><button class='btn' onclick="setLanguage('Telugu')">తెలుగు</button><button class='btn' onclick="setLanguage('Hindi')">हिन्दी</button><button class='btn' onclick="setLanguage('Kannada')">ಕನ್ನಡ</button><button class='btn' onclick="setLanguage('Marathi')">मराठी</button>");
   };
   document.addEventListener("DOMContentLoaded",function(){setTimeout(applyLanguage,30)});
 })();
