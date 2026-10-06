@@ -94,3 +94,11 @@
 
 /* Customer Contact mobile layout fix */
 @media(max-width:720px){.hub-actions{grid-template-columns:1fr!important;gap:8px}.hub-actions .btn{min-height:48px}.sheet{max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:28px}.modal{align-items:flex-end}.modal .sheet{width:100%}}
+
+/* Permanent UVMS brand logo */
+.uvms-logo{width:48px;height:48px;min-width:48px;border-radius:15px;position:relative;overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle at 50% 38%,#162a5a 0,#08111f 58%,#03070d 100%);border:1px solid #2d8cff;box-shadow:0 0 0 2px #07101d,0 0 18px rgba(37,99,235,.45),inset 0 0 14px rgba(0,212,255,.18);color:#fff}
+.uvms-logo strong{font-size:12px;letter-spacing:-.8px;font-weight:1000;background:linear-gradient(180deg,#fff,#5ddcff 48%,#2463ff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 1px 8px rgba(0,153,255,.3);z-index:2}
+.uvms-logo:before,.uvms-logo:after{content:"";position:absolute;border:1.5px solid #f4c34d;border-radius:50%;width:38px;height:17px;left:4px;top:15px;transform:rotate(-8deg);opacity:.9}
+.uvms-logo:after{transform:rotate(188deg);opacity:.65}
+.uvms-logo .uvms-crown{position:absolute;top:3px;color:#ffd45a;font-size:9px;z-index:3;filter:drop-shadow(0 0 4px #ffca3a)}
+.uvms-logo i{position:absolute;width:24px;height:2px;background:linear-gradient(90deg,transparent,#ffd45a,transparent);bottom:7px;z-index:3}
