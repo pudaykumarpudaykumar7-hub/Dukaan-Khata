@@ -91,3 +91,6 @@
 /* Uploaded Home logo: fill the logo box without stretching */
 .logo-editable .brand-logo-image{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center!important;padding:0!important;margin:0!important;border-radius:11px!important;background:transparent!important;box-sizing:border-box!important}
 .logo-editor-preview .logo-crop-preview{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center!important;padding:0!important;margin:0!important;border-radius:16px!important;background:transparent!important;box-sizing:border-box!important}
+
+/* Customer Contact mobile layout fix */
+@media(max-width:720px){.hub-actions{grid-template-columns:1fr!important;gap:8px}.hub-actions .btn{min-height:48px}.sheet{max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:28px}.modal{align-items:flex-end}.modal .sheet{width:100%}}
