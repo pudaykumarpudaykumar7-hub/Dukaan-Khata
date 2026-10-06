@@ -138,7 +138,6 @@ function balance(id){return state.tx.filter(t=>t.customerId===id).reduce((s,t)=>
 function sales(){return state.tx.filter(t=>t.type==="sale")}
 function payments(){return state.tx.filter(t=>t.type==="payment")}
 function toast(msg){const e=document.getElementById("toast");if(!e)return;e.textContent=msg;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2200)}
-function openUVMSLogo(){modal('<div class="uvms-popup"><button class="uvms-popup-close" type="button" aria-label="Close" onclick="closeModal()">×</button><div class="uvms-popup-logo uvms-hero-logo"><span>UVMS</span></div><div class="uvms-popup-title">UVMS</div><div class="uvms-popup-sub">Dukaan Khata Premium</div></div>')}
 function modal(html){const m=document.getElementById("modal"),b=document.getElementById("modalBody");if(!m||!b)return;b.innerHTML=html;m.classList.remove("hidden")}
 function closeModal(){document.getElementById("modal")?.classList.add("hidden")}
 function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById(id)?.classList.add("active");document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));render()}
