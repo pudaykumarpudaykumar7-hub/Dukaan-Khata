@@ -72,3 +72,8 @@
 .logo-editor-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .logo-editor-actions button{margin:0}
 @media(max-width:480px){.logo-editor-hero{align-items:flex-start}.logo-editor-actions{grid-template-columns:1fr}.logo-upload small{margin-left:0}}
+
+/* Perfect uploaded-logo framing */
+.brand-logo-image{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;padding:4px;border-radius:13px;background:#fff}
+.logo-editor-preview .logo-crop-preview{width:100%;height:100%;object-fit:contain;object-position:center;background:#fff;border-radius:18px;padding:4px}
+.logo-upload{position:relative;min-height:72px}
