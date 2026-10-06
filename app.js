@@ -33,20 +33,67 @@ function openDigitalPassword(){
 }
 
 function openLogoEditor(){
-  const saved=localStorage.getItem("dukaan_khata_logo")||"DK";
-  modal('<h2>✨ Dukaan Khata Logo</h2><p class="muted">Choose your Home logo or enter your own short logo.</p>'+
-    '<input class="input" id="logoText" maxlength="4" value="'+esc(saved)+'" placeholder="DK">'+
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">'+
-    ['DK','₹K','D₹','🛍️'].map(x=>'<button class="btn logo-choice" type="button" data-logo="'+x+'">'+x+'</button>').join("")+
-    '</div><button class="primary" id="saveLogo">Save Logo</button>');
-  document.querySelectorAll(".logo-choice").forEach(b=>b.addEventListener("click",()=>{document.getElementById("logoText").value=b.dataset.logo}));
+  const savedText=localStorage.getItem("dukaan_khata_logo_text")||"₹";
+  const savedImage=localStorage.getItem("dukaan_khata_logo_image")||"";
+  modal('<div class="logo-editor">'+
+    '<div class="logo-editor-hero"><div class="logo-editor-preview" id="logoPreview">'+
+    (savedImage?'<img src="'+savedImage+'" alt="Logo preview">':'<span>₹</span>')+
+    '</div><div><span class="eyebrow">HOME BRAND</span><h2>✨ Custom Logo</h2><p class="muted">Upload your own image or use a unique Rupee logo.</p></div></div>'+
+    '<label class="logo-upload"><input type="file" id="logoImageInput" accept="image/png,image/jpeg,image/webp,image/svg+xml"><span>📷 Choose image from device</span><small>PNG • JPG • WEBP • SVG</small></label>'+
+    '<div class="logo-editor-or">OR</div>'+
+    '<input class="input" id="logoText" maxlength="4" value="'+esc(savedText)+'" placeholder="₹K">'+
+    '<div class="logo-presets">'+
+    ['₹','₹K','D₹','DK','🛍️'].map(x=>'<button class="btn logo-choice" type="button" data-logo="'+x+'">'+x+'</button>').join("")+
+    '</div>'+
+    '<div class="logo-editor-actions"><button class="btn" id="removeLogoImage" type="button">↩ Use text logo</button><button class="primary" id="saveLogo" type="button">✓ Save Logo</button></div>'+
+    '</div>');
+  let selectedImage=savedImage;
+  const preview=document.getElementById("logoPreview");
+  document.querySelectorAll(".logo-choice").forEach(b=>b.addEventListener("click",()=>{
+    document.getElementById("logoText").value=b.dataset.logo;
+    selectedImage="";
+    if(preview)preview.innerHTML='<span>'+esc(b.dataset.logo)+'</span>';
+  }));
+  document.getElementById("removeLogoImage")?.addEventListener("click",()=>{
+    selectedImage="";
+    if(preview)preview.innerHTML='<span>'+esc((document.getElementById("logoText")?.value||"₹"))+'</span>';
+    const input=document.getElementById("logoImageInput");if(input)input.value="";
+  });
+  document.getElementById("logoImageInput")?.addEventListener("change",e=>{
+    const file=e.target.files?.[0];if(!file)return;
+    if(file.size>2*1024*1024){toast("Choose an image under 2 MB");e.target.value="";return}
+    const reader=new FileReader();
+    reader.onload=()=>{
+      selectedImage=String(reader.result||"");
+      if(preview)preview.innerHTML='<img src="'+selectedImage+'" alt="Logo preview">';
+    };
+    reader.readAsDataURL(file);
+  });
   document.getElementById("saveLogo")?.addEventListener("click",()=>{
-    const v=(document.getElementById("logoText")?.value||"DK").trim().slice(0,4)||"DK";
-    localStorage.setItem("dukaan_khata_logo",v);
-    const e=document.getElementById("brandLogo");if(e)e.textContent=v;
-    closeModal();toast("Logo updated");
+    const v=(document.getElementById("logoText")?.value||"₹").trim().slice(0,4)||"₹";
+    if(selectedImage)localStorage.setItem("dukaan_khata_logo_image",selectedImage);
+    else localStorage.removeItem("dukaan_khata_logo_image");
+    localStorage.setItem("dukaan_khata_logo_text",v);
+    applyHomeLogo();
+    closeModal();toast("Home logo updated");
   });
 }
+function applyHomeLogo(){
+  const el=document.getElementById("brandLogo");
+  const img=document.getElementById("brandLogoImage");
+  const mark=el?.querySelector(".brand-logo-mark");
+  const image=localStorage.getItem("dukaan_khata_logo_image")||"";
+  const text=localStorage.getItem("dukaan_khata_logo_text")||"₹";
+  if(!el)return;
+  if(image){
+    if(img){img.src=image;img.hidden=false}
+    if(mark)mark.hidden=true;
+  }else{
+    if(img){img.hidden=true;img.removeAttribute("src")}
+    if(mark){mark.hidden=false;mark.textContent=text}
+  }
+}
+
 function uid(){return typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(16).slice(2)}
 function money(n){return"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2})}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
@@ -222,4 +269,4 @@ function setupLongPress(){
     if(Date.now()<suppressClickUntil && e.target.closest?.("[data-long-delete]")){e.preventDefault();e.stopPropagation();}
   },true);
 }
-document.addEventListener("DOMContentLoaded",()=>{setupLongPress();render();const logo=localStorage.getItem("dukaan_khata_logo");const el=document.getElementById("brandLogo");if(logo&&el)el.textContent=logo;window.__DUKAAN_READY__=true});
+document.addEventListener("DOMContentLoaded",()=>{setupLongPress();render();applyHomeLogo();window.__DUKAAN_READY__=true});
