@@ -59,14 +59,14 @@ function customerView(id){const c=state.customers.find(x=>x.id===id);if(!c)retur
 function deleteCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c)return;if(!confirm("Delete "+c.name+" and its khata history?"))return;state.customers=state.customers.filter(x=>x.id!==id);state.tx=state.tx.filter(x=>x.customerId!==id);state.reminders=state.reminders.filter(x=>x.customerId!==id);saveState();closeModal();render();toast("Customer deleted")}
 
 function paymentApiBase(){
-  return (localStorage.getItem("dukaan_payment_api")||"").trim().replace(/\\/$/,"");
+  return (localStorage.getItem("dukaan_payment_api")||"").trim().replaceAll("/","/");
 }
 function paymentApiUrl(path){const base=paymentApiBase();return base?base+path:""}
 function openPaymentSetup(){
   const current=paymentApiBase();
   modal('<h2>💳 Payment Center</h2><p class="muted">Connect your secure payment backend here. Never enter Razorpay Secret or Paytm Merchant Key in this website.</p><div class="payment-provider-grid"><div class="payment-provider"><b>🟦 Razorpay</b><small>UPI • Cards • NetBanking</small><span class="status-chip">Gateway ready</span></div><div class="payment-provider"><b>🟦 Paytm</b><small>UPI • Cards • NetBanking</small><span class="status-chip">Gateway ready</span></div><div class="payment-provider"><b>🟩 UPI</b><small>Direct UPI QR</small><span class="status-chip">Works now</span></div></div><label>Secure payment backend URL<input id="paymentApiUrl" value="'+esc(current)+'" placeholder="https://your-vercel-app.vercel.app"></label><button class="btn primary" id="savePaymentApiBtn">Save Payment Connection</button><button class="btn" onclick="openReceive()">Open Smart Receive</button><p class="muted" style="font-size:11px;margin-top:12px">The GitHub Pages site cannot safely store gateway secret keys. The backend creates orders and verifies payments.</p>');
   document.getElementById("savePaymentApiBtn")?.addEventListener("click",()=>{
-    const u=(document.getElementById("paymentApiUrl")?.value||"").trim().replace(/\\/$/,"");
+    const u=(document.getElementById("paymentApiUrl")?.value||"").trim();
     localStorage.setItem("dukaan_payment_api",u);closeModal();toast(u?"Payment backend connected":"Payment backend cleared")
   });
 }
