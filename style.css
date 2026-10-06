@@ -140,3 +140,8 @@ body.uvms-logo-open{overflow:hidden}
 .uvms-popup-logo .uvms-crown{top:15px!important;font-size:18px!important}
 .uvms-popup-logo i{width:90px!important;bottom:25px!important}
 @media(max-width:720px){.uvms-popup-logo{width:155px!important;height:155px!important;min-width:155px!important}.uvms-popup-logo strong{font-size:30px!important}.uvms-popup-logo:before,.uvms-popup-logo:after{width:122px!important;height:54px!important;left:16px!important;top:50px!important}.uvms-popup-logo .uvms-crown{top:13px!important;font-size:16px!important}.uvms-popup-logo i{width:78px!important;bottom:22px!important}}
+
+/* Center UVMS logo popup on the exact screen center */
+.uvms-logo-modal{align-items:center!important;justify-content:center!important;padding:20px!important;box-sizing:border-box!important}
+.uvms-logo-modal .sheet{margin:0 auto!important;max-height:calc(100vh - 40px)!important}
+@media(max-width:720px){.uvms-logo-modal{align-items:center!important;padding:16px!important}.uvms-logo-modal .sheet{max-height:calc(100vh - 32px)!important}}
