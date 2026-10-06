@@ -32,6 +32,30 @@ function openDigitalPassword(){
     '</div></div>');
 }
 
+function openOutstandingColor(){
+  const saved=localStorage.getItem("dukaan_khata_outstanding_color")||"";
+  const colors=["#0b1220","#176b4d","#1d4ed8","#7c3aed","#b45309","#be123c","#0f766e","#334155"];
+  modal('<div class="outstanding-color-editor"><span class="eyebrow">HOMEPAGE STYLE</span><h2>🎨 Outstanding Color</h2><p class="muted">Choose the background color for “Outstanding to receive”.</p>'+
+    '<div class="color-preview" id="outstandingColorPreview"><span>Outstanding to receive</span><strong>₹12,500</strong></div>'+
+    '<div class="color-swatches">'+colors.map(c=>'<button type="button" class="color-swatch" data-color="'+c+'" style="background:'+c+'" aria-label="Choose '+c+'"></button>').join("")+'</div>'+
+    '<label class="color-custom-label">Custom color<input type="color" id="outstandingColorInput" value="'+(saved||"#0b1220")+'"></label>'+
+    '<div class="logo-editor-actions"><button class="btn" id="resetOutstandingColor" type="button">↩ Default</button><button class="primary" id="saveOutstandingColor" type="button">✓ Save Color</button></div>'+
+    '</div>');
+  let selected=saved||"";
+  const preview=document.getElementById("outstandingColorPreview");
+  const update=()=>{if(preview)preview.style.background=selected||"linear-gradient(135deg,#0b1220,#153a2d)"};
+  document.querySelectorAll(".color-swatch").forEach(b=>b.addEventListener("click",()=>{selected=b.dataset.color;const i=document.getElementById("outstandingColorInput");if(i)i.value=selected;update()}));
+  document.getElementById("outstandingColorInput")?.addEventListener("input",e=>{selected=e.target.value;update()});
+  document.getElementById("resetOutstandingColor")?.addEventListener("click",()=>{selected="";update();const i=document.getElementById("outstandingColorInput");if(i)i.value="#0b1220"});
+  document.getElementById("saveOutstandingColor")?.addEventListener("click",()=>{if(selected)localStorage.setItem("dukaan_khata_outstanding_color",selected);else localStorage.removeItem("dukaan_khata_outstanding_color");applyOutstandingColor();closeModal();toast("Outstanding color updated")});
+  update();
+}
+function applyOutstandingColor(){
+  const card=document.querySelector(".balance-hero");
+  if(!card)return;
+  const color=localStorage.getItem("dukaan_khata_outstanding_color")||"";
+  card.style.background=color||"";
+}
 function openLogoEditor(){
   const savedText=localStorage.getItem("dukaan_khata_logo_text")||"₹";
   const savedImage=localStorage.getItem("dukaan_khata_logo_image")||"";
@@ -269,4 +293,4 @@ function setupLongPress(){
     if(Date.now()<suppressClickUntil && e.target.closest?.("[data-long-delete]")){e.preventDefault();e.stopPropagation();}
   },true);
 }
-document.addEventListener("DOMContentLoaded",()=>{setupLongPress();render();applyHomeLogo();window.__DUKAAN_READY__=true});
+document.addEventListener("DOMContentLoaded",()=>{setupLongPress();render();applyHomeLogo();applyOutstandingColor();window.__DUKAAN_READY__=true});
