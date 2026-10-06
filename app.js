@@ -1,5 +1,6 @@
 const KEY="dukaan_khata_infinity_v2";
 let state=loadState(),khataFilter="all",longPress=null,suppressClickUntil=0;
+Object.defineProperty(window,"state",{configurable:true,get:()=>state,set:v=>{state=v}});
 
 function defaults(){return{shop:{name:"My Dukaan",owner:"Shop Owner",phone:"",upi:"",address:""},customers:[],tx:[],expenses:[],returns:[],reminders:[],settings:{theme:"light",language:"English"}}}
 function loadState(){
@@ -188,4 +189,4 @@ function setupLongPress(){
     if(Date.now()<suppressClickUntil && e.target.closest?.("[data-long-delete]")){e.preventDefault();e.stopPropagation();}
   },true);
 }
-document.addEventListener("DOMContentLoaded",()=>{setupLongPress();render()});
+document.addEventListener("DOMContentLoaded",()=>{setupLongPress();render();window.__DUKAAN_READY__=true});
