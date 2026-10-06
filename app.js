@@ -58,11 +58,66 @@ function saveManyItems(customerId){const lines=[];document.querySelectorAll("#ma
 function customerView(id){const c=state.customers.find(x=>x.id===id);if(!c)return;const b=balance(id),tx=state.tx.filter(t=>t.customerId===id).slice(0,50);const items=[];tx.filter(t=>t.type==="sale").forEach(t=>(t.lines||[]).forEach(l=>items.push('<div class="line"><span>🧾 '+esc(l.name)+' × '+(Number(l.qty)||1)+'</span><b>'+money(l.total)+'</b></div>')));const history=tx.map(t=>t.type==="sale"?'<div class="card" data-long-delete data-delete-type="transaction" data-delete-id="'+esc(t.id)+'"><div class="line"><span>Sale</span><b>'+money(t.total)+'</b></div><small>'+esc((t.lines||[]).map(l=>l.name+" × "+l.qty).join(" • "))+'</small></div>':'<div class="line" data-long-delete data-delete-type="transaction" data-delete-id="'+esc(t.id)+'"><span>Payment • '+esc(t.mode||"")+'</span><b>'+money(t.amount)+'</b></div>').join("")||'<p class="muted">No transactions yet.</p>';modal('<h2>'+esc(c.name)+'</h2><p>'+esc(c.phone||"No phone added")+'</p><div class="'+(b>0?"due":"paid")+'" style="font-size:28px;margin:10px 0">'+money(b)+' <small>'+(b>0?"due":"clear")+'</small></div><button class="btn primary" onclick="openManyItems(\''+esc(id)+'\')">＋ Add Items to Khata</button><h3>Items in Khata</h3>'+(items.join("")||'<p class="muted">No items yet.</p>')+'<div class="row"><button class="btn" onclick="editCustomer(\''+esc(id)+'\')">✎ Edit / Add Number</button><button class="btn" onclick="openReceive(\''+esc(id)+'\')">⌁ Receive</button></div><div class="row"><button class="btn" onclick="shareCustomer(\''+esc(id)+'\')">💬 WhatsApp</button><button class="btn" onclick="callCustomer(\''+esc(id)+'\')">☎ Call</button></div><h3>History</h3>'+history+'<button class="btn" style="background:#dc2626" onclick="deleteCustomer(\''+esc(id)+'\')">Delete Customer</button>')}
 function deleteCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c)return;if(!confirm("Delete "+c.name+" and its khata history?"))return;state.customers=state.customers.filter(x=>x.id!==id);state.tx=state.tx.filter(x=>x.customerId!==id);state.reminders=state.reminders.filter(x=>x.customerId!==id);saveState();closeModal();render();toast("Customer deleted")}
 
-function openReceive(customerId=""){const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");modal('<h2>Smart Receive</h2><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="recordTab">Record payment</button></div><div id="receiveQR"><p class="muted">UPI QR for your shop.</p><input id="qrAmount" type="number" min="1" placeholder="Amount (optional)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share</button><button class="btn" id="copyPayBtn">Copy UPI link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div>');
-  const qr=document.getElementById("qrTab"),rec=document.getElementById("recordTab"),a=document.getElementById("receiveQR"),b=document.getElementById("receiveRecord");
-  qr?.addEventListener("click",()=>{qr.classList.add("active");rec?.classList.remove("active");a?.classList.remove("hidden");b?.classList.add("hidden");refreshQR()});
-  rec?.addEventListener("click",()=>{rec.classList.add("active");qr?.classList.remove("active");b?.classList.remove("hidden");a?.classList.add("hidden")});
-  document.getElementById("qrAmount")?.addEventListener("input",refreshQR);document.getElementById("sharePayBtn")?.addEventListener("click",sharePaymentLink);document.getElementById("copyPayBtn")?.addEventListener("click",copyUPILink);document.getElementById("savePaymentBtn")?.addEventListener("click",savePayment);setTimeout(refreshQR,50)
+function paymentApiBase(){
+  return (localStorage.getItem("dukaan_payment_api")||"").trim().replace(/\\/$/,"");
+}
+function paymentApiUrl(path){const base=paymentApiBase();return base?base+path:""}
+function openPaymentSetup(){
+  const current=paymentApiBase();
+  modal('<h2>💳 Payment Center</h2><p class="muted">Connect your secure payment backend here. Never enter Razorpay Secret or Paytm Merchant Key in this website.</p><div class="payment-provider-grid"><div class="payment-provider"><b>🟦 Razorpay</b><small>UPI • Cards • NetBanking</small><span class="status-chip">Gateway ready</span></div><div class="payment-provider"><b>🟦 Paytm</b><small>UPI • Cards • NetBanking</small><span class="status-chip">Gateway ready</span></div><div class="payment-provider"><b>🟩 UPI</b><small>Direct UPI QR</small><span class="status-chip">Works now</span></div></div><label>Secure payment backend URL<input id="paymentApiUrl" value="'+esc(current)+'" placeholder="https://your-vercel-app.vercel.app"></label><button class="btn primary" id="savePaymentApiBtn">Save Payment Connection</button><button class="btn" onclick="openReceive()">Open Smart Receive</button><p class="muted" style="font-size:11px;margin-top:12px">The GitHub Pages site cannot safely store gateway secret keys. The backend creates orders and verifies payments.</p>');
+  document.getElementById("savePaymentApiBtn")?.addEventListener("click",()=>{
+    const u=(document.getElementById("paymentApiUrl")?.value||"").trim().replace(/\\/$/,"");
+    localStorage.setItem("dukaan_payment_api",u);closeModal();toast(u?"Payment backend connected":"Payment backend cleared")
+  });
+}
+function openReceive(customerId=""){
+  const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");
+  modal('<h2>Smart Receive</h2><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="onlineTab">Online Pay</button><button id="recordTab">Record</button></div><div id="receiveQR"><p class="muted">Direct UPI QR for your shop.</p><input id="qrAmount" type="number" min="1" placeholder="Amount (optional)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share</button><button class="btn" id="copyPayBtn">Copy UPI link</button></div></div><div id="receiveOnline" class="hidden"><select id="onlineCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="onlineAmount" type="number" min="1" placeholder="Amount to collect"><div class="payment-provider-grid compact"><button class="payment-provider-button" id="razorpayPayBtn"><b>Razorpay</b><small>Pay securely online</small></button><button class="payment-provider-button" id="paytmPayBtn"><b>Paytm</b><small>Pay securely online</small></button></div><p id="onlinePayStatus" class="muted">Choose a gateway to start payment.</p></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div>');
+  const qr=document.getElementById("qrTab"),online=document.getElementById("onlineTab"),rec=document.getElementById("recordTab"),a=document.getElementById("receiveQR"),o=document.getElementById("receiveOnline"),b=document.getElementById("receiveRecord");
+  const hide=()=>{a?.classList.add("hidden");o?.classList.add("hidden");b?.classList.add("hidden");qr?.classList.remove("active");online?.classList.remove("active");rec?.classList.remove("active")};
+  qr?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");refreshQR()});
+  online?.addEventListener("click",()=>{hide();online.classList.add("active");o?.classList.remove("hidden")});
+  rec?.addEventListener("click",()=>{hide();rec.classList.add("active");b?.classList.remove("hidden")});
+  document.getElementById("qrAmount")?.addEventListener("input",refreshQR);
+  document.getElementById("sharePayBtn")?.addEventListener("click",sharePaymentLink);
+  document.getElementById("copyPayBtn")?.addEventListener("click",copyUPILink);
+  document.getElementById("razorpayPayBtn")?.addEventListener("click",()=>startGatewayPayment("razorpay"));
+  document.getElementById("paytmPayBtn")?.addEventListener("click",()=>startGatewayPayment("paytm"));
+  document.getElementById("savePaymentBtn")?.addEventListener("click",savePayment);
+  setTimeout(refreshQR,50)
+}
+async function startGatewayPayment(provider){
+  const amount=Number(document.getElementById("onlineAmount")?.value)||0,customerId=document.getElementById("onlineCustomer")?.value||"";
+  const status=document.getElementById("onlinePayStatus");
+  if(amount<=0)return toast("Enter a valid amount");
+  const base=paymentApiBase();
+  if(!base){openPaymentSetup();return}
+  if(status)status.textContent="Creating secure payment order…";
+  try{
+    const endpoint=provider==="razorpay"?"/api/razorpay/order":"/api/paytm/initiate";
+    const res=await fetch(paymentApiUrl(endpoint),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId,shopName:state.shop.name,customerPhone:state.customers.find(c=>c.id===customerId)?.phone||""})});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok)throw new Error(data.error||"Gateway setup error");
+    if(provider==="razorpay")return launchRazorpay(data,amount,customerId);
+    if(provider==="paytm")return launchPaytm(data,amount,customerId);
+  }catch(e){if(status)status.textContent="Payment could not start: "+(e.message||"Please try again");toast(e.message||"Payment could not start")}
+}
+function loadScript(src){return new Promise((resolve,reject)=>{if(document.querySelector('script[src="'+src+'"]'))return resolve();const s=document.createElement("script");s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)})}
+async function launchRazorpay(order,amount,customerId){
+  if(!order.keyId||!order.orderId)return toast("Razorpay backend returned an incomplete order");
+  try{await loadScript("https://checkout.razorpay.com/v1/checkout.js")}catch(e){return toast("Razorpay checkout could not load")}
+  const r=new Razorpay({key:order.keyId,amount:order.amount,currency:"INR",name:state.shop.name,description:"Dukaan Khata payment",order_id:order.orderId,handler:async response=>{
+    try{const vr=await fetch(paymentApiUrl("/api/razorpay/verify"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(response)});const vd=await vr.json();if(!vr.ok||!vd.verified)throw new Error("Verification failed");recordOnlinePayment(customerId,amount,"razorpay",response.razorpay_payment_id);toast("Razorpay payment verified ✓")}catch(e){toast("Payment received but verification failed — do not mark it paid yet")}}});r.on("payment.failed",()=>toast("Razorpay payment failed"));r.open()
+}
+async function launchPaytm(data,amount,customerId){
+  if(!data.mid||!data.orderId||!data.txnToken)return toast("Paytm backend returned an incomplete transaction");
+  try{await loadScript("https://securegw.paytm.in/merchantpgpui/checkoutjs/merchants/"+encodeURIComponent(data.mid)+".js")}catch(e){return toast("Paytm checkout could not load")}
+  if(!window.Paytm||!Paytm.CheckoutJS)return toast("Paytm checkout is unavailable");
+  const config={root:"",flow:"DEFAULT",data:{orderId:data.orderId,token:data.txnToken,tokenType:"TXN_TOKEN",amount:String(amount),userDetail:{mobileNumber:data.customerPhone||""}}};
+  try{await Paytm.CheckoutJS.init(config);await Paytm.CheckoutJS.invoke()}catch(e){toast("Paytm checkout could not start")}
+}
+function recordOnlinePayment(customerId,amount,mode,reference){
+  state.tx.unshift({id:uid(),type:"payment",customerId,amount,mode,reference,date:new Date().toISOString()});saveState();closeModal();render()
 }
 function upiLink(){const id=(state.shop.upi||"").trim();if(!id)return"";const a=Number(document.getElementById("qrAmount")?.value||0);return"upi://pay?pa="+encodeURIComponent(id)+"&pn="+encodeURIComponent(state.shop.name)+"&cu=INR"+(a>0?"&am="+a:"")}
 function refreshQR(){const box=document.getElementById("qrBox"),cap=document.getElementById("qrCaption");if(!box)return;box.innerHTML="";const link=upiLink();if(!link){box.innerHTML='<div class="qr-empty">Add UPI ID in Shop Profile</div>';if(cap)cap.textContent="No UPI ID configured";return}if(window.QRCode)new QRCode(box,{text:link,width:190,height:190});else box.innerHTML='<div class="qr-empty">QR library unavailable.<br>Use Copy UPI link.</div>';if(cap)cap.textContent=state.shop.upi}
