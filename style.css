@@ -87,3 +87,7 @@
 .logo-editor-preview .logo-crop-preview{display:block;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center!important;padding:2px!important;margin:0!important;border-radius:16px;background:#fff;box-sizing:border-box}
 .logo-editor #logoText{display:block;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .logo-editor{width:100%;max-width:100%;box-sizing:border-box;overflow:hidden}
+
+/* Uploaded Home logo: fill the logo box without stretching */
+.logo-editable .brand-logo-image{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center!important;padding:0!important;margin:0!important;border-radius:11px!important;background:transparent!important;box-sizing:border-box!important}
+.logo-editor-preview .logo-crop-preview{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center!important;padding:0!important;margin:0!important;border-radius:16px!important;background:transparent!important;box-sizing:border-box!important}
