@@ -1,9 +1,10 @@
 {
   "name": "dukaan-khata-infinity",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "web": "echo \"Static GitHub Pages web app\"",
+    "start": "node payment-server/server.js",
     "android": "npx cap sync android",
     "ios": "npx cap sync ios",
     "open:android": "npx cap open android",
@@ -11,7 +12,10 @@
   },
   "dependencies": {
     "@capacitor/core": "^7.4.0",
-    "paytmchecksum": "^1.5.1"
+    "paytmchecksum": "^1.5.1",
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "razorpay": "^2.9.6"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.0",
