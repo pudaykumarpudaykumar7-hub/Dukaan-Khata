@@ -852,3 +852,140 @@ main:before{
     box-shadow:0 12px 30px #001b2633!important;
   }
 }
+
+
+/* ===== DUKAAN KHATA — FUTURISTIC PURPLE AI-STYLE BACKGROUND =====
+   Background-only visual layer. Existing buttons, cards, text, navigation,
+   forms, modals and functionality remain unchanged. */
+html{
+  background:#070312!important;
+}
+body{
+  background:
+    radial-gradient(ellipse 75% 55% at 50% -5%,rgba(126,34,255,.38),transparent 68%),
+    radial-gradient(ellipse 55% 45% at 5% 45%,rgba(77,32,220,.24),transparent 72%),
+    radial-gradient(ellipse 60% 50% at 95% 70%,rgba(190,45,255,.16),transparent 72%),
+    linear-gradient(180deg,#09031b 0%,#0b0620 45%,#05030e 100%)!important;
+  color:#f7f1ff;
+}
+
+/* Deep purple glow behind the complete app */
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-5;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 18%,rgba(154,72,255,.16),transparent 24%),
+    radial-gradient(circle at 18% 75%,rgba(76,29,149,.14),transparent 25%),
+    radial-gradient(circle at 82% 65%,rgba(162,38,255,.12),transparent 26%);
+}
+
+/* Futuristic fine grid, inspired by the reference */
+main{
+  position:relative;
+  isolation:isolate;
+  background:transparent!important;
+}
+main:before{
+  content:"";
+  position:fixed;
+  inset:70px 0 74px;
+  z-index:-2;
+  pointer-events:none;
+  opacity:.34;
+  background-image:
+    linear-gradient(rgba(177,104,255,.075) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(177,104,255,.075) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:linear-gradient(to bottom,transparent 0%,#000 12%,#000 86%,transparent 100%);
+}
+
+/* Large soft violet atmospheric glow */
+main:after{
+  content:"";
+  position:fixed;
+  width:58vw;
+  height:34vw;
+  min-width:420px;
+  min-height:260px;
+  left:21%;
+  top:18%;
+  z-index:-3;
+  pointer-events:none;
+  border-radius:50%;
+  background:radial-gradient(ellipse,rgba(113,43,255,.18),transparent 68%);
+  filter:blur(25px);
+}
+
+/* Make the five main pages feel like transparent futuristic panels,
+   while keeping every existing component visible above the background. */
+#home,#khata,#customers,#bills,#tools{
+  background:transparent!important;
+  position:relative;
+}
+
+/* Preserve existing cards/options: only add a subtle glass finish */
+#home .card,#home .customer,#home .item,#home .activity,#home .bill,
+#khata .card,#khata .customer,#khata .item,#khata .activity,
+#customers .card,#customers .customer,#customers .item,#customers .activity,
+#bills .card,#bills .bill,#bills .activity,
+#tools .card,#tools .tools-grid button{
+  position:relative;
+  z-index:1;
+}
+
+/* Purple edge glow around existing major panels without changing their layout */
+#home:after,#khata:after,#customers:after,#bills:after,#tools:after{
+  content:"";
+  position:absolute;
+  inset:8px 4px;
+  border-radius:30px;
+  pointer-events:none;
+  z-index:-1;
+  box-shadow:
+    0 0 70px rgba(113,43,255,.08),
+    inset 0 0 55px rgba(155,70,255,.045);
+}
+
+/* Bottom navigation stays readable above the new background */
+.bottom-nav,.bottomnav,.nav-bottom{
+  position:relative;
+  z-index:20;
+}
+
+/* Keep modal and popup designs exactly as they are */
+.modal,.sheet,[role="dialog"]{
+  z-index:100!important;
+}
+
+/* Dark mode / existing dark class: retain the same futuristic look */
+.darkmode body,
+body.darkmode{
+  background:
+    radial-gradient(ellipse 75% 55% at 50% -5%,rgba(126,34,255,.40),transparent 68%),
+    radial-gradient(ellipse 55% 45% at 5% 45%,rgba(77,32,220,.25),transparent 72%),
+    radial-gradient(ellipse 60% 50% at 95% 70%,rgba(190,45,255,.18),transparent 72%),
+    linear-gradient(180deg,#070112 0%,#09051b 48%,#030208 100%)!important;
+}
+
+/* Mobile keeps the same background and all existing controls */
+@media(max-width:720px){
+  main:before{
+    background-size:30px 30px;
+    opacity:.25;
+  }
+  main:after{
+    width:90vw;
+    height:60vw;
+    left:5%;
+    top:24%;
+    min-width:0;
+    min-height:0;
+  }
+  #home:after,#khata:after,#customers:after,#bills:after,#tools:after{
+    inset:5px 2px;
+    border-radius:24px;
+  }
+}
