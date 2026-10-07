@@ -1775,3 +1775,12 @@ body > .app *{pointer-events:auto;}
 body > .app::before,body > .app::after{pointer-events:none!important;}
 .topbar,.top-menu,.top-menu button,.top-actions,.top-actions button,.bottom-nav,.bottom-nav button,.page button,.page input,.page select,.page textarea,.modal,.modal button,.modal input,.modal select,.modal textarea{pointer-events:auto!important;}
 body::before,body::after{pointer-events:none!important;}
+
+/* Khata payment status colors */
+.khata-filter-due,.khata-money-due{color:#dc2626!important;font-weight:900}
+.khata-filter-paid,.khata-money-paid{color:#16a34a!important;font-weight:900}
+.khata-customer-row{align-items:center}
+.khata-customer-info{flex:1;min-width:0}
+.khata-amount{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.khata-amount>span{font-size:12px;font-weight:800}
+.khata-money-due,.khata-money-paid{font-size:20px}
