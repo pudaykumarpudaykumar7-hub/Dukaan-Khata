@@ -406,9 +406,9 @@ function renderKhata(){
     const cls=isDue?"khata-money-due":"khata-money-paid";
     const label=isDue?"Due":"Paid";
     return '<div class="customer khata-customer-row" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'">'+
-      '<div class="khata-customer-info" onclick="customerView(\\''+esc(c.id)+'\\')"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small></div>'+
+      '<div class="khata-customer-info" onclick="customerView(\''+esc(c.id)+'\')"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small></div>'+
       '<div class="khata-amount"><span class="'+cls+'">'+label+'</span><strong class="'+cls+'">'+money(amount)+'</strong></div>'+
-      (!c.phone?'<button class="btn small khata-add-mobile" onclick="event.stopPropagation();addCustomerNumber(\\''+esc(c.id)+'\\')">＋ Add Mobile</button>':"")+
+      (!c.phone?'<button class="btn small khata-add-mobile" onclick="event.stopPropagation();addCustomerNumber(\''+esc(c.id)+'\')">＋ Add Mobile</button>':"")+
       '</div>';
   }).join("")||'<p class="muted" style="text-align:center;padding:24px">No customers found.</p>';
 }
