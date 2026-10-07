@@ -991,3 +991,31 @@ body.darkmode{
 }
 
 
+
+
+/* ===== Readability fix: foreground text on light/white cards =====
+   Keeps the futuristic background, but restores dark text on light surfaces. */
+.stat,.card,.customer,.item,.activity,.bill,
+.inventory-cards>div,.report-grid>div,
+.bill-tools button,.tools-grid button,
+.search,input,select,textarea{
+  color:var(--text)!important;
+}
+.stat b,.card h3,.customer h3,.item h3,.activity h3,.bill h3,
+.inventory-cards b,.report-grid b,.tools-grid b{
+  color:var(--text)!important;
+  position:relative;
+  z-index:3;
+}
+.stat span,.stat small,.customer small,.item small,.bill small,
+.inventory-cards span,.report-grid span,.tools-grid small{
+  color:var(--muted)!important;
+  position:relative;
+  z-index:3;
+}
+.activity,.stat,.card,.customer,.item,.bill,
+.inventory-cards>div,.report-grid>div,.tools-grid button{
+  position:relative;
+  z-index:2;
+  isolation:isolate;
+}
