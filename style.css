@@ -1784,3 +1784,9 @@ body::before,body::after{pointer-events:none!important;}
 .khata-amount{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 .khata-amount>span{font-size:12px;font-weight:800}
 .khata-money-due,.khata-money-paid{font-size:20px}
+
+/* Khata payment status colors — final */
+#khataList .due,.khata-filter .due{color:#dc2626!important;font-weight:900!important}
+#khataList .paid,.khata-filter .paid{color:#16a34a!important;font-weight:900!important}
+#khataList .khata-paid-value{color:#16a34a!important;font-weight:900!important}
+#khataList .khata-due-value{color:#dc2626!important;font-weight:900!important}
