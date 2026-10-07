@@ -75,7 +75,8 @@
     const user=session?.user;
     saveAccount(user);
     if(!user)return;
-    await restoreCloudState(user);\n    startCloudPolling();
+    await restoreCloudState(user);
+    startCloudPolling();
   }
 
   async function init(){
