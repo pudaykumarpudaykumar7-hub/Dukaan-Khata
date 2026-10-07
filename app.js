@@ -511,7 +511,7 @@ function dkGetGlobalTheme(){
 function dkEnableLiveActionBackground(){document.body.classList.add("dk-live-background");}
 function dkApplyGlobalTheme(){
   const t=dkGetGlobalTheme(),b=document.body;
-  b.dataset.globalTheme=t.mode||"futuristic";b.style.setProperty("--dk-gradient-1",t.color1||"#6d28d9");b.style.setProperty("--dk-gradient-2",t.color2||"#0b0620");b.style.setProperty("--dk-gradient-3",t.color3||"#04020a");
+  b.dataset.globalTheme=t.mode||"futuristic";b.classList.add("dk-live-background");b.style.setProperty("--dk-gradient-1",t.color1||"#6d28d9");b.style.setProperty("--dk-gradient-2",t.color2||"#0b0620");b.style.setProperty("--dk-gradient-3",t.color3||"#04020a");
   b.style.setProperty("--dk-global-image",t.image?"url("+JSON.stringify(t.image)+")":"none");
   b.style.setProperty("--dk-global-fit",t.fit||"cover");
   b.style.setProperty("--dk-global-position",t.position||"center");
