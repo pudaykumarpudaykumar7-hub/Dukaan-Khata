@@ -8,21 +8,18 @@ const toast=m=>window.toast?.(m);
 
 function settings(){
   const c=load();
-  window.modal?.('<h2>💳 Payment Gateway</h2><p class="muted">You can change these settings anytime. Never enter your Razorpay Secret Key here.</p><h3>Razorpay</h3><label>Razorpay Key ID</label><input id="rzpKey" autocomplete="off" placeholder="rzp_test_..." value="'+esc(c.razorpayKey||"")+'"><label>Secure backend HTTPS URL</label><input id="paymentApi" autocomplete="off" inputmode="url" placeholder="https://your-project.vercel.app" value="'+esc(c.backendUrl||"")+'"><div class="row"><button class="btn primary" id="saveGateway">💾 Save / Update</button><button class="btn" id="clearGateway">🗑 Clear URL</button></div><h3>Paytm</h3><input id="paytmUrl" placeholder="Paytm payment/checkout URL (optional)" value="'+esc(c.paytmUrl||"")+'"><button class="btn" id="savePaytm">Save Paytm</button><div class="card"><b>Current backend</b><small class="muted" id="currentBackend">'+esc(c.backendUrl||"Not configured")+'</small></div>');
+  window.modal?.('<h2>📲 Razorpay UPI QR</h2><p class="muted">Smart Receive uses a secure backend to create a QR code. Your Razorpay Key ID and Secret stay on the server and are never entered here.</p><label>Secure backend HTTPS URL</label><input id="paymentApi" autocomplete="off" inputmode="url" placeholder="https://your-project.vercel.app" value="'+esc(c.backendUrl||"")+'"><div class="row"><button class="btn primary" id="saveGateway">💾 Save / Update</button><button class="btn" id="clearGateway">🗑 Clear URL</button></div><div class="card"><b>Current backend</b><small class="muted" id="currentBackend">'+esc(c.backendUrl||"Not configured")+'</small></div><p class="muted">Only Razorpay UPI QR is available here. Paytm has been removed.</p></div>');
   document.getElementById("saveGateway")?.addEventListener("click",()=>{
     const n=load();
-    n.razorpayKey=document.getElementById("rzpKey")?.value.trim()||"";
     n.backendUrl=(document.getElementById("paymentApi")?.value.trim()||"").replace(/\/$/,"");
-    save(n); window.closeModal?.(); toast("Razorpay settings updated ✓");
+    delete n.razorpayKey;
+    delete n.paytmUrl;
+    save(n); window.closeModal?.(); toast("Razorpay UPI QR settings updated ✓");
   });
   document.getElementById("clearGateway")?.addEventListener("click",()=>{
-    const n=load(); n.backendUrl=""; save(n);
+    const n=load(); n.backendUrl=""; delete n.razorpayKey; delete n.paytmUrl; save(n);
     const el=document.getElementById("paymentApi"); if(el) el.value="";
-    toast("Backend URL cleared — enter a new URL");
-  });
-  document.getElementById("savePaytm")?.addEventListener("click",()=>{
-    const n=load(); n.paytmUrl=document.getElementById("paytmUrl")?.value.trim()||""; save(n);
-    window.closeModal?.(); toast("Paytm setting saved");
+    toast("Backend URL cleared");
   });
 }
 
@@ -31,7 +28,7 @@ async function razorpayPay(){
   const amount=Number(document.getElementById("gatewayAmount")?.value)||0;
   const customerId=document.getElementById("gatewayCustomer")?.value||"";
   if(amount<=0)return toast("Enter a valid amount");
-  if(!c.razorpayKey||!c.backendUrl)return settings();
+  if(!c.backendUrl)return settings();
 
   const s=state();
   const customer=(s.customers||[]).find(x=>x.id===customerId);
@@ -113,9 +110,8 @@ async function razorpayPay(){
 
 function online(customerId){
   const s=state(),opts=(s.customers||[]).map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");
-  window.modal?.('<h2>💳 Collect Online Payment</h2><select id="gatewayCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="gatewayAmount" type="number" min="1" step=".01" placeholder="Amount ₹"><div class="row"><button class="btn primary" id="razorpayPayBtn">📲 Razorpay UPI QR</button><button class="btn" id="paytmPayBtn">Paytm</button></div><button class="btn" id="gatewaySettingsBtn">⚙ Payment Gateway Settings / Edit URL</button><p class="muted">Razorpay payment opens as a QR only. No debit/credit card details are requested.</p>');
+  window.modal?.('<h2>💳 Collect Online Payment</h2><select id="gatewayCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="gatewayAmount" type="number" min="1" step=".01" placeholder="Amount ₹"><div class="row"><button class="btn primary" id="razorpayPayBtn">📲 Razorpay UPI QR</button></div><button class="btn" id="gatewaySettingsBtn">⚙ Payment Gateway Settings / Edit URL</button><p class="muted">Razorpay opens as a UPI QR only. No debit/credit card details or Paytm option.</p>');
   document.getElementById("razorpayPayBtn")?.addEventListener("click",()=>razorpayPay().catch(e=>toast(e.message||"Payment failed")));
-  document.getElementById("paytmPayBtn")?.addEventListener("click",()=>{const c=load(),a=Number(document.getElementById("gatewayAmount")?.value)||0;if(a<=0)return toast("Enter a valid amount");if(!c.paytmUrl)return settings();window.open(c.paytmUrl,"_blank","noopener")});
   document.getElementById("gatewaySettingsBtn")?.addEventListener("click",settings);
 }
 
@@ -131,7 +127,7 @@ window.openReceive=function(customerId=""){
   if(typeof original==="function")original(customerId);
   setTimeout(()=>{
     const host=document.getElementById("receiveQR");if(!host||document.getElementById("onlineGatewayBtn"))return;
-    const b=document.createElement("button");b.id="onlineGatewayBtn";b.className="btn primary";b.textContent="📲 Pay Online — QR / Paytm";b.onclick=()=>online(customerId);host.appendChild(b);
+    const b=document.createElement("button");b.id="onlineGatewayBtn";b.className="btn primary";b.textContent="📲 Pay Online — Razorpay UPI QR";b.onclick=()=>online(customerId);host.appendChild(b);
   },100);
 };
 window.openPaymentGatewaySettings=settings;window.openOnlinePayment=online;
