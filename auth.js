@@ -37,15 +37,21 @@
 
   async function restoreCloudState(user){
     const cloud=user?.user_metadata?.dukaan_khata;
+    const uid=user?.id;
+    const restoredKey=uid?"dukaan_khata_restored_"+uid:"";
+    // Restore only once per browser session. This prevents an auth
+    // INITIAL_SESSION/reload loop that makes the app flicker.
+    if(restoredKey&&sessionStorage.getItem(restoredKey)==="1")return;
     if(cloud&&typeof cloud==="object"){
       try{
         localStorage.setItem("dukaan_khata_infinity_v2",JSON.stringify(cloud));
         localStorage.setItem("dukaan_khata_cloud_synced","1");
+        if(restoredKey)sessionStorage.setItem(restoredKey,"1");
         location.reload();
         return;
       }catch(e){}
     }
-    // First Google login on a device: upload existing local data so it follows the account.
+    if(restoredKey)sessionStorage.setItem(restoredKey,"1");
     await syncToCloud();
     localStorage.setItem("dukaan_khata_cloud_synced","1");
   }
@@ -62,8 +68,10 @@
     if(!sb){console.warn("Supabase client failed to load");return}
     const {data:{session}}=await sb.auth.getSession();
     if(session)await handleSession(session);
+    // getSession() handles the initial session; do not handle INITIAL_SESSION
+    // again because that caused duplicate restore/reload cycles.
     sb.auth.onAuthStateChange((event,session)=>{
-      if(event==="SIGNED_IN"||event==="INITIAL_SESSION")setTimeout(()=>handleSession(session),0);
+      if(event==="SIGNED_IN")setTimeout(()=>handleSession(session),0);
       if(event==="SIGNED_OUT")saveAccount(null);
     });
   }
