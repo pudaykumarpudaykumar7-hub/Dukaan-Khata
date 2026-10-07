@@ -305,3 +305,70 @@ main{width:100%}
 .dk-language-world{height:205px;position:relative;margin:3px -4px 0;display:grid;place-items:center;overflow:hidden}.dk-language-world:before,.dk-language-world:after{content:"";position:absolute;border:1px solid #d946ef66;border-radius:50%;width:270px;height:100px;transform:rotate(-12deg);box-shadow:0 0 18px #d946ef22}.dk-language-world:after{width:315px;height:128px;transform:rotate(22deg);border-color:#6d28d966}.dk-globe{width:108px;height:108px;border-radius:50%;display:grid;place-items:center;font-size:78px;position:relative;filter:drop-shadow(0 0 22px #4cc9ff99);z-index:2}.dk-globe i,.dk-globe em{position:absolute;inset:12px;border:1px solid #b65cff99;border-radius:50%;transform:rotate(55deg);display:block}.dk-globe em{inset:24px;transform:rotate(-55deg);border-color:#5de5ff77}.dk-orbit-label{position:absolute;z-index:3;padding:8px 13px;border-radius:22px;background:linear-gradient(90deg,#4c16a9cc,#bd25eacc);border:1px solid #f2a9ff88;box-shadow:0 0 18px #c026ff55;color:#fff;font-size:11px;font-weight:800;backdrop-filter:blur(8px)}.dk-orbit-en{left:7%;top:48px}.dk-orbit-hi{right:6%;top:60px}.dk-orbit-te{left:17%;bottom:28px}.dk-orbit-kn{right:15%;bottom:20px}
 .dk-language-panel{padding:15px;border-radius:23px;background:linear-gradient(145deg,#4b0c87cc,#170b48dd);border:1px solid #b94dff66;box-shadow:inset 0 0 35px #d946ef0d;position:relative;z-index:3}.dk-language-panel-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}.dk-language-panel-title>span{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#e879f9,#7c3aed);box-shadow:0 0 20px #d946ef55;font-size:20px}.dk-language-panel-title b{display:block;font-size:15px}.dk-language-panel-title small{display:block;color:#d7bce5;margin-top:2px}.dk-language-list{display:grid;gap:7px}.dk-language-showcase .dk-lang-option{min-height:57px;box-sizing:border-box;display:flex;align-items:center;gap:11px;padding:8px 12px;border-radius:16px;background:linear-gradient(90deg,#ffffff0b,#ffffff05);border:1px solid #6e50d844;color:#fff;text-align:left;cursor:pointer;transition:.18s}.dk-language-showcase .dk-lang-option:hover,.dk-language-showcase .dk-lang-option:focus{transform:scale(1.01);background:linear-gradient(90deg,#7e22ce77,#d946ef55);border-color:#f0abff99;box-shadow:0 0 22px #d946ef33}.dk-language-showcase .dk-lang-option:first-child{background:linear-gradient(90deg,#9b1bd488,#e12fff66);border-color:#f06bff99;box-shadow:0 0 25px #d946ef33}.dk-language-showcase .dk-lang-flag{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:#fff1;font-size:21px}.dk-language-showcase .dk-lang-option span:nth-child(2){flex:1}.dk-language-showcase .dk-lang-option b{display:block;font-size:14px}.dk-language-showcase .dk-lang-option small{display:block;color:#d9c4e7;font-size:11px;margin-top:2px}.dk-language-showcase .dk-lang-option i{font-style:normal;font-size:22px;color:#d7b4ff}.dk-language-showcase .dk-lang-option:first-child i{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:#e52fff;color:#fff;font-size:14px;box-shadow:0 0 15px #e52fff88}.dk-language-save{display:flex;align-items:center;gap:10px;margin-top:10px;padding:12px 14px;border-radius:17px;background:linear-gradient(90deg,#6513a9aa,#d81fff44);border:1px solid #e66bff55;color:#f3ddff;font-size:11px;position:relative;z-index:3}.dk-language-save span{flex:1}.dk-language-save b{color:#77ffd9;font-size:18px}.dk-language-close{width:100%;margin-top:9px;padding:12px;border:1px solid #ffffff18;border-radius:15px;background:#ffffff09;color:#d9c8e4;font-weight:800;position:relative;z-index:3}
 @media(max-width:600px){.dk-language-showcase{padding:14px;border-radius:27px}.dk-language-world{height:190px}.dk-orbit-en{left:2%;top:42px}.dk-orbit-hi{right:2%;top:55px}.dk-orbit-te{left:10%;bottom:22px}.dk-orbit-kn{right:7%;bottom:15px}.dk-language-brand h2{font-size:23px}}
+
+/* Smart Receive theme applied across More sections except Login Access */
+.dk-shop-theme,
+.dk-contact-theme,
+.dk-language-theme{
+  background:radial-gradient(circle at 90% 0%,#20e7d733,transparent 34%),linear-gradient(145deg,#031f2b,#064d5a 55%,#062d45)!important;
+  color:#efffff!important;border:1px solid #31e5d477!important;box-shadow:0 25px 70px #001b264d!important;
+}
+.dk-shop-theme .dk-modal-icon,
+.dk-contact-theme .dk-modal-icon,
+.dk-language-theme .dk-modal-icon{
+  background:linear-gradient(135deg,#23e6c0,#007f8c)!important;
+  box-shadow:0 10px 28px #00cbb344!important;
+}
+.dk-shop-theme .dk-modal-head span,
+.dk-contact-theme .dk-modal-head span,
+.dk-language-theme .dk-modal-head span{color:#67f6dd!important}
+.dk-shop-theme .dk-modal-head>b,
+.dk-contact-theme .dk-modal-head>b,
+.dk-language-theme .dk-modal-head>b{
+  background:#123f46!important;color:#5ff4dc!important;border:1px solid #43e9cf55!important
+}
+.dk-shop-theme .dk-modal-card,
+.dk-contact-theme .dk-modal-card,
+.dk-language-theme .dk-modal-card{
+  background:#ffffff0d!important;border-color:#ffffff20!important
+}
+.dk-shop-theme .btn.primary,
+.dk-contact-theme .btn.primary,
+.dk-language-theme .btn.primary{
+  background:linear-gradient(90deg,#13c9a7,#087f8c)!important;color:#eafffc!important;border-color:#5ef5df!important
+}
+
+/* Language showcase keeps its special layout but uses the Smart Receive colors */
+.dk-language-showcase{
+  background:radial-gradient(circle at 90% 0%,#20e7d733,transparent 34%),linear-gradient(145deg,#031f2b,#064d5a 55%,#062d45)!important;
+  border-color:#31e5d477!important;box-shadow:0 25px 70px #001b264d!important;
+}
+.dk-language-showcase .dk-language-pro,
+.dk-language-showcase .dk-language-save{
+  background:linear-gradient(90deg,#13c9a7,#087f8c)!important;border-color:#5ef5df!important;color:#eafffc!important
+}
+.dk-language-showcase .dk-language-back,
+.dk-language-showcase .dk-language-close{background:#ffffff0d!important;color:#eafffc!important;border-color:#43e9cf55!important}
+.dk-language-showcase .dk-language-brand span{color:#67f6dd!important}
+.dk-language-showcase .dk-language-panel{background:linear-gradient(145deg,#07505ecc,#062d45ee)!important;border-color:#31e5d455!important}
+.dk-language-showcase .dk-language-panel-title>span{background:linear-gradient(135deg,#23e6c0,#007f8c)!important;box-shadow:0 0 20px #00cbb344!important}
+.dk-language-showcase .dk-lang-option{background:linear-gradient(90deg,#ffffff0d,#ffffff05)!important;border-color:#43e9cf33!important}
+.dk-language-showcase .dk-lang-option:hover,.dk-language-showcase .dk-lang-option:focus,
+.dk-language-showcase .dk-lang-option:first-child{background:linear-gradient(90deg,#13c9a766,#087f8c55)!important;border-color:#5ef5df99!important;box-shadow:0 0 22px #13c9a733!important}
+.dk-language-showcase .dk-lang-option:first-child i{background:#16bfa5!important;box-shadow:0 0 15px #00cbb388!important}
+.dk-language-world:before,.dk-language-world:after{border-color:#31e5d477!important}
+.dk-language-world .dk-orbit-label{background:linear-gradient(90deg,#07505ecc,#087f8ccc)!important;border-color:#5ef5df88!important;box-shadow:0 0 18px #00cbb344!important}
+
+/* Digital App Pass gets the Smart Receive palette; Login Access is intentionally untouched */
+.dk-pass-shell{
+  background:radial-gradient(circle at 90% 0%,#20e7d733,transparent 34%),linear-gradient(145deg,#031f2b,#064d5a 55%,#062d45)!important;
+  color:#efffff!important;border-color:#31e5d477!important;box-shadow:0 25px 70px #001b264d!important;
+}
+.dk-pass-shell .dk-pass-crown,
+.dk-pass-shell .dk-pass-chip,
+.dk-pass-shell .dk-pass-header>b{background:linear-gradient(135deg,#23e6c0,#007f8c)!important;color:#fff!important;border-color:#5ef5df!important}
+.dk-pass-shell .dk-pass-hero,
+.dk-pass-shell .dk-pass-grid>div,
+.dk-pass-shell .dk-pass-benefits{background:#ffffff0d!important;border-color:#ffffff20!important}
+.dk-pass-shell .dk-pass-share{background:linear-gradient(90deg,#13c9a7,#087f8c)!important;border-color:#5ef5df!important;color:#fff!important}
+.dk-pass-shell .dk-pass-close{background:#ffffff0d!important;color:#eafffc!important;border-color:#43e9cf55!important}
