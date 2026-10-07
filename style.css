@@ -1382,3 +1382,9 @@ body[data-global-theme="gradient"]{background:linear-gradient(135deg,var(--dk-gr
   color:#dc2626!important;
   font-weight:900!important;
 }
+
+
+/* KHATA PAYMENT COLORS — explicit and persistent */
+#khata .customer .paid,#khata .customer .paid *{color:#16a34a!important;font-weight:900!important}
+#khata .total-paid{color:#16a34a!important;font-weight:900!important}
+#khata .khata-filter[onclick*="filterKhata('paid'"]{color:#16a34a!important;font-weight:900!important}
