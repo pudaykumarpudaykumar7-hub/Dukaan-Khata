@@ -393,25 +393,23 @@ function renderKhata(){
   const dueTotal=dueCustomers.reduce((s,c)=>s+balance(c.id),0);
   const filterBtns=document.querySelectorAll(".khata-filter");
   const allBtn=filterBtns[0],dueBtn=filterBtns[1],paidBtn=filterBtns[2];
-  if(allBtn)allBtn.innerHTML='<span>All</span><strong>'+state.customers.length+'</strong>';
-  if(dueBtn)dueBtn.innerHTML='<span>Due</span><strong class="khata-filter-due">'+money(dueTotal)+'</strong>';
-  if(paidBtn)paidBtn.innerHTML='<span>Paid</span><strong class="khata-filter-paid">'+money(paidTotal)+'</strong>';
+  if(allBtn)allBtn.textContent="All ("+state.customers.length+")";
+  if(dueBtn)dueBtn.innerHTML="Due ("+dueCustomers.length+") • <span style=\"color:#dc2626!important;font-weight:900!important\">"+money(dueTotal)+"</span>";
+  if(paidBtn)paidBtn.innerHTML="Paid ("+paidCustomers.length+") • <span style=\"color:#16a34a!important;font-weight:900!important\">"+money(paidTotal)+"</span>";
   box.innerHTML=state.customers.filter(c=>{
     const b=balance(c.id),received=receivedTotal(c.id),matches=(c.name+" "+c.phone).toLowerCase().includes(q);
     return matches&&(khataFilter==="all"||(khataFilter==="due"&&b>0)||(khataFilter==="paid"&&received>0));
   }).map(c=>{
     const b=balance(c.id),received=receivedTotal(c.id);
-    const isDue=b>0;
-    const amount=isDue?b:received;
-    const cls=isDue?"khata-money-due":"khata-money-paid";
-    const label=isDue?"Due":"Paid";
-    return '<div class="customer khata-customer-row" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'">'+
-      '<div class="khata-customer-info" onclick="customerView(\''+esc(c.id)+'\')"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small></div>'+
-      '<div class="khata-amount"><span class="'+cls+'">'+label+'</span><strong class="'+cls+'">'+money(amount)+'</strong></div>'+
-      (!c.phone?'<button class="btn small khata-add-mobile" onclick="event.stopPropagation();addCustomerNumber(\''+esc(c.id)+'\')">＋ Add Mobile</button>':"")+
-      '</div>';
-  }).join("")||'<p class="muted" style="text-align:center;padding:24px">No customers found.</p>';
+    const right=khataFilter==="paid"||(!b&&received>0)
+      ?'<div style="color:#16a34a!important;font-weight:900;font-size:18px">Paid '+money(received)+'</div>'
+      :'<div style="color:#dc2626!important;font-weight:900;font-size:18px">Due '+money(b)+'</div>';
+    const paidLine=received>0?'<small style="display:block;color:#16a34a!important;font-weight:800">Total paid '+money(received)+'</small>':"";
+    return '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'"><div class="khata-customer-main" data-customer-id="'+esc(c.id)+'"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small>'+paidLine+'</div><div style="text-align:right">'+right+'</div></div>';
+  }).join("")||'<p class="muted">No customers found.</p>';
+  box.querySelectorAll(".khata-customer-main").forEach(el=>el.addEventListener("click",()=>customerView(el.dataset.customerId)));
 }
+
 function renderCustomers(){
   const box=document.getElementById("customerList");
   if(!box)return;
