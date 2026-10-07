@@ -1790,3 +1790,12 @@ body::before,body::after{pointer-events:none!important;}
 #khataList .paid,.khata-filter .paid{color:#16a34a!important;font-weight:900!important}
 #khataList .khata-paid-value{color:#16a34a!important;font-weight:900!important}
 #khataList .khata-due-value{color:#dc2626!important;font-weight:900!important}
+
+/* Khata payment status — explicit, high-contrast colors */
+#khataList .khata-customer-row{position:relative;z-index:1}
+#khataList .khata-money-due,#khataList .khata-filter-due{color:#dc2626!important;-webkit-text-fill-color:#dc2626!important;font-weight:950!important}
+#khataList .khata-money-paid,#khataList .khata-filter-paid{color:#16a34a!important;-webkit-text-fill-color:#16a34a!important;font-weight:950!important}
+.khata-paid-history-title{margin:18px 0 8px;font-size:15px}
+.khata-payment-row{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:13px 15px;margin:8px 0}
+.khata-payment-row small{display:block;color:var(--muted);margin-top:3px}
+.khata-payment-row strong{white-space:nowrap}
