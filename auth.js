@@ -5,7 +5,7 @@
   window.DukaanKhataMode="cloud";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
-  let syncTimer=null, syncing=false;
+  let syncTimer=null, syncing=false, cloudPollTimer=null;
 
   function client(){
     if(window.dkSupabase)return window.dkSupabase;
@@ -25,7 +25,7 @@
     syncing=true;
     try{
       const data=typeof window.state==="object"?JSON.parse(JSON.stringify(window.state)):null;
-      if(data)await sb.auth.updateUser({data:{dukaan_khata:data}});
+      if(data){const stamp=Date.now();await sb.auth.updateUser({data:{dukaan_khata:data,dukaan_khata_sync_at:stamp}});localStorage.setItem("dukaan_khata_local_sync_at",String(stamp))}
     }catch(e){console.warn("Dukaan Khata cloud sync:",e)}
     finally{syncing=false}
   }
@@ -34,6 +34,21 @@
     clearTimeout(syncTimer);
     syncTimer=setTimeout(syncToCloud,800);
   };
+  async function pollCloud(){
+    const sb=client(); if(!sb||!window.DukaanKhataUser||syncing)return;
+    try{
+      const {data:{user}}=await sb.auth.getUser();
+      const remote=user?.user_metadata?.dukaan_khata;
+      const remoteAt=Number(user?.user_metadata?.dukaan_khata_sync_at||0);
+      const localAt=Number(localStorage.getItem("dukaan_khata_local_sync_at")||0);
+      if(remote&&remoteAt>localAt){
+        localStorage.setItem("dukaan_khata_infinity_v2",JSON.stringify(remote));
+        localStorage.setItem("dukaan_khata_local_sync_at",String(remoteAt));
+        location.reload();
+      }
+    }catch(e){console.warn("Dukaan Khata cloud refresh:",e)}
+  }
+  function startCloudPolling(){clearInterval(cloudPollTimer);cloudPollTimer=setInterval(pollCloud,4000)}
 
   async function restoreCloudState(user){
     const cloud=user?.user_metadata?.dukaan_khata;
@@ -60,7 +75,7 @@
     const user=session?.user;
     saveAccount(user);
     if(!user)return;
-    await restoreCloudState(user);
+    await restoreCloudState(user);\n    startCloudPolling();
   }
 
   async function init(){
