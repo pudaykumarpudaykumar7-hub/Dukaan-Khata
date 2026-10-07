@@ -517,7 +517,7 @@ function dkApplyGlobalTheme(){
   b.style.setProperty("--dk-global-overlay",String(Number(t.overlay??.18)));
 }
 function dkSaveGlobalTheme(t){
-  try{localStorage.setItem(DK_GLOBAL_THEME_KEY,JSON.stringify(t));dkApplyGlobalTheme();toast("Background theme applied ✓")}
+  try{localStorage.setItem(DK_GLOBAL_THEME_KEY,JSON.stringify(t));dkApplyGlobalTheme();document.body.classList.toggle("dk-live-background",!!dkGetGlobalTheme().live);toast("Background theme applied ✓")}
   catch(e){toast("Could not save this theme")}
 }
 function openBackgroundTheme(){
@@ -564,6 +564,14 @@ function dkUpdateGlobalPreview(){
   p.dataset.previewTheme=t.mode||"futuristic";if(t.mode==="gradient")p.style.background="linear-gradient(135deg,"+(t.color1||"#7c3aed")+","+(t.color2||"#2563eb")+" 50%,"+(t.color3||"#09031b")+")";
   p.style.backgroundImage=t.image?"linear-gradient(#0005,#0005),url("+JSON.stringify(t.image)+")":"";
   p.style.backgroundSize=t.fit||"cover";p.style.backgroundPosition=t.position||"center";
+}
+function dkToggleLiveBackground(){
+  const t=dkGetGlobalTheme();
+  t.live=!t.live;
+  if(!t.mode)t.mode="gradient";
+  dkSaveGlobalTheme(t);
+  document.body.classList.toggle("dk-live-background",!!t.live);
+  dkUpdateGlobalPreview();
 }
 function dkChooseGlobalPreset(mode){
   const t=dkGetGlobalTheme();t.mode=mode;t.image="";
