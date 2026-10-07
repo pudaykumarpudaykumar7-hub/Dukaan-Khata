@@ -1722,3 +1722,35 @@ body.dk-live-background[data-global-theme="futuristic"]{
 @keyframes dkLiveGradient{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .dk-live-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0;padding:14px 16px;border:1px solid #ffffff22;border-radius:18px;background:#ffffff0d}
 .dk-live-toggle b{display:block}.dk-live-toggle small{display:block;opacity:.7;margin-top:3px}
+
+
+/* ===== DUKAAN KHATA LIVE ACTION BACKGROUND — FINAL ===== */
+body.dk-live-background{
+  background:
+    radial-gradient(circle at 15% 20%,rgba(124,58,237,.22),transparent 28%),
+    radial-gradient(circle at 85% 25%,rgba(6,182,212,.20),transparent 28%),
+    radial-gradient(circle at 70% 85%,rgba(37,99,235,.20),transparent 30%),
+    #07101f!important;
+  background-size:160% 160%!important;
+  animation:dkLiveBackground 16s ease-in-out infinite alternate!important;
+}
+body.dk-live-background .app,
+body.dk-live-background main,
+body.dk-live-background .page{
+  background:transparent!important;
+}
+body.dk-live-background .page.active{
+  position:relative;
+}
+@keyframes dkLiveBackground{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 40%}
+  100%{background-position:30% 100%}
+}
+body.dk-live-background::before{
+  opacity:.9!important;
+  animation:dkLiveMove 12s ease-in-out infinite alternate!important;
+}
+@media(prefers-reduced-motion:reduce){
+  body.dk-live-background{animation:none!important}
+}
