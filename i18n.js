@@ -57,7 +57,7 @@
   };
   window.openLanguage=function(){
     const L=T[current()]||T.English;
-    const labels={English:["🇬🇧","English","Default language"],Hindi:["🇮🇳","हिन्दी","हिंदी में उपयोग करें"],Telugu:["🇮🇳","తెలుగు","తెలుగులో ఉపయోగించండి"],Kannada:["🇮🇳","ಕನ್ನಡ","ಕನ್ನಡದಲ್ಲಿ ಬಳಸಿ"],Marathi:["🇮🇳","मराठी","मराठीत वापरा"]};
+    const labels={English:["🇬🇧","English","English"],Hindi:["🇮🇳","Hindi","हिन्दी"],Telugu:["🇮🇳","Telugu","తెలుగు"],Kannada:["🇮🇳","Kannada","ಕನ್ನಡ"],Marathi:["🇮🇳","Marathi","मराठी"]};
     const options=keys.map(x=>{
       const v=labels[x]||["🌐",x,x];
       const selected=x===current();
