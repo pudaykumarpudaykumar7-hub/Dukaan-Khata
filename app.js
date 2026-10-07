@@ -238,6 +238,11 @@ async function createRazorpayQR(customerId){
   const box=document.getElementById("razorpayQrBox"),cap=document.getElementById("razorpayQrCaption"),status=document.getElementById("razorpayQrPaymentStatus");
   const amount=Number(document.getElementById("razorpayQrAmount")?.value)||0;
   const customerIdValue=customerId||document.getElementById("qrCustomer")?.value||"";
+  if(amount<=0){
+    if(box)box.innerHTML='<div class="qr-empty">Enter the amount first.</div>';
+    if(status)status.innerHTML='<div class="qr-empty">Razorpay dynamic QR needs a payment amount.</div>';
+    return;
+  }
   const customer=state.customers.find(c=>c.id===customerIdValue);
   stopQRPaymentWatcher();
   if(box)box.innerHTML='<div class="qr-empty">Generating Razorpay QR…</div>';
