@@ -397,3 +397,15 @@ main{width:100%}
 .dk-language-showcase .dk-lang-name b{font-size:14px!important;color:#f5ffff!important}
 .dk-language-showcase .dk-lang-name small{font-size:12px!important;color:#9ff7e8!important}
 @media(min-width:901px){.bottom-nav{left:50%!important;right:auto!important;transform:translateX(-50%)!important;width:auto!important;min-width:0!important;max-width:max-content!important;padding:7px 9px!important;gap:5px!important;border-radius:20px!important}.bottom-nav button{min-width:72px!important;width:72px!important;padding:7px 8px!important;gap:3px!important}.bottom-nav button span{font-size:11px!important}.bottom-nav button svg{width:18px!important;height:18px!important}}
+
+/* Smart Receive readability fix */
+.smart-receive-shell select option{
+  color:#101828!important;
+  background:#ffffff!important;
+}
+.smart-receive-shell .receive-tabs button{
+  color:#000000!important;
+}
+.smart-receive-shell .receive-tabs button.active{
+  color:#000000!important;
+}
