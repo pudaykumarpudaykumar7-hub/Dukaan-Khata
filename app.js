@@ -412,7 +412,7 @@ function renderKhata(){
       ? '<span class="khata-money-due">Due '+money(b)+'</span>'
       : '<span class="khata-money-paid">Paid '+money(received)+'</span>';
     return '<div class="customer khata-customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'">'+
-      '<div onclick="customerView(\\''+esc(c.id)+'\\')" style="flex:1;cursor:pointer;min-width:0">'+
+      '<div onclick="customerView(\''+esc(c.id)+'\')" style="flex:1;cursor:pointer;min-width:0">'+
         '<h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small>'+
       '</div>'+
       '<div class="khata-amount">'+amount+'</div>'+
@@ -426,7 +426,7 @@ function renderCustomers(){
   const q=(document.getElementById("customerSearch")?.value||"").trim().toLowerCase();
   const customers=state.customers.filter(c=>(c.name+" "+c.phone).toLowerCase().includes(q));
   box.innerHTML=customers.map(c=>
-    '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" onclick="customerView(\\''+esc(c.id)+'\\')">'+
+    '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" onclick="customerView(\''+esc(c.id)+'\')">'+
       '<div><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone")+'</small></div>'+
     '</div>'
   ).join("") || '<p class="muted">No customers yet.</p>';
