@@ -395,8 +395,8 @@ function renderKhata(){
   const dueBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'due\'"]');
   const paidBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'paid\'"]');
   if(allBtn)allBtn.textContent="All ("+state.customers.length+")";
-  if(dueBtn)dueBtn.textContent="Due ("+dueCustomers.length+") • "+money(dueTotal);
-  if(paidBtn)paidBtn.textContent="Paid ("+paidCustomers.length+") • "+money(paidTotal);
+  if(dueBtn)dueBtn.innerHTML="Due ("+dueCustomers.length+") • <span style="color:#dc2626;font-weight:900">"+money(dueTotal)+"</span>";
+  if(paidBtn)paidBtn.innerHTML="Paid ("+paidCustomers.length+") • <span style="color:#16a34a;font-weight:900">"+money(paidTotal)+"</span>";
   box.innerHTML=state.customers.filter(c=>{
     const b=balance(c.id),received=receivedTotal(c.id),matches=(c.name+" "+c.phone).toLowerCase().includes(q);
     const show=khataFilter==="all"||(khataFilter==="due"&&b>0)||(khataFilter==="paid"&&received>0);
