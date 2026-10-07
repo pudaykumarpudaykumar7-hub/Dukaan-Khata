@@ -454,3 +454,16 @@ main{width:100%}
   background:#eef2f5!important;
   color:#101820!important;
 }
+
+/* Show the complete Indian language list inside the Language section */
+.dk-language-showcase .dk-language-list{
+  max-height:52vh!important;
+  overflow-y:auto!important;
+  padding-right:4px!important;
+  scrollbar-width:thin!important;
+}
+@media(max-width:600px){
+  .dk-language-showcase .dk-language-list{max-height:44vh!important}
+}
+.dk-language-showcase .dk-language-list::-webkit-scrollbar{width:5px}
+.dk-language-showcase .dk-language-list::-webkit-scrollbar-thumb{background:#5ef5df88;border-radius:10px}
