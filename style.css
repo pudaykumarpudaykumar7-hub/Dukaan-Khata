@@ -723,3 +723,132 @@ main:before{
   #home,#khata,#customers,#bills,#tools{border-radius:22px;padding-left:0;padding-right:0}
   main:before{inset:72px 0 76px;background-size:28px 28px,38px 38px}
 }
+
+
+/* ===== Customer Contact — SAME PREMIUM TEAL DESIGN ON LAPTOP + MOBILE =====
+   Desktop now uses the same visual experience shown in the mobile reference. */
+@media(min-width:721px){
+  .modal .sheet:has(.dk-contact-theme){
+    width:min(700px,92vw)!important;
+    max-width:700px!important;
+    max-height:88vh!important;
+    padding:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    overflow:visible!important;
+  }
+  .dk-contact-theme{
+    width:100%!important;
+    box-sizing:border-box!important;
+    padding:28px!important;
+    border-radius:30px!important;
+    background:
+      radial-gradient(circle at 90% 0%,#24e7c733,transparent 34%),
+      linear-gradient(145deg,#031f2b,#07515b 58%,#062d45)!important;
+    color:#efffff!important;
+    border:1px solid #31e5d477!important;
+    box-shadow:0 25px 70px #001b2655!important;
+  }
+  .dk-contact-theme:before{
+    width:220px!important;
+    height:220px!important;
+    background:#24e7c733!important;
+  }
+  .dk-contact-theme .dk-modal-head{
+    display:flex!important;
+    align-items:center!important;
+    gap:14px!important;
+    margin-bottom:18px!important;
+  }
+  .dk-contact-theme .dk-modal-icon{
+    width:58px!important;
+    height:58px!important;
+    border-radius:18px!important;
+    background:linear-gradient(135deg,#23e6c0,#007f8c)!important;
+    box-shadow:0 10px 28px #001b2644!important;
+  }
+  .dk-contact-theme .dk-modal-head span{
+    color:#67f6dd!important;
+    font-size:10px!important;
+    letter-spacing:2.5px!important;
+  }
+  .dk-contact-theme .dk-modal-head h2{
+    color:#efffff!important;
+    font-size:30px!important;
+    margin:3px 0 4px!important;
+  }
+  .dk-contact-theme .dk-modal-head small{
+    color:#a7ddd7!important;
+    font-size:14px!important;
+  }
+  .dk-contact-theme .dk-modal-head>b{
+    background:#13c9a7!important;
+    color:#fff!important;
+    border:1px solid #5ef5df55!important;
+    border-radius:12px!important;
+    padding:8px 12px!important;
+    font-size:10px!important;
+    margin-left:auto!important;
+  }
+  .dk-contact-theme .dk-modal-card{
+    margin:0 0 14px!important;
+    padding:18px!important;
+    border-radius:20px!important;
+    background:#ffffff0a!important;
+    border:1px solid #43e9cf33!important;
+  }
+  .dk-contact-theme .dk-modal-card h3{
+    color:#efffff!important;
+    font-size:22px!important;
+    margin:0 0 6px!important;
+  }
+  .dk-contact-theme .dk-modal-card p{
+    color:#a7ddd7!important;
+    font-size:15px!important;
+  }
+  .dk-contact-theme select{
+    width:100%!important;
+    box-sizing:border-box!important;
+    margin:0 0 14px!important;
+    padding:15px 16px!important;
+    min-height:56px!important;
+    border-radius:17px!important;
+    background:#ffffff0b!important;
+    border:1px solid #43e9cf44!important;
+    color:#efffff!important;
+  }
+  .dk-contact-theme .hub-actions{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+    margin:0!important;
+  }
+  .dk-contact-theme .hub-actions .btn{
+    width:100%!important;
+    min-height:58px!important;
+    margin:0!important;
+    padding:13px 16px!important;
+    border-radius:17px!important;
+    background:#ffffff08!important;
+    border:1px solid #43e9cf22!important;
+    color:#efffff!important;
+    font-size:17px!important;
+    font-weight:900!important;
+  }
+  .dk-contact-theme .hub-actions .btn:hover{
+    background:#ffffff14!important;
+    border-color:#43e9cf66!important;
+  }
+  .dk-contact-theme>.btn.primary{
+    width:100%!important;
+    min-height:58px!important;
+    margin:10px 0 0!important;
+    border-radius:17px!important;
+    background:linear-gradient(90deg,#13c9a7,#087f8c)!important;
+    border:1px solid #5ef5df!important;
+    color:#fff!important;
+    font-size:17px!important;
+    font-weight:900!important;
+    box-shadow:0 12px 30px #001b2633!important;
+  }
+}
