@@ -238,27 +238,23 @@ async function createRazorpayQR(customerId){
   const box=document.getElementById("razorpayQrBox"),cap=document.getElementById("razorpayQrCaption"),status=document.getElementById("razorpayQrPaymentStatus");
   const amount=Number(document.getElementById("razorpayQrAmount")?.value)||0;
   const customerIdValue=customerId||document.getElementById("qrCustomer")?.value||"";
-  if(amount<=0){
-    if(box)box.innerHTML='<div class="qr-empty">Enter the amount first.</div>';
-    if(status)status.innerHTML='<div class="qr-empty">Razorpay dynamic QR needs a payment amount.</div>';
-    return;
-  }
+  if(amount<=0){if(box)box.innerHTML='<div class="qr-empty">Enter the amount first.</div>';if(status)status.innerHTML='<div class="qr-empty">Enter an amount to create the Razorpay payment QR.</div>';return}
   const customer=state.customers.find(c=>c.id===customerIdValue);
   stopQRPaymentWatcher();
-  if(box)box.innerHTML='<div class="qr-empty">Generating Razorpay QR…</div>';
-  if(status)status.innerHTML='<div class="payment-waiting">Preparing secure Razorpay QR…</div>';
+  if(box)box.innerHTML='<div class="qr-empty">Creating secure Razorpay payment…</div>';
+  if(status)status.innerHTML='<div class="payment-waiting">Preparing payment QR…</div>';
   const base=paymentApiBase();
   if(!base){if(box)box.innerHTML='<div class="qr-empty">Razorpay backend is not connected.</div>';if(status)status.innerHTML='<div class="qr-empty">Open Payment Gateway Settings and save your Vercel backend URL.</div>';return}
   try{
-    const r=await fetch(paymentApiUrl("/api/razorpay/qr"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId:customerIdValue,customerName:customer?.name||"Customer",shopName:state.shop.name})});
+    const r=await fetch(paymentApiUrl("/api/razorpay/payment-link"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId:customerIdValue,customerName:customer?.name||"Customer"})});
     const data=await r.json().catch(()=>({}));
-    if(!(r.ok&&data.id&&data.imageUrl)){const msg=data.error||("HTTP "+r.status+" from Razorpay backend");if(box)box.innerHTML='<div class="qr-empty">Razorpay QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty"><b>Razorpay rejected the QR request.</b><br><small>'+esc(msg)+'</small></div>';return}
-    if(box)box.innerHTML='<img src="'+esc(data.imageUrl)+'" alt="Razorpay UPI QR" style="width:220px;height:220px;max-width:100%;display:block;margin:auto">';
-    if(cap)cap.textContent=amount>0?"Pay "+money(amount)+" • Razorpay UPI QR":"Razorpay UPI QR • Scan to pay";
-    if(status)status.innerHTML='<div class="payment-waiting">🟡 Waiting for Razorpay payment…<small>Keep this screen open. Confirmation will happen automatically.</small></div>';
-    const seen=new Set();
-    window.__dukaanQRPoll=setInterval(async()=>{try{const pr=await fetch(paymentApiUrl("/api/razorpay/qr/"+encodeURIComponent(data.id)+"/payments"));const pd=await pr.json().catch(()=>({}));if(!pr.ok)return;const list=Array.isArray(pd.payments)?pd.payments:[];const payment=list.find(p=>!seen.has(p.id));if(payment){seen.add(payment.id);stopQRPaymentWatcher();showMoneyReceived(payment,customerIdValue)}}catch(e){}},3000);
-  }catch(e){if(box)box.innerHTML='<div class="qr-empty">Razorpay QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty">'+esc(e.message||"Payment service unavailable")+'</div>'}
+    if(!(r.ok&&data.id&&data.shortUrl)){const msg=data.error||("HTTP "+r.status+" from Razorpay backend");if(box)box.innerHTML='<div class="qr-empty">Razorpay payment QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty"><b>Razorpay rejected the payment request.</b><br><small>'+esc(msg)+'</small></div>';return}
+    const qrUrl="https://quickchart.io/qr?size=320&text="+encodeURIComponent(data.shortUrl);
+    if(box)box.innerHTML='<a href="'+esc(data.shortUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center"><img src="'+qrUrl+'" alt="Razorpay UPI payment QR" style="width:220px;height:220px;max-width:100%;display:block;margin:auto"></a><small style="display:block;text-align:center;margin-top:8px">Scan with any UPI app</small>';
+    if(cap)cap.textContent="Pay "+money(amount)+" • Razorpay";
+    if(status)status.innerHTML='<div class="payment-waiting">🟡 Waiting for payment…<small>Scan the QR. Payment confirmation will happen automatically.</small></div>';
+    window.__dukaanQRPoll=setInterval(async()=>{try{const pr=await fetch(paymentApiUrl("/api/razorpay/payment-link/"+encodeURIComponent(data.id)));const pd=await pr.json().catch(()=>({}));if(!pr.ok)return;if(pd.paid){stopQRPaymentWatcher();showMoneyReceived({id:data.id,amount:pd.amount,status:"captured"},customerIdValue)}}catch(e){}},3000);
+  }catch(e){if(box)box.innerHTML='<div class="qr-empty">Razorpay payment QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty">'+esc(e.message||"Payment service unavailable")+'</div>'}
 }
 function openReceive(customerId=""){
   const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");
