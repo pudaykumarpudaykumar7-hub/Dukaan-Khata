@@ -264,7 +264,7 @@ function openReceive(customerId=""){
   qr?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");createTrackedQR(document.getElementById("qrCustomer")?.value||customerId)});
   rec?.addEventListener("click",()=>{hide();rec.classList.add("active");b?.classList.remove("hidden")});
   document.getElementById("qrCustomer")?.addEventListener("change",()=>createTrackedQR(document.getElementById("qrCustomer").value));
-  document.getElementById("qrAmount")?.addEventListener("change",()=>createTrackedQR(document.getElementById("qrCustomer")?.value||customerId));
+  document.getElementById("qrAmount")?.addEventListener("input",()=>createTrackedQR(document.getElementById("qrCustomer")?.value||customerId));
   document.getElementById("sharePayBtn")?.addEventListener("click",()=>shareTrackedQR());
   document.getElementById("copyPayBtn")?.addEventListener("click",copyUPILink);
   document.getElementById("savePaymentBtn")?.addEventListener("click",savePayment);
