@@ -462,7 +462,7 @@ function setupLongPress(){
     if(Date.now()<suppressClickUntil && e.target.closest?.("[data-long-delete]")){e.preventDefault();e.stopPropagation();}
   },true);
 }
-document.addEventListener("DOMContentLoaded",()=>{setupLongPress();render();applyHomeLogo();applyOutstandingColor();window.__DUKAAN_READY__=true});
+document.addEventListener("DOMContentLoaded",()=>{try{setupLongPress();render();if(typeof applyHomeLogo==="function")applyHomeLogo();if(typeof applyOutstandingColor==="function")applyOutstandingColor();window.__DUKAAN_READY__=true}catch(e){console.error("Dukaan Khata startup error:",e);window.__DUKAAN_READY__=false;toast("App startup error. Please reload.")}});
 
 
 
