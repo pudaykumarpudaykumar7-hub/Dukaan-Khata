@@ -466,22 +466,32 @@ function setupLongPress(){
     if(Date.now()<suppressClickUntil && e.target.closest?.("[data-long-delete]")){e.preventDefault();e.stopPropagation();}
   },true);
 }
-document.addEventListener("DOMContentLoaded",()=>{try{
-  setupLongPress();
-  render();
-  if(typeof applyHomeLogo==="function")applyHomeLogo();
-  if(typeof applyOutstandingColor==="function")applyOutstandingColor();
-  document.querySelectorAll(".bottom-nav button,.top-menu button").forEach(btn=>{
-    btn.addEventListener("click",e=>{
-      const page=btn.dataset.page;
-      if(page&&typeof showPage==="function"){e.preventDefault();showPage(page)}
+document.addEventListener("DOMContentLoaded",()=>{
+  try{
+    setupLongPress();
+    document.querySelectorAll(".bottom-nav button,.top-menu button").forEach(btn=>{
+      btn.addEventListener("click",e=>{
+        const page=btn.dataset.page;
+        if(page&&typeof showPage==="function"){e.preventDefault();e.stopPropagation();showPage(page)}
+      });
     });
-  });
-  document.querySelectorAll(".khata-filter").forEach((btn,i)=>{
-    btn.addEventListener("click",e=>{
-      e.preventDefault();
-      const filters=["all","due","paid"];
-      filterKhata(filters[i]||"all",btn);
+    document.querySelectorAll(".khata-filter").forEach((btn,i)=>{
+      btn.addEventListener("click",e=>{
+        e.preventDefault();e.stopPropagation();
+        const filters=["all","due","paid"];
+        filterKhata(filters[i]||"all",btn);
+      });
+    });
+    if(typeof render==="function")render();
+    if(typeof applyHomeLogo==="function")applyHomeLogo();
+    if(typeof applyOutstandingColor==="function")applyOutstandingColor();
+    window.__DUKAAN_READY__=true;
+  }catch(e){
+    console.error("Dukaan Khata startup error:",e);
+    window.__DUKAAN_READY__=false;
+    try{toast("App startup error. Please reload.")}catch(_){}
+  }
+});
     });
   });
   window.__DUKAAN_READY__=true;
