@@ -386,30 +386,32 @@ function clearDemo(){if(confirm("Clear all Dukaan Khata data on this device?")){
 
 function renderKhata(){
   const box=document.getElementById("khataList");if(!box)return;
-  const q=(document.getElementById("khataSearch")?.value||"").toLowerCase();
+  const q=(document.getElementById("khataSearch")?.value||"").trim().toLowerCase();
   const paidCustomers=state.customers.filter(c=>receivedTotal(c.id)>0);
   const dueCustomers=state.customers.filter(c=>balance(c.id)>0);
-  const paidTotal=paidCustomers.reduce((s,c)=>s+receivedTotal(c.id),0);
-  const dueTotal=dueCustomers.reduce((s,c)=>s+balance(c.id),0);
+  const paidTotal=paidCustomers.reduce((sum,c)=>sum+receivedTotal(c.id),0);
+  const dueTotal=dueCustomers.reduce((sum,c)=>sum+balance(c.id),0);
   const filterBtns=document.querySelectorAll(".khata-filter");
   const allBtn=filterBtns[0],dueBtn=filterBtns[1],paidBtn=filterBtns[2];
-  if(allBtn)allBtn.textContent="All ("+state.customers.length+")";
-  if(dueBtn)dueBtn.innerHTML="Due ("+dueCustomers.length+") • <span style=\"color:#dc2626!important;font-weight:900!important\">"+money(dueTotal)+"</span>";
-  if(paidBtn)paidBtn.innerHTML="Paid ("+paidCustomers.length+") • <span style=\"color:#16a34a!important;font-weight:900!important\">"+money(paidTotal)+"</span>";
+  if(allBtn)allBtn.innerHTML="All ("+state.customers.length+")";
+  if(dueBtn)dueBtn.innerHTML='Due ('+dueCustomers.length+') • <span class="khata-due-total">'+money(dueTotal)+'</span>';
+  if(paidBtn)paidBtn.innerHTML='Paid ('+paidCustomers.length+') • <span class="khata-paid-total">'+money(paidTotal)+'</span>';
   box.innerHTML=state.customers.filter(c=>{
     const b=balance(c.id),received=receivedTotal(c.id),matches=(c.name+" "+c.phone).toLowerCase().includes(q);
     return matches&&(khataFilter==="all"||(khataFilter==="due"&&b>0)||(khataFilter==="paid"&&received>0));
   }).map(c=>{
     const b=balance(c.id),received=receivedTotal(c.id);
-    const right=khataFilter==="paid"||(!b&&received>0)
-      ?'<div style="color:#16a34a!important;font-weight:900;font-size:18px">Paid '+money(received)+'</div>'
-      :'<div style="color:#dc2626!important;font-weight:900;font-size:18px">Due '+money(b)+'</div>';
-    const paidLine=received>0?'<small style="display:block;color:#16a34a!important;font-weight:800">Total paid '+money(received)+'</small>':"";
-    return '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'"><div class="khata-customer-main" data-customer-id="'+esc(c.id)+'"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small>'+paidLine+'</div><div style="text-align:right">'+right+'</div></div>';
+    const isPaid=khataFilter==="paid"||(!b&&received>0);
+    const amount=isPaid?received:b;
+    const label=isPaid?"Paid":"Due";
+    const cls=isPaid?"khata-paid-value":"khata-due-value";
+    const paidLine=received>0?'<small class="khata-paid-line">Total paid '+money(received)+'</small>':"";
+    return '<div class="customer khata-customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'">'+
+      '<div class="khata-customer-main" data-customer-id="'+esc(c.id)+'"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small>'+paidLine+'</div>'+
+      '<div class="khata-value '+cls+'">'+label+' '+money(amount)+'</div></div>';
   }).join("")||'<p class="muted">No customers found.</p>';
   box.querySelectorAll(".khata-customer-main").forEach(el=>el.addEventListener("click",()=>customerView(el.dataset.customerId)));
 }
-
 function renderCustomers(){
   const box=document.getElementById("customerList");
   if(!box)return;
@@ -476,7 +478,26 @@ function setupLongPress(){
     if(Date.now()<suppressClickUntil && e.target.closest?.("[data-long-delete]")){e.preventDefault();e.stopPropagation();}
   },true);
 }
-document.addEventListener("DOMContentLoaded",()=>{try{setupLongPress();render();if(typeof applyHomeLogo==="function")applyHomeLogo();if(typeof applyOutstandingColor==="function")applyOutstandingColor();window.__DUKAAN_READY__=true}catch(e){console.error("Dukaan Khata startup error:",e);window.__DUKAAN_READY__=false;toast("App startup error. Please reload.")}});
+document.addEventListener("DOMContentLoaded",()=>{try{
+  setupLongPress();
+  render();
+  if(typeof applyHomeLogo==="function")applyHomeLogo();
+  if(typeof applyOutstandingColor==="function")applyOutstandingColor();
+  document.querySelectorAll(".bottom-nav button,.top-menu button").forEach(btn=>{
+    btn.addEventListener("click",e=>{
+      const page=btn.dataset.page;
+      if(page&&typeof showPage==="function"){e.preventDefault();showPage(page)}
+    });
+  });
+  document.querySelectorAll(".khata-filter").forEach((btn,i)=>{
+    btn.addEventListener("click",e=>{
+      e.preventDefault();
+      const filters=["all","due","paid"];
+      filterKhata(filters[i]||"all",btn);
+    });
+  });
+  window.__DUKAAN_READY__=true;
+}catch(e){console.error("Dukaan Khata startup error:",e);window.__DUKAAN_READY__=false;toast("App startup error. Please reload.")}});
 
 
 
