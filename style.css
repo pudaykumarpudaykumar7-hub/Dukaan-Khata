@@ -409,3 +409,19 @@ main{width:100%}
 .smart-receive-shell .receive-tabs button.active{
   color:#000000!important;
 }
+
+/* Account popup: mobile screen-fit + keep external close button */
+.dk-login-shell.dk-login-signed{box-sizing:border-box;width:100%;max-width:560px;max-height:calc(86vh - 20px);overflow-y:auto;scrollbar-width:none}
+.dk-login-shell.dk-login-signed::-webkit-scrollbar{display:none}
+@media(max-width:600px){
+.dk-login-shell.dk-login-signed{max-width:100%;max-height:78vh;padding:16px!important;border-radius:24px!important}
+.dk-login-shell.dk-login-signed .dk-login-top{gap:10px}
+.dk-login-shell.dk-login-signed .dk-login-icon{width:52px;height:52px;border-radius:17px;font-size:24px}
+.dk-login-shell.dk-login-signed h2{font-size:25px;margin:2px 0 8px}
+.dk-login-shell.dk-login-signed .dk-login-sub{margin:6px 0 12px}
+.dk-login-shell.dk-login-signed .dk-account-card{margin:12px 0;padding:12px;border-radius:17px}
+.dk-login-shell.dk-login-signed .dk-login-action{min-height:54px;margin-top:8px;padding:10px 13px;border-radius:16px}
+.dk-login-shell.dk-login-signed .dk-login-close{padding:11px;margin-top:9px}
+}
+/* Keep the round × outside the account card. */
+.modal>.sheet>.close{position:absolute;z-index:5}
