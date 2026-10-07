@@ -372,3 +372,21 @@ main{width:100%}
 .dk-pass-shell .dk-pass-benefits{background:#ffffff0d!important;border-color:#ffffff20!important}
 .dk-pass-shell .dk-pass-share{background:linear-gradient(90deg,#13c9a7,#087f8c)!important;border-color:#5ef5df!important;color:#fff!important}
 .dk-pass-shell .dk-pass-close{background:#ffffff0d!important;color:#eafffc!important;border-color:#43e9cf55!important}
+
+/* More menu — one unified Smart Receive appearance for every card */
+#tools .tools-grid .luxury-tool{
+  background:radial-gradient(circle at 92% 0%,#20e7d733,transparent 34%),linear-gradient(135deg,#062b38 0%,#087681 54%,#0a9d91 100%)!important;
+  color:#f4ffff!important;
+  border:1px solid #4de8d477!important;
+  box-shadow:0 10px 30px #00434d33,inset 0 1px 0 #ffffff22!important;
+  border-radius:18px!important;
+}
+#tools .tools-grid .luxury-tool b{color:#f5ffff!important}
+#tools .tools-grid .luxury-tool small{color:#c8fff7!important}
+#tools .tools-grid .luxury-tool:hover,
+#tools .tools-grid .luxury-tool:focus{
+  background:radial-gradient(circle at 92% 0%,#48ffe044,transparent 34%),linear-gradient(135deg,#073541 0%,#07838c 54%,#12b5a4 100%)!important;
+  border-color:#6effe5!important;
+  box-shadow:0 14px 38px #006a713d,inset 0 1px 0 #ffffff33!important;
+}
+#tools .tools-grid .luxury-tool:active{transform:scale(.985)}
