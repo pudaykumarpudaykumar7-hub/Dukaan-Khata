@@ -57,7 +57,7 @@
   };
   window.openLanguage=function(){
     const L=T[current()]||T.English;
-    const labels={English:["🇬🇧","English","English"],Hindi:["🇮🇳","Hindi","हिन्दी"],Telugu:["🇮🇳","Telugu","తెలుగు"],Kannada:["🇮🇳","Kannada","ಕನ್ನಡ"],Marathi:["🇮🇳","Marathi","मराठी"]};
+    const labels=Object.fromEntries(keys.map(x=>[x,[x==="English"?"🇬🇧":"🇮🇳",x,(T[x]&&T[x].language)||x]]));
     const options=keys.map(x=>{
       const v=labels[x]||["🌐",x,x];
       const selected=x===current();
