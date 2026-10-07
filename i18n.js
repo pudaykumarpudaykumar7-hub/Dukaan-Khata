@@ -31,7 +31,7 @@
     English:"English (english)",Telugu:"తెలుగు (telugu)",Hindi:"हिन्दी (hindi)",Kannada:"ಕನ್ನಡ (kannada)",Marathi:"मराठी (marathi)",Bengali:"বাংলা (bengali)",Assamese:"অসমীয়া (assamese)",Gujarati:"ગુજરાતી (gujarati)",Malayalam:"മലയാളം (malayalam)",Punjabi:"ਪੰਜਾਬੀ (punjabi)",Odia:"ଓଡ଼ିଆ (odia)",Tamil:"தமிழ் (tamil)",Urdu:"اردو (urdu)",Kashmiri:"کٲشُر (kashmiri)",Konkani:"कोंकणी (konkani)",Manipuri:"ꯃꯤꯇꯩ ꯂꯣꯟ (manipuri)",Sanskrit:"संस्कृतम् (sanskrit)",Maithili:"मैथिली (maithili)",Nepali:"नेपाली (nepali)",Sindhi:"سنڌي (sindhi)",Dogri:"डोगरी (dogri)",Bodo:"बड़ो (bodo)",Santali:"ᱥᱟᱱᱛᱟᱲᱤ (santali)"
   };
   const languageOrder=["English","Assamese","Bengali","Bodo","Dogri","Gujarati","Hindi","Kannada","Kashmiri","Konkani","Maithili","Malayalam","Manipuri","Marathi","Nepali","Odia","Punjabi","Sanskrit","Santali","Sindhi","Tamil","Telugu","Urdu"];
-  const keys=languageOrder.filter(x=>T[x]);
+  const keys=["English","Assamese","Bengali","Bodo","Dogri","Gujarati","Hindi","Kannada","Kashmiri","Konkani","Maithili","Malayalam","Manipuri","Marathi","Nepali","Odia","Punjabi","Sanskrit","Santali","Sindhi","Tamil","Telugu","Urdu"];
   function current(){
     const saved=localStorage.getItem("dukaan_khata_language");
     if(keys.includes(saved))return saved;
@@ -65,7 +65,7 @@
       return '<button class="dk-lang-option" onclick="setLanguage(\\''+x+'\\')"><span class="dk-lang-flag">'+(x==="English"?"🇬🇧":"🇮🇳")+'</span><span class="dk-lang-name"><b>'+x+'</b><span class="dk-lang-arrow">→</span><small>'+native+'</small></span><i>'+ (selected?'✓':'○') +'</i></button>';
     }).join("");
     modal('<div class="dk-language-showcase">'+
-      '<div class="dk-language-top"><button class="dk-language-back" onclick="closeModal()">‹</button><div class="dk-language-brand"><span>PERSONALIZE</span><h2>'+L.language+'</h2><small>Change app language</small></div><b class="dk-language-pro">✦ INDIA</b></div>'+
+      '<div class="dk-language-top"><button class="dk-language-back" onclick="closeModal()">‹</button><div class="dk-language-brand"><span>PERSONALIZE</span><h2>'+L.language+'</h2><small>Change app language</small></div><b class="dk-language-pro">✦ INDIA • 23 LANGUAGES</b></div>'+
       '<div class="dk-language-world"><div class="dk-globe">🌍<i></i><em></em></div><div class="dk-orbit-label dk-orbit-en">🇬🇧 English</div><div class="dk-orbit-label dk-orbit-hi">🇮🇳 हिन्दी</div><div class="dk-orbit-label dk-orbit-te">🇮🇳 తెలుగు</div><div class="dk-orbit-label dk-orbit-kn">🇮🇳 ಕನ್ನಡ</div></div>'+
       '<div class="dk-language-panel"><div class="dk-language-panel-title"><span>🌐</span><div><b>Choose your language</b><small>Select one to personalize Dukaan Khata</small></div></div><div class="dk-language-list">'+options+'</div></div>'+
       '<div class="dk-language-save">🌐 <span>Your preferred language<br>will be saved automatically</span><b>✓</b></div>'+
