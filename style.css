@@ -1521,3 +1521,10 @@ body:not(.darkmode) .tools-grid button:hover{
 #khataList .khata-money-paid{color:#16a34a!important;font-weight:900!important}
 #khataFilters .khata-money-due{color:#dc2626!important;font-weight:900!important}
 #khataFilters .khata-money-paid{color:#16a34a!important;font-weight:900!important}
+
+/* KHATA / CUSTOMER DISPLAY FINAL */
+#khataList .khata-amount{min-width:110px;text-align:right}
+#khataList .khata-money-due{color:#dc2626!important;-webkit-text-fill-color:#dc2626!important;font-weight:950!important;font-size:18px!important}
+#khataList .khata-money-paid{color:#16a34a!important;-webkit-text-fill-color:#16a34a!important;font-weight:950!important;font-size:18px!important}
+#khataFilters .khata-filter-due{color:#dc2626!important;-webkit-text-fill-color:#dc2626!important;font-weight:950!important;margin-left:4px}
+#khataFilters .khata-filter-paid{color:#16a34a!important;-webkit-text-fill-color:#16a34a!important;font-weight:950!important;margin-left:4px}
