@@ -463,3 +463,88 @@ function setupLongPress(){
   },true);
 }
 document.addEventListener("DOMContentLoaded",()=>{setupLongPress();render();applyHomeLogo();applyOutstandingColor();window.__DUKAAN_READY__=true});
+
+
+/* ===== Background Theme Editor ===== */
+const DK_THEME_KEY="dukaan_khata_background_theme_v1";
+function getBackgroundTheme(){
+  try{return JSON.parse(localStorage.getItem(DK_THEME_KEY)||"null")||{type:"default",image:"",color:"#09031b",fit:"cover",position:"center",opacity:.72}}
+  catch(e){return{type:"default",image:"",color:"#09031b",fit:"cover",position:"center",opacity:.72}}
+}
+function applyBackgroundTheme(){
+  const t=getBackgroundTheme(),root=document.documentElement,body=document.body;
+  root.style.setProperty("--dk-bg-color",t.color||"#09031b");
+  root.style.setProperty("--dk-bg-image",t.image?"url("+JSON.stringify(t.image)+")":"none");
+  root.style.setProperty("--dk-bg-fit",t.fit||"cover");
+  root.style.setProperty("--dk-bg-position",t.position||"center");
+  root.style.setProperty("--dk-bg-opacity",String(Number(t.opacity??.72)));
+  body.dataset.dkBackgroundTheme=t.type||"custom";
+}
+function saveBackgroundTheme(t){
+  try{localStorage.setItem(DK_THEME_KEY,JSON.stringify(t));applyBackgroundTheme();toast("Background theme applied ✓")}
+  catch(e){toast("Image is too large. Choose a smaller image.")}
+}
+function resetBackgroundTheme(){
+  localStorage.removeItem(DK_THEME_KEY);applyBackgroundTheme();toast("Default theme restored ✓");openBackgroundTheme();
+}
+function openBackgroundTheme(){
+  const t=getBackgroundTheme();
+  modal('<div class="dk-theme-editor">'+
+    '<div class="dk-theme-editor-head"><div><span>PERSONALIZE</span><h2>Background Theme</h2><small>Make Dukaan Khata look like your own app</small></div><b>✦ CUSTOM</b></div>'+
+    '<div class="dk-theme-preview" id="dkThemePreview"><div><strong>Live Preview</strong><small>Your existing options stay visible</small></div></div>'+
+    '<div class="dk-theme-panel">'+
+    '<label class="dk-theme-label">Choose background</label>'+
+    '<div class="dk-theme-presets">'+
+      '<button type="button" onclick="dkThemePreset('default')">🌌<b>Futuristic</b><small>Purple AI</small></button>'+
+      '<button type="button" onclick="dkThemePreset('dark')">🌑<b>Midnight</b><small>Dark clean</small></button>'+
+      '<button type="button" onclick="dkThemePreset('light')">☁️<b>Soft</b><small>Light premium</small></button>'+
+    '</div>'+
+    '<label class="dk-theme-upload">🖼️ <b>Add your own image</b><small>JPG, PNG or WebP • automatically resized to fit</small><input id="dkThemeImage" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="dkThemeImageSelected(event)" hidden></label>'+
+    '<div class="dk-theme-or">OR</div>'+
+    '<input id="dkThemeUrl" class="dk-theme-url" placeholder="Paste an image URL (optional)" value="'+esc(t.image&&/^https?:/i.test(t.image)?t.image:"")+'">'+
+    '<div class="dk-theme-row"><label>Fit<select id="dkThemeFit"><option value="cover" '+(t.fit==="cover"?"selected":"")+'>Cover — fill screen</option><option value="contain" '+(t.fit==="contain"?"selected":"")+'>Contain — show full image</option><option value="fill" '+(t.fit==="fill"?"selected":"")+'>Stretch — exact screen</option></select></label><label>Position<select id="dkThemePosition"><option value="center">Center</option><option value="top">Top</option><option value="bottom">Bottom</option><option value="left">Left</option><option value="right">Right</option></select></label></div>'+
+    '<label class="dk-theme-label">Background color <input id="dkThemeColor" type="color" value="'+esc(t.color||"#09031b")+'"></label>'+
+    '<label class="dk-theme-label">Image visibility <input id="dkThemeOpacity" type="range" min="0.15" max="1" step="0.05" value="'+Number(t.opacity??.72)+'"><span id="dkThemeOpacityValue">'+Math.round(Number(t.opacity??.72)*100)+'%</span></label>'+
+    '<div class="dk-theme-actions"><button class="btn primary" onclick="saveBackgroundThemeFromEditor()">✓ Apply Theme</button><button class="btn" onclick="resetBackgroundTheme()">↺ Reset</button></div>'+
+    '</div></div>');
+  setTimeout(()=>{const p=document.getElementById("dkThemePosition");if(p)p.value=t.position||"center";const r=document.getElementById("dkThemeOpacity");if(r)r.oninput=()=>{document.getElementById("dkThemeOpacityValue").textContent=Math.round(Number(r.value)*100)+"%"};dkThemePreview()},0);
+}
+function dkThemePreview(){
+  const p=document.getElementById("dkThemePreview");if(!p)return;
+  const t=getBackgroundTheme();p.style.backgroundColor=t.color||"#09031b";if(t.image){p.style.backgroundImage="linear-gradient(#0004,#0004),url("+JSON.stringify(t.image)+")";p.style.backgroundSize=t.fit||"cover";p.style.backgroundPosition=t.position||"center"}else p.style.backgroundImage="";
+}
+function dkThemePreset(type){
+  const presets={default:{type:"default",image:"",color:"#09031b",fit:"cover",position:"center",opacity:.72},dark:{type:"custom",image:"",color:"#03030a",fit:"cover",position:"center",opacity:.72},light:{type:"custom",image:"",color:"#eef3f8",fit:"cover",position:"center",opacity:.55}};
+  const t=presets[type]||presets.default;saveBackgroundTheme(t);openBackgroundTheme();
+}
+function dkThemeImageSelected(e){
+  const f=e.target.files?.[0];if(!f)return;
+  if(f.size>12*1024*1024)return toast("Choose an image under 12 MB");
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const max=1800,scale=Math.min(1,max/Math.max(img.width,img.height));
+      const w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));
+      const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;
+      const ctx=canvas.getContext("2d");ctx.drawImage(img,0,0,w,h);
+      const data=canvas.toDataURL("image/jpeg",.82);
+      const t=getBackgroundTheme();t.type="custom";t.image=data;
+      localStorage.setItem(DK_THEME_KEY,JSON.stringify(t));applyBackgroundTheme();toast("Your image is ready ✓");openBackgroundTheme();
+    };
+    img.src=reader.result;
+  };
+  reader.readAsDataURL(f);
+}
+function saveBackgroundThemeFromEditor(){
+  const t=getBackgroundTheme();
+  t.type=t.image?"custom":"default";
+  const url=(document.getElementById("dkThemeUrl")?.value||"").trim();
+  if(url)t.image=url;
+  t.fit=document.getElementById("dkThemeFit")?.value||"cover";
+  t.position=document.getElementById("dkThemePosition")?.value||"center";
+  t.color=document.getElementById("dkThemeColor")?.value||"#09031b";
+  t.opacity=Number(document.getElementById("dkThemeOpacity")?.value||.72);
+  saveBackgroundTheme(t);closeModal();
+}
+applyBackgroundTheme();
