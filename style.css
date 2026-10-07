@@ -1238,3 +1238,30 @@ body[data-global-theme]::after{
  .dk-bg-presets{grid-template-columns:repeat(2,1fr)}.dk-bg-controls{grid-template-columns:1fr}
  .dk-bg-actions{grid-template-columns:1fr}.dk-bg-preview{height:135px}
 }
+
+
+/* ===== FINAL LIGHT / DARK MODE RESET =====
+   Keep one consistent theme across the entire web app.
+   Existing buttons and features remain unchanged. */
+body:not(.darkmode){
+  background:var(--bg)!important;
+  color:var(--text)!important;
+}
+body.darkmode{
+  background:#0b1220!important;
+  color:#f3f6fa!important;
+}
+body:not(.darkmode) .app,
+body.darkmode .app,
+body:not(.darkmode) main,
+body.darkmode main{
+  color:inherit;
+}
+body:not(.darkmode) .page,
+body.darkmode .page{
+  color:inherit;
+}
+/* Global background image must never cover or block the normal theme. */
+body[data-global-theme]::after{
+  display:none!important;
+}
