@@ -492,11 +492,11 @@ function openBackgroundTheme(){
     '<div class="dk-bg-preview" id="dkBgPreview"><strong>Live Preview</strong><small>All pages use this background</small></div>'+
     '<div class="dk-bg-label">Choose a theme</div>'+
     '<div class="dk-bg-presets">'+
-      '<button type="button" onclick="dkChooseGlobalPreset('futuristic')">✦<b>Futuristic</b><small>Purple AI</small></button>'+
-      '<button type="button" onclick="dkChooseGlobalPreset('midnight')">◐<b>Midnight</b><small>Deep dark</small></button>'+
-      '<button type="button" onclick="dkChooseGlobalPreset('ocean')">◈<b>Ocean</b><small>Blue glow</small></button>'+
-      '<button type="button" onclick="dkChooseGlobalPreset('sunset')">◉<b>Sunset</b><small>Warm gradient</small></button>'+
-      '<button type="button" onclick="dkChooseGlobalPreset('light')">☀<b>Light</b><small>Clean bright</small></button>'+
+      '<button type="button" onclick="dkChooseGlobalPreset(\'futuristic\')">✦<b>Futuristic</b><small>Purple AI</small></button>'+
+      '<button type="button" onclick="dkChooseGlobalPreset(\'midnight\')">◐<b>Midnight</b><small>Deep dark</small></button>'+
+      '<button type="button" onclick="dkChooseGlobalPreset(\'ocean\')">◈<b>Ocean</b><small>Blue glow</small></button>'+
+      '<button type="button" onclick="dkChooseGlobalPreset(\'sunset\')">◉<b>Sunset</b><small>Warm gradient</small></button>'+
+      '<button type="button" onclick="dkChooseGlobalPreset(\'light\')">☀<b>Light</b><small>Clean bright</small></button>'+
     '</div>'+
     '<label class="dk-bg-upload">🖼️ <b>Use your own background image</b><small>JPG, PNG or WebP • automatically fitted to screen<input id="dkBgFile" type="file" accept="image/png,image/jpeg,image/webp" onchange="dkGlobalImageSelected(event)" hidden></small></label>'+
     '<div class="dk-bg-controls"><label>Image fit<select id="dkBgFit"><option value="cover">Cover — fill screen</option><option value="contain">Contain — show full image</option><option value="auto">Original size</option></select></label><label>Position<select id="dkBgPosition"><option value="center">Center</option><option value="top">Top</option><option value="bottom">Bottom</option><option value="left">Left</option><option value="right">Right</option></select></label></div>'+
