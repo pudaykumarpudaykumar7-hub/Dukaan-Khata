@@ -13,7 +13,7 @@ function loadState(){
       reminders:Array.isArray(x.reminders)?x.reminders:[]};
   }catch(e){return defaults()}
 }
-function saveState(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){toast("Could not save data")}}
+function saveState(){try{localStorage.setItem(KEY,JSON.stringify(state));if(window.dkQueueSync)window.dkQueueSync()}catch(e){toast("Could not save data")}}
 function openUVMSLogo(){
   const m=document.getElementById("modal"),b=document.getElementById("modalBody");
   if(!m||!b)return;
