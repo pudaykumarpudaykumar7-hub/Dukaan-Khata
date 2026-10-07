@@ -1573,3 +1573,66 @@ body:not(.darkmode) .tools-grid button:hover{
   .bottom-nav button{min-width:0!important;width:100%!important;}
 }
 @media(max-width:720px){.bottom-nav{height:72px!important;}}
+
+
+/* KHATA FINAL ALIGNMENT v5 */
+#khata .khata-filters{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  justify-items:stretch!important;
+  width:100%!important;
+}
+#khata .khata-filter{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  gap:2px!important;
+  white-space:normal!important;
+  min-width:0!important;
+}
+#khata .khata-filter span{display:block!important;line-height:1.15!important}
+#khata .khata-filter strong{display:block!important;line-height:1.15!important}
+#khata .khata-filter-due{color:#dc2626!important;-webkit-text-fill-color:#dc2626!important}
+#khata .khata-filter-paid{color:#16a34a!important;-webkit-text-fill-color:#16a34a!important}
+#khataList .khata-customer-row{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:14px!important;
+  width:100%!important;
+}
+#khataList .khata-customer-info{
+  min-width:0!important;
+  text-align:left!important;
+  cursor:pointer!important;
+}
+#khataList .khata-customer-info h3,
+#khataList .khata-customer-info small{
+  display:block!important;
+  text-align:left!important;
+}
+#khataList .khata-amount{
+  min-width:120px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  line-height:1.2!important;
+}
+#khataList .khata-amount .khata-money-due,
+#khataList .khata-amount .khata-money-paid{
+  display:block!important;
+  text-align:center!important;
+  margin:0!important;
+}
+#khataList .khata-money-due{color:#dc2626!important;-webkit-text-fill-color:#dc2626!important;font-weight:950!important;font-size:18px!important}
+#khataList .khata-money-paid{color:#16a34a!important;-webkit-text-fill-color:#16a34a!important;font-weight:950!important;font-size:18px!important}
+@media(max-width:520px){
+  #khataList .khata-customer-row{grid-template-columns:minmax(0,1fr) 100px!important;gap:8px!important}
+  #khataList .khata-amount{min-width:100px!important}
+  #khataList .khata-add-mobile{grid-column:1 / -1!important}
+}
