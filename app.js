@@ -416,7 +416,7 @@ function renderKhata(){
         <small>${esc(c.phone||"No phone added")}${totalPaid}</small>
       </div>
       <div style="text-align:right">
-        <div style="color:${color};font-weight:900;font-size:20px">${label}${value}</div>
+        <div class="${isDue?"khata-money-due":"khata-money-paid"}">${label}${value}</div>
         ${mobile}
       </div>
     </div>`;
@@ -570,3 +570,5 @@ function dkResetGlobalTheme(){
   localStorage.removeItem(DK_GLOBAL_THEME_KEY);dkApplyGlobalTheme();toast("Background reset ✓");openBackgroundTheme();
 }
 dkApplyGlobalTheme();
+
+/* KHATA FINAL DISPLAY v4 */
