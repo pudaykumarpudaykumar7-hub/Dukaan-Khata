@@ -475,6 +475,10 @@ function setupLongPress(){
     if(Date.now()<suppressClickUntil && e.target.closest?.("[data-long-delete]")){e.preventDefault();e.stopPropagation();}
   },true);
 }
+document.addEventListener("click",e=>{
+  const b=e.target.closest?.(".bottom-nav button[data-page]");
+  if(b){const p=b.dataset.page;if(p&&typeof showPage==="function")showPage(p)}
+},true);
 document.addEventListener("DOMContentLoaded",()=>{
   try{
     setupLongPress();
