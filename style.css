@@ -1095,3 +1095,73 @@ body:not(.darkmode) .tools-grid small{
 .darkmode .tools-grid small{
   color:#9aa8bb!important;
 }
+
+
+/* ===== FINAL DARK/LIGHT MODE TEXT VISIBILITY OVERRIDE ===== */
+.darkmode .stat,
+.darkmode .stat *,
+.darkmode .card,
+.darkmode .card *,
+.darkmode .customer,
+.darkmode .customer *,
+.darkmode .item,
+.darkmode .item *,
+.darkmode .activity,
+.darkmode .activity *,
+.darkmode .bill,
+.darkmode .bill *,
+.darkmode .inventory-cards>div,
+.darkmode .inventory-cards>div *,
+.darkmode .report-grid>div,
+.darkmode .report-grid>div *,
+.darkmode .bill-tools button,
+.darkmode .bill-tools button *,
+.darkmode .tools-grid button,
+.darkmode .tools-grid button *{
+  -webkit-text-fill-color:#f3f6fa!important;
+  color:#f3f6fa!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+.darkmode .stat span,.darkmode .stat small,
+.darkmode .customer small,.darkmode .item small,.darkmode .bill small,
+.darkmode .activity small,.darkmode .inventory-cards span,
+.darkmode .report-grid span,.darkmode .tools-grid small{
+  -webkit-text-fill-color:#c5cfdd!important;
+  color:#c5cfdd!important;
+  opacity:1!important;
+}
+body:not(.darkmode) .stat,
+body:not(.darkmode) .stat *,
+body:not(.darkmode) .card,
+body:not(.darkmode) .card *,
+body:not(.darkmode) .customer,
+body:not(.darkmode) .customer *,
+body:not(.darkmode) .item,
+body:not(.darkmode) .item *,
+body:not(.darkmode) .activity,
+body:not(.darkmode) .activity *,
+body:not(.darkmode) .bill,
+body:not(.darkmode) .bill *,
+body:not(.darkmode) .inventory-cards>div,
+body:not(.darkmode) .inventory-cards>div *,
+body:not(.darkmode) .report-grid>div,
+body:not(.darkmode) .report-grid>div *,
+body:not(.darkmode) .bill-tools button,
+body:not(.darkmode) .bill-tools button *,
+body:not(.darkmode) .tools-grid button,
+body:not(.darkmode) .tools-grid button *{
+  -webkit-text-fill-color:#101828!important;
+  color:#101828!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+body:not(.darkmode) .stat span,body:not(.darkmode) .stat small,
+body:not(.darkmode) .customer small,body:not(.darkmode) .item small,
+body:not(.darkmode) .bill small,body:not(.darkmode) .activity small,
+body:not(.darkmode) .inventory-cards span,body:not(.darkmode) .report-grid span,
+body:not(.darkmode) .tools-grid small{
+  -webkit-text-fill-color:#667085!important;
+  color:#667085!important;
+  opacity:1!important;
+}
