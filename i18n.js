@@ -62,7 +62,7 @@
     const options=keys.map(x=>{
       const native=nativeNames[x]||x;
       const selected=x===current();
-      return '<button class="dk-lang-option" onclick="setLanguage(\\''+x+'\\')"><span class="dk-lang-flag">'+(x==="English"?"🇬🇧":"🇮🇳")+'</span><span class="dk-lang-name"><b>'+x+'</b><small>'+native+'</small></span><i>'+ (selected?'✓':'○') +'</i></button>';
+      return '<button class="dk-lang-option" onclick="setLanguage(\\''+x+'\\')"><span class="dk-lang-flag">'+(x==="English"?"🇬🇧":"🇮🇳")+'</span><span class="dk-lang-name"><b>'+x+'</b><span class="dk-lang-arrow">→</span><small>'+native+'</small></span><i>'+ (selected?'✓':'○') +'</i></button>';
     }).join("");
     modal('<div class="dk-language-showcase">'+
       '<div class="dk-language-top"><button class="dk-language-back" onclick="closeModal()">‹</button><div class="dk-language-brand"><span>PERSONALIZE</span><h2>'+L.language+'</h2><small>Change app language</small></div><b class="dk-language-pro">✦ INDIA</b></div>'+
