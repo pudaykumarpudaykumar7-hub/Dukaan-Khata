@@ -29,7 +29,8 @@ function closeUVMSLogo(){
 }
 function getPassProfile(){
   let p=JSON.parse(localStorage.getItem("dukaan_khata_pass_profile")||"null");
-  if(!p){p={points:0,stamps:0,rewards:0,redeemed:0,referrals:0};localStorage.setItem("dukaan_khata_pass_profile",JSON.stringify(p))}
+  if(!p){p={points:0,stamps:0,rewards:0,redeemed:0,referrals:0,visits:0};savePassProfile(p)}
+  p.visits=Number(p.visits||0);p.referrals=Number(p.referrals||0);p.stamps=Number(p.stamps||0);p.points=Number(p.points||0);p.rewards=Number(p.rewards||0);p.redeemed=Number(p.redeemed||0);
   return p;
 }
 function savePassProfile(p){localStorage.setItem("dukaan_khata_pass_profile",JSON.stringify(p))}
@@ -37,11 +38,14 @@ function passTier(points){return points>=1000?"DIAMOND":points>=500?"GOLD":point
 function passQr(text,id){
   const box=document.getElementById(id);if(!box)return;
   box.innerHTML="";
-  if(window.QRCode)new QRCode(box,{text:String(text),width:145,height:145,colorDark:"#062b38",colorLight:"#ffffff"});
-  else box.textContent="QR unavailable";
+  const value=String(text);
+  try{
+    if(window.QRCode)new QRCode(box,{text:value,width:150,height:150,colorDark:"#062b38",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+    else box.innerHTML='<div style="padding:18px;color:#b00">QR library unavailable. Refresh and try again.</div>';
+  }catch(e){box.innerHTML='<div style="padding:18px;color:#b00">QR could not be created.</div>'}
 }
 function passAddPoints(n){
-  const p=getPassProfile();p.points=Math.max(0,p.points+(Number(n)||0));p.stamps=(p.stamps+1)%10;savePassProfile(p);openDigitalPassword();toast("Pass rewards updated ✓");
+  const p=getPassProfile();p.points=Math.max(0,p.points+(Number(n)||0));p.visits+=1;p.stamps=(p.stamps+1)%10;savePassProfile(p);openDigitalPassword();toast("Pass rewards updated ✓");
 }
 function passRedeem(){
   const p=getPassProfile();
@@ -50,22 +54,42 @@ function passRedeem(){
 }
 function passShare(){
   const s=state.shop||{},p=getPassProfile();
-  const text="Dukaan Club Pass — "+(s.name||"My Dukaan")+"\nTier: "+passTier(p.points)+"\nPoints: "+p.points+"\n"+(s.phone||"");
+  const text="Dukaan Club Pass — "+(s.name||"My Dukaan")+"\nTier: "+passTier(p.points)+"\nPoints: "+p.points+"\n";
   if(navigator.share)navigator.share({title:"Dukaan Club Pass",text}).catch(()=>{});
   else window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank");
+}
+function openClubFeature(type){
+  const p=getPassProfile(),tier=passTier(p.points),next=tier==="STARTER"?200:tier==="SILVER"?500:tier==="GOLD"?1000:1000;
+  const data={
+    wallet:["🎁 Rewards Wallet","Use your points for rewards.","Points: "+p.points,"You can redeem 100 points for one reward."],
+    streak:["🔥 Visit Streak","Keep visiting to build your streak.","Stamps: "+p.stamps+"/10","Each recorded visit adds a stamp and points."],
+    offers:["🏷️ Member Offers","Exclusive offers for Dukaan Club members.","Current offer: 10% member discount","Show your Club Pass at the counter to claim."],
+    special:["🎂 Special Days","Birthday and festival benefits.","Special benefit: bonus points","Add your special date in your shop/customer details to use this later."],
+    refer:["🤝 Refer & Earn","Invite customers and grow your club.","Referrals: "+p.referrals,"Tap Share & Invite to send your Club Pass."],
+    vip:["⭐ VIP Tier","Your membership level is based on points.","Current tier: "+tier,(tier==="DIAMOND"?"You reached the highest tier.":"Next tier starts at "+next+" points.")]
+  }[type];
+  modal('<div class="dk-club-feature-view"><div class="dk-club-feature-head"><span>'+data[0].split(" ")[0]+'</span><div><h2>'+esc(data[0].slice(data[0].indexOf(" ")+1))+'</h2><small>'+esc(data[1])+'</small></div></div><div class="dk-club-feature-card"><b>'+esc(data[2])+'</b><p>'+esc(data[3])+'</p></div><div class="dk-club-feature-actions">'+
+    (type==="wallet"?'<button class="dk-pass-share" onclick="passRedeem()">🎁 Redeem 100 Points</button>':'')+
+    (type==="streak"?'<button class="dk-pass-share" onclick="passAddPoints(25)">🔥 Record Visit +25 Points</button>':'')+
+    (type==="offers"?'<button class="dk-pass-share" onclick="toast(\'Offer noted ✓\');closeModal()">🏷️ Claim Member Offer</button>':'')+
+    (type==="special"?'<button class="dk-pass-share" onclick="passAddPoints(50)">🎂 Add 50 Bonus Points</button>':'')+
+    (type==="refer"?'<button class="dk-pass-share" onclick="passShare();toast(\'Invite shared ✓\')">↗ Share & Invite</button>':'')+
+    (type==="vip"?'<button class="dk-pass-share" onclick="openDigitalPassword()">⭐ View My Pass</button>':'')+
+    '</div><button class="dk-pass-close" onclick="openDigitalPassword()">🔙 Back to Club Pass</button></div>');
 }
 function openDigitalPassword(){
   const s=state.shop||{},p=getPassProfile(),tier=passTier(p.points);
   const totalSales=state.customers.reduce((n,c)=>n+Math.max(0,Number(balance(c.id)||0)),0);
   const top=state.customers.slice().sort((a,b)=>(balance(b.id)||0)-(balance(a.id)||0))[0];
+  const qrValue=location.origin+location.pathname+"?dukaanClub="+encodeURIComponent(s.name||"shop")+"#club-pass";
   modal('<div class="dk-pass-shell dk-club-pass">'+
     '<div class="dk-club-top"><div class="dk-club-mark">DK</div><div><span>DUKAAN KHATA</span><h2>Dukaan Club Pass</h2><small>Your shop membership & rewards hub</small></div><b>PREMIUM</b></div>'+
-    '<div class="dk-club-card"><div class="dk-club-ribbon">'+tier+' MEMBER</div><div class="dk-club-shop">'+esc(s.name||"My Dukaan")+'</div><div class="dk-club-number">DK • '+String((s.name||"DUKAAN").replace(/\\s+/g,"").slice(0,5)).toUpperCase()+' • MEMBER</div><div class="dk-club-stats"><div><small>POINTS</small><strong>'+p.points+'</strong></div><div><small>STAMPS</small><strong>'+p.stamps+'/10</strong></div><div><small>REWARDS</small><strong>'+p.rewards+'</strong></div></div><div class="dk-club-progress"><span style="width:'+Math.min(100,(p.points%500)/5)+'%"></span></div><small class="dk-club-next">'+(tier==="DIAMOND"?"Top tier reached":"Next tier: "+(tier==="STARTER"?"SILVER":tier==="SILVER"?"GOLD":"DIAMOND"))+'</small></div>'+
+    '<div class="dk-club-card"><div class="dk-club-ribbon">'+tier+' MEMBER</div><div class="dk-club-shop">'+esc(s.name||"My Dukaan")+'</div><div class="dk-club-number">DK • '+String((s.name||"DUKAAN").replace(/\s+/g,"").slice(0,5)).toUpperCase()+' • MEMBER</div><div class="dk-club-stats"><div><small>POINTS</small><strong>'+p.points+'</strong></div><div><small>STAMPS</small><strong>'+p.stamps+'/10</strong></div><div><small>REWARDS</small><strong>'+p.rewards+'</strong></div></div><div class="dk-club-progress"><span style="width:'+Math.min(100,(p.points%500)/5)+'%"></span></div><small class="dk-club-next">'+(tier==="DIAMOND"?"Top tier reached":"Next tier: "+(tier==="STARTER"?"SILVER":tier==="SILVER"?"GOLD":"DIAMOND"))+'</small></div>'+
     '<div class="dk-club-tabs"><button class="active" id="clubMemberTab">🎟️ My Pass</button><button id="clubOwnerTab">🏪 Owner Hub</button></div>'+
-    '<div id="clubMemberView"><div class="dk-club-qrrow"><div id="clubPassQr" class="dk-pass-qr"></div><div><b>Scan at the counter</b><p>Show your pass to collect a stamp, earn points and unlock rewards.</p><button class="dk-pass-share" onclick="passShare()">↗ Share Pass</button></div></div><div class="dk-club-features"><div>🎁<b>Rewards Wallet</b><small>Redeem every 100 points</small></div><div>🔥<b>Visit Streak</b><small>Build 10 stamps for a bonus</small></div><div>🏷️<b>Member Offers</b><small>Exclusive shop deals</small></div><div>🎂<b>Special Days</b><small>Birthday & festival offers</small></div><div>🤝<b>Refer & Earn</b><small>Invite customers to the club</small></div><div>⭐<b>VIP Tier</b><small>Starter • Silver • Gold • Diamond</small></div></div><div class="dk-club-actions"><button class="dk-pass-share" onclick="passRedeem()">🎁 Redeem 100 Points</button><button class="dk-pass-mini" onclick="closeModal();openCustomerHub()">👥 Customer Hub</button></div></div>'+
+    '<div id="clubMemberView"><div class="dk-club-qrrow"><div id="clubPassQr" class="dk-pass-qr"></div><div><b>Scan at the counter</b><p>Scan this QR with any phone camera/QR scanner to open the Dukaan Club page.</p><button class="dk-pass-share" onclick="passShare()">↗ Share Pass</button></div></div><div class="dk-club-features"><button type="button" onclick="openClubFeature(\'wallet\')">🎁<b>Rewards Wallet</b><small>Redeem every 100 points</small></button><button type="button" onclick="openClubFeature(\'streak\')">🔥<b>Visit Streak</b><small>Build 10 stamps for a bonus</small></button><button type="button" onclick="openClubFeature(\'offers\')">🏷️<b>Member Offers</b><small>Exclusive shop deals</small></button><button type="button" onclick="openClubFeature(\'special\')">🎂<b>Special Days</b><small>Birthday & festival offers</small></button><button type="button" onclick="openClubFeature(\'refer\')">🤝<b>Refer & Earn</b><small>Invite customers to the club</small></button><button type="button" onclick="openClubFeature(\'vip\')">⭐<b>VIP Tier</b><small>Starter • Silver • Gold • Diamond</small></button></div><div class="dk-club-actions"><button class="dk-pass-share" onclick="passRedeem()">🎁 Redeem 100 Points</button><button class="dk-pass-mini" onclick="closeModal();openCustomerHub()">👥 Customer Hub</button></div></div>'+
     '<div id="clubOwnerView" hidden><div class="dk-owner-dashboard"><div><small>CONNECTED CUSTOMERS</small><b>'+state.customers.length+'</b></div><div><small>KHATA DUE</small><b>'+money(totalSales)+'</b></div><div><small>TOP CUSTOMER</small><b>'+esc(top?.name||"—")+'</b></div></div><div class="dk-owner-actions"><button onclick="passAddPoints(50)">＋ Add 50 Points</button><button onclick="passAddPoints(100)">🎟️ Give Stamp</button><button onclick="passRedeem()">🎁 Redeem Reward</button><button onclick="closeModal();addCustomer()">＋ Invite Customer</button></div><p class="dk-club-note">Owner Hub is a quick rewards control panel. Existing Khata and payment records remain unchanged.</p></div>'+
     '<div class="dk-club-footer">🛡️ Membership pass • Rewards • Offers • Customer engagement</div><button class="dk-pass-close" onclick="closeModal()">Close</button></div>');
-  passQr("dukaan-khata://club-pass/"+encodeURIComponent(s.name||"shop"),"clubPassQr");
+  passQr(qrValue,"clubPassQr");
   const mt=document.getElementById("clubMemberTab"),ot=document.getElementById("clubOwnerTab"),mv=document.getElementById("clubMemberView"),ov=document.getElementById("clubOwnerView");
   mt?.addEventListener("click",()=>{mt.classList.add("active");ot?.classList.remove("active");mv.hidden=false;ov.hidden=true});
   ot?.addEventListener("click",()=>{ot.classList.add("active");mt?.classList.remove("active");mv.hidden=true;ov.hidden=false});
