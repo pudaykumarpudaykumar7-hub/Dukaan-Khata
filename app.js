@@ -398,8 +398,8 @@ function renderKhata(){
   const dueBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\\'due\\'"]');
   const paidBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\\'paid\\'"]');
   if(allBtn)allBtn.textContent="All ("+state.customers.length+")";
-  if(dueBtn)dueBtn.innerHTML="Due ("+dueCustomers.length+") • <span class="khata-money-due">"+money(dueTotal)+"</span>";
-  if(paidBtn)paidBtn.innerHTML="Paid ("+paidRecords.length+") • <span class="khata-money-paid">"+money(paidTotal)+"</span>";
+  if(dueBtn)dueBtn.innerHTML="Due ("+dueCustomers.length+") • <span class=\"khata-money-due\">"+money(dueTotal)+"</span>";
+  if(paidBtn)paidBtn.innerHTML="Paid ("+paidRecords.length+") • <span class=\"khata-money-paid\">"+money(paidTotal)+"</span>";
   if(khataFilter==="paid"){
     box.innerHTML=paidRecords.slice().reverse().map(t=>{
       const customer=state.customers.find(c=>c.id===t.customerId);
@@ -415,7 +415,7 @@ function renderKhata(){
     const right= b>0
       ? '<div class="khata-money-due">Due '+money(b)+'</div>'
       : '<div class="khata-money-paid">Paid '+money(received)+'</div>';
-    return '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'"><div onclick="customerView(\\''+esc(c.id)+'\\')" style="flex:1;cursor:pointer"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small></div><div style="text-align:right">'+right+(!c.phone?'<button class="btn small" onclick="event.stopPropagation();addCustomerNumber(\\''+esc(c.id)+'\\')">＋ Add Mobile</button>':"")+'</div></div>';
+    return '+esc(c.id)+'\\')" style="flex:1;cursor:pointer"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small></div><div style="text-align:right">'+right+(!c.phone?'<button class="btn small" onclick="event.stopPropagation();addCustomerNumber(\\''+esc(c.id)+'\\')">＋ Add Mobile</button>':"")+'</div></div>';
   }).join("")||'<p class="muted">'+(khataFilter==="due"?"No customers with due payments.":"No customers found.")+'</p>';
 }
 function renderCustomers(){const box=document.getElementById("customerList");if(!box)return;const q=(document.getElementById("customerSearch")?.value||"").toLowerCase();box.innerHTML=state.customers.filter(c=>(c.name+" "+c.phone).toLowerCase().includes(q)).map(c=>'<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" onclick="customerView(\''+esc(c.id)+'\')"><div><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone")+'</small></div><div class="'+(balance(c.id)>0?"due":"paid")+'">'+money(balance(c.id))+'</div></div>').join("")||'<p class="muted">No customers yet.</p>';const due=state.customers.filter(c=>balance(c.id)>0).length;document.getElementById("customerDueCount")&&(document.getElementById("customerDueCount").textContent=due);document.getElementById("customerPaidCount")&&(document.getElementById("customerPaidCount").textContent=state.customers.length-due)}
