@@ -475,7 +475,7 @@ function dkGetGlobalTheme(){
 }
 function dkApplyGlobalTheme(){
   const t=dkGetGlobalTheme(),b=document.body;
-  b.dataset.globalTheme=t.mode||"futuristic";
+  b.dataset.globalTheme=t.mode||"futuristic";b.style.setProperty("--dk-gradient-1",t.color1||"#6d28d9");b.style.setProperty("--dk-gradient-2",t.color2||"#0b0620");b.style.setProperty("--dk-gradient-3",t.color3||"#04020a");
   b.style.setProperty("--dk-global-image",t.image?"url("+JSON.stringify(t.image)+")":"none");
   b.style.setProperty("--dk-global-fit",t.fit||"cover");
   b.style.setProperty("--dk-global-position",t.position||"center");
@@ -491,6 +491,19 @@ function openBackgroundTheme(){
     '<div class="dk-bg-head"><div><span>GLOBAL APPEARANCE</span><h2>🎨 Background Theme</h2><small>One theme across Home • Khata • Customers • Bills • More</small></div><b>EDIT</b></div>'+
     '<div class="dk-bg-preview" id="dkBgPreview"><strong>Live Preview</strong><small>All pages use this background</small></div>'+
     '<div class="dk-bg-label">Choose a theme</div>'+
+    '<div class="dk-color-title">Gradient colours</div>'+
+    '<div class="dk-color-palette">'+
+      '<button type="button" class="dk-color-dot" style="--dot:#7c3aed" aria-label="Purple gradient" onclick="dkSetGradientColor(\'#7c3aed\',\'#2563eb\',\'#09031b\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#06b6d4" aria-label="Cyan gradient" onclick="dkSetGradientColor(\'#06b6d4\',\'#0f766e\',\'#02151d\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#22c55e" aria-label="Green gradient" onclick="dkSetGradientColor(\'#22c55e\',\'#15803d\',\'#052e16\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#f59e0b" aria-label="Gold gradient" onclick="dkSetGradientColor(\'#f59e0b\',\'#ea580c\',\'#431407\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#ef4444" aria-label="Red gradient" onclick="dkSetGradientColor(\'#ef4444\',\'#be123c\',\'#3f0710\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#ec4899" aria-label="Pink gradient" onclick="dkSetGradientColor(\'#ec4899\',\'#9333ea\',\'#2e1065\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#3b82f6" aria-label="Blue gradient" onclick="dkSetGradientColor(\'#3b82f6\',\'#1d4ed8\',\'#172554\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#14b8a6" aria-label="Teal gradient" onclick="dkSetGradientColor(\'#14b8a6\',\'#0f766e\',\'#042f2e\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#f43f5e" aria-label="Rose gradient" onclick="dkSetGradientColor(\'#f43f5e\',\'#7f1d1d\',\'#2a0710\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#ffffff" aria-label="Light gradient" onclick="dkSetGradientColor(\'#ffffff\',\'#e0e7ff\',\'#f5f3ff\')"></button>'+
+    '</div>'+
     '<div class="dk-bg-presets">'+
       '<button type="button" onclick="dkChooseGlobalPreset(\'futuristic\')">✦<b>Futuristic</b><small>Purple AI</small></button>'+
       '<button type="button" onclick="dkChooseGlobalPreset(\'midnight\')">◐<b>Midnight</b><small>Deep dark</small></button>'+
@@ -513,7 +526,7 @@ function openBackgroundTheme(){
 function dkUpdateGlobalPreview(){
   const p=document.getElementById("dkBgPreview");if(!p)return;
   const t=dkGetGlobalTheme();
-  p.dataset.previewTheme=t.mode||"futuristic";
+  p.dataset.previewTheme=t.mode||"futuristic";if(t.mode==="gradient")p.style.background="linear-gradient(135deg,"+(t.color1||"#7c3aed")+","+(t.color2||"#2563eb")+" 50%,"+(t.color3||"#09031b")+")";
   p.style.backgroundImage=t.image?"linear-gradient(#0005,#0005),url("+JSON.stringify(t.image)+")":"";
   p.style.backgroundSize=t.fit||"cover";p.style.backgroundPosition=t.position||"center";
 }
@@ -521,7 +534,7 @@ function dkChooseGlobalPreset(mode){
   const t=dkGetGlobalTheme();t.mode=mode;t.image="";
   dkSaveGlobalTheme(t);dkUpdateGlobalPreview();
 }
-function dkGlobalImageSelected(e){
+function dkSetGradientColor(a,b,c){const t=dkGetGlobalTheme();t.mode="gradient";t.image="";t.color1=a;t.color2=b;t.color3=c;dkSaveGlobalTheme(t);dkUpdateGlobalPreview();}\nfunction dkGlobalImageSelected(e){
   const f=e.target.files?.[0];if(!f)return;
   if(f.size>12*1024*1024)return toast("Choose an image under 12 MB");
   const rd=new FileReader();
