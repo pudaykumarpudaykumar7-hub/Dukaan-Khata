@@ -1265,3 +1265,95 @@ body.darkmode .page{
 body[data-global-theme]::after{
   display:none!important;
 }
+
+/* ===== DUKAAN KHATA THEME SYSTEM V3 ===== */
+:root{
+  --dk-bg:#f6f8fc;--dk-surface:#ffffff;--dk-surface-2:#f8fafc;
+  --dk-text:#101828;--dk-muted:#667085;--dk-line:#e6eaf0;
+}
+html[data-dk-theme="dark"],body[data-dk-theme="dark"]{
+  --dk-bg:#080d16;--dk-surface:#111827;--dk-surface-2:#172033;
+  --dk-text:#f7f9fc;--dk-muted:#aab6c7;--dk-line:#263246;
+}
+html[data-dk-theme="light"],body[data-dk-theme="light"]{
+  --dk-bg:#f6f8fc;--dk-surface:#ffffff;--dk-surface-2:#f8fafc;
+  --dk-text:#101828;--dk-muted:#667085;--dk-line:#e6eaf0;
+}
+html[data-dk-theme],body[data-dk-theme]{
+  background:var(--dk-bg)!important;color:var(--dk-text)!important;
+}
+html[data-dk-theme] .app{color:var(--dk-text)}
+body[data-dk-theme="dark"] .stat,
+body[data-dk-theme="dark"] .card,
+body[data-dk-theme="dark"] .customer,
+body[data-dk-theme="dark"] .item,
+body[data-dk-theme="dark"] .activity,
+body[data-dk-theme="dark"] .bill,
+body[data-dk-theme="dark"] .report-grid>div,
+body[data-dk-theme="dark"] .inventory-cards>div,
+body[data-dk-theme="dark"] .tools-grid .luxury-tool,
+body[data-dk-theme="dark"] .bill-tools button{
+  background:var(--dk-surface)!important;color:var(--dk-text)!important;border-color:var(--dk-line)!important;
+}
+body[data-dk-theme="light"] .stat,
+body[data-dk-theme="light"] .card,
+body[data-dk-theme="light"] .customer,
+body[data-dk-theme="light"] .item,
+body[data-dk-theme="light"] .activity,
+body[data-dk-theme="light"] .bill,
+body[data-dk-theme="light"] .report-grid>div,
+body[data-dk-theme="light"] .inventory-cards>div,
+body[data-dk-theme="light"] .tools-grid .luxury-tool,
+body[data-dk-theme="light"] .bill-tools button{
+  background:var(--dk-surface)!important;color:var(--dk-text)!important;border-color:var(--dk-line)!important;
+}
+body[data-dk-theme="dark"] .stat *,
+body[data-dk-theme="dark"] .card *,
+body[data-dk-theme="dark"] .customer *,
+body[data-dk-theme="dark"] .item *,
+body[data-dk-theme="dark"] .activity *,
+body[data-dk-theme="dark"] .bill *,
+body[data-dk-theme="dark"] .report-grid>div *,
+body[data-dk-theme="dark"] .inventory-cards>div *,
+body[data-dk-theme="dark"] .tools-grid .luxury-tool *{
+  color:var(--dk-text)!important;-webkit-text-fill-color:var(--dk-text)!important;
+}
+body[data-dk-theme="light"] .stat *,
+body[data-dk-theme="light"] .card *,
+body[data-dk-theme="light"] .customer *,
+body[data-dk-theme="light"] .item *,
+body[data-dk-theme="light"] .activity *,
+body[data-dk-theme="light"] .bill *,
+body[data-dk-theme="light"] .report-grid>div *,
+body[data-dk-theme="light"] .inventory-cards>div *,
+body[data-dk-theme="light"] .tools-grid .luxury-tool *{
+  color:var(--dk-text)!important;-webkit-text-fill-color:var(--dk-text)!important;
+}
+body[data-dk-theme="dark"] .stat small,
+body[data-dk-theme="dark"] .customer small,
+body[data-dk-theme="dark"] .item small,
+body[data-dk-theme="dark"] .activity small,
+body[data-dk-theme="dark"] .bill small,
+body[data-dk-theme="dark"] .tools-grid .luxury-tool small,
+body[data-dk-theme="light"] .stat small,
+body[data-dk-theme="light"] .customer small,
+body[data-dk-theme="light"] .item small,
+body[data-dk-theme="light"] .activity small,
+body[data-dk-theme="light"] .bill small,
+body[data-dk-theme="light"] .tools-grid .luxury-tool small{
+  color:var(--dk-muted)!important;-webkit-text-fill-color:var(--dk-muted)!important;
+}
+body[data-dk-theme="dark"] input,
+body[data-dk-theme="dark"] select,
+body[data-dk-theme="dark"] textarea{
+  background:#0d1523!important;color:#f7f9fc!important;border-color:#2b3950!important;
+}
+body[data-dk-theme="light"] input,
+body[data-dk-theme="light"] select,
+body[data-dk-theme="light"] textarea{
+  background:#fff!important;color:#101828!important;border-color:#d8dee8!important;
+}
+body[data-dk-theme]::after{display:none!important}
+/* Theme switch stays visible in both modes */
+body[data-dk-theme="light"] .round,
+body[data-dk-theme="dark"] .round{color:#fff!important}
