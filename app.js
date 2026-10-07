@@ -27,21 +27,76 @@ function closeUVMSLogo(){
   document.getElementById("modal")?.classList.remove("uvms-logo-modal");
   document.body.classList.remove("uvms-logo-open");
 }
-function openDigitalPassword(){
-  if(typeof modal!=="function")return;
+function getOwnerPassId(){
+  let id=localStorage.getItem("dukaan_khata_owner_pass_id");
+  if(!id){id="DKO-"+Math.random().toString(36).slice(2,8).toUpperCase()+"-"+Date.now().toString(36).slice(-5).toUpperCase();localStorage.setItem("dukaan_khata_owner_pass_id",id)}
+  return id;
+}
+function getCustomerPassId(c){
+  if(!c)return "";
+  if(!c.passId){c.passId="DKC-"+Math.random().toString(36).slice(2,8).toUpperCase()+"-"+Date.now().toString(36).slice(-5).toUpperCase();saveState()}
+  return c.passId;
+}
+function passQr(text,id){
+  const box=document.getElementById(id);
+  if(!box)return;
+  box.innerHTML="";
+  if(window.QRCode)new QRCode(box,{text:String(text),width:150,height:150,colorDark:"#062b38",colorLight:"#ffffff"});
+  else box.textContent="QR unavailable";
+}
+function shareDigitalPass(kind,id,name){
   const s=state.shop||{};
-  const name=s.name||"My Dukaan",owner=s.owner||"Shop Owner",phone=s.phone||"Not added",upi=s.upi||"Not added",address=s.address||"Not added";
-  modal('<div class="dk-pass-shell">'+
-    '<div class="dk-pass-header"><div class="dk-pass-crown">✦</div><div><span>DUKAAN KHATA</span><h2>Digital App Pass</h2></div><b>PRO</b></div>'+
-    '<div class="dk-pass-hero"><div class="dk-pass-chip">✦ PREMIUM SHOP PASS</div><h3>'+esc(name)+'</h3><p>'+esc(owner)+'</p><div class="dk-pass-line"><span>UPI</span><strong>'+esc(upi)+'</strong></div></div>'+
-    '<div class="dk-pass-grid">'+
-    '<div><span>👤</span><small>OWNER</small><b>'+esc(owner)+'</b></div>'+
-    '<div><span>📞</span><small>PHONE</small><b>'+esc(phone)+'</b></div>'+
-    '<div><span>💳</span><small>PAYMENT</small><b>UPI READY</b></div>'+
-    '<div><span>📍</span><small>LOCATION</small><b>'+esc(address)+'</b></div></div>'+
-    '<div class="dk-pass-benefits"><b>Premium features</b><span>☁ Cloud Sync</span><span>📊 Smart Reports</span><span>🔐 Secure Access</span></div>'+
-    '<button class="dk-pass-share" onclick="shareShopPass()">↗ Share Digital Pass</button>'+
+  const text=kind==="owner"
+    ? "Dukaan Pass — "+(s.name||"My Dukaan")+"\nOwner Pass: "+id+"\n"+(s.phone||"")+"\nUPI: "+(s.upi||"Not configured")
+    : "Dukaan Pass — "+(s.name||"My Dukaan")+"\nCustomer Pass: "+id+"\nCustomer: "+(name||"Customer");
+  if(navigator.share)navigator.share({title:"Dukaan Pass",text}).catch(()=>{});
+  else window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank");
+}
+function verifyDigitalPass(kind,id){
+  modal('<div class="dk-pass-verify"><div class="dk-pass-verify-icon">✓</div><span>DUKAAN PASS SECURITY</span><h2>Pass Verified</h2><p>This pass ID is displayed for identity verification inside Dukaan Khata.</p><div class="dk-pass-verify-id">'+esc(id)+'</div><b class="dk-pass-status">● ACTIVE</b><button class="dk-pass-close" onclick="openDigitalPassword()">← Back to Pass</button></div>');
+}
+function freezeOwnerPass(){
+  const frozen=localStorage.getItem("dukaan_khata_owner_pass_frozen")==="1";
+  localStorage.setItem("dukaan_khata_owner_pass_frozen",frozen?"0":"1");
+  openDigitalPassword();
+  toast(frozen?"Owner Pass reactivated":"Owner Pass frozen");
+}
+function openDigitalPassword(){
+  const s=state.shop||{}, ownerId=getOwnerPassId(), frozen=localStorage.getItem("dukaan_khata_owner_pass_frozen")==="1";
+  const first=state.customers[0];
+  const customerId=first?getCustomerPassId(first):"";
+  const customerOptions=state.customers.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join("");
+  modal('<div class="dk-pass-shell dk-pass-premium">'+
+    '<div class="dk-pass-header"><div class="dk-pass-crown">✦</div><div><span>DUKAAN KHATA</span><h2>Dukaan Pass</h2><small>Premium identity • membership • khata</small></div><b>PRO</b></div>'+
+    '<div class="dk-pass-tabs"><button type="button" class="active" id="ownerPassTab">👑 Owner Pass</button><button type="button" id="customerPassTab">👤 Customer Pass</button></div>'+
+    '<div id="ownerPassView">'+
+      '<div class="dk-pass-hero"><div class="dk-pass-chip">✦ PREMIUM OWNER PASS</div><div class="dk-pass-status-row"><span class="dk-pass-live '+(frozen?"frozen":"")+'">'+(frozen?"● FROZEN":"● ACTIVE")+'</span><small>'+esc(ownerId)+'</small></div><h3>'+esc(s.name||"My Dukaan")+'</h3><p>'+esc(s.owner||"Shop Owner")+'</p><div class="dk-pass-line"><span>UPI</span><strong>'+esc(s.upi||"Not configured")+'</strong></div></div>'+
+      '<div class="dk-pass-identity-row"><div id="ownerPassQr" class="dk-pass-qr"></div><div><b>Owner Pass QR</b><small>Scan to identify and connect with this shop.</small><button class="dk-pass-mini" onclick="verifyDigitalPass(\'owner\',\''+esc(ownerId)+'\')">✓ Verify Pass</button></div></div>'+
+      '<div class="dk-pass-grid"><div><span>👤</span><small>OWNER</small><b>'+esc(s.owner||"Shop Owner")+'</b></div><div><span>📞</span><small>PHONE</small><b>'+esc(s.phone||"Not added")+'</b></div><div><span>💳</span><small>PAYMENT</small><b>UPI READY</b></div><div><span>👥</span><small>CUSTOMERS</small><b>'+state.customers.length+' CONNECTED</b></div></div>'+
+      '<div class="dk-pass-benefits"><b>Premium features</b><span>🔗 Pass-to-Pass Connect</span><span>🧾 Digital Receipts</span><span>🎁 Loyalty & Rewards</span><span>🔔 Smart Reminders</span><span>🔐 Secure Verification</span><span>📱 Shareable Pass</span></div>'+
+      '<div class="dk-pass-actions"><button class="dk-pass-share" onclick="shareDigitalPass(\'owner\',\''+esc(ownerId)+'\')">↗ Share Owner Pass</button><button class="dk-pass-mini" onclick="freezeOwnerPass()">'+(frozen?"🟢 Reactivate Pass":"🔒 Freeze Pass")+'</button></div>'+
+    '</div>'+
+    '<div id="customerPassView" hidden>'+
+      (state.customers.length?
+      '<select id="passCustomerSelect" class="dk-pass-select">'+customerOptions+'</select><div id="customerPassContent"></div>'
+      :'<div class="dk-pass-empty"><div>👤</div><h3>No customer passes yet</h3><p>Add a customer first. Their unique Customer Pass will be created automatically.</p><button class="dk-pass-share" onclick="closeModal();addCustomer()">＋ Add Customer</button></div>')+
+    '</div>'+
+    '<div class="dk-pass-footer"><span>🛡️ Protected Dukaan Identity</span><span>✦ PREMIUM</span></div>'+
     '<button class="dk-pass-close" onclick="closeModal()">× Close</button></div>');
+  passQr("dukaan-khata://owner/"+ownerId, "ownerPassQr");
+  const ownerTab=document.getElementById("ownerPassTab"),customerTab=document.getElementById("customerPassTab"),ov=document.getElementById("ownerPassView"),cv=document.getElementById("customerPassView");
+  ownerTab?.addEventListener("click",()=>{ownerTab.classList.add("active");customerTab?.classList.remove("active");if(ov)ov.hidden=false;if(cv)cv.hidden=true});
+  customerTab?.addEventListener("click",()=>{customerTab.classList.add("active");ownerTab?.classList.remove("active");if(ov)ov.hidden=true;if(cv)cv.hidden=false;renderCustomerPass()});
+  document.getElementById("passCustomerSelect")?.addEventListener("change",renderCustomerPass);
+  if(first)renderCustomerPass();
+  function renderCustomerPass(){
+    const sel=document.getElementById("passCustomerSelect"),box=document.getElementById("customerPassContent");
+    if(!sel||!box)return;
+    const c=state.customers.find(x=>x.id===sel.value)||state.customers[0];if(!c)return;
+    const id=getCustomerPassId(c),bal=balance(c.id),paid=receivedTotal(c.id),points=Math.floor(paid/100);
+    box.innerHTML='<div class="dk-pass-customer-card"><div class="dk-pass-chip">✦ CUSTOMER MEMBERSHIP PASS</div><div class="dk-pass-customer-head"><div class="dk-pass-avatar">'+esc((c.name||"C").charAt(0).toUpperCase())+'</div><div><h3>'+esc(c.name)+'</h3><p>'+esc(s.name||"My Dukaan")+'</p></div><span class="'+(bal>0?"due":"clear")+'">'+(bal>0?"DUE":"CLEAR")+'</span></div><div class="dk-pass-customer-id">'+esc(id)+'</div><div class="dk-pass-customer-stats"><div><small>KHATA</small><b>'+money(Math.max(0,bal))+'</b></div><div><small>PAID</small><b>'+money(paid)+'</b></div><div><small>REWARD</small><b>⭐ '+points+' pts</b></div></div><div class="dk-pass-identity-row"><div id="customerPassQr" class="dk-pass-qr"></div><div><b>Customer Pass QR</b><small>Show this to the owner for quick identification.</small><button class="dk-pass-mini" onclick="verifyDigitalPass(\'customer\',\''+esc(id)+'\')">✓ Verify Pass</button></div></div><div class="dk-pass-benefits"><b>Customer Premium</b><span>💳 Pay Khata</span><span>🧾 Digital History</span><span>🎁 Reward Points</span><span>🔔 Due Reminders</span></div><div class="dk-pass-actions"><button class="dk-pass-share" onclick="shareDigitalPass(\'customer\',\''+esc(id)+'\',\''+esc(c.name)+'\')">↗ Share Customer Pass</button><button class="dk-pass-mini" onclick="openReceive(\''+esc(c.id)+'\')">₹ Pay / Receive</button></div></div>';
+    passQr("dukaan-khata://customer/"+id+"?shop="+encodeURIComponent(ownerId), "customerPassQr");
+  }
 }
 function openDigitalPassColor(){
   const saved=localStorage.getItem("dukaan_khata_pass_color")||"#4f46e5";
