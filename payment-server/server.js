@@ -46,9 +46,10 @@ app.post("/api/razorpay/qr",async(req,res)=>{
         type:"upi_qr",
         name:(String(req.body.shopName||"Dukaan Khata").slice(0,40)),
         usage:"single_use",
-        fixed_amount:amount>0,
-        ...(amount>0?{payment_amount:Math.round(amount*100)}:{}),
+        fixed_amount:true,
+        payment_amount:Math.round(amount*100),
         description:"Dukaan Khata payment",
+        close_by:Math.floor(Date.now()/1000)+15*60,
         notes:{customerId,customerName}
       })
     });
@@ -61,7 +62,10 @@ app.post("/api/razorpay/qr",async(req,res)=>{
       fixedAmount:!!data.fixed_amount,
       status:data.status
     });
-  }catch(e){res.status(500).json({error:"QR creation failed"})}
+  }catch(e){
+    console.error("Razorpay QR creation error:",e?.response?.error||e?.message||e);
+    res.status(500).json({error:e?.response?.error?.description||e?.message||"QR creation failed"});
+  }
 });
 
 /* Poll the QR's actual captured payments. */
