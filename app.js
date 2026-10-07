@@ -252,7 +252,7 @@ async function createRazorpayQR(customerId){
   try{
     const r=await fetch(paymentApiUrl("/api/razorpay/qr"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId:customerIdValue,customerName:customer?.name||"Customer",shopName:state.shop.name})});
     const data=await r.json().catch(()=>({}));
-    if(!(r.ok&&data.id&&data.imageUrl)){const msg=data.error||"Razorpay QR could not be generated.";if(box)box.innerHTML='<div class="qr-empty">Razorpay QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty">'+esc(msg)+'</div>';return}
+    if(!(r.ok&&data.id&&data.imageUrl)){const msg=data.error||("HTTP "+r.status+" from Razorpay backend");if(box)box.innerHTML='<div class="qr-empty">Razorpay QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty"><b>Razorpay rejected the QR request.</b><br><small>'+esc(msg)+'</small></div>';return}
     if(box)box.innerHTML='<img src="'+esc(data.imageUrl)+'" alt="Razorpay UPI QR" style="width:220px;height:220px;max-width:100%;display:block;margin:auto">';
     if(cap)cap.textContent=amount>0?"Pay "+money(amount)+" • Razorpay UPI QR":"Razorpay UPI QR • Scan to pay";
     if(status)status.innerHTML='<div class="payment-waiting">🟡 Waiting for Razorpay payment…<small>Keep this screen open. Confirmation will happen automatically.</small></div>';
