@@ -232,7 +232,15 @@ async function createTrackedQR(customerId){
     const customer=state.customers.find(c=>c.id===customerIdValue);
     const r=await fetch(paymentApiUrl("/api/razorpay/qr"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId:customerIdValue,customerName:customer?.name||"Customer",shopName:state.shop.name})});
     const data=await r.json().catch(()=>({}));
-    if(!r.ok||!data.id||!data.imageUrl)throw new Error(data.error||"Could not create payment QR");
+    if(!r.ok||!data.id||!data.imageUrl){
+      const upi=(state.shop.upi||"").trim();
+      if(!upi)throw new Error(data.error||"Add your UPI ID in Shop Profile to generate the QR");
+      const link="upi://pay?pa="+encodeURIComponent(upi)+"&pn="+encodeURIComponent(state.shop.name||"Dukaan Khata")+"&cu=INR"+(amount>0?"&am="+amount.toFixed(2):"");
+      if(box){box.innerHTML=""; if(window.QRCode)new QRCode(box,{text:link,width:220,height:220}); else box.innerHTML="<div class=\"qr-empty\">QR library unavailable. Use Copy UPI link.</div>"}
+      if(cap)cap.textContent=amount>0?"Pay "+money(amount)+" • UPI QR":"UPI QR • Scan to pay";
+      if(status)status.innerHTML="<div class=\"payment-waiting\">🟢 UPI QR ready. Customer can scan and pay.<small>Payment will need to be recorded/verified separately.</small></div>";
+      return;
+    }
     if(box)box.innerHTML='<img src="'+esc(data.imageUrl)+'" alt="Secure payment QR" style="width:220px;height:220px;max-width:100%;display:block;margin:auto">';
     if(cap)cap.textContent=amount>0?"Pay "+money(amount)+" • Secure UPI QR":"Secure UPI QR • Scan to pay";
     if(status)status.innerHTML='<div class="payment-waiting">🟡 Waiting for payment…<small>Keep this screen open. It will update automatically.</small></div>';
