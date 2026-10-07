@@ -1642,3 +1642,65 @@ body:not(.darkmode) .tools-grid button:hover{
 .khata-paid-total,.khata-paid-value,.khata-paid-line{color:#16a34a!important;font-weight:900!important}
 .khata-value{font-size:18px;white-space:nowrap}
 .khata-customer-main{flex:1;cursor:pointer}
+
+
+/* ===== LIVE ACTION BACKGROUND — visual layer only =====
+   Does not change navigation, buttons, forms, data, or page layout. */
+body{
+  --live-a:#7c3aed;
+  --live-b:#06b6d4;
+  --live-c:#2563eb;
+  position:relative;
+  isolation:isolate;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:-22%;
+  z-index:-2;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 15% 25%,color-mix(in srgb,var(--live-a) 42%,transparent),transparent 24%),
+    radial-gradient(circle at 82% 20%,color-mix(in srgb,var(--live-b) 38%,transparent),transparent 25%),
+    radial-gradient(circle at 70% 82%,color-mix(in srgb,var(--live-c) 36%,transparent),transparent 28%),
+    radial-gradient(circle at 25% 78%,rgba(236,72,153,.20),transparent 25%);
+  filter:blur(34px) saturate(1.15);
+  animation:dkLiveMove 18s ease-in-out infinite alternate;
+  transform:translate3d(0,0,0);
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    linear-gradient(120deg,rgba(255,255,255,.08),transparent 35%,rgba(255,255,255,.04) 65%,transparent),
+    radial-gradient(circle at 50% 0%,rgba(255,255,255,.08),transparent 45%);
+  animation:dkLiveGlow 9s ease-in-out infinite alternate;
+}
+body.darkmode{
+  --live-a:#8b5cf6;
+  --live-b:#06b6d4;
+  --live-c:#3b82f6;
+}
+body:not(.darkmode){
+  --live-a:#6366f1;
+  --live-b:#06b6d4;
+  --live-c:#3b82f6;
+}
+@keyframes dkLiveMove{
+  0%{transform:translate3d(-3%,-2%,0) scale(1)}
+  35%{transform:translate3d(4%,2%,0) scale(1.06)}
+  70%{transform:translate3d(-2%,5%,0) scale(1.02)}
+  100%{transform:translate3d(5%,-3%,0) scale(1.08)}
+}
+@keyframes dkLiveGlow{
+  0%{opacity:.55;transform:scale(1)}
+  50%{opacity:.9}
+  100%{opacity:.6;transform:scale(1.04)}
+}
+@media(prefers-reduced-motion:reduce){
+  body::before,body::after{animation:none!important}
+}
