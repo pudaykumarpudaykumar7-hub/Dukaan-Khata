@@ -1365,3 +1365,8 @@ body[data-dk-theme="dark"] .round{color:#fff!important}
 .dk-color-dot:hover{transform:scale(1.12);box-shadow:0 6px 20px #0008}
 .dk-color-dot:focus{outline:3px solid #fff;outline-offset:3px}
 body[data-global-theme="gradient"]{background:linear-gradient(135deg,var(--dk-gradient-1),var(--dk-gradient-2) 50%,var(--dk-gradient-3))!important}
+
+/* Khata: make outstanding due payments clearly red */
+#khata .customer .due,
+#khata .khata-filter.due,
+#khata .khata-filter[onclick*="filterKhata('due'"]{color:#dc2626!important;font-weight:900}
