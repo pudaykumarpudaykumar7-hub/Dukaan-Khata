@@ -394,9 +394,8 @@ function renderKhata(){
     return !q||((c?.name||"")+" "+(c?.phone||"")).toLowerCase().includes(q);
   });
   const paidTotal=state.tx.filter(t=>t.type==="payment").reduce((s,t)=>s+(Number(t.amount)||0),0);
-  const allBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\\'all\\'"]');
-  const dueBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\\'due\\'"]');
-  const paidBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\\'paid\\'"]');
+  const khataBtns=document.querySelectorAll("#khataFilters .khata-filter");
+  const allBtn=khataBtns[0],dueBtn=khataBtns[1],paidBtn=khataBtns[2];
   if(allBtn)allBtn.textContent="All ("+state.customers.length+")";
   if(dueBtn)dueBtn.innerHTML="Due ("+dueCustomers.length+") • <span class=\"khata-money-due\">"+money(dueTotal)+"</span>";
   if(paidBtn)paidBtn.innerHTML="Paid ("+paidRecords.length+") • <span class=\"khata-money-paid\">"+money(paidTotal)+"</span>";
