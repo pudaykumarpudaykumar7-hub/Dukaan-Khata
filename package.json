@@ -15,7 +15,7 @@
     "paytmchecksum": "^1.5.1",
     "express": "^4.21.2",
     "cors": "^2.8.5",
-    "razorpay": "^2.9.6"
+    "razorpay": "^2.9.8"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.0",
