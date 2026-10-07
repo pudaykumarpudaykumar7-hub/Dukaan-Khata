@@ -534,7 +534,8 @@ function dkChooseGlobalPreset(mode){
   const t=dkGetGlobalTheme();t.mode=mode;t.image="";
   dkSaveGlobalTheme(t);dkUpdateGlobalPreview();
 }
-function dkSetGradientColor(a,b,c){const t=dkGetGlobalTheme();t.mode="gradient";t.image="";t.color1=a;t.color2=b;t.color3=c;dkSaveGlobalTheme(t);dkUpdateGlobalPreview();}\nfunction dkGlobalImageSelected(e){
+function dkSetGradientColor(a,b,c){const t=dkGetGlobalTheme();t.mode="gradient";t.image="";t.color1=a;t.color2=b;t.color3=c;dkSaveGlobalTheme(t);dkUpdateGlobalPreview();}
+function dkGlobalImageSelected(e){
   const f=e.target.files?.[0];if(!f)return;
   if(f.size>12*1024*1024)return toast("Choose an image under 12 MB");
   const rd=new FileReader();
