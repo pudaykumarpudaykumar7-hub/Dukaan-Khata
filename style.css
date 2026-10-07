@@ -1395,3 +1395,27 @@ body[data-global-theme="gradient"]{background:linear-gradient(135deg,var(--dk-gr
 #khata .khata-total-paid{color:#16a34a!important;-webkit-text-fill-color:#16a34a!important;font-weight:900!important}
 #khata .khata-filter-due{color:#dc2626!important;-webkit-text-fill-color:#dc2626!important;font-weight:900!important}
 #khata .khata-filter-paid{color:#16a34a!important;-webkit-text-fill-color:#16a34a!important;font-weight:900!important}
+
+
+/* FINAL GLOBAL BACKGROUND THEME OVERRIDE — keep presets active in light/dark mode */
+body[data-global-theme="futuristic"]{
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,#6d28d966,transparent 65%),linear-gradient(180deg,#080212,#0b0620 52%,#04020a)!important;
+}
+body[data-global-theme="midnight"]{
+  background:radial-gradient(ellipse 75% 55% at 50% 0%,#33415555,transparent 65%),linear-gradient(180deg,#030712,#080b14 55%,#02040a)!important;
+}
+body[data-global-theme="ocean"]{
+  background:radial-gradient(ellipse 80% 55% at 50% 0%,#0891b266,transparent 65%),linear-gradient(180deg,#02151d,#062532 55%,#02090d)!important;
+}
+body[data-global-theme="sunset"]{
+  background:radial-gradient(ellipse 75% 55% at 50% 0%,#f9731666,transparent 65%),linear-gradient(180deg,#1a0710,#21102b 55%,#09030a)!important;
+}
+body[data-global-theme="light"]{
+  background:linear-gradient(135deg,#f8fafc,#eef2ff 50%,#f5f3ff)!important;
+}
+body[data-global-theme="gradient"]{
+  background:linear-gradient(135deg,var(--dk-gradient-1,#7c3aed),var(--dk-gradient-2,#2563eb) 50%,var(--dk-gradient-3,#09031b))!important;
+}
+body[data-global-theme="custom"]{
+  background:#07030f!important;
+}
