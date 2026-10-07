@@ -1357,3 +1357,11 @@ body[data-dk-theme]::after{display:none!important}
 /* Theme switch stays visible in both modes */
 body[data-dk-theme="light"] .round,
 body[data-dk-theme="dark"] .round{color:#fff!important}
+
+/* ===== BACKGROUND GRADIENT COLOR CIRCLES ===== */
+.dk-color-title{font-size:13px;font-weight:900;color:#eadcff;margin:12px 0 8px}
+.dk-color-palette{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.dk-color-dot{width:38px;height:38px;border-radius:50%;border:3px solid #ffffff55;background:var(--dot);box-shadow:0 4px 16px #0005;cursor:pointer;transition:.18s transform,.18s box-shadow}
+.dk-color-dot:hover{transform:scale(1.12);box-shadow:0 6px 20px #0008}
+.dk-color-dot:focus{outline:3px solid #fff;outline-offset:3px}
+body[data-global-theme="gradient"]{background:linear-gradient(135deg,var(--dk-gradient-1),var(--dk-gradient-2) 50%,var(--dk-gradient-3))!important}
