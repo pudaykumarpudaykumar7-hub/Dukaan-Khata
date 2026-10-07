@@ -390,7 +390,7 @@ function renderKhata(){
   const dueCustomers=state.customers.filter(c=>balance(c.id)>0);
   const paidCustomers=state.customers.filter(c=>receivedTotal(c.id)>0);
   const dueTotal=dueCustomers.reduce((s,c)=>s+Math.max(0,balance(c.id)),0);
-  const paidTotal=paidCustomers.reduce((s,c)=>s+receivedTotal(c.id),0);
+  const paidTotal=payments().reduce((s,t)=>s+(Number(t.amount)||0),0);
   const allBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'all\'"]');
   const dueBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'due\'"]');
   const paidBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'paid\'"]');
@@ -408,6 +408,13 @@ function renderKhata(){
       :'<span>Paid</span><strong class="khata-money-paid">'+money(received)+'</strong>';
     return '<div class="customer khata-customer-row" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'"><div class="khata-customer-info" onclick="customerView(\''+esc(c.id)+'\')"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+(received>0?' • Paid '+money(received):"")+'</small></div><div class="khata-amount">'+right+(!c.phone?'<button class="btn small khata-add-mobile" onclick="event.stopPropagation();addCustomerNumber(\''+esc(c.id)+'\')">＋ Add Mobile</button>':"")+'</div></div>';
   }).join("")||'<p class="muted">No customers found.</p>';
+  if(khataFilter==="paid"){
+    const paymentHistory=payments().slice(0,50).map(t=>{
+      const c=state.customers.find(x=>x.id===t.customerId);
+      return '<div class="khata-payment-row"><div><b>💰 Payment received</b><small>'+esc(c?.name||"Walk-in / Other")+' • '+esc(t.mode||"cash")+' • '+new Date(t.date).toLocaleString("en-IN")+'</small></div><strong class="khata-money-paid">'+money(t.amount)+'</strong></div>';
+    }).join("");
+    if(paymentHistory) box.innerHTML += '<h3 class="khata-paid-history-title">Recorded Payments</h3>'+paymentHistory;
+  }
 }
 function renderCustomers(){
   const box=document.getElementById("customerList");
