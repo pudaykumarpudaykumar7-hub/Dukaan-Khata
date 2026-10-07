@@ -30,22 +30,19 @@ function closeUVMSLogo(){
 function openDigitalPassword(){
   if(typeof modal!=="function")return;
   const s=state.shop||{};
-  const name=s.name||"My Dukaan", owner=s.owner||"Shop Owner", phone=s.phone||"Not added", upi=s.upi||"Not added", address=s.address||"Not added";
-  const passBg=localStorage.getItem("dukaan_khata_pass_color")||"linear-gradient(135deg,#111827,#4f46e5,#06b6d4)";
-  modal('<div class="digital-pass-shell" style="padding:2px;border-radius:24px;background:'+passBg+';box-shadow:0 20px 60px rgba(0,0,0,.35)">'+
-    '<div style="background:rgba(255,255,255,.97);border-radius:22px;padding:22px">'+
-    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:18px"><div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#4f46e5,#06b6d4);color:#fff;display:grid;place-items:center;font-size:25px">🎫</div><div><div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;opacity:.6">DIGITAL APP PASS</div><h2 style="margin:2px 0">Shop & Owner Profile</h2></div></div>'+
-    '<div style="padding:16px;border-radius:18px;background:linear-gradient(135deg,#eef2ff,#ecfeff);margin-bottom:12px"><div style="font-size:12px;opacity:.6">SHOP</div><div style="font-size:22px;font-weight:800">'+esc(name)+'</div><div style="margin-top:8px">📍 '+esc(address)+'</div></div>'+
-    '<div style="display:grid;gap:10px">'+
-    '<div style="padding:13px;border:1px solid #e5e7eb;border-radius:14px">👤 <b>Owner</b><br><span style="margin-left:26px">'+esc(owner)+'</span></div>'+
-    '<div style="padding:13px;border:1px solid #e5e7eb;border-radius:14px">📞 <b>Phone</b><br><span style="margin-left:26px">'+esc(phone)+'</span></div>'+
-    '<div style="padding:13px;border:1px solid #e5e7eb;border-radius:14px">💳 <b>UPI ID</b><br><span style="margin-left:26px">'+esc(upi)+'</span></div>'+
-    '<div style="padding:13px;border:1px solid #e5e7eb;border-radius:14px">🏠 <b>Shop Address</b><br><span style="margin-left:26px">'+esc(address)+'</span></div>'+
-    '</div>'+
-    ''+
-    '</div></div>');
+  const name=s.name||"My Dukaan",owner=s.owner||"Shop Owner",phone=s.phone||"Not added",upi=s.upi||"Not added",address=s.address||"Not added";
+  modal('<div class="dk-pass-shell">'+
+    '<div class="dk-pass-header"><div class="dk-pass-crown">✦</div><div><span>DUKAAN KHATA</span><h2>Digital App Pass</h2></div><b>PRO</b></div>'+
+    '<div class="dk-pass-hero"><div class="dk-pass-chip">✦ PREMIUM SHOP PASS</div><h3>'+esc(name)+'</h3><p>'+esc(owner)+'</p><div class="dk-pass-line"><span>UPI</span><strong>'+esc(upi)+'</strong></div></div>'+
+    '<div class="dk-pass-grid">'+
+    '<div><span>👤</span><small>OWNER</small><b>'+esc(owner)+'</b></div>'+
+    '<div><span>📞</span><small>PHONE</small><b>'+esc(phone)+'</b></div>'+
+    '<div><span>💳</span><small>PAYMENT</small><b>UPI READY</b></div>'+
+    '<div><span>📍</span><small>LOCATION</small><b>'+esc(address)+'</b></div></div>'+
+    '<div class="dk-pass-benefits"><b>Premium features</b><span>☁ Cloud Sync</span><span>📊 Smart Reports</span><span>🔐 Secure Access</span></div>'+
+    '<button class="dk-pass-share" onclick="shareShopPass()">↗ Share Digital Pass</button>'+
+    '<button class="dk-pass-close" onclick="closeModal()">× Close</button></div>');
 }
-
 function openDigitalPassColor(){
   const saved=localStorage.getItem("dukaan_khata_pass_color")||"#4f46e5";
   const colors=["#111827","#176b4d","#1d4ed8","#4f46e5","#7c3aed","#b45309","#be123c","#0f766e","#334155"];
