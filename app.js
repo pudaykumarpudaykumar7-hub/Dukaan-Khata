@@ -388,34 +388,25 @@ function renderKhata(){
   const box=document.getElementById("khataList");if(!box)return;
   const q=(document.getElementById("khataSearch")?.value||"").toLowerCase();
   const dueCustomers=state.customers.filter(c=>balance(c.id)>0);
+  const paidCustomers=state.customers.filter(c=>receivedTotal(c.id)>0);
   const dueTotal=dueCustomers.reduce((s,c)=>s+balance(c.id),0);
-  const paidRecords=state.tx.filter(t=>t.type==="payment").filter(t=>{
-    const c=state.customers.find(x=>x.id===t.customerId);
-    return !q||((c?.name||"")+" "+(c?.phone||"")).toLowerCase().includes(q);
-  });
-  const paidTotal=state.tx.filter(t=>t.type==="payment").reduce((s,t)=>s+(Number(t.amount)||0),0);
+  const paidTotal=paidCustomers.reduce((s,c)=>s+receivedTotal(c.id),0);
   const khataBtns=document.querySelectorAll("#khataFilters .khata-filter");
   const allBtn=khataBtns[0],dueBtn=khataBtns[1],paidBtn=khataBtns[2];
   if(allBtn)allBtn.textContent="All ("+state.customers.length+")";
-  if(dueBtn)dueBtn.innerHTML="Due ("+dueCustomers.length+") • <span class=\"khata-money-due\">"+money(dueTotal)+"</span>";
-  if(paidBtn)paidBtn.innerHTML="Paid ("+paidRecords.length+") • <span class=\"khata-money-paid\">"+money(paidTotal)+"</span>";
-  if(khataFilter==="paid"){
-    box.innerHTML=paidRecords.slice().reverse().map(t=>{
-      const c=state.customers.find(x=>x.id===t.customerId);
-      return '<div class="customer" data-long-delete data-delete-type="transaction" data-delete-id="'+esc(t.id)+'"><div><h3>'+esc(c?.name||"Customer")+'</h3><small>Recorded payment • '+esc(t.mode||"cash")+'</small></div><div class="khata-money-paid">Paid '+money(t.amount)+'</div></div>';
-    }).join("")||'<p class="muted">No recorded payments yet.</p>';
-    return;
-  }
-  box.innerHTML=state.customers.filter(c=>{
-    const b=balance(c.id);
-    return (c.name+" "+c.phone).toLowerCase().includes(q)&&(khataFilter==="all"||(khataFilter==="due"&&b>0));
-  }).map(c=>{
+  if(dueBtn)dueBtn.innerHTML="Due ("+dueCustomers.length+") • <span class="khata-money-due">"+money(dueTotal)+"</span>";
+  if(paidBtn)paidBtn.innerHTML="Paid ("+paidCustomers.length+") • <span class="khata-money-paid">"+money(paidTotal)+"</span>";
+  const visible=state.customers.filter(c=>{
     const b=balance(c.id),received=receivedTotal(c.id);
-    const right=b>0
-      ? '<div class="khata-money-due">Due '+money(b)+'</div>'
-      : '<div class="khata-money-paid">Paid '+money(received)+'</div>';
-    return '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'"><div onclick="customerView(\''+esc(c.id)+'\')" style="flex:1;cursor:pointer"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small></div><div style="text-align:right">'+right+(!c.phone?'<button class="btn small" onclick="event.stopPropagation();addCustomerNumber(\''+esc(c.id)+'\')">＋ Add Mobile</button>':"")+'</div></div>';
-  }).join("")||'<p class="muted">'+(khataFilter==="due"?"No customers with due payments.":"No customers found.")+'</p>';
+    const matches=(c.name+" "+c.phone).toLowerCase().includes(q);
+    return matches&&(khataFilter==="all"||(khataFilter==="due"&&b>0)||(khataFilter==="paid"&&received>0));
+  });
+  box.innerHTML=visible.map(c=>{
+    const b=balance(c.id),received=receivedTotal(c.id);
+    const amount=b>0?b:received;
+    const cls=b>0?"khata-money-due":"khata-money-paid";
+    return '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'"><div onclick="customerView(\''+esc(c.id)+'\')" style="flex:1;cursor:pointer"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small></div><div class="'+cls+'">'+money(amount)+'</div></div>';
+  }).join("")||'<p class="muted">'+(khataFilter==="due"?"No customers with due payments.":khataFilter==="paid"?"No paid customers.":"No customers found.")+'</p>';
 }
 function renderCustomers(){const box=document.getElementById("customerList");if(!box)return;const q=(document.getElementById("customerSearch")?.value||"").toLowerCase();box.innerHTML=state.customers.filter(c=>(c.name+" "+c.phone).toLowerCase().includes(q)).map(c=>'<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" onclick="customerView(\''+esc(c.id)+'\')"><div><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone")+'</small></div><div class="'+(balance(c.id)>0?"due":"paid")+'">'+money(balance(c.id))+'</div></div>').join("")||'<p class="muted">No customers yet.</p>';const due=state.customers.filter(c=>balance(c.id)>0).length;document.getElementById("customerDueCount")&&(document.getElementById("customerDueCount").textContent=due);document.getElementById("customerPaidCount")&&(document.getElementById("customerPaidCount").textContent=state.customers.length-due)}
 function renderBills(){const box=document.getElementById("billList");if(!box)return;box.innerHTML=sales().slice(0,50).map(t=>{const c=state.customers.find(x=>x.id===t.customerId);return'<div class="bill" data-long-delete data-delete-type="sale" data-delete-id="'+esc(t.id)+'" onclick="billView(\''+esc(t.id)+'\')"><div><h3>'+esc(c?.name||"Walk-in")+'</h3><small>'+new Date(t.date).toLocaleString("en-IN")+'</small></div><b>'+money(t.total)+'</b></div>'}).join("")||'<p class="muted">No bills yet.</p>'}
