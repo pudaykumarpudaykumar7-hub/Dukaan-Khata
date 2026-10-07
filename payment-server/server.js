@@ -104,4 +104,4 @@ app.post("/api/razorpay/webhook",(req,res)=>{
   res.json({received:true});
 });
 
-app.listen(PORT,()=>console.log("Dukaan Khata payment API listening on "+PORT));
+if (require.main === module) {\n  app.listen(PORT,()=>console.log("Dukaan Khata payment API listening on "+PORT));\n}\n\nmodule.exports = app;
