@@ -35,40 +35,39 @@ app.post("/api/razorpay/qr",async(req,res)=>{
     const amount=Number(req.body.amount||0);
     const customerId=String(req.body.customerId||"");
     const customerName=String(req.body.customerName||"Customer").slice(0,80);
-    if(amount<0||!Number.isFinite(amount))return res.status(400).json({error:"Invalid amount"});
-    const qr=await fetch("https://api.razorpay.com/v1/payments/qr_codes",{
-      method:"POST",
-      headers:{
-        "Authorization":"Basic "+Buffer.from(KEY_ID+":"+KEY_SECRET).toString("base64"),
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        type:"upi_qr",
-        name:(String(req.body.shopName||"Dukaan Khata").slice(0,40)),
-        usage:"single_use",
-        fixed_amount:true,
-        payment_amount:Math.round(amount*100),
-        description:"Dukaan Khata payment",
-        close_by:Math.floor(Date.now()/1000)+15*60,
-        notes:{customerId,customerName}
-      })
+    if(!Number.isFinite(amount)||amount<=0)return res.status(400).json({error:"Enter a valid amount of at least ₹1."});
+    if(!KEY_ID||!KEY_SECRET)return res.status(500).json({error:"Razorpay environment variables are missing in Vercel."});
+
+    const data=await razorpay.qrCode.create({
+      type:"upi_qr",
+      name:String(req.body.shopName||"Dukaan Khata").slice(0,40),
+      usage:"single_use",
+      fixed_amount:true,
+      payment_amount:Math.round(amount*100),
+      description:"Dukaan Khata payment",
+      close_by:Math.floor(Date.now()/1000)+15*60,
+      notes:{customerId,customerName}
     });
-    const data=await qr.json().catch(()=>({}));
-    if(!qr.ok)return res.status(qr.status||500).json({error:data.error?.description||"QR creation failed"});
+
+    if(!data?.id||!data?.image_url)return res.status(502).json({error:"Razorpay returned no QR image. Check whether UPI QR Codes are enabled for this Razorpay account."});
+
     res.json({
       id:data.id,
       imageUrl:data.image_url,
-      amount:data.payment_amount?data.payment_amount/100:null,
+      amount:data.payment_amount?data.payment_amount/100:amount,
       fixedAmount:!!data.fixed_amount,
       status:data.status
     });
   }catch(e){
-    console.error("Razorpay QR creation error:",e?.response?.error||e?.message||e);
-    res.status(500).json({error:e?.response?.error?.description||e?.message||"QR creation failed"});
+    const er=e?.error||e?.response?.error||e;
+    console.error("Razorpay QR creation error:",er);
+    res.status(Number(e?.statusCode)||Number(e?.status)||500).json({
+      error:er?.description||er?.message||e?.message||"Razorpay QR creation failed"
+    });
   }
 });
 
-/* Poll the QR's actual captured payments. */
+/* Poll the QR's actual captured payments.*/
 app.get("/api/razorpay/qr/:qrId/payments",async(req,res)=>{
   try{
     const from=Math.floor((Date.now()-15*60*1000)/1000);
