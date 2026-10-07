@@ -83,13 +83,28 @@
     if(session?.user){
       const u=accountFromUser(session.user);
       window.DukaanKhataUser=u;
-      modal('<h2>🔐 Login Access</h2><div class="card"><div style="font-size:34px;text-align:center">👤</div><h3 style="text-align:center;margin:8px 0">'+esc(u.name)+'</h3><p class="muted" style="text-align:center">'+esc(u.email)+'</p><p class="muted" style="text-align:center">☁️ Cloud sync is active on all your signed-in devices.</p></div><button class="btn primary" onclick="logoutDukaanKhata()">Logout</button><button class="btn" onclick="closeModal()">Close</button>');
+      modal('<div class="dk-login-shell dk-login-signed">'+
+        '<div class="dk-login-top"><div class="dk-login-icon">👤</div><span class="dk-login-badge">ACCOUNT</span></div>'+
+        '<h2>My Account</h2><p class="dk-login-sub">Your secure Dukaan Khata account</p>'+
+        '<div class="dk-account-card"><div class="dk-avatar">'+(u.picture?'<img src="'+esc(u.picture)+'" alt="">':'👤')+'</div><div><b>'+esc(u.name)+'</b><small>'+esc(u.email)+'</small></div><span class="dk-cloud">☁</span></div>'+
+        '<div class="dk-account-shop">🏪 <b>'+esc(state.shop?.name||"My Dukaan")+'</b><span>Cloud sync active</span></div>'+
+        '<button class="dk-login-action dk-login-primary" onclick="showPage(\'home\');closeModal()">⌂ Dashboard <span>→</span></button>'+
+        '<button class="dk-login-action" onclick="startGoogleLogin()">⇄ Login with another account <span>→</span></button>'+
+        '<button class="dk-login-action dk-logout" onclick="logoutDukaanKhata()">↪ Logout</button>'+
+        '<button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
       return;
     }
-    modal('<h2>🔐 Login Access</h2><p class="muted">Sign in once with Google. Your shop, customers, khata and settings can then follow you across mobile and laptop.</p><button class="btn primary" id="googleLoginBtn">🔵 Continue with Google</button><p id="googleLoginMsg" class="muted" style="font-size:12px;margin-top:10px">Secure Google sign-in • No password or OTP required.</p>');
+    modal('<div class="dk-login-shell">'+
+      '<div class="dk-login-top"><div class="dk-login-icon">🏪</div><div><span class="dk-login-badge">SECURE ACCESS</span><h2>Dukaan Khata</h2></div></div>'+
+      '<p class="dk-login-sub">Sign in once and keep your shop, customers and khata synced across devices.</p>'+
+      '<button class="dk-login-action dk-google" id="googleLoginBtn"><span class="dk-google-logo">G</span><span><b>Continue with Google</b><small>Fast • Secure • No password</small></span><strong>→</strong></button>'+
+      '<div class="dk-or"><span>OR</span></div>'+
+      '<div class="dk-feature-row"><span>☁️</span><div><b>Cloud Sync</b><small>Your data follows you on laptop & mobile</small></div></div>'+
+      '<div class="dk-feature-row"><span>🔒</span><div><b>Private & Secure</b><small>Protected by Google sign-in</small></div></div>'+
+      '<p id="googleLoginMsg" class="dk-login-note">Continue with your existing Google account.</p>'+
+      '<button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
     document.getElementById("googleLoginBtn")?.addEventListener("click",startGoogleLogin);
   }
-
   async function startGoogleLogin(){
     const sb=client();
     if(!sb){toast("Cloud login is still loading. Try again.");return}
