@@ -1636,3 +1636,9 @@ body:not(.darkmode) .tools-grid button:hover{
   #khataList .khata-amount{min-width:100px!important}
   #khataList .khata-add-mobile{grid-column:1 / -1!important}
 }
+
+/* Khata payment status colors */
+.khata-due-total,.khata-due-value{color:#dc2626!important;font-weight:900!important}
+.khata-paid-total,.khata-paid-value,.khata-paid-line{color:#16a34a!important;font-weight:900!important}
+.khata-value{font-size:18px;white-space:nowrap}
+.khata-customer-main{flex:1;cursor:pointer}
