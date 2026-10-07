@@ -1768,3 +1768,10 @@ body.dk-live-background::after{
 @media(prefers-reduced-motion:reduce){
   body.dk-live-background{animation:none!important}
 }
+
+/* FINAL INTERACTION FIX: keep the entire app above decorative background layers. */
+body > .app{position:relative!important;z-index:10!important;pointer-events:auto!important;}
+body > .app *{pointer-events:auto;}
+body > .app::before,body > .app::after{pointer-events:none!important;}
+.topbar,.top-menu,.top-menu button,.top-actions,.top-actions button,.bottom-nav,.bottom-nav button,.page button,.page input,.page select,.page textarea,.modal,.modal button,.modal input,.modal select,.modal textarea{pointer-events:auto!important;}
+body::before,body::after{pointer-events:none!important;}
