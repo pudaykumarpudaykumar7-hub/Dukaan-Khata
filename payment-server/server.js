@@ -36,7 +36,7 @@ app.post("/api/razorpay/qr",async(req,res)=>{
     const customerId=String(req.body.customerId||"");
     const customerName=String(req.body.customerName||"Customer").slice(0,80);
     if(amount<0||!Number.isFinite(amount))return res.status(400).json({error:"Invalid amount"});
-    const qr=await fetch("https://api.razorpay.com/v1/qr_codes",{
+    const qr=await fetch("https://api.razorpay.com/v1/payments/qr_codes",{
       method:"POST",
       headers:{
         "Authorization":"Basic "+Buffer.from(KEY_ID+":"+KEY_SECRET).toString("base64"),
