@@ -1265,3 +1265,12 @@ body.darkmode .page{
 body[data-global-theme]::after{
   display:none!important;
 }
+
+
+/* ===== MORE MENU: WHITE FEATURE HEADINGS IN LIGHT MODE ===== */
+body:not(.darkmode) #tools .tools-grid .luxury-tool b,
+body:not(.darkmode) #tools .tools-grid .luxury-tool strong{
+  color:#ffffff!important;
+  -webkit-text-fill-color:#ffffff!important;
+  opacity:1!important;
+}
