@@ -220,3 +220,35 @@ main{width:100%}
   .bottom-nav button span{font-size:11px!important}
   main{padding-bottom:24px!important}
 }
+
+/* Bottom navigation alignment — full viewport, centered on desktop and mobile */
+.bottom-nav{
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:0!important;
+  width:100vw!important;
+  max-width:none!important;
+  min-width:0!important;
+  transform:translateX(-50%)!important;
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  justify-items:stretch!important;
+  overflow:hidden!important;
+  z-index:1000!important;
+}
+.bottom-nav button{
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:8px 4px!important;
+  box-sizing:border-box!important;
+  text-align:center!important;
+}
+.bottom-nav button span{
+  display:block!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
