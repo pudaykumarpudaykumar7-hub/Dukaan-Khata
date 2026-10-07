@@ -195,11 +195,11 @@ function deleteConfirm(message,onDelete){
 }
 function deleteCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c)return;deleteConfirm("Delete "+c.name+" and its khata history?",()=>{state.customers=state.customers.filter(x=>x.id!==id);state.tx=state.tx.filter(x=>x.customerId!==id);state.reminders=state.reminders.filter(x=>x.customerId!==id);saveState();render();toast("Customer deleted")})}
 
-function paymentApiBase(){const u=(localStorage.getItem("dukaan_payment_api")||"").trim();return u.endsWith("/")?u.slice(0,-1):u}
+function paymentApiBase(){let u=(localStorage.getItem("dukaan_payment_api")||"").trim();if(!u){try{u=(JSON.parse(localStorage.getItem("dukaan_khata_payments_v1")||"{}").backendUrl||"").trim()}catch(e){}}return u.endsWith("/")?u.slice(0,-1):u}
 function paymentApiUrl(path){const base=paymentApiBase();return base?base+path:""}
 function openPaymentSetup(){
   const current=paymentApiBase();
-  modal('<h2>💳 Payment Center</h2><p class="muted">Connect your secure payment backend here. Never enter Razorpay Secret or Paytm Merchant Key in this website.</p><div class="payment-provider-grid"><div class="payment-provider"><b>🟦 Razorpay</b><small>UPI • Cards • NetBanking</small><span class="status-chip">Gateway ready</span></div><div class="payment-provider"><b>🟦 Paytm</b><small>UPI • Cards • NetBanking</small><span class="status-chip">Gateway ready</span></div><div class="payment-provider"><b>🟩 UPI</b><small>Direct UPI QR</small><span class="status-chip">Works now</span></div></div><label>Secure payment backend URL<input id="paymentApiUrl" value="'+esc(current)+'" placeholder="https://your-vercel-app.vercel.app"></label><button class="btn primary" id="savePaymentApiBtn">Save Payment Connection</button><button class="btn" onclick="openReceive()">Open Smart Receive</button><p class="muted" style="font-size:11px;margin-top:12px">The GitHub Pages site cannot safely store gateway secret keys. The backend creates orders and verifies payments.</p>');
+  modal('<h2>💳 Payment Center</h2><p class="muted">Connect your secure payment backend here. Never enter your Razorpay Secret Key in this website.</p><div class="payment-provider-grid"><div class="payment-provider"><b>📲 Razorpay UPI QR</b><small>Scan with any UPI app</small><span class="status-chip">QR ready</span></div></div><label>Secure payment backend URL<input id="paymentApiUrl" value="'+esc(current)+'" placeholder="https://your-vercel-app.vercel.app"></label><button class="btn primary" id="savePaymentApiBtn">Save Payment Connection</button><button class="btn" onclick="openReceive()">Open Smart Receive</button><p class="muted" style="font-size:11px;margin-top:12px">The GitHub Pages site cannot safely store gateway secret keys. The backend creates orders and verifies payments.</p>');
   document.getElementById("savePaymentApiBtn")?.addEventListener("click",()=>{
     const u=(document.getElementById("paymentApiUrl")?.value||"").trim();
     localStorage.setItem("dukaan_payment_api",u);closeModal();toast(u?"Payment backend connected":"Payment backend cleared")
@@ -255,7 +255,7 @@ async function createTrackedQR(customerId){
 }
 function openReceive(customerId=""){
   const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");
-  modal('<h2>Smart Receive</h2><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="onlineTab">Online Pay</button><button id="recordTab">Record</button></div><div id="receiveQR"><select id="qrCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><p class="muted">Secure payment QR. Payment confirmation is checked automatically.</p><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (optional)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Secure Razorpay QR")+'</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy UPI link</button></div></div><div id="receiveOnline" class="hidden"><select id="onlineCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="onlineAmount" type="number" min="1" placeholder="Amount to collect"><div class="payment-provider-grid compact"><button class="payment-provider-button" id="razorpayPayBtn"><b>Razorpay</b><small>Pay securely online</small></button><button class="payment-provider-button" id="paytmPayBtn"><b>Paytm</b><small>Pay securely online</small></button></div><p id="onlinePayStatus" class="muted">Choose a gateway to start payment.</p></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div>');
+  modal('<h2>Smart Receive</h2><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="onlineTab">Razorpay</button><button id="recordTab">Record</button></div><div id="receiveQR"><select id="qrCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><p class="muted">Secure payment QR. Payment confirmation is checked automatically.</p><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (optional)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Secure Razorpay QR")+'</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy UPI link</button></div></div><div id="receiveOnline" class="hidden"><div class="card"><b>📲 Razorpay UPI QR</b><p class="muted">Use the UPI QR tab to generate the secure Razorpay QR. No card details and no Paytm.</p><button class="btn primary" id="openQrFromOnline">Open UPI QR</button></div></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div>');
   const qr=document.getElementById("qrTab"),online=document.getElementById("onlineTab"),rec=document.getElementById("recordTab"),a=document.getElementById("receiveQR"),o=document.getElementById("receiveOnline"),b=document.getElementById("receiveRecord");
   const hide=()=>{a?.classList.add("hidden");o?.classList.add("hidden");b?.classList.add("hidden");qr?.classList.remove("active");online?.classList.remove("active");rec?.classList.remove("active");stopQRPaymentWatcher()};
   qr?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");createTrackedQR(customerId)});
@@ -265,28 +265,12 @@ function openReceive(customerId=""){
   document.getElementById("qrAmount")?.addEventListener("change",()=>createTrackedQR(document.getElementById("qrCustomer")?.value||customerId));
   document.getElementById("sharePayBtn")?.addEventListener("click",()=>shareTrackedQR());
   document.getElementById("copyPayBtn")?.addEventListener("click",copyUPILink);
-  document.getElementById("razorpayPayBtn")?.addEventListener("click",()=>startGatewayPayment("razorpay"));
-  document.getElementById("paytmPayBtn")?.addEventListener("click",()=>startGatewayPayment("paytm"));
+  document.getElementById("openQrFromOnline")?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");createTrackedQR(customerId)});
   document.getElementById("savePaymentBtn")?.addEventListener("click",savePayment);
   setTimeout(()=>createTrackedQR(customerId),50)
 }
 function shareTrackedQR(){const img=document.querySelector("#qrBox img");if(!img)return toast("Generate the QR first");const text="Scan this QR to pay "+state.shop.name+(document.getElementById("qrAmount")?.value?" — "+money(Number(document.getElementById("qrAmount").value)):"");if(navigator.share)navigator.share({title:"Dukaan Khata Payment QR",text}).catch(()=>{});else navigator.clipboard?.writeText(text).then(()=>toast("Payment message copied")).catch(()=>toast(text))}
-async function startGatewayPayment(provider){
-  const amount=Number(document.getElementById("onlineAmount")?.value)||0,customerId=document.getElementById("onlineCustomer")?.value||"";
-  const status=document.getElementById("onlinePayStatus");
-  if(amount<=0)return toast("Enter a valid amount");
-  const base=paymentApiBase();
-  if(!base){openPaymentSetup();return}
-  if(status)status.textContent="Creating secure payment order…";
-  try{
-    const endpoint=provider==="razorpay"?"/api/razorpay/order":"/api/paytm/initiate";
-    const res=await fetch(paymentApiUrl(endpoint),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId,shopName:state.shop.name,customerPhone:state.customers.find(c=>c.id===customerId)?.phone||""})});
-    const data=await res.json().catch(()=>({}));
-    if(!res.ok)throw new Error(data.error||"Gateway setup error");
-    if(provider==="razorpay")return launchRazorpay(data,amount,customerId);
-    if(provider==="paytm")return launchPaytm(data,amount,customerId);
-  }catch(e){if(status)status.textContent="Payment could not start: "+(e.message||"Please try again");toast(e.message||"Payment could not start")}
-}
+async function startGatewayPayment(provider){if(provider==="razorpay"){document.getElementById("qrTab")?.click();return}return toast("Only Razorpay UPI QR is available")}
 function loadScript(src){return new Promise((resolve,reject)=>{if(document.querySelector('script[src="'+src+'"]'))return resolve();const s=document.createElement("script");s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)})}
 async function launchRazorpay(order,amount,customerId){
   if(!order.keyId||!order.orderId)return toast("Razorpay backend returned an incomplete order");
