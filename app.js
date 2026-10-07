@@ -404,10 +404,10 @@ function renderKhata(){
     return matches&&(khataFilter==="all"||(khataFilter==="due"&&b>0)||(khataFilter==="paid"&&received>0));
   }).map(c=>{
     const b=balance(c.id),received=receivedTotal(c.id);
-    const isDue=b>0;
-    const value=isDue?money(b):money(received);
-    const label=isDue?"Due ":"Paid ";
-    const color=isDue?"#dc2626":"#16a34a";
+    const isPaidFilter=khataFilter==="paid";
+    const isDue=b>0&&!isPaidFilter;
+    const value=isPaidFilter?money(received):isDue?money(b):money(received);
+    const label=isPaidFilter?"Paid ":isDue?"Due ":"Paid ";
     const totalPaid=received>0?" • Total paid <span style=\"color:#16a34a;font-weight:900\">"+money(received)+"</span>":"";
     const mobile=!c.phone?'<button class="btn small" type="button" onclick="event.stopPropagation();addCustomerNumber(\''+esc(c.id)+'\')">＋ Add Mobile</button>':"";
     return `<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="${esc(c.id)}">
