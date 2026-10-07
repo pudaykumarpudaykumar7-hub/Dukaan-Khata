@@ -236,7 +236,7 @@ function createTrackedQR(customerId){
 async function createRazorpayQR(customerId){
   window.__activePaymentQRBox="razorpayQrBox";
   const box=document.getElementById("razorpayQrBox"),cap=document.getElementById("razorpayQrCaption"),status=document.getElementById("razorpayQrPaymentStatus");
-  const amount=Number(document.getElementById("qrAmount")?.value)||0;
+  const amount=Number(document.getElementById("razorpayQrAmount")?.value)||0;
   const customerIdValue=customerId||document.getElementById("qrCustomer")?.value||"";
   const customer=state.customers.find(c=>c.id===customerIdValue);
   stopQRPaymentWatcher();
