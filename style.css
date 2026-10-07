@@ -1274,3 +1274,23 @@ body:not(.darkmode) #tools .tools-grid .luxury-tool strong{
   -webkit-text-fill-color:#ffffff!important;
   opacity:1!important;
 }
+
+
+/* ===== MORE MENU — LIGHT MODE HEADING VISIBILITY ===== */
+body:not(.darkmode) #tools .tools-grid button{
+  background:linear-gradient(145deg,#0b1220,#17243a)!important;
+  border-color:#243149!important;
+  color:#fff!important;
+}
+body:not(.darkmode) #tools .tools-grid button b{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  font-weight:900!important;
+}
+body:not(.darkmode) #tools .tools-grid button small{
+  color:#c5cfdd!important;
+  -webkit-text-fill-color:#c5cfdd!important;
+}
+body:not(.darkmode) #tools .tools-grid button:hover{
+  background:linear-gradient(145deg,#111b2d,#1d304d)!important;
+}
