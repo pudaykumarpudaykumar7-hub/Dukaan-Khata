@@ -1370,3 +1370,15 @@ body[data-global-theme="gradient"]{background:linear-gradient(135deg,var(--dk-gr
 #khata .customer .due,
 #khata .khata-filter.due,
 #khata .khata-filter[onclick*="filterKhata('due'"]{color:#dc2626!important;font-weight:900}
+
+/* DUE PAYMENT HIGHLIGHT v2 */
+#khata .customer .due,
+#khata .customer .due *{
+  color:#dc2626!important;
+  font-weight:900!important;
+}
+#khata .khata-filter.due,
+#khata .khata-filter[onclick*="filterKhata('due'"]{
+  color:#dc2626!important;
+  font-weight:900!important;
+}
