@@ -365,7 +365,7 @@ function exportData(){const a=document.createElement("a");a.href=URL.createObjec
 function importData(e){const f=e.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);localStorage.setItem(KEY,JSON.stringify(x));state=loadState();closeModal();render();toast("Backup restored")}catch(err){toast("Invalid backup file")}};r.readAsText(f)}
 function openLanguage(){
   modal('<div class="dk-language-showcase">'+
-    '<div class="dk-language-top"><button class="dk-language-back" onclick="closeModal()">‹</button><div class="dk-language-brand"><span>PERSONALIZE</span><h2>Language</h2><small>Change app language</small></div><b class="dk-language-pro">✦ INDIA</b></div>'+
+    '<div class="dk-language-top"><div class="dk-language-brand"><span>PERSONALIZE</span><h2>Language</h2><small>Change app language</small></div><b class="dk-language-pro">✦ INDIA</b></div>'+
     '<div class="dk-language-world"><div class="dk-globe">🌍<i></i><em></em></div><div class="dk-orbit-label dk-orbit-en">🇬🇧 English</div><div class="dk-orbit-label dk-orbit-hi">🇮🇳 हिन्दी</div><div class="dk-orbit-label dk-orbit-te">🇮🇳 తెలుగు</div><div class="dk-orbit-label dk-orbit-kn">🇮🇳 ಕನ್ನಡ</div></div>'+
     '<div class="dk-language-panel"><div class="dk-language-panel-title"><span>🌐</span><div><b>Choose your language</b><small>Select one to personalize Dukaan Khata</small></div></div>'+
     '<div class="dk-language-list">'+
