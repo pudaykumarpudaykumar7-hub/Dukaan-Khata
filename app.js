@@ -465,3 +465,81 @@ function setupLongPress(){
 document.addEventListener("DOMContentLoaded",()=>{setupLongPress();render();applyHomeLogo();applyOutstandingColor();window.__DUKAAN_READY__=true});
 
 
+
+
+/* ===== GLOBAL BACKGROUND THEME EDITOR ===== */
+const DK_GLOBAL_THEME_KEY="dukaan_khata_global_background_v1";
+function dkGetGlobalTheme(){
+  try{return JSON.parse(localStorage.getItem(DK_GLOBAL_THEME_KEY)||"null")||{mode:"futuristic",image:"",fit:"cover",position:"center",overlay:.18}}
+  catch(e){return{mode:"futuristic",image:"",fit:"cover",position:"center",overlay:.18}}
+}
+function dkApplyGlobalTheme(){
+  const t=dkGetGlobalTheme(),b=document.body;
+  b.dataset.globalTheme=t.mode||"futuristic";
+  b.style.setProperty("--dk-global-image",t.image?"url("+JSON.stringify(t.image)+")":"none");
+  b.style.setProperty("--dk-global-fit",t.fit||"cover");
+  b.style.setProperty("--dk-global-position",t.position||"center");
+  b.style.setProperty("--dk-global-overlay",String(Number(t.overlay??.18)));
+}
+function dkSaveGlobalTheme(t){
+  try{localStorage.setItem(DK_GLOBAL_THEME_KEY,JSON.stringify(t));dkApplyGlobalTheme();toast("Background theme applied ✓")}
+  catch(e){toast("Could not save this theme")}
+}
+function openBackgroundTheme(){
+  const t=dkGetGlobalTheme();
+  modal('<div class="dk-bg-editor">'+
+    '<div class="dk-bg-head"><div><span>GLOBAL APPEARANCE</span><h2>🎨 Background Theme</h2><small>One theme across Home • Khata • Customers • Bills • More</small></div><b>EDIT</b></div>'+
+    '<div class="dk-bg-preview" id="dkBgPreview"><strong>Live Preview</strong><small>All pages use this background</small></div>'+
+    '<div class="dk-bg-label">Choose a theme</div>'+
+    '<div class="dk-bg-presets">'+
+      '<button type="button" onclick="dkChooseGlobalPreset('futuristic')">✦<b>Futuristic</b><small>Purple AI</small></button>'+
+      '<button type="button" onclick="dkChooseGlobalPreset('midnight')">◐<b>Midnight</b><small>Deep dark</small></button>'+
+      '<button type="button" onclick="dkChooseGlobalPreset('ocean')">◈<b>Ocean</b><small>Blue glow</small></button>'+
+      '<button type="button" onclick="dkChooseGlobalPreset('sunset')">◉<b>Sunset</b><small>Warm gradient</small></button>'+
+      '<button type="button" onclick="dkChooseGlobalPreset('light')">☀<b>Light</b><small>Clean bright</small></button>'+
+    '</div>'+
+    '<label class="dk-bg-upload">🖼️ <b>Use your own background image</b><small>JPG, PNG or WebP • automatically fitted to screen<input id="dkBgFile" type="file" accept="image/png,image/jpeg,image/webp" onchange="dkGlobalImageSelected(event)" hidden></small></label>'+
+    '<div class="dk-bg-controls"><label>Image fit<select id="dkBgFit"><option value="cover">Cover — fill screen</option><option value="contain">Contain — show full image</option><option value="auto">Original size</option></select></label><label>Position<select id="dkBgPosition"><option value="center">Center</option><option value="top">Top</option><option value="bottom">Bottom</option><option value="left">Left</option><option value="right">Right</option></select></label></div>'+
+    '<label class="dk-bg-slider">Background overlay <input id="dkBgOverlay" type="range" min="0" max="0.55" step="0.05" value="'+Number(t.overlay??.18)+'"><span id="dkBgOverlayValue">'+Math.round(Number(t.overlay??.18)*100)+'%</span></label>'+
+    '<div class="dk-bg-actions"><button class="btn" onclick="dkResetGlobalTheme()">↺ Reset</button><button class="btn primary" onclick="dkSaveGlobalThemeFromEditor()">✓ Apply Everywhere</button></div>'+
+  '</div>');
+  setTimeout(()=>{
+    const f=document.getElementById("dkBgFit"),p=document.getElementById("dkBgPosition"),r=document.getElementById("dkBgOverlay");
+    if(f)f.value=t.fit||"cover";if(p)p.value=t.position||"center";
+    if(r)r.oninput=()=>{const x=document.getElementById("dkBgOverlayValue");if(x)x.textContent=Math.round(Number(r.value)*100)+"%"};
+    dkUpdateGlobalPreview();
+  },0);
+}
+function dkUpdateGlobalPreview(){
+  const p=document.getElementById("dkBgPreview");if(!p)return;
+  const t=dkGetGlobalTheme();
+  p.dataset.previewTheme=t.mode||"futuristic";
+  p.style.backgroundImage=t.image?"linear-gradient(#0005,#0005),url("+JSON.stringify(t.image)+")":"";
+  p.style.backgroundSize=t.fit||"cover";p.style.backgroundPosition=t.position||"center";
+}
+function dkChooseGlobalPreset(mode){
+  const t=dkGetGlobalTheme();t.mode=mode;t.image="";
+  dkSaveGlobalTheme(t);dkUpdateGlobalPreview();
+}
+function dkGlobalImageSelected(e){
+  const f=e.target.files?.[0];if(!f)return;
+  if(f.size>12*1024*1024)return toast("Choose an image under 12 MB");
+  const rd=new FileReader();
+  rd.onload=()=>{const img=new Image();img.onload=()=>{
+    const max=1800,s=Math.min(1,max/Math.max(img.width,img.height)),w=Math.max(1,Math.round(img.width*s)),h=Math.max(1,Math.round(img.height*s));
+    const cv=document.createElement("canvas");cv.width=w;cv.height=h;cv.getContext("2d").drawImage(img,0,0,w,h);
+    const t=dkGetGlobalTheme();t.mode="custom";t.image=cv.toDataURL("image/jpeg",.82);
+    dkSaveGlobalTheme(t);dkUpdateGlobalPreview();toast("Your background is ready ✓");
+  };img.src=rd.result};rd.readAsDataURL(f);
+}
+function dkSaveGlobalThemeFromEditor(){
+  const t=dkGetGlobalTheme();
+  t.fit=document.getElementById("dkBgFit")?.value||"cover";
+  t.position=document.getElementById("dkBgPosition")?.value||"center";
+  t.overlay=Number(document.getElementById("dkBgOverlay")?.value||.18);
+  dkSaveGlobalTheme(t);closeModal();
+}
+function dkResetGlobalTheme(){
+  localStorage.removeItem(DK_GLOBAL_THEME_KEY);dkApplyGlobalTheme();toast("Background reset ✓");openBackgroundTheme();
+}
+dkApplyGlobalTheme();
