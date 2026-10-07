@@ -45,7 +45,7 @@ app.post("/api/razorpay/qr",async(req,res)=>{
       body:JSON.stringify({
         type:"upi_qr",
         name:(String(req.body.shopName||"Dukaan Khata").slice(0,40)),
-        usage:"single",
+        usage:"single_use",
         fixed_amount:amount>0,
         ...(amount>0?{payment_amount:Math.round(amount*100)}:{}),
         description:"Dukaan Khata payment",
