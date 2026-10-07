@@ -1506,3 +1506,10 @@ body:not(.darkmode) .tools-grid button:hover{
 @media(max-width:720px){
   body:not(.darkmode) main{border-radius:22px}
 }
+
+
+/* KHATA PAYMENT STATUS — explicit high-contrast colors */
+#khataList .khata-money-due{color:#dc2626!important;font-weight:900!important}
+#khataList .khata-money-paid{color:#16a34a!important;font-weight:900!important}
+#khataFilters .khata-money-due{color:#dc2626!important;font-weight:900!important}
+#khataFilters .khata-money-paid{color:#16a34a!important;font-weight:900!important}
