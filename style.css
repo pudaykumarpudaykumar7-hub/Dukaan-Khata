@@ -431,3 +431,26 @@ main{width:100%}
 .dk-language-showcase .dk-lang-name b{font-size:14px!important;color:#f5ffff!important}
 .dk-language-showcase .dk-lang-name small{font-size:14px!important;color:#9ff7e8!important}
 .dk-language-showcase .dk-lang-name .dk-lang-arrow{color:#67f6dd!important;font-weight:900}
+
+/* More popups: remove the white outer sheet completely */
+.modal .sheet:has(.smart-receive-shell),
+.modal .sheet:has(.dk-login-shell),
+.modal .sheet:has(.dk-pass-shell),
+.modal .sheet:has(.dk-language-showcase),
+.modal .sheet:has(.dk-contact-theme),
+.modal .sheet:has(.dk-shop-theme){
+  background:transparent!important;
+  box-shadow:none!important;
+  padding:0!important;
+  border-radius:0!important;
+  overflow:visible!important;
+}
+.modal .sheet:has(.smart-receive-shell)>.close,
+.modal .sheet:has(.dk-login-shell)>.close,
+.modal .sheet:has(.dk-pass-shell)>.close,
+.modal .sheet:has(.dk-language-showcase)>.close,
+.modal .sheet:has(.dk-contact-theme)>.close,
+.modal .sheet:has(.dk-shop-theme)>.close{
+  background:#eef2f5!important;
+  color:#101820!important;
+}
