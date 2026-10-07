@@ -483,11 +483,17 @@ function dkGetGlobalTheme(){
 }
 function dkApplyGlobalTheme(){
   const t=dkGetGlobalTheme(),b=document.body;
-  b.dataset.globalTheme=t.mode||"futuristic";b.style.setProperty("--dk-gradient-1",t.color1||"#6d28d9");b.style.setProperty("--dk-gradient-2",t.color2||"#0b0620");b.style.setProperty("--dk-gradient-3",t.color3||"#04020a");
+  const c1=t.color1||"#6d28d9",c2=t.color2||"#0b0620",c3=t.color3||"#04020a";
+  b.dataset.globalTheme=t.mode||"futuristic";
+  b.style.setProperty("--dk-gradient-1",c1);b.style.setProperty("--dk-gradient-2",c2);b.style.setProperty("--dk-gradient-3",c3);
   b.style.setProperty("--dk-global-image",t.image?"url("+JSON.stringify(t.image)+")":"none");
   b.style.setProperty("--dk-global-fit",t.fit||"cover");
   b.style.setProperty("--dk-global-position",t.position||"center");
   b.style.setProperty("--dk-global-overlay",String(Number(t.overlay??.18)));
+  if(t.mode==="gradient") b.style.background="linear-gradient(135deg,"+c1+","+c2+" 50%,"+c3+")";
+  else if(t.mode==="custom"&&t.image) b.style.backgroundImage="linear-gradient(rgba(0,0,0,"+Number(t.overlay??.18)+"),rgba(0,0,0,"+Number(t.overlay??.18)+")),url("+JSON.stringify(t.image)+")";
+  else b.style.background="";
+  b.style.backgroundAttachment="fixed";
 }
 function dkSaveGlobalTheme(t){
   try{localStorage.setItem(DK_GLOBAL_THEME_KEY,JSON.stringify(t));dkApplyGlobalTheme();toast("Background theme applied ✓")}
@@ -511,6 +517,12 @@ function openBackgroundTheme(){
       '<button type="button" class="dk-color-dot" style="--dot:#14b8a6" aria-label="Teal gradient" onclick="dkSetGradientColor(\'#14b8a6\',\'#0f766e\',\'#042f2e\')"></button>'+
       '<button type="button" class="dk-color-dot" style="--dot:#f43f5e" aria-label="Rose gradient" onclick="dkSetGradientColor(\'#f43f5e\',\'#7f1d1d\',\'#2a0710\')"></button>'+
       '<button type="button" class="dk-color-dot" style="--dot:#ffffff" aria-label="Light gradient" onclick="dkSetGradientColor(\'#ffffff\',\'#e0e7ff\',\'#f5f3ff\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#8b5cf6" aria-label="Violet gradient" onclick="dkSetGradientColor(\'#8b5cf6\',\'#ec4899\',\'#3b0764\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#0ea5e9" aria-label="Sky gradient" onclick="dkSetGradientColor(\'#0ea5e9\',\'#6366f1\',\'#172554\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#84cc16" aria-label="Lime gradient" onclick="dkSetGradientColor(\'#84cc16\',\'#16a34a\',\'#052e16\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#f97316" aria-label="Orange gradient" onclick="dkSetGradientColor(\'#f97316\',\'#dc2626\',\'#431407\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#e879f9" aria-label="Magenta gradient" onclick="dkSetGradientColor(\'#e879f9\',\'#7e22ce\',\'#2e1065\')"></button>'+
+      '<button type="button" class="dk-color-dot" style="--dot:#38bdf8" aria-label="Aurora gradient" onclick="dkSetGradientColor(\'#38bdf8\',\'#22c55e\',\'#064e3b\')"></button>'+
     '</div>'+
     '<div class="dk-bg-presets">'+
       '<button type="button" onclick="dkChooseGlobalPreset(\'futuristic\')">✦<b>Futuristic</b><small>Purple AI</small></button>'+
