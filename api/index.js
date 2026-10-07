@@ -1,1 +1,2 @@
-// Vercel serverless entrypoint for the Dukaan Khata payment API.\nmodule.exports = require("../payment-server/server.js");\n
+// Vercel serverless entrypoint for the Dukaan Khata payment API.
+module.exports = require("../payment-server/server.js");
