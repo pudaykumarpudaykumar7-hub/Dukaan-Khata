@@ -22,7 +22,7 @@
 <div class="app">
 <header class="topbar">
   <div class="brand"><button class="uvms-logo uvms-logo-button" type="button" aria-label="Open UVMS logo" onclick="openUVMSLogo()"><span class="uvms-crown">◆</span><strong>UVMS</strong><i></i></button><div><h1>Dukaan Khata</h1><small id="ownerHeader">Smart Business</small></div></div>
-  <nav class="top-menu" aria-label="Main navigation"><button onclick="showPage('home')">Home</button><button onclick="showPage('khata')">Khata</button><button onclick="showPage('bills')">Bills</button><button onclick="showPage('tools')">More</button></nav>
+  <nav class="top-menu" aria-label="Main navigation"><button data-page="home" onclick="showPage('home')">Home</button><button data-page="khata" onclick="showPage('khata')">Khata</button><button data-page="customers" onclick="showPage('customers')">Customers</button><button data-page="bills" onclick="showPage('bills')">Bills</button><button data-page="tools" onclick="showPage('tools')">More</button></nav>
   <div class="top-actions"><button class="round" onclick="openSearch()" aria-label="Search">⌕</button><button class="round" onclick="toggleTheme()" aria-label="Theme">◐</button></div>
 </header>
 <main>
@@ -45,10 +45,10 @@
 <div id="toast" class="toast"></div><div id="modal" class="modal hidden"><div class="sheet"><div id="modalBody"></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script src="app.js?v=20261008-working-v5" defer></script>
-<script src="auth.js?v=20261008-working-v5" defer></script>
-<script src="i18n.js?v=20261008-working-v5" defer></script>
-<script src="more-routing.js?v=20261008-working-v5" defer></script>
+<script src="app.js?v=20261008-stable-v6" defer></script>
+<script src="auth.js?v=20261008-stable-v6" defer></script>
+<script src="i18n.js?v=20261008-stable-v6" defer></script>
+<script src="more-routing.js?v=20261008-stable-v6" defer></script>
 </div>
 </body>
 </html>
