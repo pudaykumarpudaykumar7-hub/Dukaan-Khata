@@ -62,13 +62,16 @@
     const options=keys.map(x=>{
       const native=nativeNames[x]||x;
       const selected=x===current();
-      return '<button class="dk-lang-option" onclick="setLanguage(\\''+x+'\\')"><span class="dk-lang-flag">'+(x==="English"?"🇬🇧":"🇮🇳")+'</span><span class="dk-lang-name"><b>'+x+'</b><span class="dk-lang-arrow">→</span><small>'+native+'</small></span><i>'+ (selected?'✓':'○') +'</i></button>';
+      return '<button type="button" class="dk-lang-option" data-lang="'+x+'"><span class="dk-lang-flag">'+(x==="English"?"🇬🇧":"🇮🇳")+'</span><span class="dk-lang-name"><b>'+x+'</b><span class="dk-lang-arrow">→</span><small>'+native+'</small></span><i>'+(selected?'✓':'○')+'</i></button>';
     }).join("");
     modal('<div class="dk-language-showcase">'+
       '<div class="dk-language-top"><button class="dk-language-back" onclick="closeModal()">‹</button><div class="dk-language-brand"><span>PERSONALIZE</span><h2>'+L.language+'</h2><small>Change app language</small></div><b class="dk-language-pro">✦ INDIA • 23 LANGUAGES</b></div>'+
       '<div class="dk-language-world"><div class="dk-globe">🌍<i></i><em></em></div><div class="dk-orbit-label dk-orbit-en">🇬🇧 English</div><div class="dk-orbit-label dk-orbit-hi">🇮🇳 हिन्दी</div><div class="dk-orbit-label dk-orbit-te">🇮🇳 తెలుగు</div><div class="dk-orbit-label dk-orbit-kn">🇮🇳 ಕನ್ನಡ</div></div>'+
-      '<div class="dk-language-panel"><div class="dk-language-panel-title"><span>🌐</span><div><b>Choose your language</b><small>Select one to personalize Dukaan Khata</small></div></div><div class="dk-language-list">'+options+'</div></div>'+
+      '<div class="dk-language-panel"><div class="dk-language-panel-title"><span>🌐</span><div><b>Choose your language</b><small>23 Indian languages — all available below</small></div></div><div class="dk-language-list">'+options+'</div></div>'+
       '<div class="dk-language-save">🌐 <span>Your preferred language<br>will be saved automatically</span><b>✓</b></div>'+
       '<button class="dk-language-close" onclick="closeModal()">× Close</button></div>');
+    document.querySelectorAll('.dk-language-showcase .dk-lang-option').forEach(btn=>{
+      btn.addEventListener('click',function(){window.setLanguage(this.dataset.lang);});
+    });
   };  document.addEventListener("DOMContentLoaded",()=>setTimeout(window.applyLanguage,100));
 })();
