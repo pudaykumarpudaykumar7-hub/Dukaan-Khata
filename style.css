@@ -425,3 +425,9 @@ main{width:100%}
 }
 /* Keep the round × outside the account card. */
 .modal>.sheet>.close{position:absolute;z-index:5}
+
+/* Language names: exact requested same-line format */
+.dk-language-showcase .dk-lang-name{display:flex!important;align-items:center!important;gap:6px!important;white-space:nowrap!important;line-height:1.1!important}
+.dk-language-showcase .dk-lang-name b{font-size:14px!important;color:#f5ffff!important}
+.dk-language-showcase .dk-lang-name small{font-size:14px!important;color:#9ff7e8!important}
+.dk-language-showcase .dk-lang-name .dk-lang-arrow{color:#67f6dd!important;font-weight:900}
