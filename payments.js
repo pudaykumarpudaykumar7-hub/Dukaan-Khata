@@ -12,12 +12,13 @@ function settings(){
   document.getElementById("saveGateway")?.addEventListener("click",()=>{
     const n=load();
     n.backendUrl=(document.getElementById("paymentApi")?.value.trim()||"").replace(/\/$/,"");
+    localStorage.setItem("dukaan_payment_api",n.backendUrl);
     delete n.razorpayKey;
     delete n.paytmUrl;
     save(n); window.closeModal?.(); toast("Razorpay UPI QR settings updated ✓");
   });
   document.getElementById("clearGateway")?.addEventListener("click",()=>{
-    const n=load(); n.backendUrl=""; delete n.razorpayKey; delete n.paytmUrl; save(n);
+    const n=load(); n.backendUrl=""; localStorage.removeItem("dukaan_payment_api"); delete n.razorpayKey; delete n.paytmUrl; save(n);
     const el=document.getElementById("paymentApi"); if(el) el.value="";
     toast("Backend URL cleared");
   });
@@ -118,7 +119,7 @@ function online(customerId){
 function inject(){
   const grid=document.querySelector(".tools-grid");
   if(grid&&!document.getElementById("paymentGatewayTool")){
-    const b=document.createElement("button");b.id="paymentGatewayTool";b.className="luxury-tool";b.innerHTML="💳<b>Payment Gateway</b><small>Razorpay • Paytm • UPI</small>";b.onclick=settings;grid.insertBefore(b,grid.firstChild);
+    const b=document.createElement("button");b.id="paymentGatewayTool";b.className="luxury-tool";b.innerHTML="📲<b>Razorpay UPI QR</b><small>Scan • Pay • No card details</small>";b.onclick=settings;grid.insertBefore(b,grid.firstChild);
   }
   
 }
