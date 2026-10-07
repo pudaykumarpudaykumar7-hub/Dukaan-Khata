@@ -1658,7 +1658,7 @@ body::before{
   content:"";
   position:fixed;
   inset:-22%;
-  z-index:-2;
+  z-index:0;
   pointer-events:none;
   background:
     radial-gradient(circle at 15% 25%,color-mix(in srgb,var(--live-a) 42%,transparent),transparent 24%),
@@ -1704,3 +1704,8 @@ body:not(.darkmode){
 @media(prefers-reduced-motion:reduce){
   body::before,body::after{animation:none!important}
 }
+
+/* Keep the live background behind the existing website UI. */
+body > *{position:relative;z-index:1}
+.bottom-nav{z-index:99999!important}
+.modal{z-index:100000!important}
