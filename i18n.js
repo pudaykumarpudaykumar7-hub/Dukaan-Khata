@@ -57,11 +57,11 @@
   };
   window.openLanguage=function(){
     const L=T[current()]||T.English;
-    const labels=Object.fromEntries(keys.map(x=>[x,[x==="English"?"🇬🇧":"🇮🇳",x,(T[x]&&T[x].language)||x]]));
+    const nativeNames={English:"English",Telugu:"తెలుగు",Hindi:"हिन्दी",Kannada:"ಕನ್ನಡ",Marathi:"मराठी",Bengali:"বাংলা",Assamese:"অসমীয়া",Gujarati:"ગુજરાતી",Malayalam:"മലയാളം",Punjabi:"ਪੰਜਾਬੀ",Odia:"ଓଡ଼ିଆ",Tamil:"தமிழ்",Urdu:"اردو",Kashmiri:"کٲشُر",Konkani:"कोंकणी",Manipuri:"ꯃꯤꯇꯩ ꯂꯣꯟ",Sanskrit:"संस्कृतम्",Maithili:"मैथिली",Nepali:"नेपाली",Sindhi:"سنڌي",Dogri:"डोगरी",Bodo:"बड़ो",Santali:"ᱥᱟᱱᱛᱟᱲᱤ"};
     const options=keys.map(x=>{
-      const v=labels[x]||["🌐",x,x];
+      const native=nativeNames[x]||x;
       const selected=x===current();
-      return '<button class="dk-lang-option" onclick="setLanguage(\''+x+'\')"><span class="dk-lang-flag">'+v[0]+'</span><span><b>'+v[1]+'</b><small>'+v[2]+'</small></span><i>'+ (selected?'✓':'○') +'</i></button>';
+      return '<button class="dk-lang-option" onclick="setLanguage(\\''+x+'\\')"><span class="dk-lang-flag">'+(x==="English"?"🇬🇧":"🇮🇳")+'</span><span class="dk-lang-name"><b>'+x+'</b><small>'+native+'</small></span><i>'+ (selected?'✓':'○') +'</i></button>';
     }).join("");
     modal('<div class="dk-language-showcase">'+
       '<div class="dk-language-top"><button class="dk-language-back" onclick="closeModal()">‹</button><div class="dk-language-brand"><span>PERSONALIZE</span><h2>'+L.language+'</h2><small>Change app language</small></div><b class="dk-language-pro">✦ INDIA</b></div>'+
