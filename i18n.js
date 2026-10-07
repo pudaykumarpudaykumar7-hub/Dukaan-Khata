@@ -30,7 +30,8 @@
   const names={
     English:"English (english)",Telugu:"తెలుగు (telugu)",Hindi:"हिन्दी (hindi)",Kannada:"ಕನ್ನಡ (kannada)",Marathi:"मराठी (marathi)",Bengali:"বাংলা (bengali)",Assamese:"অসমীয়া (assamese)",Gujarati:"ગુજરાતી (gujarati)",Malayalam:"മലയാളം (malayalam)",Punjabi:"ਪੰਜਾਬੀ (punjabi)",Odia:"ଓଡ଼ିଆ (odia)",Tamil:"தமிழ் (tamil)",Urdu:"اردو (urdu)",Kashmiri:"کٲشُر (kashmiri)",Konkani:"कोंकणी (konkani)",Manipuri:"ꯃꯤꯇꯩ ꯂꯣꯟ (manipuri)",Sanskrit:"संस्कृतम् (sanskrit)",Maithili:"मैथिली (maithili)",Nepali:"नेपाली (nepali)",Sindhi:"سنڌي (sindhi)",Dogri:"डोगरी (dogri)",Bodo:"बड़ो (bodo)",Santali:"ᱥᱟᱱᱛᱟᱲᱤ (santali)"
   };
-  const keys=Object.keys(T);
+  const languageOrder=["English","Hindi","Telugu","Kannada","Marathi","Bengali","Assamese","Gujarati","Malayalam","Punjabi","Odia","Tamil","Urdu","Kashmiri","Konkani","Manipuri","Sanskrit","Maithili","Nepali","Sindhi","Dogri","Bodo","Santali"];
+  const keys=languageOrder.filter(x=>T[x]);
   function current(){
     const saved=localStorage.getItem("dukaan_khata_language");
     if(keys.includes(saved))return saved;
@@ -57,7 +58,7 @@
   };
   window.openLanguage=function(){
     const L=T[current()]||T.English;
-    const nativeNames={English:"English",Telugu:"తెలుగు",Hindi:"हिन्दी",Kannada:"ಕನ್ನಡ",Marathi:"मराठी",Bengali:"বাংলা",Assamese:"অসমীয়া",Gujarati:"ગુજરાતી",Malayalam:"മലയാളം",Punjabi:"ਪੰਜਾਬੀ",Odia:"ଓଡ଼ିଆ",Tamil:"தமிழ்",Urdu:"اردو",Kashmiri:"کٲشُر",Konkani:"कोंकणी",Manipuri:"ꯃꯤꯇꯩ ꯂꯣꯟ",Sanskrit:"संस्कृतम्",Maithili:"मैथिली",Nepali:"नेपाली",Sindhi:"سنڌي",Dogri:"डोगरी",Bodo:"बड़ो",Santali:"ᱥᱟᱱᱛᱟᱲᱤ"};
+    const nativeNames={English:"English",Hindi:"हिन्दी",Telugu:"తెలుగు",Kannada:"ಕನ್ನಡ",Marathi:"मराठी",Bengali:"বাংলা",Assamese:"অসমীয়া",Gujarati:"ગુજરાતી",Malayalam:"മലയാളം",Punjabi:"ਪੰਜਾਬੀ",Odia:"ଓଡ଼ିଆ",Tamil:"தமிழ்",Urdu:"اردو",Kashmiri:"کٲشُر",Konkani:"कोंकणी",Manipuri:"ꯃꯤꯇꯩ ꯂꯣꯟ",Sanskrit:"संस्कृतम्",Maithili:"मैथिली",Nepali:"नेपाली",Sindhi:"سنڌي",Dogri:"डोगरी",Bodo:"बड़ो",Santali:"ᱥᱟᱱᱛᱟᱲᱤ"};
     const options=keys.map(x=>{
       const native=nativeNames[x]||x;
       const selected=x===current();
