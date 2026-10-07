@@ -385,40 +385,31 @@ function applyAppTheme(){const mode=state?.settings?.theme==="dark"?"dark":"ligh
 function clearDemo(){if(confirm("Clear all Dukaan Khata data on this device?")){localStorage.removeItem(KEY);state=defaults();render();toast("Data reset")}}
 
 function renderKhata(){
-  const box=document.getElementById("khataList");if(!box)return;
+  const box=document.getElementById("khataList");
+  if(!box)return;
   const q=(document.getElementById("khataSearch")?.value||"").toLowerCase();
-  const paidCustomers=state.customers.filter(c=>balance(c.id)<=0&&receivedTotal(c.id)>0);
   const dueCustomers=state.customers.filter(c=>balance(c.id)>0);
-  const paidTotal=paidCustomers.reduce((s,c)=>s+receivedTotal(c.id),0);
+  const paidCustomers=state.customers.filter(c=>balance(c.id)<=0&&receivedTotal(c.id)>0);
   const dueTotal=dueCustomers.reduce((s,c)=>s+balance(c.id),0);
-  const allBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\\'all\\'"]');
-  const dueBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\\'due\\'"]');
-  const paidBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\\'paid\\'"]');
+  const paidTotal=paidCustomers.reduce((s,c)=>s+receivedTotal(c.id),0);
+  const allBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'all\'"]');
+  const dueBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'due\'"]');
+  const paidBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'paid\'"]');
   if(allBtn)allBtn.textContent="All ("+state.customers.length+")";
-  if(dueBtn){dueBtn.classList.add("khata-filter-due");dueBtn.innerHTML="Due ("+dueCustomers.length+") • <span class="+""khata-total-due""+">"+money(dueTotal)+"</span>"}
-  if(paidBtn){paidBtn.classList.add("khata-filter-paid");paidBtn.innerHTML="Paid ("+paidCustomers.length+") • <span class="+""khata-total-paid""+">"+money(paidTotal)+"</span>"}
+  if(dueBtn)dueBtn.innerHTML='Due ('+dueCustomers.length+') • <span style="color:#dc2626;font-weight:900">'+money(dueTotal)+'</span>';
+  if(paidBtn)paidBtn.innerHTML='Paid ('+paidCustomers.length+') • <span style="color:#16a34a;font-weight:900">'+money(paidTotal)+'</span>';
   box.innerHTML=state.customers.filter(c=>{
-    const b=balance(c.id),matches=(c.name+" "+c.phone).toLowerCase().includes(q);
-    return matches&&(khataFilter==="all"||(khataFilter==="due"&&b>0)||(khataFilter==="paid"&&b<=0&&receivedTotal(c.id)>0));
+    const b=balance(c.id),received=receivedTotal(c.id),matches=(c.name+" "+c.phone).toLowerCase().includes(q);
+    return matches&&(khataFilter==="all"||(khataFilter==="due"&&b>0)||(khataFilter==="paid"&&b<=0&&received>0));
   }).map(c=>{
     const b=balance(c.id),received=receivedTotal(c.id);
-    let right="";
-    if(khataFilter==="paid") right='<div class="khata-money-paid">'+money(received)+'</div>';
-    else if(khataFilter==="due") right='<div class="khata-money-due">'+money(b)+'</div>';
-    else right='<div class="'+(b>0?"khata-money-due":"khata-money-paid")+'">'+money(b>0?b:received)+'</div>';
-    return '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'"><div onclick="customerView(\\''+esc(c.id)+'\\')" style="flex:1;cursor:pointer"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small></div><div style="text-align:right">'+right+(!c.phone?'<button class="btn small" onclick="event.stopPropagation();addCustomerNumber(\\''+esc(c.id)+'\\')">＋ Add Mobile</button>':"")+'</div></div>';
+    let right;
+    if(b>0) right='<div style="color:#dc2626;font-weight:900;font-size:18px">Due '+money(b)+'</div>';
+    else right='<div style="color:#16a34a;font-weight:900;font-size:18px">Paid '+money(received)+'</div>';
+    return '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'"><div onclick="customerView(\''+esc(c.id)+'\')" style="flex:1;cursor:pointer"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+(received>0?' • Total paid <span style="color:#16a34a;font-weight:900">'+money(received)+'</span>':"")+'</small></div><div style="text-align:right">'+right+(!c.phone?'<button class="btn small" onclick="event.stopPropagation();addCustomerNumber(\''+esc(c.id)+'\')">＋ Add Mobile</button>':"")+'</div></div>';
   }).join("")||'<p class="muted">No customers found.</p>';
 }
-function renderCustomers(){
-  const box=document.getElementById("customerList");if(!box)return;
-  const q=(document.getElementById("customerSearch")?.value||"").toLowerCase();
-  box.innerHTML=state.customers.filter(c=>(c.name+" "+c.phone).toLowerCase().includes(q))
-    .map(c=>'<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" onclick="customerView(\\''+esc(c.id)+'\\')"><div><h3>'+esc(c.name)+'</h3></div></div>')
-    .join("")||'<p class="muted">No customers yet.</p>';
-  const due=state.customers.filter(c=>balance(c.id)>0).length;
-  document.getElementById("customerDueCount")&&(document.getElementById("customerDueCount").textContent=due);
-  document.getElementById("customerPaidCount")&&(document.getElementById("customerPaidCount").textContent=state.customers.length-due);
-}
+function renderCustomers(){const box=document.getElementById("customerList");if(!box)return;const q=(document.getElementById("customerSearch")?.value||"").toLowerCase();box.innerHTML=state.customers.filter(c=>(c.name+" "+c.phone).toLowerCase().includes(q)).map(c=>'<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" onclick="customerView(\''+esc(c.id)+'\')"><div><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone")+'</small></div><div class="'+(balance(c.id)>0?"due":"paid")+'">'+money(balance(c.id))+'</div></div>').join("")||'<p class="muted">No customers yet.</p>';const due=state.customers.filter(c=>balance(c.id)>0).length;document.getElementById("customerDueCount")&&(document.getElementById("customerDueCount").textContent=due);document.getElementById("customerPaidCount")&&(document.getElementById("customerPaidCount").textContent=state.customers.length-due)}
 function renderBills(){const box=document.getElementById("billList");if(!box)return;box.innerHTML=sales().slice(0,50).map(t=>{const c=state.customers.find(x=>x.id===t.customerId);return'<div class="bill" data-long-delete data-delete-type="sale" data-delete-id="'+esc(t.id)+'" onclick="billView(\''+esc(t.id)+'\')"><div><h3>'+esc(c?.name||"Walk-in")+'</h3><small>'+new Date(t.date).toLocaleString("en-IN")+'</small></div><b>'+money(t.total)+'</b></div>'}).join("")||'<p class="muted">No bills yet.</p>'}
 function billView(id){const t=state.tx.find(x=>x.id===id);if(!t)return;const c=state.customers.find(x=>x.id===t.customerId);const lines=(t.lines||[]).map(l=>'<div class="line"><span>'+esc(l.name)+' × '+l.qty+'</span><b>'+money(l.total)+'</b></div>').join("");modal('<h2>Bill</h2><p><b>'+esc(c?.name||"Walk-in")+'</b><br><small>'+new Date(t.date).toLocaleString("en-IN")+'</small></p>'+lines+'<div class="line"><b>Total</b><b>'+money(t.total)+'</b></div><button class="btn" style="background:#dc2626" onclick="deleteSale(\''+esc(id)+'\')">Delete Bill</button>')}
 function deleteSale(id){if(!state.tx.some(t=>t.id===id))return;deleteConfirm("Delete this bill?",()=>{state.tx=state.tx.filter(t=>t.id!==id);saveState();render();toast("Bill deleted")})}
@@ -484,17 +475,11 @@ function dkGetGlobalTheme(){
 }
 function dkApplyGlobalTheme(){
   const t=dkGetGlobalTheme(),b=document.body;
-  const c1=t.color1||"#6d28d9",c2=t.color2||"#0b0620",c3=t.color3||"#04020a";
-  b.dataset.globalTheme=t.mode||"futuristic";
-  b.style.setProperty("--dk-gradient-1",c1);b.style.setProperty("--dk-gradient-2",c2);b.style.setProperty("--dk-gradient-3",c3);
+  b.dataset.globalTheme=t.mode||"futuristic";b.style.setProperty("--dk-gradient-1",t.color1||"#6d28d9");b.style.setProperty("--dk-gradient-2",t.color2||"#0b0620");b.style.setProperty("--dk-gradient-3",t.color3||"#04020a");
   b.style.setProperty("--dk-global-image",t.image?"url("+JSON.stringify(t.image)+")":"none");
   b.style.setProperty("--dk-global-fit",t.fit||"cover");
   b.style.setProperty("--dk-global-position",t.position||"center");
   b.style.setProperty("--dk-global-overlay",String(Number(t.overlay??.18)));
-  if(t.mode==="gradient") b.style.background="linear-gradient(135deg,"+c1+","+c2+" 50%,"+c3+")";
-  else if(t.mode==="custom"&&t.image) b.style.backgroundImage="linear-gradient(rgba(0,0,0,"+Number(t.overlay??.18)+"),rgba(0,0,0,"+Number(t.overlay??.18)+")),url("+JSON.stringify(t.image)+")";
-  else b.style.background="";
-  b.style.backgroundAttachment="fixed";
 }
 function dkSaveGlobalTheme(t){
   try{localStorage.setItem(DK_GLOBAL_THEME_KEY,JSON.stringify(t));dkApplyGlobalTheme();toast("Background theme applied ✓")}
@@ -518,12 +503,6 @@ function openBackgroundTheme(){
       '<button type="button" class="dk-color-dot" style="--dot:#14b8a6" aria-label="Teal gradient" onclick="dkSetGradientColor(\'#14b8a6\',\'#0f766e\',\'#042f2e\')"></button>'+
       '<button type="button" class="dk-color-dot" style="--dot:#f43f5e" aria-label="Rose gradient" onclick="dkSetGradientColor(\'#f43f5e\',\'#7f1d1d\',\'#2a0710\')"></button>'+
       '<button type="button" class="dk-color-dot" style="--dot:#ffffff" aria-label="Light gradient" onclick="dkSetGradientColor(\'#ffffff\',\'#e0e7ff\',\'#f5f3ff\')"></button>'+
-      '<button type="button" class="dk-color-dot" style="--dot:#8b5cf6" aria-label="Violet gradient" onclick="dkSetGradientColor(\'#8b5cf6\',\'#ec4899\',\'#3b0764\')"></button>'+
-      '<button type="button" class="dk-color-dot" style="--dot:#0ea5e9" aria-label="Sky gradient" onclick="dkSetGradientColor(\'#0ea5e9\',\'#6366f1\',\'#172554\')"></button>'+
-      '<button type="button" class="dk-color-dot" style="--dot:#84cc16" aria-label="Lime gradient" onclick="dkSetGradientColor(\'#84cc16\',\'#16a34a\',\'#052e16\')"></button>'+
-      '<button type="button" class="dk-color-dot" style="--dot:#f97316" aria-label="Orange gradient" onclick="dkSetGradientColor(\'#f97316\',\'#dc2626\',\'#431407\')"></button>'+
-      '<button type="button" class="dk-color-dot" style="--dot:#e879f9" aria-label="Magenta gradient" onclick="dkSetGradientColor(\'#e879f9\',\'#7e22ce\',\'#2e1065\')"></button>'+
-      '<button type="button" class="dk-color-dot" style="--dot:#38bdf8" aria-label="Aurora gradient" onclick="dkSetGradientColor(\'#38bdf8\',\'#22c55e\',\'#064e3b\')"></button>'+
     '</div>'+
     '<div class="dk-bg-presets">'+
       '<button type="button" onclick="dkChooseGlobalPreset(\'futuristic\')">✦<b>Futuristic</b><small>Purple AI</small></button>'+
@@ -578,5 +557,3 @@ function dkResetGlobalTheme(){
   localStorage.removeItem(DK_GLOBAL_THEME_KEY);dkApplyGlobalTheme();toast("Background reset ✓");openBackgroundTheme();
 }
 dkApplyGlobalTheme();
-
-/* KHATA FINAL DISPLAY v4 */
