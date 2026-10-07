@@ -27,26 +27,93 @@ function settings(){
 }
 
 async function razorpayPay(){
-  const c=load(),amount=Number(document.getElementById("gatewayAmount")?.value)||0,customerId=document.getElementById("gatewayCustomer")?.value||"";
+  const c=load();
+  const amount=Number(document.getElementById("gatewayAmount")?.value)||0;
+  const customerId=document.getElementById("gatewayCustomer")?.value||"";
   if(amount<=0)return toast("Enter a valid amount");
   if(!c.razorpayKey||!c.backendUrl)return settings();
-  if(!window.Razorpay)return toast("Razorpay Checkout is loading. Try again.");
-  const s=state(),customer=(s.customers||[]).find(x=>x.id===customerId);
-  const r=await fetch(c.backendUrl.replace(/\/$/,"")+"/api/razorpay/order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId,customerName:customer?.name||"Customer"})});
-  if(!r.ok){const d=await r.json().catch(()=>({}));throw Error(d.error||"Could not create Razorpay order");}
-  const order=await r.json();
-  new window.Razorpay({key:c.razorpayKey,amount:order.amount,currency:order.currency||"INR",name:(s.shop||{}).name||"Dukaan Khata",description:"Khata payment",order_id:order.id,prefill:{name:customer?.name||""},theme:{color:"#176b4d"},handler:async response=>{
-    const v=await fetch(c.backendUrl.replace(/\/$/,"")+"/api/razorpay/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...response,customerId,amount})});
-    const result=await v.json().catch(()=>({}));
-    if(!v.ok||!result.verified)throw Error("Payment verification failed");
-    s.tx=Array.isArray(s.tx)?s.tx:[];s.tx.unshift({id:"rzp_"+Date.now(),type:"payment",customerId,amount,mode:"razorpay",gateway:"razorpay",paymentId:response.razorpay_payment_id,orderId:response.razorpay_order_id,date:new Date().toISOString()});
-    localStorage.setItem("dukaan_khata_infinity_v2",JSON.stringify(s));window.closeModal?.();window.render?.();toast("Razorpay payment verified ✓");
-  }}).open();
+
+  const s=state();
+  const customer=(s.customers||[]).find(x=>x.id===customerId);
+  const backend=c.backendUrl.replace(/\/$/,"");
+  const shopName=(s.shop||{}).name||"Dukaan Khata";
+
+  const r=await fetch(backend+"/api/razorpay/qr",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      amount,
+      customerId,
+      customerName:customer?.name||"Customer",
+      shopName
+    })
+  });
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok||!data.imageUrl)throw Error(data.error||"Could not create Razorpay QR");
+
+  const oldModal=document.getElementById("modalBody");
+  window.modal?.('<div class="payment-qr-screen" style="text-align:center"><h2>📲 Scan & Pay</h2><p class="muted">Razorpay UPI QR • No card details</p><div style="font-size:28px;font-weight:800;margin:10px 0">₹'+amount.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})+'</div><div class="card" style="display:flex;justify-content:center;padding:18px;background:#fff"><img src="'+esc(data.imageUrl)+'" alt="Razorpay UPI payment QR code" style="width:min(300px,75vw);height:auto;image-rendering:auto"></div><p><b>Customer:</b> '+esc(customer?.name||"Walk-in / Other")+'</p><p class="muted">Customer scans this QR with Google Pay, PhonePe, Paytm, BHIM or another UPI app and completes the payment with their UPI PIN.</p><div class="row"><button class="btn primary" id="checkRazorpayQr">✓ Check Payment</button><button class="btn" id="closeRazorpayQr">Close</button></div><div id="qrPaymentStatus" class="muted" style="margin-top:10px">Waiting for payment…</div></div>');
+
+  let stopped=false;
+  const close=()=>{
+    stopped=true;
+    window.closeModal?.();
+  };
+  document.getElementById("closeRazorpayQr")?.addEventListener("click",close);
+
+  const recordPayment=payment=>{
+    if(stopped)return;
+    const current=state();
+    current.tx=Array.isArray(current.tx)?current.tx:[];
+    const already=current.tx.some(x=>x.paymentId===payment.id);
+    if(already)return;
+    current.tx.unshift({
+      id:"rzp_qr_"+Date.now(),
+      type:"payment",
+      customerId,
+      amount:payment.amount||amount,
+      mode:"razorpay_qr",
+      gateway:"razorpay",
+      paymentId:payment.id,
+      qrId:data.id,
+      date:new Date().toISOString()
+    });
+    localStorage.setItem("dukaan_khata_infinity_v2",JSON.stringify(current));
+    stopped=true;
+    window.closeModal?.();
+    window.render?.();
+    toast("Razorpay UPI payment received ✓");
+  };
+
+  const check=async()=>{
+    if(stopped)return;
+    const status=document.getElementById("qrPaymentStatus");
+    if(status)status.textContent="Checking Razorpay payment…";
+    try{
+      const pr=await fetch(backend+"/api/razorpay/qr/"+encodeURIComponent(data.id)+"/payments");
+      const pd=await pr.json().catch(()=>({}));
+      if(!pr.ok)throw Error(pd.error||"Could not check payment");
+      const match=(pd.payments||[]).find(p=>Math.abs(Number(p.amount||0)-amount)<0.01);
+      if(match){recordPayment(match);return true;}
+      if(status)status.textContent="No payment detected yet. Customer can scan the QR.";
+    }catch(e){
+      if(status)status.textContent=e.message||"Could not check payment";
+    }
+    return false;
+  };
+
+  document.getElementById("checkRazorpayQr")?.addEventListener("click",check);
+  const timer=setInterval(async()=>{
+    const paid=await check();
+    if(paid||stopped)clearInterval(timer);
+  },5000);
+  setTimeout(()=>clearInterval(timer),10*60*1000);
+  await check();
 }
 
 function online(customerId){
   const s=state(),opts=(s.customers||[]).map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");
-  window.modal?.('<h2>💳 Collect Online Payment</h2><select id="gatewayCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="gatewayAmount" type="number" min="1" step=".01" placeholder="Amount ₹"><div class="row"><button class="btn primary" id="razorpayPayBtn">Pay with Razorpay</button><button class="btn" id="paytmPayBtn">Paytm</button></div><button class="btn" id="gatewaySettingsBtn">⚙ Payment Gateway Settings / Edit URL</button><p class="muted">Payment is recorded only after secure verification.</p>');
+  window.modal?.('<h2>💳 Collect Online Payment</h2><select id="gatewayCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="gatewayAmount" type="number" min="1" step=".01" placeholder="Amount ₹"><div class="row"><button class="btn primary" id="razorpayPayBtn">📲 Razorpay UPI QR</button><button class="btn" id="paytmPayBtn">Paytm</button></div><button class="btn" id="gatewaySettingsBtn">⚙ Payment Gateway Settings / Edit URL</button><p class="muted">Razorpay payment opens as a QR only. No debit/credit card details are requested.</p>');
   document.getElementById("razorpayPayBtn")?.addEventListener("click",()=>razorpayPay().catch(e=>toast(e.message||"Payment failed")));
   document.getElementById("paytmPayBtn")?.addEventListener("click",()=>{const c=load(),a=Number(document.getElementById("gatewayAmount")?.value)||0;if(a<=0)return toast("Enter a valid amount");if(!c.paytmUrl)return settings();window.open(c.paytmUrl,"_blank","noopener")});
   document.getElementById("gatewaySettingsBtn")?.addEventListener("click",settings);
@@ -57,14 +124,14 @@ function inject(){
   if(grid&&!document.getElementById("paymentGatewayTool")){
     const b=document.createElement("button");b.id="paymentGatewayTool";b.className="luxury-tool";b.innerHTML="💳<b>Payment Gateway</b><small>Razorpay • Paytm • UPI</small>";b.onclick=settings;grid.insertBefore(b,grid.firstChild);
   }
-  if(!window.Razorpay){const s=document.createElement("script");s.src="https://checkout.razorpay.com/v1/checkout.js";s.async=true;document.head.appendChild(s)}
+  
 }
 const original=window.openReceive;
 window.openReceive=function(customerId=""){
   if(typeof original==="function")original(customerId);
   setTimeout(()=>{
     const host=document.getElementById("receiveQR");if(!host||document.getElementById("onlineGatewayBtn"))return;
-    const b=document.createElement("button");b.id="onlineGatewayBtn";b.className="btn primary";b.textContent="💳 Pay Online — Razorpay / Paytm";b.onclick=()=>online(customerId);host.appendChild(b);
+    const b=document.createElement("button");b.id="onlineGatewayBtn";b.className="btn primary";b.textContent="📲 Pay Online — QR / Paytm";b.onclick=()=>online(customerId);host.appendChild(b);
   },100);
 };
 window.openPaymentGatewaySettings=settings;window.openOnlinePayment=online;
