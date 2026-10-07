@@ -75,7 +75,7 @@ function openClubFeature(type){
     (type==="special"?'<button class="dk-pass-share" onclick="passAddPoints(50)">🎂 Add 50 Bonus Points</button>':'')+
     (type==="refer"?'<button class="dk-pass-share" onclick="passShare();toast(\'Invite shared ✓\')">↗ Share & Invite</button>':'')+
     (type==="vip"?'<button class="dk-pass-share" onclick="openDigitalPassword()">⭐ View My Pass</button>':'')+
-    '</div><button class="dk-club-one-back" onclick="openDigitalPassword()" aria-label="Back one step">🔙</button></div>');
+    '</div></div>');
 }
 function openDigitalPassword(){
   const s=state.shop||{},p=getPassProfile(),tier=passTier(p.points);
