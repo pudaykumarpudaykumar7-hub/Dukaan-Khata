@@ -30,50 +30,46 @@ app.post("/api/razorpay/order",async(req,res)=>{
 });
 
 /* Dynamic Razorpay UPI QR. The secret stays on the backend. */
-app.post("/api/razorpay/qr",async(req,res)=>{
+app.post("/api/razorpay/payment-link",async(req,res)=>{
   try{
     const amount=Number(req.body.amount||0);
-    const customerId=String(req.body.customerId||"");
-    const customerName=String(req.body.customerName||"Customer").slice(0,80);
     if(!Number.isFinite(amount)||amount<=0)return res.status(400).json({error:"Enter a valid amount of at least ₹1."});
     if(!KEY_ID||!KEY_SECRET)return res.status(500).json({error:"Razorpay environment variables are missing in Vercel."});
-
-    const qr=await fetch("https://api.razorpay.com/v1/payments/qr_codes",{
+    const r=await fetch("https://api.razorpay.com/v1/payment_links",{
       method:"POST",
       headers:{
         "Authorization":"Basic "+Buffer.from(KEY_ID+":"+KEY_SECRET).toString("base64"),
         "Content-Type":"application/json"
       },
       body:JSON.stringify({
-        type:"upi_qr",
-        name:String(req.body.shopName||"Dukaan Khata").slice(0,40),
-        usage:"single_use",
-        fixed_amount:true,
-        payment_amount:Math.round(amount*100),
+        amount:Math.round(amount*100),
+        currency:"INR",
+        accept_partial:false,
+        expire_by:Math.floor(Date.now()/1000)+15*60,
         description:"Dukaan Khata payment",
-        close_by:Math.floor(Date.now()/1000)+15*60,
-        notes:{customerId,customerName}
+        customer:{name:String(req.body.customerName||"Customer").slice(0,80)},
+        notes:{customerId:String(req.body.customerId||"")}
       })
     });
-    const data=await qr.json().catch(()=>({}));
-    if(!qr.ok)return res.status(qr.status||500).json({error:data.error?.description||data.error?.reason||"Razorpay QR creation failed"});
-
-    if(!data?.id||!data?.image_url)return res.status(502).json({error:"Razorpay returned no QR image. Check whether UPI QR Codes are enabled for this Razorpay account."});
-
-    res.json({
-      id:data.id,
-      imageUrl:data.image_url,
-      amount:data.payment_amount?data.payment_amount/100:amount,
-      fixedAmount:!!data.fixed_amount,
-      status:data.status
-    });
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)return res.status(r.status||500).json({error:data.error?.description||data.error?.reason||"Razorpay Payment Link creation failed"});
+    res.json({id:data.id,shortUrl:data.short_url,status:data.status,amount:amount});
   }catch(e){
     const er=e?.error||e?.response?.error||e;
-    console.error("Razorpay QR creation error:",er);
-    res.status(Number(e?.statusCode)||Number(e?.status)||500).json({
-      error:er?.description||er?.message||e?.message||"Razorpay QR creation failed"
-    });
+    console.error("Razorpay Payment Link error:",er);
+    res.status(Number(e?.statusCode)||500).json({error:er?.description||er?.message||e?.message||"Payment Link creation failed"});
   }
+});
+
+app.get("/api/razorpay/payment-link/:id",async(req,res)=>{
+  try{
+    const r=await fetch("https://api.razorpay.com/v1/payment_links/"+encodeURIComponent(req.params.id),{
+      headers:{"Authorization":"Basic "+Buffer.from(KEY_ID+":"+KEY_SECRET).toString("base64")}
+    });
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)return res.status(r.status||500).json({error:data.error?.description||"Could not check payment"});
+    res.json({status:data.status,paid:data.status==="paid",amount:Number(data.amount||0)/100});
+  }catch(e){res.status(500).json({error:"Could not check payment"})}
 });
 
 /* Poll the QR's actual captured payments.*/
