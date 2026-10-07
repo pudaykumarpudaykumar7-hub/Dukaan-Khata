@@ -30,7 +30,7 @@
   const names={
     English:"English (english)",Telugu:"తెలుగు (telugu)",Hindi:"हिन्दी (hindi)",Kannada:"ಕನ್ನಡ (kannada)",Marathi:"मराठी (marathi)",Bengali:"বাংলা (bengali)",Assamese:"অসমীয়া (assamese)",Gujarati:"ગુજરાતી (gujarati)",Malayalam:"മലയാളം (malayalam)",Punjabi:"ਪੰਜਾਬੀ (punjabi)",Odia:"ଓଡ଼ିଆ (odia)",Tamil:"தமிழ் (tamil)",Urdu:"اردو (urdu)",Kashmiri:"کٲشُر (kashmiri)",Konkani:"कोंकणी (konkani)",Manipuri:"ꯃꯤꯇꯩ ꯂꯣꯟ (manipuri)",Sanskrit:"संस्कृतम् (sanskrit)",Maithili:"मैथिली (maithili)",Nepali:"नेपाली (nepali)",Sindhi:"سنڌي (sindhi)",Dogri:"डोगरी (dogri)",Bodo:"बड़ो (bodo)",Santali:"ᱥᱟᱱᱛᱟᱲᱤ (santali)"
   };
-  const languageOrder=["English","Hindi","Telugu","Kannada","Marathi","Bengali","Assamese","Gujarati","Malayalam","Punjabi","Odia","Tamil","Urdu","Kashmiri","Konkani","Manipuri","Sanskrit","Maithili","Nepali","Sindhi","Dogri","Bodo","Santali"];
+  const languageOrder=["English","Assamese","Bengali","Bodo","Dogri","Gujarati","Hindi","Kannada","Kashmiri","Konkani","Maithili","Malayalam","Manipuri","Marathi","Nepali","Odia","Punjabi","Sanskrit","Santali","Sindhi","Tamil","Telugu","Urdu"];
   const keys=languageOrder.filter(x=>T[x]);
   function current(){
     const saved=localStorage.getItem("dukaan_khata_language");
