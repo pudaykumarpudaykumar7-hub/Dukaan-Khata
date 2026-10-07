@@ -63,10 +63,7 @@ function openClubFeature(type){
   const data={
     wallet:["🎁 Rewards Wallet","Use your points for rewards.","Points: "+p.points,"You can redeem 100 points for one reward."],
     streak:["🔥 Visit Streak","Keep visiting to build your streak.","Stamps: "+p.stamps+"/10","Each recorded visit adds a stamp and points."],
-    offers:["🏷️ Member Offers","Exclusive offers for Dukaan Club members.","Current offer: 10% member discount","Show your Club Pass at the counter to claim."],
-    special:["🎂 Special Days","Birthday and festival benefits.","Special benefit: bonus points","Add your special date in your shop/customer details to use this later."],
     refer:["🤝 Refer & Earn","Invite customers and grow your club.","Referrals: "+p.referrals,"Tap Share & Invite to send your Club Pass."],
-    vip:["⭐ VIP Tier","Your membership level is based on points.","Current tier: "+tier,(tier==="DIAMOND"?"You reached the highest tier.":"Next tier starts at "+next+" points.")]
   }[type];
   modal('<div class="dk-club-feature-view"><div class="dk-club-feature-head"><span>'+data[0].split(" ")[0]+'</span><div><h2>'+esc(data[0].slice(data[0].indexOf(" ")+1))+'</h2><small>'+esc(data[1])+'</small></div></div><div class="dk-club-feature-card"><b>'+esc(data[2])+'</b><p>'+esc(data[3])+'</p></div><div class="dk-club-feature-actions">'+
     (type==="wallet"?'<button class="dk-pass-share" onclick="passRedeem()">🎁 Redeem 100 Points</button>':'')+
