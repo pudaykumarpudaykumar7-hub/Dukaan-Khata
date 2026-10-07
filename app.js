@@ -149,7 +149,7 @@ function receivedTotal(id){return state.tx.filter(t=>t.customerId===id&&t.type==
 function sales(){return state.tx.filter(t=>t.type==="sale")}
 function payments(){return state.tx.filter(t=>t.type==="payment")}
 function toast(msg){const e=document.getElementById("toast");if(!e)return;e.textContent=msg;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2200)}
-function modal(html){const m=document.getElementById("modal"),b=document.getElementById("modalBody");if(!m||!b)return;b.innerHTML=html;m.classList.remove("hidden")}
+function modal(html){const m=document.getElementById("modal"),b=document.getElementById("modalBody");if(!m||!b)return;b.innerHTML=html;m.classList.remove("hidden");if(!m.dataset.backdropClose){m.dataset.backdropClose="1";m.addEventListener("click",e=>{if(e.target===m)closeModal()})}}
 function closeModal(){stopQRPaymentWatcher();document.getElementById("modal")?.classList.add("hidden");document.getElementById("modal")?.classList.remove("uvms-logo-modal");document.body.classList.remove("uvms-logo-open")}
 function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById(id)?.classList.add("active");document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));render()}
 function openSearch(){modal('<h2>Search</h2><input id="globalSearch" placeholder="Customer or phone..." autocomplete="off"><div id="globalResults"></div>');document.getElementById("globalSearch")?.addEventListener("input",globalResults);globalResults();document.getElementById("globalSearch")?.focus()}
