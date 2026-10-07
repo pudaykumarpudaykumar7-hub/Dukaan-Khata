@@ -389,7 +389,7 @@ function renderKhata(){
   const q=(document.getElementById("khataSearch")?.value||"").toLowerCase();
   const paidCustomers=state.customers.filter(c=>receivedTotal(c.id)>0),dueCustomers=state.customers.filter(c=>balance(c.id)>0);
   const paidTotal=paidCustomers.reduce((s,c)=>s+receivedTotal(c.id),0),dueTotal=dueCustomers.reduce((s,c)=>s+balance(c.id),0);
-  const allBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\\'all\\'"]'),dueBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\\'due\\'"]'),paidBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\\'paid\\'"]');
+  const allBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'all\'"]'),dueBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'due\'"]'),paidBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'paid\'"]');
   if(allBtn)allBtn.innerHTML="All ("+state.customers.length+")";
   if(dueBtn)dueBtn.innerHTML='<span>Due ('+dueCustomers.length+')</span><strong class="khata-filter-due">'+money(dueTotal)+'</strong>';
   if(paidBtn)paidBtn.innerHTML='<span>Paid ('+paidCustomers.length+')</span><strong class="khata-filter-paid">'+money(paidTotal)+'</strong>';
@@ -397,7 +397,7 @@ function renderKhata(){
     const b=balance(c.id),received=receivedTotal(c.id);let right=b>0?'<span>Due</span><strong class="khata-money-due">'+money(b)+'</strong>':'<span>Paid</span><strong class="khata-money-paid">'+money(received)+'</strong>';
     if(khataFilter==="due")right='<span>Due</span><strong class="khata-money-due">'+money(b)+'</strong>';
     if(khataFilter==="paid")right='<span>Paid</span><strong class="khata-money-paid">'+money(received)+'</strong>';
-    return '<div class="customer khata-customer-row" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'"><div class="khata-customer-info" onclick="customerView(\\''+esc(c.id)+'\\')"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small></div><div class="khata-amount">'+right+(received>0?'<small class="khata-total-paid">Total paid '+money(received)+'</small>':"")+(!c.phone?'<button class="btn small khata-add-mobile" onclick="event.stopPropagation();addCustomerNumber(\\''+esc(c.id)+'\\')">＋ Add Mobile</button>':"")+'</div></div>';
+    return '<div class="customer khata-customer-row" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'"><div class="khata-customer-info" onclick="customerView(\''+esc(c.id)+'\')"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+'</small></div><div class="khata-amount">'+right+(received>0?'<small class="khata-total-paid">Total paid '+money(received)+'</small>':"")+(!c.phone?'<button class="btn small khata-add-mobile" onclick="event.stopPropagation();addCustomerNumber(\''+esc(c.id)+'\')">＋ Add Mobile</button>':"")+'</div></div>';
   }).join("")||'<p class="muted">No customers found.</p>';
 }
 function renderCustomers(){
