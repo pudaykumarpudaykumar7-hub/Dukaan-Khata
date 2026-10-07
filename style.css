@@ -1019,3 +1019,79 @@ body.darkmode{
   z-index:2;
   isolation:isolate;
 }
+
+
+/* ===== UNIVERSAL CARD TEXT VISIBILITY — LIGHT + DARK MODE =====
+   Only affects text inside light/dark content boxes; no functionality/layout changes. */
+body:not(.darkmode) .stat,
+body:not(.darkmode) .card,
+body:not(.darkmode) .customer,
+body:not(.darkmode) .item,
+body:not(.darkmode) .activity,
+body:not(.darkmode) .bill,
+body:not(.darkmode) .inventory-cards>div,
+body:not(.darkmode) .report-grid>div,
+body:not(.darkmode) .bill-tools button,
+body:not(.darkmode) .tools-grid button{
+  background:#fff!important;
+  color:#101828!important;
+}
+body:not(.darkmode) .stat *,
+body:not(.darkmode) .card *,
+body:not(.darkmode) .customer *,
+body:not(.darkmode) .item *,
+body:not(.darkmode) .activity *,
+body:not(.darkmode) .bill *,
+body:not(.darkmode) .inventory-cards>div *,
+body:not(.darkmode) .report-grid>div *,
+body:not(.darkmode) .bill-tools button *,
+body:not(.darkmode) .tools-grid button *{
+  color:#101828!important;
+}
+body:not(.darkmode) .stat span,
+body:not(.darkmode) .stat small,
+body:not(.darkmode) .customer small,
+body:not(.darkmode) .item small,
+body:not(.darkmode) .bill small,
+body:not(.darkmode) .activity small,
+body:not(.darkmode) .inventory-cards span,
+body:not(.darkmode) .report-grid span,
+body:not(.darkmode) .tools-grid small{
+  color:#667085!important;
+}
+
+.darkmode .stat,
+.darkmode .card,
+.darkmode .customer,
+.darkmode .item,
+.darkmode .activity,
+.darkmode .bill,
+.darkmode .inventory-cards>div,
+.darkmode .report-grid>div,
+.darkmode .bill-tools button,
+.darkmode .tools-grid button{
+  color:#f3f6fa!important;
+}
+.darkmode .stat *,
+.darkmode .card *,
+.darkmode .customer *,
+.darkmode .item *,
+.darkmode .activity *,
+.darkmode .bill *,
+.darkmode .inventory-cards>div *,
+.darkmode .report-grid>div *,
+.darkmode .bill-tools button *,
+.darkmode .tools-grid button *{
+  color:#f3f6fa!important;
+}
+.darkmode .stat span,
+.darkmode .stat small,
+.darkmode .customer small,
+.darkmode .item small,
+.darkmode .bill small,
+.darkmode .activity small,
+.darkmode .inventory-cards span,
+.darkmode .report-grid span,
+.darkmode .tools-grid small{
+  color:#9aa8bb!important;
+}
