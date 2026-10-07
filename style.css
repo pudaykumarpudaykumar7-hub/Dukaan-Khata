@@ -614,3 +614,112 @@ html,body{height:100%;min-height:100%;overflow-x:hidden;overflow-y:auto!importan
     grid-template-columns:1fr!important;
   }
 }
+
+
+/* ===== DUKAAN KHATA — PREMIUM PAGE BACKGROUND THEMES =====
+   Visual-only layer: preserves existing controls, cards, data and functionality. */
+body{
+  background:
+    radial-gradient(circle at 8% 8%,rgba(33,163,102,.10),transparent 28%),
+    radial-gradient(circle at 92% 18%,rgba(37,99,235,.08),transparent 30%),
+    linear-gradient(135deg,#f7faf8 0%,#f4f7fb 48%,#f8f6ff 100%);
+}
+main{position:relative;isolation:isolate}
+main:before{
+  content:"";
+  position:fixed;
+  inset:72px 0 76px;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.72;
+  background:
+    radial-gradient(circle at 15% 25%,rgba(33,163,102,.10) 0 1px,transparent 2px),
+    radial-gradient(circle at 75% 70%,rgba(37,99,235,.08) 0 1px,transparent 2px);
+  background-size:34px 34px,46px 46px;
+}
+
+/* Home — emerald/gold business theme */
+#home{
+  position:relative;
+  padding:18px 16px 30px;
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 0% 0%,rgba(33,163,102,.14),transparent 34%),
+    radial-gradient(circle at 100% 18%,rgba(214,169,75,.10),transparent 30%);
+}
+#home .stat,#home .customer,#home .item,#home .activity,#home .bill,
+#home .card,#home .store-pill{
+  backdrop-filter:blur(8px);
+  background:rgba(255,255,255,.88);
+}
+
+/* Khata — deep green finance theme */
+#khata{
+  position:relative;
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 90% 0%,rgba(23,107,77,.16),transparent 34%),
+    radial-gradient(circle at 5% 75%,rgba(214,169,75,.08),transparent 28%);
+}
+#khata .customer,#khata .item,#khata .activity,#khata .card{
+  backdrop-filter:blur(8px);
+  background:rgba(255,255,255,.90);
+}
+
+/* Customers — blue communication theme */
+#customers{
+  position:relative;
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 8% 0%,rgba(37,99,235,.14),transparent 34%),
+    radial-gradient(circle at 95% 80%,rgba(124,58,237,.09),transparent 32%);
+}
+#customers .customer,#customers .item,#customers .activity,#customers .card{
+  backdrop-filter:blur(8px);
+  background:rgba(255,255,255,.90);
+}
+
+/* Bills — warm premium accounting theme */
+#bills{
+  position:relative;
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 92% 0%,rgba(217,119,6,.15),transparent 32%),
+    radial-gradient(circle at 5% 85%,rgba(23,107,77,.08),transparent 30%);
+}
+#bills .bill,#bills .card,#bills .report-hero{
+  backdrop-filter:blur(8px);
+}
+#bills .bill{
+  background:rgba(255,255,255,.92);
+}
+
+/* More — premium purple tools theme */
+#tools{
+  position:relative;
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 0% 0%,rgba(124,58,237,.14),transparent 34%),
+    radial-gradient(circle at 100% 85%,rgba(37,99,235,.10),transparent 32%);
+}
+#tools .tools-grid button{
+  backdrop-filter:blur(8px);
+  background:rgba(255,255,255,.90);
+}
+
+/* Keep all existing premium cards and important controls above the background */
+#home>* ,#khata>* ,#customers>* ,#bills>* ,#tools>*{position:relative;z-index:1}
+
+/* Dark mode keeps the same themed feel without reducing readability */
+.darkmode body{background:#08111b}
+.darkmode main:before{opacity:.38}
+.darkmode #home{background:radial-gradient(circle at 0% 0%,rgba(33,163,102,.16),transparent 34%),radial-gradient(circle at 100% 18%,rgba(214,169,75,.10),transparent 30%)}
+.darkmode #khata{background:radial-gradient(circle at 90% 0%,rgba(23,107,77,.20),transparent 34%),radial-gradient(circle at 5% 75%,rgba(214,169,75,.08),transparent 28%)}
+.darkmode #customers{background:radial-gradient(circle at 8% 0%,rgba(37,99,235,.20),transparent 34%),radial-gradient(circle at 95% 80%,rgba(124,58,237,.12),transparent 32%)}
+.darkmode #bills{background:radial-gradient(circle at 92% 0%,rgba(217,119,6,.18),transparent 32%),radial-gradient(circle at 5% 85%,rgba(23,107,77,.10),transparent 30%)}
+.darkmode #tools{background:radial-gradient(circle at 0% 0%,rgba(124,58,237,.20),transparent 34%),radial-gradient(circle at 100% 85%,rgba(37,99,235,.12),transparent 32%)}
+
+@media(max-width:720px){
+  #home,#khata,#customers,#bills,#tools{border-radius:22px;padding-left:0;padding-right:0}
+  main:before{inset:72px 0 76px;background-size:28px 28px,38px 38px}
+}
