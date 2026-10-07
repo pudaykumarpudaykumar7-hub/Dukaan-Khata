@@ -45,6 +45,8 @@ app.post("/api/razorpay/payment-link",async(req,res)=>{
         amount:Math.round(amount*100),
         currency:"INR",
         accept_partial:false,
+        upi_link:true,
+        reference_id:"DK_"+Date.now(),
         expire_by:Math.floor(Date.now()/1000)+15*60,
         description:"Dukaan Khata payment",
         customer:{name:String(req.body.customerName||"Customer").slice(0,80)},
