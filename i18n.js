@@ -57,15 +57,17 @@
   };
   window.openLanguage=function(){
     const L=T[current()]||T.English;
-    modal("<h2>🌐 "+L.language+"</h2><p class='muted'>Choose your app language.</p><div id='languageChoices'></div>");
-    const box=document.getElementById("languageChoices");if(!box)return;
-    keys.forEach(x=>{
-      const b=document.createElement("button");
-      b.className="btn";b.style.cssText="width:100%;margin:6px 0;text-align:left";
-      b.type="button";b.textContent=names[x];
-      b.addEventListener("click",()=>window.setLanguage(x));
-      box.appendChild(b);
-    });
-  };
-  document.addEventListener("DOMContentLoaded",()=>setTimeout(window.applyLanguage,100));
+    const labels={English:["🇬🇧","English","Default language"],Hindi:["🇮🇳","हिन्दी","हिंदी में उपयोग करें"],Telugu:["🇮🇳","తెలుగు","తెలుగులో ఉపయోగించండి"],Kannada:["🇮🇳","ಕನ್ನಡ","ಕನ್ನಡದಲ್ಲಿ ಬಳಸಿ"],Marathi:["🇮🇳","मराठी","मराठीत वापरा"]};
+    const options=keys.map(x=>{
+      const v=labels[x]||["🌐",x,x];
+      const selected=x===current();
+      return '<button class="dk-lang-option" onclick="setLanguage(\''+x+'\')"><span class="dk-lang-flag">'+v[0]+'</span><span><b>'+v[1]+'</b><small>'+v[2]+'</small></span><i>'+ (selected?'✓':'○') +'</i></button>';
+    }).join("");
+    modal('<div class="dk-language-showcase">'+
+      '<div class="dk-language-top"><button class="dk-language-back" onclick="closeModal()">‹</button><div class="dk-language-brand"><span>PERSONALIZE</span><h2>'+L.language+'</h2><small>Change app language</small></div><b class="dk-language-pro">✦ INDIA</b></div>'+
+      '<div class="dk-language-world"><div class="dk-globe">🌍<i></i><em></em></div><div class="dk-orbit-label dk-orbit-en">🇬🇧 English</div><div class="dk-orbit-label dk-orbit-hi">🇮🇳 हिन्दी</div><div class="dk-orbit-label dk-orbit-te">🇮🇳 తెలుగు</div><div class="dk-orbit-label dk-orbit-kn">🇮🇳 ಕನ್ನಡ</div></div>'+
+      '<div class="dk-language-panel"><div class="dk-language-panel-title"><span>🌐</span><div><b>Choose your language</b><small>Select one to personalize Dukaan Khata</small></div></div><div class="dk-language-list">'+options+'</div></div>'+
+      '<div class="dk-language-save">🌐 <span>Your preferred language<br>will be saved automatically</span><b>✓</b></div>'+
+      '<button class="dk-language-close" onclick="closeModal()">× Close</button></div>');
+  };  document.addEventListener("DOMContentLoaded",()=>setTimeout(window.applyLanguage,100));
 })();
