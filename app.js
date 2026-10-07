@@ -492,10 +492,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     try{toast("App startup error. Please reload.")}catch(_){}
   }
 });
-    });
-  });
-  window.__DUKAAN_READY__=true;
-}catch(e){console.error("Dukaan Khata startup error:",e);window.__DUKAAN_READY__=false;toast("App startup error. Please reload.")}});
+
 
 
 
