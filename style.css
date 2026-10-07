@@ -1709,3 +1709,16 @@ body:not(.darkmode){
 body > *{position:relative;z-index:1}
 .bottom-nav{z-index:99999!important}
 .modal{z-index:100000!important}
+
+/* ===== LIVE ACTION BACKGROUND ===== */
+body.dk-live-background[data-global-theme="gradient"]{
+  background-size:300% 300%!important;
+  animation:dkLiveGradient 12s ease-in-out infinite;
+}
+body.dk-live-background[data-global-theme="futuristic"]{
+  background-size:180% 180%!important;
+  animation:dkLiveGradient 14s ease-in-out infinite;
+}
+@keyframes dkLiveGradient{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.dk-live-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0;padding:14px 16px;border:1px solid #ffffff22;border-radius:18px;background:#ffffff0d}
+.dk-live-toggle b{display:block}.dk-live-toggle small{display:block;opacity:.7;margin-top:3px}
