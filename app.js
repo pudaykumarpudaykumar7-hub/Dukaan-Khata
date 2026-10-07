@@ -214,8 +214,11 @@ function showMoneyReceived(payment,customerId=""){
     state.tx.unshift({id:uid(),type:"payment",customerId,amount,mode:"upi",gateway:"razorpay_qr",paymentId:payment.id,reference:payment.rrn||"",date:new Date().toISOString()});
     saveState();render();
   }
-  const box=document.getElementById("qrPaymentStatus");
-  if(box)box.innerHTML='<div class="payment-success-card"><div class="payment-success-icon">✓</div><b>MONEY RECEIVED</b><strong>'+money(amount)+'</strong><span>'+esc(customer?.name||"Payment received")+'</span><small>UPI payment confirmed automatically</small></div>';
+  const success='<div class="payment-success-card"><div class="payment-success-icon">✓</div><b>PAYMENT RECEIVED</b><strong>'+money(amount)+'</strong><span>'+esc(customer?.name||"Payment received")+'</span><small>Razorpay UPI payment confirmed automatically</small></div>';
+  const qrBox=document.getElementById("qrBox");
+  if(qrBox)qrBox.innerHTML=success;
+  const cap=document.getElementById("qrCaption");if(cap)cap.textContent="✓ Payment received • "+money(amount);
+  const box=document.getElementById("qrPaymentStatus");if(box)box.innerHTML=success;
   toast("Money received: "+money(amount));
 }
 function createTrackedQR(customerId){
