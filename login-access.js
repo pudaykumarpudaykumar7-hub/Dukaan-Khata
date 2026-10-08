@@ -101,7 +101,9 @@
     let paymentPool=paid;
     const takenItems=[];
     sales.slice().sort((a,b)=>new Date(a.date||0)-new Date(b.date||0)).forEach(t=>{
-      const items=Array.isArray(t.items)&&t.items.length?t.items:[{name:"Items",qty:1,price:Number(t.total)||0,total:Number(t.total)||0}];
+      // Dukaan Khata stores Add Many Items as t.lines. Keep t.items as a legacy fallback.
+      const rawItems=Array.isArray(t.lines)&&t.lines.length?t.lines:(Array.isArray(t.items)&&t.items.length?t.items:[]);
+      const items=rawItems.length?rawItems:[{name:"Items",qty:1,price:Number(t.total)||0,total:Number(t.total)||0}];
       items.forEach(i=>{
         const qty=Math.max(1,Number(i.qty)||1);
         const explicitTotal=Number(i.total);
