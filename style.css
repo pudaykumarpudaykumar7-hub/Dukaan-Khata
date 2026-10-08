@@ -1876,3 +1876,13 @@ body.dk-customer-mode{overflow:hidden!important}
 .dk-customer-home-features{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:20px}.dk-customer-home-features span{padding:8px 11px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:12px;font-weight:800}
 .dk-customer-home-note{text-align:center;color:#64748b;font-size:13px;margin-top:22px}
 @media(max-width:600px){.dk-customer-home-head{padding:0 15px}.dk-customer-home-main{padding:45px 15px 30px}.dk-customer-login-card{padding:25px 18px;border-radius:22px}.dk-customer-welcome p{font-size:15px}.dk-customer-secure{font-size:11px;padding:8px 10px}}
+
+
+/* Customer login interaction safety */
+#dkCustomerFullScreen{pointer-events:auto!important;touch-action:auto!important}
+#dkCustomerFullScreen .dk-customer-home,
+#dkCustomerFullScreen .dk-customer-home-main,
+#dkCustomerFullScreen .dk-customer-login-card{pointer-events:auto!important}
+#dkCustomerViewBtn{position:relative!important;z-index:1000002!important;pointer-events:auto!important;cursor:pointer!important;touch-action:manipulation!important;-webkit-tap-highlight-color:rgba(37,99,235,.18)!important}
+#dkCustomerViewBtn:active{transform:scale(.98)!important}
+#customerLoginPhone{position:relative!important;z-index:1000002!important;pointer-events:auto!important}
