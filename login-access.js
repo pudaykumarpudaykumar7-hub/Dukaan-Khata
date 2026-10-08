@@ -32,7 +32,7 @@
       document.getElementById("dkCustomerAccessBtn")?.addEventListener("click",window.openCustomerLogin);
     }
   }
-  function openCustomer2(){
+  function openCustomer2(hideBack){
     document.getElementById("modal")?.classList.add("hidden");
     document.getElementById("dkCustomerFullScreen")?.remove();
     const root=document.createElement("div");
@@ -42,7 +42,7 @@
     document.body.appendChild(root);
     document.body.classList.add("dk-customer-mode");
     const input=root.querySelector("#customerLoginPhone"),btn=root.querySelector("#dkCustomerViewBtn"),status=root.querySelector("#dkCustomerStatus");
-    root.querySelector("#dkCustomerBack")?.addEventListener("click",closeCustomer2);
+    if(hideBack) root.querySelector("#dkCustomerBack")?.remove(); else root.querySelector("#dkCustomerBack")?.addEventListener("click",closeCustomer2);
     function lookup(){
       const q=phone2(input.value);
       if(!q){status.textContent="Please enter your mobile number.";input.focus();return}
@@ -179,7 +179,7 @@
     document.body.appendChild(root);
     root.querySelector("#dkStandaloneClose")?.addEventListener("click",()=>root.remove());
     root.querySelector("#dkOwnerAccessBtn")?.addEventListener("click",()=>{root.remove();owner2()});
-    root.querySelector("#dkCustomerAccessBtn")?.addEventListener("click",()=>{root.remove();openCustomer2()});
+    root.querySelector("#dkCustomerAccessBtn")?.addEventListener("click",()=>{root.remove();openCustomer2(true)});
   }
 
   function startupLogin2(){
