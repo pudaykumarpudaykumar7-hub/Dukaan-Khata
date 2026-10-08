@@ -140,29 +140,38 @@
     return (state.tx||[]).filter(t=>String(t.customerId)===String(c.id));
   }
   function openCustomerLogin(){
-    const sb=client();
-    if(!sb){toast("Google login is still loading. Try again.");return}
-    modal('<div class="dk-customer-login">'+
-      '<div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER LOGIN</span><h2>My Khata</h2><p>Sign in with Google, then enter the mobile number saved by the shop.</p></div></div>'+
-      '<button class="dk-login-action dk-google" id="customerGoogleBtn" type="button"><span class="dk-google-logo">G</span><span><b>Continue with Google</b><small>Fast • Secure • No password</small></span><strong>→</strong></button>'+
-      '<div class="dk-customer-divider"><span>THEN</span></div>'+
-      '<label class="dk-customer-label">Customer mobile number<input id="customerLoginPhone" class="search" inputmode="tel" autocomplete="tel" placeholder="Enter phone number"></label>'+
-      '<button class="dk-login-action dk-login-primary" type="button" onclick="findCustomerPortal()">🔎 View My Khata <span>→</span></button>'+
-      '<p class="dk-login-note">Customer access is read-only. Only the matching customer record is shown.</p>'+
-      '<button class="dk-login-close" onclick="openDukaanLogin()">← Back</button></div>');
-    document.getElementById("customerGoogleBtn")?.addEventListener("click",startCustomerGoogleLogin);
+    // Customer access is intentionally separate from Owner Google login.
+    // It opens as a full-screen home-style customer area.
+    const root=document.createElement("div");
+    root.id="dkCustomerFullScreen";
+    root.className="dk-customer-fullscreen";
+    root.innerHTML='<div class="dk-customer-home">'+
+      '<header class="dk-customer-home-head">'+
+        '<button class="dk-customer-home-back" type="button" onclick="closeCustomerFullScreen()">←</button>'+
+        '<div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div>'+
+        '<span class="dk-customer-secure">🔒 Private</span>'+
+      '</header>'+
+      '<main class="dk-customer-home-main">'+
+        '<div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Welcome to <strong>My Khata</strong></h1><p>Enter your registered mobile number to securely view your Khata, Bills, Payments and Due.</p></div>'+
+        '<section class="dk-customer-login-card">'+
+          '<div class="dk-customer-card-icon">📱</div>'+
+          '<h2>Find My Account</h2>'+
+          '<p>Use the mobile number that your shopkeeper saved in Dukaan Khata.</p>'+
+          '<label class="dk-customer-label">Registered mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label>'+
+          '<button class="dk-login-action dk-login-primary dk-customer-view-btn" type="button" onclick="findCustomerPortal()">View My Khata <span>→</span></button>'+
+          '<div class="dk-customer-home-features"><span>📒 Khata</span><span>🧾 Bills</span><span>💳 Payments</span><span>🔴 Due</span></div>'+
+        '</section>'+
+        '<div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div>'+
+      '</main>'+
+    '</div>';
+    document.body.appendChild(root);
+    document.body.classList.add("dk-customer-mode");
     setTimeout(()=>document.getElementById("customerLoginPhone")?.focus(),100);
   }
-  function startCustomerGoogleLogin(){
-    const sb=client();
-    if(!sb){toast("Google login is still loading. Try again.");return}
-    sessionStorage.setItem("dk_login_role","customer");
-    const {error}=sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.href}});
-    if(error){
-      sessionStorage.removeItem("dk_login_role");
-      console.error(error);
-      toast("Google login could not start. Check Supabase Google provider settings.");
-    }
+  function closeCustomerFullScreen(){
+    document.getElementById("dkCustomerFullScreen")?.remove();
+    document.body.classList.remove("dk-customer-mode");
+    if(window.openDukaanLogin)openDukaanLogin();
   }
   function findCustomerPortal(){
     const q=normPhone(document.getElementById("customerLoginPhone")?.value);
@@ -226,6 +235,7 @@
   window.openCustomerLogin=openCustomerLogin;
   window.findCustomerPortal=findCustomerPortal;
   window.openCustomerPortal=openCustomerPortal;
+  window.closeCustomerFullScreen=closeCustomerFullScreen;
   window.startCustomerGoogleLogin=startCustomerGoogleLogin;
   window.openDukaanProfile=openDukaanLogin;
   window.logoutDukaanKhata=logoutDukaanKhata;
