@@ -116,10 +116,16 @@
   }
 
   function loginAccess2(){
-    if(typeof window.modal!=="function"){alert("Login Access is loading. Please try again in a moment.");return}
-    window.modal('<div class="dk-access-shell"><div class="dk-access-head"><div class="dk-access-icon">🔐</div><div><span class="dk-login-badge">LOGIN ACCESS</span><h2>Choose Access</h2><p>Choose how you want to enter Dukaan Khata.</p></div></div><div class="dk-access-grid"><button type="button" class="dk-access-card owner" id="dkOwnerAccessBtn"><span>🏪</span><div><b>Owner Login</b><small>Full Dukaan Khata • Customers • Bills • Payments • Reports • More</small></div><strong>→</strong></button><button type="button" class="dk-access-card customer" id="dkCustomerAccessBtn"><span>👤</span><div><b>Customer Login</b><small>View your own Khata, Bills and Paid Payments by phone number</small></div><strong>→</strong></button></div><div class="dk-access-note">Owner uses Google. Customer uses mobile number.</div><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
-    document.getElementById("dkOwnerAccessBtn")?.addEventListener("click",owner2);
-    document.getElementById("dkCustomerAccessBtn")?.addEventListener("click",openCustomer2);
+    document.getElementById("dkLoginAccessStandalone")?.remove();
+    document.getElementById("modal")?.classList.add("hidden");
+    const root=document.createElement("div");
+    root.id="dkLoginAccessStandalone";
+    root.style.cssText="position:fixed;inset:0;z-index:2147483000;background:rgba(7,12,24,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto";
+    root.innerHTML='<div class="dk-access-shell" style="width:min(680px,100%);max-height:calc(100vh - 40px);overflow:auto;position:relative"><div class="dk-access-head"><div class="dk-access-icon">🔐</div><div><span class="dk-login-badge">LOGIN ACCESS</span><h2>Choose Access</h2><p>Choose how you want to enter Dukaan Khata.</p></div></div><div class="dk-access-grid"><button type="button" class="dk-access-card owner" id="dkOwnerAccessBtn"><span>🏪</span><div><b>Owner Login</b><small>Full Dukaan Khata • Customers • Bills • Payments • Reports • More</small></div><strong>→</strong></button><button type="button" class="dk-access-card customer" id="dkCustomerAccessBtn"><span>👤</span><div><b>Customer Login</b><small>View your own Khata, Bills and Paid Payments by phone number</small></div><strong>→</strong></button></div><div class="dk-access-note">Owner uses Google. Customer uses mobile number.</div><button class="dk-login-close" id="dkStandaloneClose" type="button">× Close</button></div>';
+    document.body.appendChild(root);
+    root.querySelector("#dkStandaloneClose")?.addEventListener("click",()=>root.remove());
+    root.querySelector("#dkOwnerAccessBtn")?.addEventListener("click",()=>{root.remove();owner2()});
+    root.querySelector("#dkCustomerAccessBtn")?.addEventListener("click",()=>{root.remove();openCustomer2()});
   }
   window.openDukaanLogin=loginAccess2;
   window.openOwnerLogin=owner2;
