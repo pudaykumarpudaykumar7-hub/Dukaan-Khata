@@ -92,36 +92,97 @@
     });
   }
 
-  async function openDukaanLogin(){
+  function openDukaanLogin(){
+    if(!window.modal)return;
+    modal('<div class="dk-access-shell">'+
+      '<div class="dk-access-head"><div class="dk-access-icon">🔐</div><div><span class="dk-login-badge">LOGIN ACCESS</span><h2>Choose Access</h2><p>Choose how you want to enter Dukaan Khata.</p></div></div>'+
+      '<div class="dk-access-grid">'+
+      '<button type="button" class="dk-access-card owner" onclick="openOwnerLogin()"><span>🏪</span><div><b>Owner Login</b><small>Full Dukaan Khata • Customers • Bills • Payments • Reports • More</small></div><strong>→</strong></button>'+
+      '<button type="button" class="dk-access-card customer" onclick="openCustomerLogin()"><span>👤</span><div><b>Customer Login</b><small>View your own Khata, Bills and Paid Payments by phone number</small></div><strong>→</strong></button>'+
+      '</div>'+
+      '<div class="dk-access-note">Owner access keeps the complete existing website. Customer access is read-only and shows only the customer selected by phone number.</div>'+
+      '<button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
+  }
+  async function openOwnerLogin(){
     const sb=client();
-    if(!sb||!window.modal)return;
+    if(!sb){toast("Cloud login is still loading. Try again.");return}
     const {data:{session}}=await sb.auth.getSession();
     if(session?.user){
       const u=accountFromUser(session.user);
       window.DukaanKhataUser=u;
       modal('<div class="dk-login-shell dk-login-signed">'+
-        '<div class="dk-login-top"><div class="dk-login-icon">👤</div><span class="dk-login-badge">ACCOUNT</span></div>'+
-        '<h2>My Account</h2><p class="dk-login-sub">Your secure Dukaan Khata account</p>'+
+        '<div class="dk-login-top"><div class="dk-login-icon">👤</div><span class="dk-login-badge">OWNER ACCOUNT</span></div>'+
+        '<h2>Owner Account</h2><p class="dk-login-sub">Full Dukaan Khata access</p>'+
         '<div class="dk-account-card"><div class="dk-avatar">'+(u.picture?'<img src="'+esc(u.picture)+'" alt="">':'👤')+'</div><div><b>'+esc(u.name)+'</b><small>'+esc(u.email)+'</small></div><span class="dk-cloud">☁</span></div>'+
-        '<div class="dk-account-shop">🏪 <b>'+esc(state.shop?.name||"My Dukaan")+'</b><span>Cloud sync active</span></div>'+
-        '<button class="dk-login-action dk-login-primary" onclick="showPage(\'home\');closeModal()">⌂ Dashboard <span>→</span></button>'+
-        '<button class="dk-login-action" onclick="startGoogleLogin()">⇄ Login with another account <span>→</span></button>'+
+        '<button class="dk-login-action dk-login-primary" onclick="showPage(\'home\');closeModal()">⌂ Open Full Dashboard <span>→</span></button>'+
+        '<button class="dk-login-action" onclick="startGoogleLogin()">⇄ Login with another owner account <span>→</span></button>'+
         '<button class="dk-login-action dk-logout" onclick="logoutDukaanKhata()">↪ Logout</button>'+
         '<button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
       return;
     }
     modal('<div class="dk-login-shell">'+
-      '<div class="dk-login-top"><div class="dk-login-icon">🏪</div><div><span class="dk-login-badge">SECURE ACCESS</span><h2>Dukaan Khata</h2></div></div>'+
-      '<p class="dk-login-sub">Sign in once and keep your shop, customers and khata synced across devices.</p>'+
+      '<div class="dk-login-top"><div class="dk-login-icon">🏪</div><div><span class="dk-login-badge">OWNER LOGIN</span><h2>Full Access</h2></div></div>'+
+      '<p class="dk-login-sub">Owner login opens the complete Dukaan Khata dashboard exactly as it works now.</p>'+
       '<button class="dk-login-action dk-google" id="googleLoginBtn"><span class="dk-google-logo">G</span><span><b>Continue with Google</b><small>Fast • Secure • No password</small></span><strong>→</strong></button>'+
-      '<div class="dk-or"><span>OR</span></div>'+
-      '<div class="dk-feature-row"><span>☁️</span><div><b>Cloud Sync</b><small>Your data follows you on laptop & mobile</small></div></div>'+
-      '<div class="dk-feature-row"><span>🔒</span><div><b>Private & Secure</b><small>Protected by Google sign-in</small></div></div>'+
-      '<p id="googleLoginMsg" class="dk-login-note">Continue with your existing Google account.</p>'+
-      '<button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
+      '<div class="dk-feature-row"><span>🏪</span><div><b>Full Owner Dashboard</b><small>Khata • Customers • Bills • Payments • Reports • More</small></div></div>'+
+      '<p id="googleLoginMsg" class="dk-login-note">Use the owner Google account connected to this shop.</p>'+
+      '<button class="dk-login-close" onclick="openDukaanLogin()">← Back</button></div>');
     document.getElementById("googleLoginBtn")?.addEventListener("click",startGoogleLogin);
   }
-  async function startGoogleLogin(){
+  function normPhone(v){return String(v||"").replace(/\\D/g,"")}
+  function customerTransactions(c){
+    return (state.tx||[]).filter(t=>String(t.customerId)===String(c.id));
+  }
+  function openCustomerLogin(){
+    modal('<div class="dk-customer-login">'+
+      '<div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER LOGIN</span><h2>My Khata</h2><p>Enter the mobile number saved by the shop.</p></div></div>'+
+      '<label class="dk-customer-label">Customer mobile number<input id="customerLoginPhone" class="search" inputmode="tel" autocomplete="tel" placeholder="Enter phone number"></label>'+
+      '<button class="dk-login-action dk-login-primary" type="button" onclick="findCustomerPortal()">🔎 View My Khata <span>→</span></button>'+
+      '<p class="dk-login-note">Only matching customer records are shown. This view is read-only.</p>'+
+      '<button class="dk-login-close" onclick="openDukaanLogin()">← Back</button></div>');
+    setTimeout(()=>document.getElementById("customerLoginPhone")?.focus(),50);
+  }
+  function findCustomerPortal(){
+    const q=normPhone(document.getElementById("customerLoginPhone")?.value);
+    if(!q){toast("Enter the customer mobile number");return}
+    const matches=(state.customers||[]).filter(c=>normPhone(c.phone)===q);
+    if(!matches.length){
+      toast("No customer found for this number");
+      return;
+    }
+    if(matches.length===1){openCustomerPortal(matches[0].id);return}
+    modal('<div class="dk-customer-login"><div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER FOUND</span><h2>Select account</h2></div></div>'+
+      matches.map(c=>'<button class="dk-access-card customer" type="button" onclick="openCustomerPortal(\''+esc(c.id)+'\')"><span>👤</span><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+
+      '<button class="dk-login-close" onclick="openCustomerLogin()">← Back</button></div>');
+  }
+  function openCustomerPortal(customerId){
+    const c=(state.customers||[]).find(x=>String(x.id)===String(customerId));
+    if(!c){toast("Customer record not found");return}
+    const tx=customerTransactions(c);
+    const sales=tx.filter(t=>t.type==="sale");
+    const payments=tx.filter(t=>t.type==="payment"&&Number(t.amount)>0);
+    const due=Math.max(0,balance(c.id));
+    const paid=payments.reduce((s,t)=>s+(Number(t.amount)||0),0);
+    const salesTotal=sales.reduce((s,t)=>s+(Number(t.total)||0),0);
+    const billHtml=sales.length?sales.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(t=>{
+      const items=Array.isArray(t.items)?t.items.map(i=>esc(i.name||"Item")+" × "+(Number(i.qty)||1)+" — "+money(Number(i.price)||0)).join("<br>"):"";
+      return '<div class="dk-customer-record"><div><b>Bill '+esc(t.id||"")+'</b><small>'+new Date(t.date||Date.now()).toLocaleString()+"</small></div><strong>"+money(Number(t.total)||0)+"</strong>"+(items?'<p>'+items+'</p>':"")+"</div>";
+    }).join(""):'<p class="muted">No bills found.</p>';
+    const payHtml=payments.length?payments.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(t=>'<div class="dk-customer-record"><div><b>Payment received</b><small>'+new Date(t.date||Date.now()).toLocaleString()+" • "+esc(t.mode||"payment")+"</small></div><strong class="dk-customer-paid">'+money(Number(t.amount)||0)+"</strong></div>").join(""):'<p class="muted">No paid payments found.</p>';
+    const khataHtml=tx.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(t=>{
+      const amount=t.type==="sale"?Number(t.total)||0:Number(t.amount)||0;
+      return '<div class="dk-customer-record"><div><b>'+esc(t.type==="sale"?"Credit / Bill":"Paid Payment")+'</b><small>'+new Date(t.date||Date.now()).toLocaleString()+'</small></div><strong class="'+(t.type==="payment"?"dk-customer-paid":"dk-customer-due")+'">'+(t.type==="payment"?"+ ":"")+money(amount)+'</strong></div>';
+    }).join("")||'<p class="muted">No khata transactions found.</p>';
+    modal('<div class="dk-customer-portal">'+
+      '<div class="dk-customer-portal-head"><button class="close" onclick="openCustomerLogin()">←</button><div><span class="dk-login-badge">CUSTOMER VIEW</span><h2>'+esc(c.name)+'</h2><small>'+esc(c.phone||"")+'</small></div></div>'+
+      '<div class="dk-customer-summary"><div><small>TOTAL BILLS</small><b>'+money(salesTotal)+'</b></div><div><small>PAID</small><b class="dk-customer-paid">'+money(paid)+'</b></div><div><small>DUE</small><b class="dk-customer-due">'+money(due)+'</b></div></div>'+
+      '<div class="dk-customer-section"><h3>📒 My Khata</h3>'+khataHtml+'</div>'+
+      '<div class="dk-customer-section"><h3>🧾 My Bills</h3>'+billHtml+'</div>'+
+      '<div class="dk-customer-section"><h3>💚 Paid Payments</h3>'+payHtml+'</div>'+
+      '<div class="dk-access-note">Read-only customer view • No owner controls or other customers are shown.</div>'+
+      '<button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
+  }
+    async function startGoogleLogin(){
     const sb=client();
     if(!sb){toast("Cloud login is still loading. Try again.");return}
     const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.href}});
