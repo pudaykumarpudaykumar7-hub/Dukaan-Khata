@@ -181,8 +181,14 @@
     root.querySelector("#dkOwnerAccessBtn")?.addEventListener("click",()=>{root.remove();owner2()});
     root.querySelector("#dkCustomerAccessBtn")?.addEventListener("click",()=>{root.remove();openCustomer2()});
   }
+
+  function startupLogin2(){
+    if(document.getElementById("dkLoginAccessStandalone")||document.getElementById("dkCustomerFullScreen"))return;
+    loginAccess2();
+  }
   window.openDukaanLogin=loginAccess2;
   window.openOwnerLogin=owner2;
   window.openCustomerLogin=openCustomer2;
   window.openCustomerPortal=customerPortal2;
+  window.addEventListener("DOMContentLoaded",function(){setTimeout(startupLogin2,80)});
 })();
