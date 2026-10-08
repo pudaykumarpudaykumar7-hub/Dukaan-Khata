@@ -164,7 +164,7 @@
           '<h2>Find My Account</h2>'+
           '<p>Use the mobile number that your shopkeeper saved in Dukaan Khata.</p>'+
           '<label class="dk-customer-label">Registered mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label>'+
-          '<button class="dk-login-action dk-login-primary dk-customer-view-btn" type="button" onclick="findCustomerPortal()">View My Khata <span>→</span></button>'+
+          '<button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata <span>→</span></button>'+
           '<div class="dk-customer-home-features"><span>📒 Khata</span><span>🧾 Bills</span><span>💳 Payments</span><span>🔴 Due</span></div>'+
         '</section>'+
         '<div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div>'+
@@ -172,7 +172,17 @@
     '</div>';
     document.body.appendChild(root);
     document.body.classList.add("dk-customer-mode");
-    setTimeout(()=>document.getElementById("customerLoginPhone")?.focus(),100);
+    const viewBtn=document.getElementById("dkCustomerViewBtn");
+    const phoneInput=document.getElementById("customerLoginPhone");
+    viewBtn?.addEventListener("click",function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      findCustomerPortal();
+    });
+    phoneInput?.addEventListener("keydown",function(e){
+      if(e.key==="Enter"){e.preventDefault();findCustomerPortal();}
+    });
+    setTimeout(()=>phoneInput?.focus(),100);
   }
   function closeCustomerFullScreen(){
     document.getElementById("dkCustomerFullScreen")?.remove();
