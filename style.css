@@ -1852,3 +1852,27 @@ body::before,body::after{pointer-events:none!important;}
 .dk-empty{padding:18px;text-align:center;color:var(--muted);font-size:11px}
 .dk-exec-private{display:flex;gap:7px;align-items:flex-start;margin:12px 0;padding:11px;border-radius:13px;background:#f4f7f5;color:var(--muted);font-size:10px;line-height:1.4}
 @media(max-width:480px){.dk-executive-portal{max-height:86vh}.dk-exec-summary{grid-template-columns:1fr 1fr}.dk-exec-summary>div:last-child{grid-column:1/-1}}
+
+
+/* Customer Login — full-screen home interface */
+body.dk-customer-mode{overflow:hidden!important}
+.dk-customer-fullscreen{position:fixed;inset:0;z-index:999999;background:var(--bg,#f6f7fb);overflow:auto;font-family:inherit}
+.dk-customer-home{min-height:100vh;background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 48%,#f8fafc 100%)}
+.dk-customer-home-head{height:76px;display:flex;align-items:center;gap:16px;padding:0 28px;background:rgba(255,255,255,.94);border-bottom:1px solid #e5e7eb;box-shadow:0 4px 18px rgba(15,23,42,.06);position:sticky;top:0;z-index:2}
+.dk-customer-home-back{width:44px;height:44px;border:0;border-radius:14px;background:#f1f5f9;font-size:25px;cursor:pointer}
+.dk-customer-brand{display:flex;align-items:center;gap:11px}
+.dk-customer-brand-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#111827;color:white;font-size:22px}
+.dk-customer-brand b{display:block;font-size:17px;color:#111827}.dk-customer-brand small{display:block;color:#64748b;margin-top:2px}
+.dk-customer-secure{margin-left:auto;padding:9px 14px;border-radius:999px;background:#ecfdf5;color:#15803d;font-weight:800;font-size:13px}
+.dk-customer-home-main{max-width:980px;margin:0 auto;padding:70px 24px 45px}
+.dk-customer-welcome{text-align:center;max-width:720px;margin:0 auto 30px}
+.dk-customer-welcome h1{font-size:clamp(32px,5vw,52px);line-height:1.05;margin:14px 0 12px;color:#0f172a;letter-spacing:-1.5px}
+.dk-customer-welcome h1 strong{color:#2563eb}.dk-customer-welcome p{font-size:17px;line-height:1.65;color:#64748b;margin:0}
+.dk-customer-login-card{max-width:570px;margin:0 auto;background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:34px;box-shadow:0 24px 70px rgba(15,23,42,.12);text-align:center}
+.dk-customer-card-icon{width:68px;height:68px;margin:0 auto 16px;border-radius:20px;display:grid;place-items:center;background:#eff6ff;font-size:32px}
+.dk-customer-login-card h2{margin:0;color:#0f172a;font-size:25px}.dk-customer-login-card>p{color:#64748b;line-height:1.55;margin:9px 0 24px}
+.dk-customer-label{display:block;text-align:left;color:#334155;font-weight:800;font-size:14px}.dk-customer-phone-input{width:100%!important;box-sizing:border-box;margin-top:8px!important;min-height:52px;border:1px solid #cbd5e1!important;border-radius:14px!important;padding:0 16px!important;font-size:17px!important;background:#fff!important}
+.dk-customer-view-btn{width:100%;margin-top:15px;min-height:54px;justify-content:center}
+.dk-customer-home-features{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:20px}.dk-customer-home-features span{padding:8px 11px;border-radius:999px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-size:12px;font-weight:800}
+.dk-customer-home-note{text-align:center;color:#64748b;font-size:13px;margin-top:22px}
+@media(max-width:600px){.dk-customer-home-head{padding:0 15px}.dk-customer-home-main{padding:45px 15px 30px}.dk-customer-login-card{padding:25px 18px;border-radius:22px}.dk-customer-welcome p{font-size:15px}.dk-customer-secure{font-size:11px;padding:8px 10px}}
