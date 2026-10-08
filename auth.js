@@ -164,25 +164,27 @@
     const due=Math.max(0,balance(c.id));
     const paid=payments.reduce((s,t)=>s+(Number(t.amount)||0),0);
     const salesTotal=sales.reduce((s,t)=>s+(Number(t.total)||0),0);
-    const billHtml=sales.length?sales.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(t=>{
-      const items=Array.isArray(t.items)?t.items.map(i=>esc(i.name||"Item")+" × "+(Number(i.qty)||1)+" — "+money(Number(i.price)||0)).join("<br>"):"";
-      return '<div class="dk-customer-record"><div><b>Bill '+esc(t.id||"")+'</b><small>'+new Date(t.date||Date.now()).toLocaleString()+"</small></div><strong>"+money(Number(t.total)||0)+"</strong>"+(items?'<p>'+items+'</p>':"")+"</div>";
-    }).join(""):'<p class="muted">No bills found.</p>';
-    const payHtml=payments.length?payments.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(t=>'<div class="dk-customer-record"><div><b>Payment received</b><small>'+new Date(t.date||Date.now()).toLocaleString()+" • "+esc(t.mode||"payment")+"</small></div><strong class="dk-customer-paid">'+money(Number(t.amount)||0)+"</strong></div>").join(""):'<p class="muted">No paid payments found.</p>';
-    const khataHtml=tx.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(t=>{
+    const sorted=(arr)=>arr.slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+    const billHtml=sales.length?sorted(sales).map(t=>{
+      const items=Array.isArray(t.items)?t.items.map(i=>'<span>'+esc(i.name||"Item")+' × '+(Number(i.qty)||1)+' — '+money(Number(i.price)||0)+'</span>').join(""):"";
+      return '<article class="dk-exec-record"><div class="dk-record-icon">🧾</div><div class="dk-record-main"><b>Bill '+esc(t.id||"")+'</b><small>'+new Date(t.date||Date.now()).toLocaleString()+'</small>'+(items?'<div class="dk-record-items">'+items+'</div>':"")+'</div><strong class="dk-record-amount">'+money(Number(t.total)||0)+'</strong></article>';
+    }).join(""):'<div class="dk-empty">No bills available</div>';
+    const payHtml=payments.length?sorted(payments).map(t=>'<article class="dk-exec-record"><div class="dk-record-icon">✓</div><div class="dk-record-main"><b>Payment received</b><small>'+new Date(t.date||Date.now()).toLocaleString()+' • '+esc(t.mode||"payment")+'</small></div><strong class="dk-customer-paid">+'+money(Number(t.amount)||0)+'</strong></article>').join(""):'<div class="dk-empty">No paid payments available</div>';
+    const khataHtml=sorted(tx).map(t=>{
       const amount=t.type==="sale"?Number(t.total)||0:Number(t.amount)||0;
-      return '<div class="dk-customer-record"><div><b>'+esc(t.type==="sale"?"Credit / Bill":"Paid Payment")+'</b><small>'+new Date(t.date||Date.now()).toLocaleString()+'</small></div><strong class="'+(t.type==="payment"?"dk-customer-paid":"dk-customer-due")+'">'+(t.type==="payment"?"+ ":"")+money(amount)+'</strong></div>';
-    }).join("")||'<p class="muted">No khata transactions found.</p>';
-    modal('<div class="dk-customer-portal">'+
-      '<div class="dk-customer-portal-head"><button class="close" onclick="openCustomerLogin()">←</button><div><span class="dk-login-badge">CUSTOMER VIEW</span><h2>'+esc(c.name)+'</h2><small>'+esc(c.phone||"")+'</small></div></div>'+
-      '<div class="dk-customer-summary"><div><small>TOTAL BILLS</small><b>'+money(salesTotal)+'</b></div><div><small>PAID</small><b class="dk-customer-paid">'+money(paid)+'</b></div><div><small>DUE</small><b class="dk-customer-due">'+money(due)+'</b></div></div>'+
-      '<div class="dk-customer-section"><h3>📒 My Khata</h3>'+khataHtml+'</div>'+
-      '<div class="dk-customer-section"><h3>🧾 My Bills</h3>'+billHtml+'</div>'+
-      '<div class="dk-customer-section"><h3>💚 Paid Payments</h3>'+payHtml+'</div>'+
-      '<div class="dk-access-note">Read-only customer view • No owner controls or other customers are shown.</div>'+
-      '<button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
+      return '<article class="dk-exec-record"><div class="dk-record-icon">'+(t.type==="payment"?"✓":"₹")+'</div><div class="dk-record-main"><b>'+esc(t.type==="sale"?"Khata Bill":"Paid Payment")+'</b><small>'+new Date(t.date||Date.now()).toLocaleString()+'</small></div><strong class="'+(t.type==="payment"?"dk-customer-paid":"dk-customer-due")+'">'+(t.type==="payment"?"+":"") +money(amount)+'</strong></article>';
+    }).join("")||'<div class="dk-empty">No khata transactions available</div>';
+    modal('<div class="dk-customer-portal dk-executive-portal">'+
+      '<div class="dk-exec-hero"><button class="dk-exec-back" onclick="openCustomerLogin()">‹</button><div class="dk-exec-avatar">👤</div><div class="dk-exec-identity"><span>PRIVATE CUSTOMER ACCOUNT</span><h2>'+esc(c.name)+'</h2><small>📱 '+esc(c.phone||"")+'</small></div><div class="dk-exec-lock">🔒</div></div>'+
+      '<div class="dk-exec-welcome"><b>Welcome back, '+esc(c.name)+'</b><small>Your personal Khata, bills and payment history</small></div>'+
+      '<div class="dk-customer-summary dk-exec-summary"><div><small>KHATA / BILLS</small><b>'+money(salesTotal)+'</b></div><div><small>TOTAL PAID</small><b class="dk-customer-paid">'+money(paid)+'</b></div><div><small>OUTSTANDING DUE</small><b class="dk-customer-due">'+money(due)+'</b></div></div>'+
+      '<div class="dk-exec-section"><div class="dk-exec-section-title"><span>📒</span><div><h3>My Khata</h3><small>Complete transaction history</small></div></div>'+khataHtml+'</div>'+
+      '<div class="dk-exec-section"><div class="dk-exec-section-title"><span>🧾</span><div><h3>My Bills</h3><small>All bills linked to your account</small></div></div>'+billHtml+'</div>'+
+      '<div class="dk-exec-section"><div class="dk-exec-section-title"><span>💚</span><div><h3>Paid Payments</h3><small>Payments recorded for this account</small></div></div>'+payHtml+'</div>'+
+      '<div class="dk-exec-private">🔐 <span>This is a read-only private customer view. Owner controls and other customers are hidden.</span></div>'+
+      '<button class="dk-login-close" onclick="closeModal()">× Close Customer View</button></div>');
   }
-    async function startGoogleLogin(){
+  async function startGoogleLogin(){
     const sb=client();
     if(!sb){toast("Cloud login is still loading. Try again.");return}
     const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.href}});
