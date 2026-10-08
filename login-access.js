@@ -56,7 +56,7 @@
         document.getElementById("dkChoiceBack")?.addEventListener("click",openCustomer2);
         return;
       }
-      window.openCustomerPortal(matches[0].id);
+      customerPortal2(matches[0].id);
     }
     btn.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();status.textContent="Checking account…";lookup()});
     input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();lookup()}});
@@ -83,6 +83,38 @@
     const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.href}});
     if(error)alert("Google login could not start: "+error.message);
   }
+
+  function customerPortal2(customerId){
+    const customers=Array.isArray(window.state?.customers)?window.state.customers:[];
+    const c=customers.find(x=>String(x.id)===String(customerId));
+    if(!c){alert("Customer record not found.");return}
+    const tx=Array.isArray(window.state?.tx)?window.state.tx.filter(t=>String(t.customerId)===String(c.id)):[];
+    const sales=tx.filter(t=>t.type==="sale");
+    const payments=tx.filter(t=>t.type==="payment"&&Number(t.amount)>0);
+    const salesTotal=sales.reduce((s,t)=>s+(Number(t.total)||0),0);
+    const paid=payments.reduce((s,t)=>s+(Number(t.amount)||0),0);
+    const due=Math.max(0,salesTotal-paid);
+    const date=t=>new Date(t.date||Date.now()).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+    const billRows=sales.length?sales.slice().reverse().map(t=>{
+      const items=Array.isArray(t.items)?t.items.map(i=>esc2(i.name||"Item")+" × "+(Number(i.qty)||1)).join(", "):"";
+      return '<div class="dk-exec-record"><div class="dk-record-icon">🧾</div><div class="dk-record-main"><b>Bill</b><small>'+date(t)+(items?" • "+items:"")+'</small></div><strong>'+money2(Number(t.total)||0)+'</strong></div>';
+    }).join(""):'<div class="dk-empty">No bills found</div>';
+    const paymentRows=payments.length?payments.slice().reverse().map(t=>'<div class="dk-exec-record"><div class="dk-record-icon">✓</div><div class="dk-record-main"><b>Payment Received</b><small>'+date(t)+(t.mode?" • "+esc2(t.mode):"")+'</small></div><strong class="dk-customer-paid">+'+money2(Number(t.amount)||0)+'</strong></div>').join(""):'<div class="dk-empty">No paid payments found</div>';
+    const khataRows=tx.length?tx.slice().reverse().map(t=>{
+      const isPay=t.type==="payment", amount=Number(isPay?t.amount:t.total)||0;
+      return '<div class="dk-exec-record"><div class="dk-record-icon">'+(isPay?"✓":"🧾")+'</div><div class="dk-record-main"><b>'+(isPay?"Paid Payment":"Khata Bill")+'</b><small>'+date(t)+'</small></div><strong class="'+(isPay?"dk-customer-paid":"dk-customer-due")+'">'+(isPay?"+":"")+money2(amount)+'</strong></div>';
+    }).join(""):'<div class="dk-empty">No transactions found</div>';
+    document.getElementById("dkCustomerFullScreen")?.remove();
+    document.body.classList.remove("dk-customer-mode");
+    const root=document.createElement("div");
+    root.id="dkCustomerFullScreen";
+    root.className="dk-customer-fullscreen";
+    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkPortalBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>My Customer Khata</small></div></div><span class="dk-customer-secure">🔒 Read Only</span></header><main class="dk-customer-home-main"><section class="dk-customer-login-card" style="max-width:900px;text-align:left"><div style="display:flex;align-items:center;gap:14px;margin-bottom:20px"><div class="dk-customer-card-icon" style="margin:0">👤</div><div><span class="dk-login-badge">MY KHATA</span><h2 style="margin:6px 0 3px">'+esc2(c.name)+'</h2><p style="margin:0;color:#64748b">📱 '+esc2(c.phone||"")+'</p></div></div><div class="dk-customer-summary dk-exec-summary"><div><small>KHATA / BILLS</small><b>'+money2(salesTotal)+'</b></div><div><small>TOTAL PAID</small><b class="dk-customer-paid">'+money2(paid)+'</b></div><div><small>OUTSTANDING DUE</small><b class="dk-customer-due">'+money2(due)+'</b></div></div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>📒</span><div><h3>My Khata</h3><small>Complete transaction history</small></div></div>'+khataRows+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>🧾</span><div><h3>My Bills</h3><small>All bills linked to your account</small></div></div>'+billRows+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>💳</span><div><h3>Paid Payments</h3><small>Payments recorded for this account</small></div></div>'+paymentRows+'</div><div class="dk-exec-private">🔐 <span>This customer view is read-only. Other customers and owner controls are hidden.</span></div></section></main></div>';
+    document.body.appendChild(root);
+    document.body.classList.add("dk-customer-mode");
+    root.querySelector("#dkPortalBack")?.addEventListener("click",openCustomer2);
+  }
+
   function loginAccess2(){
     if(typeof window.modal!=="function"){alert("Login Access is loading. Please try again in a moment.");return}
     window.modal('<div class="dk-access-shell"><div class="dk-access-head"><div class="dk-access-icon">🔐</div><div><span class="dk-login-badge">LOGIN ACCESS</span><h2>Choose Access</h2><p>Choose how you want to enter Dukaan Khata.</p></div></div><div class="dk-access-grid"><button type="button" class="dk-access-card owner" id="dkOwnerAccessBtn"><span>🏪</span><div><b>Owner Login</b><small>Full Dukaan Khata • Customers • Bills • Payments • Reports • More</small></div><strong>→</strong></button><button type="button" class="dk-access-card customer" id="dkCustomerAccessBtn"><span>👤</span><div><b>Customer Login</b><small>View your own Khata, Bills and Paid Payments by phone number</small></div><strong>→</strong></button></div><div class="dk-access-note">Owner uses Google. Customer uses mobile number.</div><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
@@ -92,4 +124,5 @@
   window.openDukaanLogin=loginAccess2;
   window.openOwnerLogin=owner2;
   window.openCustomerLogin=openCustomer2;
+  window.openCustomerPortal=customerPortal2;
 })();
