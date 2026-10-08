@@ -273,7 +273,6 @@
   window.findCustomerPortal=findCustomerPortal;
   window.openCustomerPortal=openCustomerPortal;
   window.closeCustomerFullScreen=closeCustomerFullScreen;
-  window.startCustomerGoogleLogin=startCustomerGoogleLogin;
   window.openDukaanProfile=openDukaanLogin;
   window.logoutDukaanKhata=logoutDukaanKhata;
   window.startGoogleLogin=startGoogleLogin;
