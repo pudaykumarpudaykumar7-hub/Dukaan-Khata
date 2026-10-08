@@ -73,8 +73,14 @@
 
   async function handleSession(session){
     const user=session?.user;
+    const loginRole=sessionStorage.getItem("dk_login_role")||"owner";
     saveAccount(user);
     if(!user)return;
+    if(loginRole==="customer"){
+      sessionStorage.removeItem("dk_login_role");
+      setTimeout(()=>openCustomerLogin(),250);
+      return;
+    }
     await restoreCloudState(user);
     startCloudPolling();
   }
@@ -134,13 +140,29 @@
     return (state.tx||[]).filter(t=>String(t.customerId)===String(c.id));
   }
   function openCustomerLogin(){
+    const sb=client();
+    if(!sb){toast("Google login is still loading. Try again.");return}
     modal('<div class="dk-customer-login">'+
-      '<div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER LOGIN</span><h2>My Khata</h2><p>Enter the mobile number saved by the shop.</p></div></div>'+
+      '<div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER LOGIN</span><h2>My Khata</h2><p>Sign in with Google, then enter the mobile number saved by the shop.</p></div></div>'+
+      '<button class="dk-login-action dk-google" id="customerGoogleBtn" type="button"><span class="dk-google-logo">G</span><span><b>Continue with Google</b><small>Fast • Secure • No password</small></span><strong>→</strong></button>'+
+      '<div class="dk-customer-divider"><span>THEN</span></div>'+
       '<label class="dk-customer-label">Customer mobile number<input id="customerLoginPhone" class="search" inputmode="tel" autocomplete="tel" placeholder="Enter phone number"></label>'+
       '<button class="dk-login-action dk-login-primary" type="button" onclick="findCustomerPortal()">🔎 View My Khata <span>→</span></button>'+
-      '<p class="dk-login-note">Only matching customer records are shown. This view is read-only.</p>'+
+      '<p class="dk-login-note">Customer access is read-only. Only the matching customer record is shown.</p>'+
       '<button class="dk-login-close" onclick="openDukaanLogin()">← Back</button></div>');
-    setTimeout(()=>document.getElementById("customerLoginPhone")?.focus(),50);
+    document.getElementById("customerGoogleBtn")?.addEventListener("click",startCustomerGoogleLogin);
+    setTimeout(()=>document.getElementById("customerLoginPhone")?.focus(),100);
+  }
+  function startCustomerGoogleLogin(){
+    const sb=client();
+    if(!sb){toast("Google login is still loading. Try again.");return}
+    sessionStorage.setItem("dk_login_role","customer");
+    const {error}=sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.href}});
+    if(error){
+      sessionStorage.removeItem("dk_login_role");
+      console.error(error);
+      toast("Google login could not start. Check Supabase Google provider settings.");
+    }
   }
   function findCustomerPortal(){
     const q=normPhone(document.getElementById("customerLoginPhone")?.value);
@@ -200,6 +222,11 @@
   }
 
   window.openDukaanLogin=openDukaanLogin;
+  window.openOwnerLogin=openOwnerLogin;
+  window.openCustomerLogin=openCustomerLogin;
+  window.findCustomerPortal=findCustomerPortal;
+  window.openCustomerPortal=openCustomerPortal;
+  window.startCustomerGoogleLogin=startCustomerGoogleLogin;
   window.openDukaanProfile=openDukaanLogin;
   window.logoutDukaanKhata=logoutDukaanKhata;
   window.startGoogleLogin=startGoogleLogin;
