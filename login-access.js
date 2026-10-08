@@ -88,7 +88,7 @@
     const customers=Array.isArray(window.state?.customers)?window.state.customers:[];
     const c=customers.find(x=>String(x.id)===String(customerId));
     if(!c){alert("Customer record not found.");return}
-    const tx=Array.isArray(window.state?.tx)?window.state.tx.filter(t=>String(t.customerId)===String(c.id)):[];
+    const tx=Array.isArray(window.state?.tx)?window.state.tx.filter(t=>String(t.customerId)===String(c.id)||String(t.customer_id)===String(c.id)):[];
     const sales=tx.filter(t=>t.type==="sale");
     const payments=tx.filter(t=>t.type==="payment"&&Number(t.amount)>0);
     const salesTotal=sales.reduce((s,t)=>s+(Number(t.total)||0),0);
@@ -96,24 +96,40 @@
     const due=Math.max(0,salesTotal-paid);
     const date=t=>new Date(t.date||Date.now()).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
 
+    function itemList2(t){
+      let raw=t?.lines??t?.items??t?.itemLines??t?.products??t?.productItems??[];
+      if(typeof raw==="string"){
+        try{raw=JSON.parse(raw)}catch(e){raw=[]}
+      }
+      if(!Array.isArray(raw)&&raw&&typeof raw==="object")raw=[raw];
+      return Array.isArray(raw)?raw.filter(Boolean):[];
+    }
+    function itemName2(i){return i?.name??i?.itemName??i?.productName??i?.title??"Item"}
+    function itemQty2(i){return Math.max(1,Number(i?.qty??i?.quantity??1)||1)}
+    function itemUnit2(i){return Number(i?.price??i?.rate??i?.cost??i?.unitPrice??0)||0}
+    function itemTotal2(i){
+      const explicit=Number(i?.total??i?.amount);
+      const unit=itemUnit2(i),qty=itemQty2(i);
+      return Number.isFinite(explicit)&&explicit>0?explicit:unit*qty;
+    }
+
     /* Allocate recorded payments FIFO across taken items so the customer can
        see which items are paid and which item value is still outstanding. */
     let paymentPool=paid;
     const takenItems=[];
     sales.slice().sort((a,b)=>new Date(a.date||0)-new Date(b.date||0)).forEach(t=>{
       // Dukaan Khata stores Add Many Items as t.lines. Keep t.items as a legacy fallback.
-      const rawItems=Array.isArray(t.lines)&&t.lines.length?t.lines:(Array.isArray(t.items)&&t.items.length?t.items:[]);
+      const rawItems=itemList2(t);
       const items=rawItems.length?rawItems:[{name:"Items",qty:1,price:Number(t.total)||0,total:Number(t.total)||0}];
       items.forEach(i=>{
-        const qty=Math.max(1,Number(i.qty)||1);
-        const explicitTotal=Number(i.total);
-        const unit=Number(i.price??i.rate??i.cost??0)||0;
-        const itemTotal=Number.isFinite(explicitTotal)&&explicitTotal>0?explicitTotal:(unit*qty);
+        const qty=itemQty2(i);
+        const unit=itemUnit2(i);
+        const itemTotal=itemTotal2(i);
         const value=itemTotal>0?itemTotal:0;
         const paidHere=Math.min(paymentPool,value);
         paymentPool=Math.max(0,paymentPool-paidHere);
         const remaining=Math.max(0,value-paidHere);
-        takenItems.push({name:i.name||"Item",qty,unit,value,paidHere,remaining,date:date(t)});
+        takenItems.push({name:itemName2(i),qty,unit,value,paidHere,remaining,date:date(t)});
       });
     });
     const paidItems=takenItems.filter(i=>i.value>0&&i.paidHere>0);
@@ -131,14 +147,14 @@
     const paidItemRows=paidItems.length?paidItems.slice().reverse().map(i=>itemRow(i,"paid")).join(""):'<div class="dk-empty">No paid items yet</div>';
 
     const billRows=sales.length?sales.slice().reverse().map(t=>{
-      const rawItems=Array.isArray(t.lines)&&t.lines.length?t.lines:(Array.isArray(t.items)?t.items:[]);
-      const items=rawItems.map(i=>esc2(i.name||"Item")+" — "+money2(Number(i.price??i.rate??i.cost??i.total)||0)).join(" • ");
+      const rawItems=itemList2(t);
+      const items=rawItems.map(i=>esc2(itemName2(i))+" — "+money2(itemUnit2(i))).join(" • ");
       return '<div class="dk-exec-record"><div class="dk-record-icon">🧾</div><div class="dk-record-main"><b>Bill</b><small>'+date(t)+(items?" • "+items:"")+'</small></div><strong>'+money2(Number(t.total)||0)+'</strong></div>';
     }).join(""):'<div class="dk-empty">No bills found</div>';
     const khataItemRows=sales.slice().reverse().map(t=>{
       const rawItems=Array.isArray(t.lines)&&t.lines.length?t.lines:(Array.isArray(t.items)?t.items:[]);
       if(!rawItems.length)return '<div class="dk-exec-record"><div class="dk-record-icon">🧾</div><div class="dk-record-main"><b>Khata Bill</b><small>'+date(t)+'</small></div><strong>'+money2(Number(t.total)||0)+'</strong></div>';
-      return rawItems.map(i=>'<div class="dk-exec-record"><div class="dk-record-icon">🛍️</div><div class="dk-record-main"><b>'+esc2(i.name||"Item")+'</b><small>Qty: '+(Number(i.qty)||1)+' • '+date(t)+'</small></div><strong>'+money2(Number(i.total)||((Number(i.price??i.rate??i.cost)||0)*(Number(i.qty)||1)))+'</strong></div>').join("");
+      return rawItems.map(i=>'<div class="dk-exec-record"><div class="dk-record-icon">🛍️</div><div class="dk-record-main"><b>'+esc2(i.name||"Item")+'</b><small>Qty: '+(itemQty2(i))+' • '+date(t)+'</small></div><strong>'+money2(itemTotal2(i))+'</strong></div>').join("");
     }).join("")||'<div class="dk-empty">No khata items found</div>';
     const paymentRows=payments.length?payments.slice().reverse().map(t=>'<div class="dk-exec-record"><div class="dk-record-icon">✓</div><div class="dk-record-main"><b>Payment Received</b><small>'+date(t)+(t.mode?" • "+esc2(t.mode):"")+'</small></div><strong class="dk-customer-paid">+'+money2(Number(t.amount)||0)+'</strong></div>').join(""):'<div class="dk-empty">No paid payments found</div>';
 
