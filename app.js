@@ -390,7 +390,7 @@ function renderKhata(){
   // A customer is Paid only when their outstanding balance is zero/negative.
   // Anyone with a remaining due amount appears only in Due.
   const dueCustomers=state.customers.filter(c=>balance(c.id)>0);
-  const paidCustomers=state.customers.filter(c=>balance(c.id)<=0 && receivedTotal(c.id)>0);
+  const paidCustomers=state.customers.filter(c=>receivedTotal(c.id)>0);
   const paidTotal=paidCustomers.reduce((s,c)=>s+receivedTotal(c.id),0);
   const dueTotal=dueCustomers.reduce((s,c)=>s+balance(c.id),0);
   const allBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'all\'"]');
@@ -401,7 +401,7 @@ function renderKhata(){
   if(paidBtn)paidBtn.innerHTML="Paid ("+paidCustomers.length+") • <span class=\"khata-filter-paid\" style=\"color:#16a34a!important;-webkit-text-fill-color:#16a34a!important;font-weight:900\">"+money(paidTotal)+"</span>";
   box.innerHTML=state.customers.filter(c=>{
     const b=balance(c.id),received=receivedTotal(c.id),matches=(c.name+" "+c.phone).toLowerCase().includes(q);
-    const show=khataFilter==="all"||(khataFilter==="due"&&b>0)||(khataFilter==="paid"&&b<=0&&received>0);
+    const show=khataFilter==="all"||(khataFilter==="due"&&b>0)||(khataFilter==="paid"&&received>0);
     return matches&&show;
   }).map(c=>{
     const b=balance(c.id),received=receivedTotal(c.id);
