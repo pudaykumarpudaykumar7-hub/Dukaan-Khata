@@ -42,7 +42,7 @@
     document.body.appendChild(root);
     document.body.classList.add("dk-customer-mode");
     const input=root.querySelector("#customerLoginPhone"),btn=root.querySelector("#dkCustomerViewBtn"),status=root.querySelector("#dkCustomerStatus");
-    if(hideBack) root.querySelector("#dkCustomerBack")?.remove(); else root.querySelector("#dkCustomerBack")?.addEventListener("click",closeCustomer2);
+    if(hideBack) root.querySelector("#dkCustomerBack")?.remove(); else if(hideBack){ root.querySelector("#dkCustomerBack")?.remove(); root.querySelector(".dk-customer-home-head")?.querySelector(".dk-customer-home-back")?.remove(); } else root.querySelector("#dkCustomerBack")?.addEventListener("click",closeCustomer2);
     function lookup(){
       const q=phone2(input.value);
       if(!q){status.textContent="Please enter your mobile number.";input.focus();return}
