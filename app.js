@@ -192,8 +192,8 @@ function applyHomeLogo(){
 function uid(){return typeof crypto!=="undefined"&&crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(16).slice(2)}
 function money(n){return"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2})}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-function balance(id){return state.tx.filter(t=>t.customerId===id).reduce((s,t)=>s+(t.type==="sale"?Number(t.total)||0:-(Number(t.amount)||0)),0)}
-function receivedTotal(id){return state.tx.filter(t=>t.customerId===id&&t.type==="payment").reduce((s,t)=>s+(Number(t.amount)||0),0)}
+function balance(id){return state.tx.filter(t=>String(t.customerId)===String(id)).reduce((s,t)=>s+(t.type==="sale"?Number(t.total)||0:-(Number(t.amount)||0)),0)}
+function receivedTotal(id){return state.tx.filter(t=>String(t.customerId)===String(id)&&t.type==="payment"&&Number(t.amount)>0).reduce((s,t)=>s+(Number(t.amount)||0),0)}
 function sales(){return state.tx.filter(t=>t.type==="sale")}
 function payments(){return state.tx.filter(t=>t.type==="payment")}
 function toast(msg){const e=document.getElementById("toast");if(!e)return;e.textContent=msg;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2200)}
@@ -387,10 +387,10 @@ function clearDemo(){if(confirm("Clear all Dukaan Khata data on this device?")){
 function renderKhata(){
   const box=document.getElementById("khataList");if(!box)return;
   const q=(document.getElementById("khataSearch")?.value||"").toLowerCase();
-  // A customer is Paid only when their outstanding balance is zero/negative.
-  // Anyone with a remaining due amount appears only in Due.
+  // Due = outstanding balance. Paid = ANY customer with at least one recorded payment.
+  // A customer can appear in BOTH lists when they have paid something and still owe money.
   const dueCustomers=state.customers.filter(c=>balance(c.id)>0);
-  const paidCustomers=state.customers.filter(c=>receivedTotal(c.id)>0);
+  const paidCustomers=state.customers.filter(c=>state.tx.some(t=>String(t.customerId)===String(c.id)&&t.type==="payment"&&Number(t.amount)>0));
   const paidTotal=paidCustomers.reduce((s,c)=>s+receivedTotal(c.id),0);
   const dueTotal=dueCustomers.reduce((s,c)=>s+balance(c.id),0);
   const allBtn=document.querySelector('.khata-filter[onclick*="filterKhata(\'all\'"]');
