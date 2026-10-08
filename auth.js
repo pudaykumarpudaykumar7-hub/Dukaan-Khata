@@ -177,7 +177,28 @@
     viewBtn?.addEventListener("click",function(e){
       e.preventDefault();
       e.stopPropagation();
-      findCustomerPortal();
+      const input=document.getElementById("customerLoginPhone");
+      const q=normPhone(input?.value);
+      if(!q){
+        if(window.toast)toast("Please enter the customer mobile number");
+        else alert("Please enter the customer mobile number");
+        input?.focus();
+        return;
+      }
+      const customers=Array.isArray(window.state?.customers)?window.state.customers:[];
+      const matches=customers.filter(c=>normPhone(c.phone)===q);
+      if(!matches.length){
+        if(window.toast)toast("No customer found for this number");
+        else alert("No customer found for this number");
+        return;
+      }
+      if(matches.length===1){
+        openCustomerPortal(matches[0].id);
+        return;
+      }
+      modal('<div class="dk-customer-login"><div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER FOUND</span><h2>Select account</h2></div></div>'+
+        matches.map(c=>'<button class="dk-access-card customer" type="button" onclick="openCustomerPortal(\\''+esc(c.id)+'\\')"><span>👤</span><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+
+        '<button class="dk-login-close" onclick="closeModal()">← Back</button></div>');
     });
     phoneInput?.addEventListener("keydown",function(e){
       if(e.key==="Enter"){e.preventDefault();findCustomerPortal();}
