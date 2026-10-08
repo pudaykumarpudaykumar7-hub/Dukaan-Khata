@@ -95,21 +95,50 @@
     const paid=payments.reduce((s,t)=>s+(Number(t.amount)||0),0);
     const due=Math.max(0,salesTotal-paid);
     const date=t=>new Date(t.date||Date.now()).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+
+    /* Allocate recorded payments FIFO across taken items so the customer can
+       see which items are paid and which item value is still outstanding. */
+    let paymentPool=paid;
+    const takenItems=[];
+    sales.slice().sort((a,b)=>new Date(a.date||0)-new Date(b.date||0)).forEach(t=>{
+      const items=Array.isArray(t.items)&&t.items.length?t.items:[{name:"Items",qty:1,price:Number(t.total)||0,total:Number(t.total)||0}];
+      items.forEach(i=>{
+        const qty=Math.max(1,Number(i.qty)||1);
+        const explicitTotal=Number(i.total);
+        const unit=Number(i.price??i.rate??i.cost??0)||0;
+        const itemTotal=Number.isFinite(explicitTotal)&&explicitTotal>0?explicitTotal:(unit*qty);
+        const value=itemTotal>0?itemTotal:0;
+        const paidHere=Math.min(paymentPool,value);
+        paymentPool=Math.max(0,paymentPool-paidHere);
+        const remaining=Math.max(0,value-paidHere);
+        takenItems.push({name:i.name||"Item",qty,unit,value,paidHere,remaining,date:date(t)});
+      });
+    });
+    const paidItems=takenItems.filter(i=>i.value>0&&i.paidHere>0);
+    const dueItems=takenItems.filter(i=>i.value>0&&i.remaining>0);
+
+    const itemRow=(i,mode)=>{
+      const amount=mode==="paid"?i.paidHere:i.remaining;
+      const unit=i.unit>0?money2(i.unit):"—";
+      return '<div class="dk-exec-record"><div class="dk-record-icon">'+(mode==="paid"?"🟢":"🔴")+'</div><div class="dk-record-main"><b>'+esc2(i.name)+'</b><small>Qty: '+i.qty+' • Price: '+unit+' • '+i.date+'</small></div><strong class="'+(mode==="paid"?"dk-customer-paid":"dk-customer-due")+'">'+money2(amount)+'</strong></div>';
+    };
+
+    const allItemRows=takenItems.length?takenItems.slice().reverse().map(i=>'<div class="dk-exec-record"><div class="dk-record-icon">🛍️</div><div class="dk-record-main"><b>'+esc2(i.name)+'</b><small>Qty: '+i.qty+' • Unit price: '+(i.unit>0?money2(i.unit):"—")+' • '+i.date+'</small></div><strong>'+money2(i.value)+'</strong></div>').join(""):'<div class="dk-empty">No items found</div>';
+    const dueItemRows=dueItems.length?dueItems.slice().reverse().map(i=>itemRow(i,"due")).join(""):'<div class="dk-empty">No due items 🎉</div>';
+    const paidItemRows=paidItems.length?paidItems.slice().reverse().map(i=>itemRow(i,"paid")).join(""):'<div class="dk-empty">No paid items yet</div>';
+
     const billRows=sales.length?sales.slice().reverse().map(t=>{
       const items=Array.isArray(t.items)?t.items.map(i=>esc2(i.name||"Item")+" × "+(Number(i.qty)||1)).join(", "):"";
       return '<div class="dk-exec-record"><div class="dk-record-icon">🧾</div><div class="dk-record-main"><b>Bill</b><small>'+date(t)+(items?" • "+items:"")+'</small></div><strong>'+money2(Number(t.total)||0)+'</strong></div>';
     }).join(""):'<div class="dk-empty">No bills found</div>';
     const paymentRows=payments.length?payments.slice().reverse().map(t=>'<div class="dk-exec-record"><div class="dk-record-icon">✓</div><div class="dk-record-main"><b>Payment Received</b><small>'+date(t)+(t.mode?" • "+esc2(t.mode):"")+'</small></div><strong class="dk-customer-paid">+'+money2(Number(t.amount)||0)+'</strong></div>').join(""):'<div class="dk-empty">No paid payments found</div>';
-    const khataRows=tx.length?tx.slice().reverse().map(t=>{
-      const isPay=t.type==="payment", amount=Number(isPay?t.amount:t.total)||0;
-      return '<div class="dk-exec-record"><div class="dk-record-icon">'+(isPay?"✓":"🧾")+'</div><div class="dk-record-main"><b>'+(isPay?"Paid Payment":"Khata Bill")+'</b><small>'+date(t)+'</small></div><strong class="'+(isPay?"dk-customer-paid":"dk-customer-due")+'">'+(isPay?"+":"")+money2(amount)+'</strong></div>';
-    }).join(""):'<div class="dk-empty">No transactions found</div>';
+
     document.getElementById("dkCustomerFullScreen")?.remove();
     document.body.classList.remove("dk-customer-mode");
     const root=document.createElement("div");
     root.id="dkCustomerFullScreen";
     root.className="dk-customer-fullscreen";
-    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkPortalBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>My Customer Khata</small></div></div><span class="dk-customer-secure">🔒 Read Only</span></header><main class="dk-customer-home-main"><section class="dk-customer-login-card" style="max-width:900px;text-align:left"><div style="display:flex;align-items:center;gap:14px;margin-bottom:20px"><div class="dk-customer-card-icon" style="margin:0">👤</div><div><span class="dk-login-badge">MY KHATA</span><h2 style="margin:6px 0 3px">'+esc2(c.name)+'</h2><p style="margin:0;color:#64748b">📱 '+esc2(c.phone||"")+'</p></div></div><div class="dk-customer-summary dk-exec-summary"><div><small>KHATA / BILLS</small><b>'+money2(salesTotal)+'</b></div><div><small>TOTAL PAID</small><b class="dk-customer-paid">'+money2(paid)+'</b></div><div><small>OUTSTANDING DUE</small><b class="dk-customer-due">'+money2(due)+'</b></div></div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>📒</span><div><h3>My Khata</h3><small>Complete transaction history</small></div></div>'+khataRows+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>🧾</span><div><h3>My Bills</h3><small>All bills linked to your account</small></div></div>'+billRows+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>💳</span><div><h3>Paid Payments</h3><small>Payments recorded for this account</small></div></div>'+paymentRows+'</div><div class="dk-exec-private">🔐 <span>This customer view is read-only. Other customers and owner controls are hidden.</span></div></section></main></div>';
+    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkPortalBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>My Customer Khata</small></div></div><span class="dk-customer-secure">🔒 Read Only</span></header><main class="dk-customer-home-main"><section class="dk-customer-login-card" style="max-width:900px;text-align:left"><div style="display:flex;align-items:center;gap:14px;margin-bottom:20px"><div class="dk-customer-card-icon" style="margin:0">👤</div><div><span class="dk-login-badge">MY KHATA</span><h2 style="margin:6px 0 3px">'+esc2(c.name)+'</h2><p style="margin:0;color:#64748b">📱 '+esc2(c.phone||"")+'</p></div></div><div class="dk-customer-summary dk-exec-summary"><div><small>TOTAL TAKEN</small><b>'+money2(salesTotal)+'</b></div><div><small>TOTAL PAID</small><b class="dk-customer-paid">'+money2(paid)+'</b></div><div><small>TOTAL DUE</small><b class="dk-customer-due">'+money2(due)+'</b></div></div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>🛍️</span><div><h3>All Taken Items</h3><small>Every item taken, with quantity and price</small></div></div>'+allItemRows+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>🔴</span><div><h3>Due Items</h3><small>Items/value still outstanding</small></div></div>'+dueItemRows+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>🟢</span><div><h3>Paid Items</h3><small>Items/value covered by recorded payments</small></div></div>'+paidItemRows+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>📒</span><div><h3>My Khata</h3><small>Complete transaction history</small></div></div>'+sales.slice().reverse().map(t=>'<div class="dk-exec-record"><div class="dk-record-icon">🧾</div><div class="dk-record-main"><b>Khata Bill</b><small>'+date(t)+'</small></div><strong>'+money2(Number(t.total)||0)+'</strong></div>').join("")+(payments.length?payments.slice().reverse().map(t=>'<div class="dk-exec-record"><div class="dk-record-icon">✓</div><div class="dk-record-main"><b>Paid Payment</b><small>'+date(t)+(t.mode?" • "+esc2(t.mode):"")+'</small></div><strong class="dk-customer-paid">+'+money2(Number(t.amount)||0)+'</strong></div>').join(""):"")+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>🧾</span><div><h3>My Bills</h3><small>All bills linked to your account</small></div></div>'+billRows+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>💳</span><div><h3>Paid Payments</h3><small>Payments recorded for this account</small></div></div>'+paymentRows+'</div><div class="dk-exec-private">🔐 <span>This customer view is read-only. Other customers and owner controls are hidden.</span></div></section></main></div>';
     document.body.appendChild(root);
     document.body.classList.add("dk-customer-mode");
     root.querySelector("#dkPortalBack")?.addEventListener("click",openCustomer2);
