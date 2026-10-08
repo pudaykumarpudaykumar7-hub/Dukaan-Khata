@@ -120,7 +120,8 @@
     const itemRow=(i,mode)=>{
       const amount=mode==="paid"?i.paidHere:i.remaining;
       const unit=i.unit>0?money2(i.unit):"—";
-      return '<div class="dk-exec-record"><div class="dk-record-icon">'+(mode==="paid"?"🟢":"🔴")+'</div><div class="dk-record-main"><b>'+esc2(i.name)+'</b><small>Qty: '+i.qty+' • Price: '+unit+' • '+i.date+'</small></div><strong class="'+(mode==="paid"?"dk-customer-paid":"dk-customer-due")+'">'+money2(amount)+'</strong></div>';
+      const title=esc2(i.name)+" "+unit;
+      return '<div class="dk-exec-record"><div class="dk-record-icon">'+(mode==="paid"?"🟢":"🔴")+'</div><div class="dk-record-main"><b style="font-size:17px">'+title+'</b><small>Qty: '+i.qty+' • '+i.date+' • Item total: '+money2(i.value)+'</small></div><strong class="'+(mode==="paid"?"dk-customer-paid":"dk-customer-due")+'">'+money2(amount)+'</strong></div>';
     };
 
     const allItemRows=takenItems.length?takenItems.slice().reverse().map(i=>'<div class="dk-exec-record"><div class="dk-record-icon">🛍️</div><div class="dk-record-main"><b>'+esc2(i.name)+'</b><small>Qty: '+i.qty+' • Unit price: '+(i.unit>0?money2(i.unit):"—")+' • '+i.date+'</small></div><strong>'+money2(i.value)+'</strong></div>').join(""):'<div class="dk-empty">No items found</div>';
