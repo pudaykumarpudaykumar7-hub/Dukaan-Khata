@@ -136,7 +136,7 @@
     document.getElementById("googleLoginBtn")?.addEventListener("click",startGoogleLogin);
   }
   function normPhone(v){
-    let d=String(v??"").replace(/\\D/g,"");
+    let d=String(v??"").replace(/\D/g,"");
     // Treat Indian +91/0091 numbers consistently with locally saved 10-digit numbers.
     if(d.length===12&&d.startsWith("91"))d=d.slice(2);
     if(d.length===13&&d.startsWith("0091"))d=d.slice(4);
