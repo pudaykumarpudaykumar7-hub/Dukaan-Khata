@@ -376,6 +376,9 @@
     document.addEventListener("click",function(e){
       const btn=e.target?.closest?.("#dkCustomerViewBtn");
       if(!btn)return;
+      // login-access.js owns the current full-screen customer flow and its status message.
+      // Do not let this legacy capture-phase listener swallow its button click.
+      if(document.getElementById("dkLoginAccessStandalone") || document.getElementById("dkCustomerStatus"))return;
       e.preventDefault();
       e.stopImmediatePropagation();
       const input=document.getElementById("customerLoginPhone");
