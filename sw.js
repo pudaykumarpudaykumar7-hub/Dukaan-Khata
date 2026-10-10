@@ -1,4 +1,4 @@
-const CACHE="dukaan-khata-app-v12";
+const CACHE="dukaan-khata-app-v13";
 const CORE=["./","./index.html","./style.css","./app.js","./auth.js","./login-access.js","./i18n.js","./more-routing.js","./manifest.json"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil(self.clients.claim()));
