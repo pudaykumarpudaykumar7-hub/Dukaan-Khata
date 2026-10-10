@@ -2098,3 +2098,29 @@ button:active{transform:translateY(1px)}
 .uvms-logo-button .dk-shop-google-logo{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
 .uvms-logo-button .dk-shop-logo-popup-hint{position:absolute;left:0;right:0;bottom:0;padding:2px 0;background:#071b1acc;color:#fff;font-size:7px;line-height:1.2;text-align:center;letter-spacing:0}
 
+
+
+/* More screen: force readable near-black text on all section cards and controls in light mode */
+body:not(.darkmode) #tools,
+body:not(.darkmode) #tools .tools-grid,
+body:not(.darkmode) #tools .tools-grid *,
+body:not(.darkmode) #tools button,
+body:not(.darkmode) #tools button *,
+body:not(.darkmode) #tools a,
+body:not(.darkmode) #tools label,
+body:not(.darkmode) #tools input,
+body:not(.darkmode) #tools select,
+body:not(.darkmode) #tools textarea,
+body:not(.darkmode) #tools [role="button"] {
+  color: #111111 !important;
+}
+body:not(.darkmode) #tools .tools-grid button,
+body:not(.darkmode) #tools button,
+body:not(.darkmode) #tools [role="button"] {
+  text-shadow: none !important;
+}
+body:not(.darkmode) #tools input::placeholder,
+body:not(.darkmode) #tools textarea::placeholder {
+  color: #333333 !important;
+  opacity: 1 !important;
+}
