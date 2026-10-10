@@ -48,7 +48,7 @@
     return data||null;
   }
   async function writeCloud(sb,uid,data){
-    const {error}=await sb.from("dukaan_khata_state").upsert({user_id:uid,state:data},{onConflict:"user_id"});
+    const {error}=await sb.from("dukaan_khata_state").upsert({user_id:uid,state:data,updated_at:new Date().toISOString()},{onConflict:"user_id"});
     if(error)throw error;
     const row=await readCloud(sb,uid);
     if(row?.updated_at)localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at);
@@ -65,17 +65,12 @@
       // Preserve unique records from both devices; local edits win same-ID conflicts.
       const merged=row?.state?mergeStates(local,row.state):local;
       await writeCloud(sb,userId,merged);
+      localStorage.setItem(stateKey(),JSON.stringify(merged));
       if(!same(window.state,merged)){
-        localStorage.setItem(stateKey(),JSON.stringify(merged));
         window.state=merged;
-        location.reload();
-        return;
+        try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw after cloud sync",e)}
       }
       localStorage.setItem("dukaan_khata_local_cloud_ready","1");
-      if(!same(local,merged)){
-        localStorage.setItem(stateKey(),JSON.stringify(merged));
-        window.state=merged;
-      }
     }catch(e){
       console.error("Dukaan Khata database sync failed:",e);
       localStorage.setItem("dukaan_khata_local_dirty","1");
@@ -105,10 +100,14 @@
         if(!same(merged,row.state)){
           localStorage.setItem("dukaan_khata_local_dirty","1");
           window.state=merged;
+          try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw merged cloud data",e)}
           window.dkQueueSync();
         }else{
           localStorage.removeItem("dukaan_khata_local_dirty");
-          location.reload();
+          if(!same(local,row.state)){
+            window.state=row.state;
+            try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw cloud data",e)}
+          }
         }
       }
     }catch(e){console.error("Dukaan Khata cloud polling failed:",e)}
@@ -146,7 +145,10 @@
         localStorage.removeItem("dukaan_khata_local_dirty");
         localStorage.setItem("dukaan_khata_local_cloud_ready","1");
         if(restoredKey)sessionStorage.setItem(restoredKey,"1");
-        if(!same(localState(),row.state))location.reload();
+        if(!same(localState(),row.state)){
+          window.state=row.state;
+          try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw restored cloud data",e)}
+        }
       }
     }catch(e){
       console.error("Dukaan Khata initial database sync failed:",e);
