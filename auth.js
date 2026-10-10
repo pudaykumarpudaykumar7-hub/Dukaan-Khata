@@ -14,7 +14,10 @@
     return window.dkSupabase;
   }
   function accountFromUser(u){
-    return u?{id:u.id,name:u.user_metadata?.full_name||u.user_metadata?.name||u.email?.split("@")[0]||"Google account",email:u.email||"",picture:u.user_metadata?.avatar_url||""}:null;
+    const identity=u?.identities?.find(x=>x?.provider==="google")?.identity_data||u?.identities?.[0]?.identity_data||{};
+    const meta=u?.user_metadata||{};
+    const picture=meta.avatar_url||meta.picture||meta.photo_url||identity.avatar_url||identity.picture||identity.photo_url||"";
+    return u?{id:u.id,name:meta.full_name||meta.name||identity.full_name||identity.name||u.email?.split("@")[0]||"Google account",email:u.email||"",picture}:null;
   }
   function paintOwnerStartProfile(account){
     const img=document.getElementById("ownerStartPhoto"),initial=document.getElementById("ownerStartInitial"),btn=document.getElementById("ownerStartProfile");
@@ -221,7 +224,7 @@
       const u=accountFromUser(session.user);
       window.DukaanKhataUser=u;
       modal('<div class="dk-login-shell dk-login-signed">'+
-        '<div class="dk-login-top"><div class="dk-login-icon">👤</div><span class="dk-login-badge">OWNER ACCOUNT</span></div>'+
+        '<div class="dk-login-top"><div class="dk-login-icon dk-owner-profile-box">'+(u.picture?'<img src="'+esc(u.picture)+'" alt="Owner Google profile photo" referrerpolicy="no-referrer">':'👤')+'</div><span class="dk-login-badge">OWNER ACCOUNT</span></div>'+'+
         '<h2>Owner Account</h2><p class="dk-login-sub">Full Dukaan Khata access</p>'+
         '<div class="dk-account-card"><div class="dk-avatar">'+(u.picture?'<img src="'+esc(u.picture)+'" alt="">':'👤')+'</div><div><b>'+esc(u.name)+'</b><small>'+esc(u.email)+'</small></div><span class="dk-cloud">☁</span></div>'+
         '<button class="dk-login-action dk-login-primary" onclick="showPage(\'home\');closeModal()">⌂ Open Full Dashboard <span>→</span></button>'+
