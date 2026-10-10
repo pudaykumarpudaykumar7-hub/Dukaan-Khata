@@ -7,7 +7,7 @@
 <style>
 :root{color-scheme:light;--navy:#071a2a;--green:#087f5b;--lime:#b9f36b;--paper:#f3f7f8;--line:#dce6e9;--ink:#122a38;--muted:#637783}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{max-width:760px;margin:auto;padding:18px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--navy);color:white;padding:16px 18px;border-radius:18px}.brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:850}.mark{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--lime);color:var(--navy)}a{color:white;text-decoration:none;font-size:13px}.tools{display:flex;gap:9px;margin:16px 0}.field{width:100%;min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:white;color:var(--ink);font:inherit}.btn{border:0;border-radius:12px;padding:12px 14px;background:var(--green);color:white;font:inherit;font-weight:750;cursor:pointer}.btn.secondary{background:white;border:1px solid var(--line);color:var(--ink)}.list{display:grid;gap:8px}.shop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;background:white;border:1px solid var(--line);border-radius:14px}.shopname{font-weight:800;font-size:16px;overflow-wrap:anywhere;touch-action:pan-y;user-select:none;-webkit-user-select:none}.shop-delete{border:0;background:#fff0f0;color:#a52222;border-radius:9px;padding:8px 10px;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.distance{font-size:12px;color:var(--muted);white-space:nowrap}.map-link{display:inline-block;margin-top:5px;color:var(--green);font-size:12px;font-weight:800;text-decoration:underline}.empty{padding:26px 14px;text-align:center;color:var(--muted);background:white;border:1px dashed var(--line);border-radius:14px}.add{margin-top:18px;background:white;border:1px solid var(--line);border-radius:16px;padding:16px}.add summary{font-weight:800;cursor:pointer}.add form{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:14px}.full{grid-column:1/-1}.field-wrap{font-size:12px;font-weight:750;color:#506675;display:grid;gap:5px}.status{min-height:18px;color:var(--muted);font-size:12px;margin:10px 2px}.form-note{font-size:12px;color:var(--muted);line-height:1.5;margin:12px 0 0}.actions{display:flex;gap:9px}.actions>*{flex:1}@media(max-width:520px){.wrap{padding:11px}.top{padding:13px}.brand{font-size:16px}.tools{flex-wrap:wrap}.tools .field{flex-basis:100%}.shop{padding:14px}.add form{grid-template-columns:1fr}.full{grid-column:auto}}
-</style>
+ .delete-shop-overlay{position:fixed;inset:0;z-index:9999;background:#071a2acc;display:grid;place-items:center;padding:20px}.delete-shop-dialog{width:min(100%,360px);background:white;color:#122a38;border-radius:18px;padding:22px;box-shadow:0 20px 70px #0005}.delete-shop-dialog h3{margin:0 0 8px}.delete-shop-dialog p{line-height:1.5}.delete-shop-actions{display:flex;gap:12px;margin-top:20px}.delete-shop-actions button{flex:1}.delete-shop-actions .shop-delete{background:#c62828;color:#fff;border:0;padding:12px;border-radius:12px;font-weight:800} </style>
 </head>
 <body><main class="wrap">
 <header class="top"><div class="brand"><span class="mark">DU</span><span>Dukaan Universe</span></div><a href="./index.html">← Back</a></header>
@@ -46,7 +46,7 @@ function render(){
  if(nearbyOnly&&position)all=all.filter(function(s){return s.km!==null&&s.km<=25}).sort(function(a,b){return a.km-b.km});
  else if(position)all.sort(function(a,b){if(a.km===null)return 1;if(b.km===null)return -1;return a.km-b.km});
  all=all.filter(function(s){return String(s.name).toLowerCase().includes(q)});
- $("shops").innerHTML=all.length?all.map(function(s){return '<div class="shop" data-shop-id="'+esc(s.id||'')+'"><div class="shopname">'+esc(s.name)+'</div>'+((Number.isFinite(Number(s.lat))&&Number.isFinite(Number(s.lon)))?'<a class="map-link" aria-label="Open shop location on map" href="https://www.google.com/maps?q='+encodeURIComponent(Number(s.lat)+','+Number(s.lon))+'" target="_blank" rel="noopener">📍</a>':'')+'</div>'}).join(""):'<div class="empty">'+(nearbyOnly?'No nearby shops found.':(q?'No matching shop names.':'No shops added yet.'))+'</div>';
+ $("shops").innerHTML=all.length?all.map(function(s){return '<div class="shop" data-shop-id="'+esc(s.id||'')+'"><div><div class="shopname">'+esc(s.name)+'</div>'+(s.area?'<div class="distance">'+esc(s.area)+'</div>':'')+((Number.isFinite(Number(s.lat))&&Number.isFinite(Number(s.lon)))?'<a class="map-link" href="https://www.google.com/maps?q='+encodeURIComponent(Number(s.lat)+','+Number(s.lon))+'" target="_blank" rel="noopener">View shop location ↗</a>':'')+'</div>'+(s.km!==null&&s.km!==undefined?'<span class="distance">'+s.km.toFixed(1)+' km away</span>':'')+'</div>'}).join(""):'<div class="empty">'+(nearbyOnly?'No nearby shops found.':(q?'No matching shop names.':'No shops added yet.'))+'</div>';
 }
 $("nearby").addEventListener("click",function(){
  if(!navigator.geolocation){$("status").textContent="Location is not supported by this browser.";return}
@@ -55,16 +55,18 @@ $("nearby").addEventListener("click",function(){
 });
 
 var pressTimer=null,pressedId=null,longPressed=false;
-$("shops").addEventListener("pointerdown",function(e){
- var card=e.target.closest(".shop");if(!card)return;
- pressedId=card.dataset.shopId;longPressed=false;
- pressTimer=setTimeout(function(){longPressed=true;var row=read().find(function(s){return String(s.id)===String(pressedId)});if(!row)return;
- if(confirm('Delete the shop listing "'+row.name.replace(/"/g,'\\"')+'"? This only removes it from this browser.')){save(read().filter(function(s){return String(s.id)!==String(pressedId)}));render();$("status").textContent="Shop listing deleted."}
- },750);
-});
+function showDeleteShop(row){
+ if(!row)return;
+ var overlay=document.createElement("div");overlay.className="delete-shop-overlay";
+ overlay.innerHTML='<div class="delete-shop-dialog" role="dialog" aria-modal="true"><h3>Delete shop?</h3><p>Remove “'+esc(row.name)+'” from this browser?</p><div class="delete-shop-actions"><button type="button" class="btn secondary" id="cancelShopDelete">Cancel</button><button type="button" class="shop-delete" id="confirmShopDelete">Delete</button></div></div>';
+ document.body.appendChild(overlay);
+ overlay.addEventListener("click",function(e){if(e.target===overlay)overlay.remove()});
+ overlay.querySelector("#cancelShopDelete").addEventListener("click",function(){overlay.remove()});
+ overlay.querySelector("#confirmShopDelete").addEventListener("click",function(){save(read().filter(function(s){return String(s.id)!==String(row.id)}));overlay.remove();render();$("status").textContent="Shop deleted."});
+}
+$("shops").addEventListener("pointerdown",function(e){var card=e.target.closest(".shop");if(!card||e.target.closest("a"))return;pressedId=card.dataset.shopId;pressTimer=setTimeout(function(){longPressed=true;showDeleteShop(read().find(function(s){return String(s.id)===String(pressedId)}))},750)});
 ["pointerup","pointercancel","pointerleave"].forEach(function(ev){$("shops").addEventListener(ev,function(){clearTimeout(pressTimer);pressTimer=null})});
-$("shops").addEventListener("contextmenu",function(e){if(e.target.closest(".shopname")){e.preventDefault();var card=e.target.closest(".shop");var row=read().find(function(s){return String(s.id)===String(card.dataset.shopId)});if(row&&confirm('Delete the shop listing "'+row.name.replace(/"/g,'\\"')+'"? This only removes it from this browser.')){save(read().filter(function(s){return String(s.id)!==String(row.id)}));render();$("status").textContent="Shop listing deleted."}}});
-
+$("shops").addEventListener("contextmenu",function(e){if(e.target.closest(".shopname")){e.preventDefault();var card=e.target.closest(".shop");showDeleteShop(read().find(function(s){return String(s.id)===String(card.dataset.shopId)}))}});
 $("search").addEventListener("input",render);
 $("addForm").addEventListener("submit",function(e){
  e.preventDefault();
