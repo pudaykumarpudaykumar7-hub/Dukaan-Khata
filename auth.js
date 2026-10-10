@@ -173,9 +173,14 @@
     // Keep each browser/device independent. Do not restore or poll shared cloud state.
   }
 
+  let initAttempts=0;
   async function init(){
     const sb=client();
-    if(!sb){console.warn("Supabase client failed to load");return}
+    if(!sb){
+      if(initAttempts++<20){setTimeout(init,500);return;}
+      console.warn("Supabase client failed to load; app remains available without login.");
+      return;
+    }
     const {data:{session}}=await sb.auth.getSession();
     if(session)await handleSession(session);
     // getSession() handles the initial session; do not handle INITIAL_SESSION
