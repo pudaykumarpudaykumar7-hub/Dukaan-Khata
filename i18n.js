@@ -47,7 +47,7 @@
     map.forEach(([id,key])=>{const h=document.querySelector("#"+id+" .page-title h2");if(h)h.textContent=L[key]});
     document.querySelectorAll("#khata .segmented button").forEach((e,i)=>e.textContent=L[["all","due","paid"][i]]);
     const nav=document.querySelectorAll(".bottom-nav span");[L.home,L.khata,L.customer,L.billsnav,L.more].forEach((v,i)=>{if(nav[i])nav[i].textContent=v});
-    document.querySelectorAll(".tools-grid button b").forEach((e,i)=>{const k=["smartrcv","shopprofile","language","connect","login","digitalpass"][i];if(k)e.textContent=L[k]});
+    Array.from(document.querySelectorAll("#tools .tools-grid .luxury-tool b")).slice(1,7).forEach((e,i)=>{const k=["smartrcv","shopprofile","language","connect","login","digitalpass"][i];if(k)e.textContent=L[k]});
     document.documentElement.lang=codes[current()]||"en";
   };
   window.setLanguage=function(x){
