@@ -286,9 +286,12 @@ function parseSpokenItems(transcript){
 function startKhataSpeech(onTranscript,button){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){toast("Voice input is not supported here. Open this app in Chrome or type the item.");return}
+  // Give immediate visual feedback before initializing the browser's speech service.
+  if(button){button.dataset.oldText=button.textContent;button.disabled=true;button.classList.add("is-listening");button.textContent="🎙️ Starting…";button.title="Starting microphone…";button.setAttribute("aria-live","polite")}
   const rec=new SR();rec.lang=speechLang();rec.interimResults=true;rec.continuous=false;rec.maxAlternatives=3;
   let finalText="",lastText="",deliveredFinal=false;
-  if(button){button.disabled=true;button.classList.add("is-listening");button.dataset.oldText=button.textContent;button.textContent="🔴 Listening…";button.setAttribute("aria-live","polite")}
+  if(button){button.textContent="🔴 Listening…";button.title="Listening for Telugu speech…"}
+  rec.onstart=()=>{if(button){button.textContent="🔴 Speak now";button.title="Speak the item name and amount";}};
   rec.onresult=e=>{
     let interim="";
     for(let i=e.resultIndex;i<e.results.length;i++){
