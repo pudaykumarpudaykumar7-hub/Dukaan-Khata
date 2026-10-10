@@ -14,9 +14,11 @@
     return window.dkSupabase;
   }
   function accountFromUser(u){
-    const identity=u?.identities?.find(x=>x?.provider==="google")?.identity_data||u?.identities?.[0]?.identity_data||{};
+    const identities=Array.isArray(u?.identities)?u.identities:[];
+    const googleIdentity=identities.find(x=>String(x?.provider||"").toLowerCase()==="google")||identities.find(x=>x?.identity_data?.picture||x?.identity_data?.avatar_url)||identities[0]||{};
+    const identity=googleIdentity.identity_data||{};
     const meta=u?.user_metadata||{};
-    const picture=meta.avatar_url||meta.picture||meta.photo_url||identity.avatar_url||identity.picture||identity.photo_url||"";
+    const picture=meta.picture||meta.avatar_url||meta.photo_url||meta.profile_picture||identity.picture||identity.avatar_url||identity.photo_url||identity.profile_picture||"";
     return u?{id:u.id,name:meta.full_name||meta.name||identity.full_name||identity.name||u.email?.split("@")[0]||"Google account",email:u.email||"",picture}:null;
   }
   function paintOwnerStartProfile(account){
@@ -363,7 +365,7 @@ function openOwnerLogin(){
   async function startGoogleLogin(){
     const sb=client();
     if(!sb){toast("Cloud login is still loading. Try again.");return}
-    const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.href}});
+    const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.href,queryParams:{prompt:"select_account"},scopes:"openid email profile"}});
     if(error){console.error(error);toast("Google login could not start. Check Supabase Google provider settings.");}
   }
 
