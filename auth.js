@@ -216,7 +216,8 @@
       '<div class="dk-access-note">Owner access keeps the complete existing website. Customer access is read-only and shows only the customer selected by phone number.</div>'+
       '<button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
   }
-  async function openOwnerLogin(){
+  async function popupOwnerGooglePhoto(){let u=window.DukaanKhataUser||{};try{u={...JSON.parse(localStorage.getItem("dukaan_khata_account")||"{}"),...u}}catch(e){}const src=u.picture||u.avatar_url||u.photo_url||"";if(!src){toast("Google profile photo is not available for this account");return}modal('<div class="dk-google-photo-view" onclick="closeModal()"><img src="'+esc(src)+'" alt="Google account profile photo" referrerpolicy="no-referrer"><p>Touch anywhere to go back</p></div>')}
+function openOwnerLogin(){
     const sb=client();
     if(!sb){toast("Cloud login is still loading. Try again.");return}
     const {data:{session}}=await sb.auth.getSession();
@@ -224,7 +225,7 @@
       const u=accountFromUser(session.user);
       window.DukaanKhataUser=u;
       modal('<div class="dk-login-shell dk-login-signed">'+
-        '<div class="dk-login-top"><div class="dk-login-icon dk-owner-profile-box">'+(u.picture?'<img src="'+esc(u.picture)+'" alt="Owner Google profile photo" referrerpolicy="no-referrer">':'👤')+'</div><span class="dk-login-badge">OWNER ACCOUNT</span></div>'+
+        '<div class="dk-login-top"><button type="button" class="dk-login-icon dk-owner-profile-box" onclick="popupOwnerGooglePhoto()" aria-label="View Google profile photo">'+(u.picture?'<img src="'+esc(u.picture)+'" alt="Owner Google profile photo" referrerpolicy="no-referrer">':'👤')+'</button><span class="dk-login-badge">OWNER ACCOUNT</span></div>'+
         '<h2>Owner Account</h2><p class="dk-login-sub">Full Dukaan Khata access</p>'+
         '<div class="dk-account-card"><div class="dk-avatar">'+(u.picture?'<img src="'+esc(u.picture)+'" alt="">':'👤')+'</div><div><b>'+esc(u.name)+'</b><small>'+esc(u.email)+'</small></div><span class="dk-cloud">☁</span></div>'+
         '<button class="dk-login-action dk-login-primary" onclick="showPage(\'home\');closeModal()">⌂ Open Full Dashboard <span>→</span></button>'+
