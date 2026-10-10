@@ -230,7 +230,7 @@ function showManyItemsForm(customerId){
   document.getElementById("saveManyBtn")?.addEventListener("click",()=>saveManyItems(customerId));
   addManyRow()
 }
-function addManyRow(name="",price=""){
+function addManyRow(name="",price=""){\n  name=typeof name==="string"?name:"";price=typeof price==="string"||typeof price==="number"?price:"";
  const box=document.getElementById("manyRows");if(!box)return;
  const row=document.createElement("div");row.className="khata-item-row many-row";
  row.innerHTML='<div class="khata-item-number"></div><div class="khata-item-fields"><label>Item name<input class="many-name" placeholder="e.g. Kurkure" autocomplete="off"></label><label>Amount (₹)<input class="many-price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></label></div><button class="khata-row-mic many-mic" type="button" title="Speak this item">🎙️</button><button class="khata-row-remove many-remove" type="button" aria-label="Remove item">×</button>';
