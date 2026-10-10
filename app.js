@@ -320,7 +320,7 @@ function speakManyItem(row){
   startKhataSpeech((text,isFinal)=>{
     const name=row.querySelector(".many-name"),price=row.querySelector(".many-price");
     const parsed=parseSpokenItems(text);
-    if(parsed.length){name.value=parsed[0].name;price.value=parsed[0].price;for(const item of parsed.slice(1))addManyRow(item.name,item.price);recalcManyItems();if(isFinal)toast("Voice entry ready. Check the item and amount.");}
+    if(parsed.length){name.value=parsed[0].name;price.value=parsed[0].price;if(isFinal){for(const item of parsed.slice(1))addManyRow(item.name,item.price);toast("Voice entry ready. Check the item and amount.");}recalcManyItems();}
     else{name.value=text;if(isFinal){name.focus();toast("Item text captured. Enter or correct the amount, then save.");}}
   },row.querySelector(".many-mic"))
 }
@@ -330,7 +330,7 @@ function speakAllManyItems(){
     const parsed=parseSpokenItems(text),rows=[...document.querySelectorAll("#manyRows .many-row")];
     if(!parsed.length){if(rows[0])rows[0].querySelector(".many-name").value=text;if(isFinal)toast("Speech captured. Correct the price if needed, then save.");return}
     let idx=0;
-    for(const item of parsed){if(idx<rows.length){rows[idx].querySelector(".many-name").value=item.name;rows[idx].querySelector(".many-price").value=item.price;idx++}else addManyRow(item.name,item.price)}
+    for(const item of (isFinal?parsed:parsed.slice(0,1))){if(idx<rows.length){rows[idx].querySelector(".many-name").value=item.name;rows[idx].querySelector(".many-price").value=item.price;idx++}else if(isFinal)addManyRow(item.name,item.price)}
     renumberManyRows();recalcManyItems();if(isFinal)toast(parsed.length+" item(s) captured. Check before saving.");
   },btn)
 }
