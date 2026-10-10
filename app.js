@@ -286,33 +286,54 @@ function parseSpokenItems(transcript){
 function startKhataSpeech(onTranscript,button){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){toast("Voice input is not supported here. Open this app in Chrome or type the item.");return}
-  const rec=new SR();rec.lang=speechLang();rec.interimResults=true;rec.continuous=false;rec.maxAlternatives=5;
-  let finalText="",lastText="";
-  if(button){button.disabled=true;button.classList.add("is-listening");button.dataset.oldText=button.textContent;button.textContent="🔴 Listening… Speak now"}
+  const rec=new SR();rec.lang=speechLang();rec.interimResults=true;rec.continuous=false;rec.maxAlternatives=3;
+  let finalText="",lastText="",deliveredFinal=false;
+  if(button){button.disabled=true;button.classList.add("is-listening");button.dataset.oldText=button.textContent;button.textContent="🔴 Listening…";button.setAttribute("aria-live","polite")}
   rec.onresult=e=>{
     let interim="";
     for(let i=e.resultIndex;i<e.results.length;i++){
       const result=e.results[i];let best=result[0];
       for(let j=1;j<result.length;j++)if((result[j].confidence||0)>(best.confidence||0))best=result[j];
-      if(result.isFinal)finalText+=(finalText?" ":"")+String(best?.transcript||"").trim();
-      else interim=String(best?.transcript||"").trim();
+      const spoken=String(best?.transcript||"").trim();
+      if(result.isFinal){if(spoken)finalText=(finalText+" "+spoken).trim()}
+      else if(spoken)interim=spoken;
     }
     lastText=(finalText+" "+interim).trim();
-    if(button)button.title=lastText||"Listening for Telugu speech";
+    // Push partial words to the input immediately; don't wait for the browser's end-of-speech event.
+    if(interim)onTranscript(interim,false);
+    if(button)button.title=lastText||"Listening…";
+    if(finalText&&!deliveredFinal){deliveredFinal=true;onTranscript(finalText,true)}
   };
-  rec.onerror=e=>toast(e.error==="not-allowed"?"Allow microphone access for this website, then try again.":e.error==="no-speech"?"No speech detected. Tap the mic and speak closer to the phone.":"Speech recognition had trouble. You can type the item and amount instead.");
+  rec.onerror=e=>{
+    rec._errorShown=true;
+    toast(e.error==="not-allowed"?"Allow microphone access for this website, then try again.":e.error==="no-speech"?"No speech detected. Tap the mic and speak closer to the phone.":"Speech recognition had trouble. You can type the item and amount instead.")
+  };
   rec.onend=()=>{
     const text=(finalText||lastText).trim();
-    if(text)onTranscript(text);
-    else if(!rec._errorShown)toast("No words captured. Tap the microphone and speak again, or type freely.");
-    if(button){button.disabled=false;button.classList.remove("is-listening");button.textContent=button.dataset.oldText||"🎙️ Speak items";button.title="Speak item name and amount"}
+    if(text&&!deliveredFinal)onTranscript(text,true);
+    else if(!text&&!rec._errorShown)toast("No words captured. Tap the microphone and speak again, or type freely.");
+    if(button){button.disabled=false;button.classList.remove("is-listening");button.textContent=button.dataset.oldText||"🎙️";button.title="Speak item name and amount";button.removeAttribute("aria-live")}
   };
-  rec.onerror=e=>{rec._errorShown=true;toast(e.error==="not-allowed"?"Allow microphone access for this website, then try again.":e.error==="no-speech"?"No speech detected. Tap the mic and speak closer to the phone.":"Speech recognition had trouble. You can type the item and amount instead.")};
-  try{rec.start()}catch(e){if(button){button.disabled=false;button.classList.remove("is-listening");button.textContent=button.dataset.oldText||"🎙️ Speak items"}toast("Could not start microphone. Check browser microphone permission.")}
+  try{rec.start()}catch(e){if(button){button.disabled=false;button.classList.remove("is-listening");button.textContent=button.dataset.oldText||"🎙️"}toast("Could not start microphone. Check browser microphone permission.")}
 }
-function speakManyItem(row){startKhataSpeech(text=>{const parsed=parseSpokenItems(text);if(parsed.length){row.querySelector(".many-name").value=parsed[0].name;row.querySelector(".many-price").value=parsed[0].price;for(const item of parsed.slice(1))addManyRow(item.name,item.price);recalcManyItems();toast("Captured: "+text+". Check the names and amounts before saving.");}else{row.querySelector(".many-name").value=text;row.querySelector(".many-name").focus();toast("Speech captured as item text. Enter or correct the amount, then save.")}},row.querySelector(".many-mic"))}
-function speakAllManyItems(){const btn=document.getElementById("voiceAllItemsBtn");startKhataSpeech(text=>{const parsed=parseSpokenItems(text);if(!parsed.length){const rows=[...document.querySelectorAll("#manyRows .many-row")];if(rows[0])rows[0].querySelector(".many-name").value=text;toast("I heard: "+text+". Add/correct the price manually, or try saying “Kurkure ten, spirit twenty”.");return}const rows=[...document.querySelectorAll("#manyRows .many-row")];let idx=0;for(const item of parsed){if(idx<rows.length){rows[idx].querySelector(".many-name").value=item.name;rows[idx].querySelector(".many-price").value=item.price;idx++}else addManyRow(item.name,item.price)}renumberManyRows();recalcManyItems();toast(parsed.length+" item(s) captured. Please verify before saving.");},btn)}
-
+function speakManyItem(row){
+  startKhataSpeech((text,isFinal)=>{
+    const name=row.querySelector(".many-name"),price=row.querySelector(".many-price");
+    const parsed=parseSpokenItems(text);
+    if(parsed.length){name.value=parsed[0].name;price.value=parsed[0].price;for(const item of parsed.slice(1))addManyRow(item.name,item.price);recalcManyItems();if(isFinal)toast("Voice entry ready. Check the item and amount.");}
+    else{name.value=text;if(isFinal){name.focus();toast("Item text captured. Enter or correct the amount, then save.");}}
+  },row.querySelector(".many-mic"))
+}
+function speakAllManyItems(){
+  const btn=document.getElementById("voiceAllItemsBtn");
+  startKhataSpeech((text,isFinal)=>{
+    const parsed=parseSpokenItems(text),rows=[...document.querySelectorAll("#manyRows .many-row")];
+    if(!parsed.length){if(rows[0])rows[0].querySelector(".many-name").value=text;if(isFinal)toast("Speech captured. Correct the price if needed, then save.");return}
+    let idx=0;
+    for(const item of parsed){if(idx<rows.length){rows[idx].querySelector(".many-name").value=item.name;rows[idx].querySelector(".many-price").value=item.price;idx++}else addManyRow(item.name,item.price)}
+    renumberManyRows();recalcManyItems();if(isFinal)toast(parsed.length+" item(s) captured. Check before saving.");
+  },btn)
+}
 function recalcManyItems(){let total=0;document.querySelectorAll("#manyRows .many-row").forEach(r=>total+=Math.max(0,Number(r.querySelector(".many-price")?.value)||0));const e=document.getElementById("manyTotal");if(e)e.textContent=money(total)}
 function saveManyItems(customerId){const lines=[];document.querySelectorAll("#manyRows .many-row").forEach(r=>{const name=(r.querySelector(".many-name")?.value||"").trim(),price=Number(r.querySelector(".many-price")?.value)||0;if(name&&price>0)lines.push({name,qty:1,price,total:price})});if(!lines.length)return toast("Add item name and price");const total=lines.reduce((s,x)=>s+x.total,0);state.tx.unshift({id:uid(),type:"sale",customerId,total,paid:0,mode:"credit",lines,date:new Date().toISOString()});saveState();closeModal();render();toast("Items saved to Khata")}
 
