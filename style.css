@@ -1985,3 +1985,35 @@ button:active{transform:translateY(1px)}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
 }
+
+
+/* Redesigned Khata item entry and voice capture */
+.khata-entry-head{padding:4px 2px 18px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.khata-entry-kicker{font-size:10px;letter-spacing:.16em;font-weight:900;color:#159567;margin-bottom:8px}
+.khata-entry-head h2{font-size:27px;letter-spacing:-.04em;margin:0 0 6px}
+.khata-entry-head p{margin:0 0 9px;color:var(--muted)}
+.khata-change-customer{width:auto!important;padding:8px 12px!important;margin-top:3px;background:var(--surface)!important;color:var(--text)!important;border:1px solid var(--line)!important}
+.khata-entry-mode{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 10px}
+.khata-entry-mode>div{display:flex;flex-direction:column;gap:3px}
+.khata-entry-mode>div b{font-size:15px}
+.khata-entry-mode>div small{color:var(--muted);font-size:12px}
+.khata-voice-all{flex:0 0 auto;border:0;border-radius:14px;background:#dcfce7;color:#166534;font-weight:900;padding:13px 15px;min-height:48px}
+.khata-voice-all.is-listening,.khata-row-mic.is-listening{background:#fee2e2;color:#991b1b;animation:khataPulse 1.1s infinite}
+.khata-voice-hint{padding:12px 14px;border-radius:14px;background:color-mix(in srgb,#16a34a 9%,var(--surface));border:1px solid color-mix(in srgb,#16a34a 20%,var(--line));font-size:12px;line-height:1.55;color:var(--text);margin-bottom:16px}
+.khata-items-list{display:flex;flex-direction:column;gap:10px}
+.khata-item-row{display:grid;grid-template-columns:30px minmax(0,1fr) 42px 34px;align-items:center;gap:8px;padding:12px 10px;border:1px solid var(--line);border-radius:17px;background:var(--surface)}
+.khata-item-number{width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:color-mix(in srgb,#16a34a 12%,var(--surface));color:#159567;font-size:11px;font-weight:900}
+.khata-item-fields{min-width:0;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(85px,.8fr);gap:9px}
+.khata-item-fields label{font-size:10px;font-weight:900;color:var(--muted);display:flex;flex-direction:column;gap:5px;min-width:0}
+.khata-item-fields input{width:100%;min-width:0;box-sizing:border-box;border:1px solid var(--line);background:var(--bg);color:var(--text);padding:10px 9px;border-radius:10px;font-size:14px;font-weight:650}
+.khata-row-mic,.khata-row-remove{width:100%;height:39px;border:0;border-radius:11px;font-size:17px;font-weight:900;display:grid;place-items:center}
+.khata-row-mic{background:#dcfce7;color:#166534}
+.khata-row-remove{background:#fee2e2;color:#b91c1c;font-size:23px}
+.khata-add-row{width:100%;margin-top:12px;min-height:48px;border:1.5px dashed #16a34a;border-radius:14px;background:transparent;color:#16a34a;font-weight:900}
+.khata-total-card{margin-top:18px;padding:17px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-radius:18px;background:linear-gradient(120deg,#064e3b,#15803d);color:white}
+.khata-total-card span{font-weight:750;font-size:14px}
+.khata-total-card strong{font-size:25px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.khata-save-bill{min-height:54px;font-size:16px;margin-top:12px;background:#16a34a!important;color:white!important;border-radius:15px!important}
+.khata-verify-note{text-align:center;color:var(--muted);font-size:11px;margin:10px 0 0}
+@keyframes khataPulse{50%{box-shadow:0 0 0 5px #ef444433}}
+@media(max-width:420px){.sheet{padding:16px}.khata-entry-head h2{font-size:24px}.khata-entry-mode{align-items:flex-start}.khata-voice-all{padding:11px 10px;font-size:12px}.khata-item-row{grid-template-columns:25px minmax(0,1fr) 36px 28px;gap:5px;padding:9px 7px}.khata-item-number{width:24px;height:24px}.khata-item-fields{grid-template-columns:minmax(0,1fr) minmax(76px,.75fr);gap:6px}.khata-item-fields input{padding:9px 6px;font-size:13px}.khata-row-mic,.khata-row-remove{height:35px;font-size:15px}.khata-total-card strong{font-size:22px}}
