@@ -337,7 +337,7 @@ function speakAllManyItems(){
 function recalcManyItems(){let total=0;document.querySelectorAll("#manyRows .many-row").forEach(r=>total+=Math.max(0,Number(r.querySelector(".many-price")?.value)||0));const e=document.getElementById("manyTotal");if(e)e.textContent=money(total)}
 function saveManyItems(customerId){const lines=[];document.querySelectorAll("#manyRows .many-row").forEach(r=>{const name=(r.querySelector(".many-name")?.value||"").trim(),price=Number(r.querySelector(".many-price")?.value)||0;if(name&&price>0)lines.push({name,qty:1,price,total:price})});if(!lines.length)return toast("Add item name and price");const total=lines.reduce((s,x)=>s+x.total,0);state.tx.unshift({id:uid(),type:"sale",customerId,total,paid:0,mode:"credit",lines,date:new Date().toISOString()});saveState();closeModal();render();toast("Items saved to Khata")}
 
-function customerView(id){const c=state.customers.find(x=>x.id===id);if(!c)return;const b=balance(id),tx=state.tx.filter(t=>t.customerId===id).slice(0,50);const items=[];tx.filter(t=>t.type==="sale").forEach(t=>(t.lines||[]).forEach(l=>items.push('<div class="line"><span>🧾 '+esc(l.name)+' × '+(Number(l.qty)||1)+'</span><b>'+money(l.total)+'</b></div>')));const history=tx.map(t=>t.type==="sale"?'<div class="card" data-long-delete data-delete-type="transaction" data-delete-id="'+esc(t.id)+'"><div class="line"><span>Sale</span><b>'+money(t.total)+'</b></div><small>'+esc((t.lines||[]).map(l=>l.name+" × "+l.qty).join(" • "))+'</small></div>':'<div class="line" data-long-delete data-delete-type="transaction" data-delete-id="'+esc(t.id)+'"><span>Payment • '+esc(t.mode||"")+'</span><b>'+money(t.amount)+'</b></div>').join("")||'<p class="muted">No transactions yet.</p>';modal('<h2>'+esc(c.name)+'</h2><p>'+esc(c.phone||"No phone added")+'</p><div class="'+(b>0?"due":"paid")+'" style="font-size:28px;margin:10px 0">'+money(b)+' <small>'+(b>0?"due":"clear")+'</small></div><button class="btn primary" onclick="openManyItems(\''+esc(id)+'\')">＋ Add Items to Khata</button><h3>Items in Khata</h3>'+(items.join("")||'<p class="muted">No items yet.</p>')+'<div class="row"><button class="btn" onclick="editCustomer(\''+esc(id)+'\')">✎ Edit / Add Number</button><button class="btn" onclick="openReceive(\''+esc(id)+'\')">⌁ Receive</button></div><div class="row"><button class="btn" onclick="shareCustomer(\''+esc(id)+'\')">💬 WhatsApp</button><button class="btn" onclick="callCustomer(\''+esc(id)+'\')">☎ Call</button></div><h3>History</h3>'+history+'<button class="btn" style="background:#dc2626" onclick="deleteCustomer(\''+esc(id)+'\')">Delete Customer</button>')}
+function customerView(id){const c=state.customers.find(x=>x.id===id);if(!c)return;const b=balance(id),tx=state.tx.filter(t=>t.customerId===id).slice(0,50);const items=[];tx.filter(t=>t.type==="sale").forEach(t=>(t.lines||[]).forEach((l,i)=>items.push('<div class="line khata-deletable-item" data-long-delete data-delete-type="sale-item" data-delete-id="'+esc(t.id)+'" data-delete-index="'+i+'" title="Long press to delete this item"><span>🧾 '+esc(l.name)+' × '+(Number(l.qty)||1)+' <small class="muted">• long press to delete</small></span><b>'+money(l.total)+'</b></div>')));const history=tx.map(t=>t.type==="sale"?'<div class="card" data-long-delete data-delete-type="transaction" data-delete-id="'+esc(t.id)+'"><div class="line"><span>Sale</span><b>'+money(t.total)+'</b></div><small>'+esc((t.lines||[]).map(l=>l.name+" × "+l.qty).join(" • "))+'</small></div>':'<div class="line" data-long-delete data-delete-type="transaction" data-delete-id="'+esc(t.id)+'"><span>Payment • '+esc(t.mode||"")+'</span><b>'+money(t.amount)+'</b></div>').join("")||'<p class="muted">No transactions yet.</p>';modal('<h2>'+esc(c.name)+'</h2><p>'+esc(c.phone||"No phone added")+'</p><div class="'+(b>0?"due":"paid")+'" style="font-size:28px;margin:10px 0">'+money(b)+' <small>'+(b>0?"due":"clear")+'</small></div><button class="btn primary" onclick="openManyItems(\''+esc(id)+'\')">＋ Add Items to Khata</button><h3>Items in Khata</h3>'+(items.join("")||'<p class="muted">No items yet.</p>')+'<div class="row"><button class="btn" onclick="editCustomer(\''+esc(id)+'\')">✎ Edit / Add Number</button><button class="btn" onclick="openReceive(\''+esc(id)+'\')">⌁ Receive</button></div><div class="row"><button class="btn" onclick="shareCustomer(\''+esc(id)+'\')">💬 WhatsApp</button><button class="btn" onclick="callCustomer(\''+esc(id)+'\')">☎ Call</button></div><h3>History</h3>'+history+'<button class="btn" style="background:#dc2626" onclick="deleteCustomer(\''+esc(id)+'\')">Delete Customer</button>')}
 function deleteConfirm(message,onDelete){
   modal('<div class="delete-confirm"><h2>Delete?</h2><p>'+esc(message)+'</p><div class="delete-confirm-actions"><button class="btn" type="button" id="deleteCancelBtn">Cancel</button><button class="btn danger" type="button" id="deleteConfirmBtn">Delete</button></div></div>');
   document.getElementById("deleteCancelBtn")?.addEventListener("click",closeModal);
@@ -533,6 +533,21 @@ function renderCustomers(){
 }
 function renderBills(){const box=document.getElementById("billList");if(!box)return;box.innerHTML=sales().slice(0,50).map(t=>{const c=state.customers.find(x=>x.id===t.customerId);return'<div class="bill" data-long-delete data-delete-type="sale" data-delete-id="'+esc(t.id)+'" onclick="billView(\''+esc(t.id)+'\')"><div><h3>'+esc(c?.name||"Walk-in")+'</h3><small>'+new Date(t.date).toLocaleString("en-IN")+'</small></div><b>'+money(t.total)+'</b></div>'}).join("")||'<p class="muted">No bills yet.</p>'}
 function billView(id){const t=state.tx.find(x=>x.id===id);if(!t)return;const c=state.customers.find(x=>x.id===t.customerId);const lines=(t.lines||[]).map(l=>'<div class="line"><span>'+esc(l.name)+' × '+l.qty+'</span><b>'+money(l.total)+'</b></div>').join("");modal('<h2>Bill</h2><p><b>'+esc(c?.name||"Walk-in")+'</b><br><small>'+new Date(t.date).toLocaleString("en-IN")+'</small></p>'+lines+'<div class="line"><b>Total</b><b>'+money(t.total)+'</b></div><button class="btn" style="background:#dc2626" onclick="deleteSale(\''+esc(id)+'\')">Delete Bill</button>')}
+
+function deleteSaleItem(id,index){
+  const tx=state.tx.find(x=>x.id===id&&x.type==="sale");if(!tx||!Array.isArray(tx.lines)||!tx.lines[index])return;
+  const item=tx.lines[index];
+  deleteConfirm("Delete item “"+item.name+"” from this bill?",()=>{
+    tx.lines.splice(index,1);
+    if(!tx.lines.length)state.tx=state.tx.filter(x=>x.id!==id);
+    else tx.total=tx.lines.reduce((sum,line)=>sum+(Number(line.total)||((Number(line.price)||0)*(Number(line.qty)||1))),0);
+    saveState();render();
+    const customerId=tx.customerId;
+    toast("Item deleted");
+    if(customerId&&state.customers.some(x=>x.id===customerId))customerView(customerId);
+  });
+}
+
 function deleteSale(id){if(!state.tx.some(t=>t.id===id))return;deleteConfirm("Delete this bill?",()=>{state.tx=state.tx.filter(t=>t.id!==id);saveState();render();toast("Bill deleted")})}
 function deleteTransaction(id){
   const t=state.tx.find(x=>x.id===id);if(!t)return;
@@ -569,6 +584,7 @@ function setupLongPress(){
       const id=el.dataset.deleteId,type=el.dataset.deleteType;
       if(type==="customer")deleteCustomer(id);
       else if(type==="sale")deleteSale(id);
+       else if(type==="sale-item")deleteSaleItem(id,Number(el.dataset.deleteIndex));
       else if(type==="transaction")deleteTransaction(id);
       else if(type==="expense")deleteExpense(id);
       else if(type==="return")deleteReturn(id);
