@@ -20,55 +20,105 @@
     window.DukaanKhataUser=accountFromUser(user);
     localStorage.setItem("dukaan_khata_account",JSON.stringify(window.DukaanKhataUser||null));
   }
+  function syncToken(){
+    try{return crypto.randomUUID()}catch(e){return Date.now().toString(36)+"-"+Math.random().toString(36).slice(2)}
+  }
   async function syncToCloud(){
     const sb=client(); if(!sb||syncing||!window.DukaanKhataUser)return;
     syncing=true;
+    const data=typeof window.state==="object"?JSON.parse(JSON.stringify(window.state)):null;
+    if(!data){syncing=false;return}
+    const serialized=JSON.stringify(data);
+    const token=syncToken();
     try{
-      const data=typeof window.state==="object"?JSON.parse(JSON.stringify(window.state)):null;
-      if(data){const stamp=Date.now();await sb.auth.updateUser({data:{dukaan_khata:data,dukaan_khata_sync_at:stamp}});localStorage.setItem("dukaan_khata_local_sync_at",String(stamp))}
-    }catch(e){console.warn("Dukaan Khata cloud sync:",e)}
-    finally{syncing=false}
+      const {error}=await sb.auth.updateUser({data:{
+        dukaan_khata:data,
+        dukaan_khata_sync_id:token,
+        dukaan_khata_sync_at:Date.now()
+      }});
+      if(error)throw error;
+      localStorage.setItem("dukaan_khata_local_sync_id",token);
+      localStorage.setItem("dukaan_khata_local_sync_at",String(Date.now()));
+      if(JSON.stringify(window.state)===serialized){
+        localStorage.removeItem("dukaan_khata_local_dirty");
+      }else{
+        localStorage.setItem("dukaan_khata_local_dirty","1");
+        window.dkQueueSync();
+      }
+    }catch(e){
+      console.warn("Dukaan Khata cloud sync failed:",e);
+      localStorage.setItem("dukaan_khata_local_dirty","1");
+      if(window.toast)toast("Cloud sync failed. Your data is still saved on this device.");
+    }finally{syncing=false}
   }
   window.dkSyncNow=syncToCloud;
   window.dkQueueSync=function(){
+    localStorage.setItem("dukaan_khata_local_dirty","1");
     clearTimeout(syncTimer);
-    syncTimer=setTimeout(syncToCloud,800);
+    syncTimer=setTimeout(syncToCloud,1000);
   };
   async function pollCloud(){
     const sb=client(); if(!sb||!window.DukaanKhataUser||syncing)return;
+    // Never overwrite local edits that have not reached the cloud yet.
+    if(localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
     try{
-      const {data:{user}}=await sb.auth.getUser();
+      const {data:{user},error}=await sb.auth.getUser();
+      if(error)throw error;
       const remote=user?.user_metadata?.dukaan_khata;
-      const remoteAt=Number(user?.user_metadata?.dukaan_khata_sync_at||0);
-      const localAt=Number(localStorage.getItem("dukaan_khata_local_sync_at")||0);
-      if(remote&&remoteAt>localAt){
+      const remoteToken=String(user?.user_metadata?.dukaan_khata_sync_id||"");
+      const localToken=String(localStorage.getItem("dukaan_khata_local_sync_id")||"");
+      // Compare version tokens instead of device timestamps: phone/laptop clocks
+      // can differ, and timestamp comparison can silently block a valid update.
+      if(remote&&remoteToken&&remoteToken!==localToken){
         localStorage.setItem("dukaan_khata_infinity_v2",JSON.stringify(remote));
-        localStorage.setItem("dukaan_khata_local_sync_at",String(remoteAt));
+        localStorage.setItem("dukaan_khata_local_sync_id",remoteToken);
+        localStorage.setItem("dukaan_khata_local_sync_at",String(user?.user_metadata?.dukaan_khata_sync_at||""));
         location.reload();
       }
     }catch(e){console.warn("Dukaan Khata cloud refresh:",e)}
   }
-  function startCloudPolling(){clearInterval(cloudPollTimer);cloudPollTimer=setInterval(pollCloud,4000)}
+  function startCloudPolling(){clearInterval(cloudPollTimer);cloudPollTimer=setInterval(pollCloud,5000)}
 
   async function restoreCloudState(user){
     const cloud=user?.user_metadata?.dukaan_khata;
+    const cloudToken=String(user?.user_metadata?.dukaan_khata_sync_id||"");
     const uid=user?.id;
     const restoredKey=uid?"dukaan_khata_restored_"+uid:"";
-    // Restore only once per browser session. This prevents an auth
-    // INITIAL_SESSION/reload loop that makes the app flicker.
-    if(restoredKey&&sessionStorage.getItem(restoredKey)==="1")return;
+    // Restore once per browser session to avoid reload loops.
+    if(restoredKey&&sessionStorage.getItem(restoredKey)==="1"){
+      startCloudPolling();
+      return;
+    }
+    const localRaw=localStorage.getItem("dukaan_khata_infinity_v2");
+    const localToken=String(localStorage.getItem("dukaan_khata_local_sync_id")||"");
+    const dirty=localStorage.getItem("dukaan_khata_local_dirty")==="1";
     if(cloud&&typeof cloud==="object"){
-      try{
-        localStorage.setItem("dukaan_khata_infinity_v2",JSON.stringify(cloud));
-        localStorage.setItem("dukaan_khata_cloud_synced","1");
+      // Cloud is authoritative on a clean/new device. If this device already
+      // has unsynced edits, upload them first instead of silently discarding them.
+      if(dirty&&localRaw){
         if(restoredKey)sessionStorage.setItem(restoredKey,"1");
-        location.reload();
+        await syncToCloud();
+        localStorage.setItem("dukaan_khata_cloud_synced","1");
+        startCloudPolling();
         return;
-      }catch(e){}
+      }
+      if(!localRaw||cloudToken!==localToken){
+        try{
+          localStorage.setItem("dukaan_khata_infinity_v2",JSON.stringify(cloud));
+          if(cloudToken)localStorage.setItem("dukaan_khata_local_sync_id",cloudToken);
+          localStorage.setItem("dukaan_khata_local_sync_at",String(user?.user_metadata?.dukaan_khata_sync_at||""));
+          localStorage.removeItem("dukaan_khata_local_dirty");
+          localStorage.setItem("dukaan_khata_cloud_synced","1");
+          if(restoredKey)sessionStorage.setItem(restoredKey,"1");
+          location.reload();
+          return;
+        }catch(e){console.warn("Could not restore cloud data:",e)}
+      }
     }
     if(restoredKey)sessionStorage.setItem(restoredKey,"1");
-    await syncToCloud();
+    if(!cloud)await syncToCloud();
     localStorage.setItem("dukaan_khata_cloud_synced","1");
+    startCloudPolling();
   }
 
   async function handleSession(session){
