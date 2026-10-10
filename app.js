@@ -223,13 +223,63 @@ function openManyItems(customerId){
 function openSale(customerId){openManyItems(customerId)}
 function showManyItemsForm(customerId){
   const c=state.customers.find(x=>x.id===customerId);if(!c)return;
-  modal('<h2>＋ Add Items</h2><p><b>'+esc(c.name)+'</b></p><button class="btn small" id="changeSellCustomerBtn">↔ Change Customer</button><div id="manyRows"></div><button class="btn" id="addManyRowBtn">＋ Add another item</button><div class="line"><b>Total</b><b id="manyTotal">₹0</b></div><button class="btn primary" id="saveManyBtn">Save to Khata</button>');
+  modal('<div class="khata-entry-head"><div class="khata-entry-kicker">DUKAAN KHATA • NEW BILL</div><h2>🧾 Add items</h2><p>Customer: <b>'+esc(c.name)+'</b></p><button class="btn small khata-change-customer" id="changeSellCustomerBtn">↔ Change customer</button></div><div class="khata-entry-mode"><div><b>Enter items your way</b><small>Type each item or use the microphone</small></div><button class="khata-voice-all" id="voiceAllItemsBtn" type="button">🎙️ Speak items</button></div><div class="khata-voice-hint">Example: “Kurkure ten, spirit twenty.” Say one item and its amount, then the next item. Telugu speech is supported when your browser provides Telugu recognition.</div><div id="manyRows" class="khata-items-list"></div><button class="khata-add-row" id="addManyRowBtn" type="button">＋ Add another item manually</button><div class="khata-total-card"><span>Grand total</span><strong id="manyTotal">₹0.00</strong></div><button class="btn primary khata-save-bill" id="saveManyBtn">✓ Save bill to Khata</button><p class="khata-verify-note">Please check the item names and prices before saving.</p>');
   document.getElementById("changeSellCustomerBtn")?.addEventListener("click",()=>openManyItems());
   document.getElementById("addManyRowBtn")?.addEventListener("click",addManyRow);
-  document.getElementById("saveManyBtn")?.addEventListener("click",()=>saveManyItems(customerId));addManyRow()
+  document.getElementById("voiceAllItemsBtn")?.addEventListener("click",speakAllManyItems);
+  document.getElementById("saveManyBtn")?.addEventListener("click",()=>saveManyItems(customerId));
+  addManyRow()
 }
-function addManyRow(){const box=document.getElementById("manyRows");if(!box)return;const row=document.createElement("div");row.className="row many-row";row.style.margin="8px 0";row.innerHTML='<input class="many-name" placeholder="Item name" autocomplete="off"><input class="many-price" type="number" min="0.01" step="0.01" placeholder="Price"><button class="btn small many-mic" type="button" title="Speak item name and amount" aria-label="Speak item name and amount">🎙️</button><button class="btn small many-remove" type="button" aria-label="Remove item">✕</button>';box.appendChild(row);row.querySelector(".many-price")?.addEventListener("input",recalcManyItems);row.querySelector(".many-mic")?.addEventListener("click",()=>speakManyItem(row));row.querySelector(".many-remove")?.addEventListener("click",()=>{row.remove();recalcManyItems()});recalcManyItems()}
-function speakManyItem(row){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast("Voice input is not supported in this browser. Try Chrome.");return}const btn=row.querySelector(".many-mic");const rec=new SR();rec.lang=({English:"en-IN",Hindi:"hi-IN",Telugu:"te-IN",Tamil:"ta-IN",Kannada:"kn-IN",Malayalam:"ml-IN",Marathi:"mr-IN",Bengali:"bn-IN",Gujarati:"gu-IN",Punjabi:"pa-IN",Urdu:"ur-IN",Odia:"or-IN",Assamese:"as-IN"}[state.settings?.language]||"en-IN");rec.interimResults=false;rec.maxAlternatives=3;btn.disabled=true;btn.textContent="🎙️…";rec.onresult=e=>{const transcript=String(e.results?.[0]?.[0]?.transcript||"").trim();if(!transcript)return;const match=transcript.match(/^(.*?)(?:\s+(?:rupees?|rs\.?|₹)?\s*([0-9]+(?:[.,][0-9]{1,2})?))\s*$/i);if(match&&match[1].trim()){row.querySelector(".many-name").value=match[1].trim();row.querySelector(".many-price").value=match[2].replace(",","");recalcManyItems();toast("Item and amount added. Please verify the text.");}else{row.querySelector(".many-name").value=transcript;row.querySelector(".many-name").focus();toast("Item name captured. Say the item name followed by its amount, e.g. Kurkure 10.");}};rec.onerror=e=>toast(e.error==="not-allowed"?"Allow microphone access in your browser.":"Could not recognize speech. Please try again.");rec.onend=()=>{btn.disabled=false;btn.textContent="🎙️"};try{rec.start()}catch(e){btn.disabled=false;btn.textContent="🎙️";toast("Microphone could not start. Try again.")}}
+function addManyRow(name="",price=""){
+ const box=document.getElementById("manyRows");if(!box)return;
+ const row=document.createElement("div");row.className="khata-item-row many-row";
+ row.innerHTML='<div class="khata-item-number"></div><div class="khata-item-fields"><label>Item name<input class="many-name" placeholder="e.g. Kurkure" autocomplete="off"></label><label>Amount (₹)<input class="many-price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></label></div><button class="khata-row-mic many-mic" type="button" title="Speak this item">🎙️</button><button class="khata-row-remove many-remove" type="button" aria-label="Remove item">×</button>';
+ box.appendChild(row);row.querySelector(".many-name").value=name;row.querySelector(".many-price").value=price;
+ row.querySelector(".many-price")?.addEventListener("input",recalcManyItems);
+ row.querySelector(".many-mic")?.addEventListener("click",()=>speakManyItem(row));
+ row.querySelector(".many-remove")?.addEventListener("click",()=>{row.remove();renumberManyRows();recalcManyItems()});
+ renumberManyRows();recalcManyItems()
+}
+function renumberManyRows(){document.querySelectorAll("#manyRows .many-row").forEach((r,i)=>{const n=r.querySelector(".khata-item-number");if(n)n.textContent=String(i+1).padStart(2,"0")})}
+function speechLang(){const map={English:"en-IN",Hindi:"hi-IN",Telugu:"te-IN",Tamil:"ta-IN",Kannada:"kn-IN",Malayalam:"ml-IN",Marathi:"mr-IN",Bengali:"bn-IN",Gujarati:"gu-IN",Punjabi:"pa-IN",Urdu:"ur-IN",Odia:"or-IN",Assamese:"as-IN"};return map[state.settings?.language]||"te-IN"}
+function teluguNumberWords(s){
+ const d={"సున్నా":0,"ఒకటి":1,"ఒక":1,"ఒక్కటి":1,"రెండు":2,"మూడు":3,"నాలుగు":4,"ఐదు":5,"ఆరు":6,"ఏడు":7,"ఎనిమిది":8,"తొమ్మిది":9,"పది":10,"పదకొండు":11,"పన్నెండు":12,"పదమూడు":13,"పద్నాలుగు":14,"పదిహేను":15,"పదహారు":16,"పదిహేడు":17,"పద్దెనిమిది":18,"పంతొమ్మిది":19,"ఇరవై":20,"ముప్పై":30,"నలభై":40,"యాభై":50,"అరవై":60,"డెబ్బై":70,"ఎనభై":80,"తొంభై":90,"వంద":100,"నూరు":100};
+ const clean=String(s||"").trim().replace(/[₹,]/g," ");
+ if(/^\d+(?:\.\d{1,2})?$/.test(clean))return Number(clean);
+ if(d[clean]!==undefined)return d[clean];
+ const words=clean.split(/\s+/);let total=0,part=0,found=false;
+ for(const w of words){if(/^\d+(?:\.\d{1,2})?$/.test(w)){part+=Number(w);found=true}else if(d[w]!==undefined){part+=d[w];found=true}else if(w==="రూపాయలు"||w==="రూపాయి"||w==="రూపాయ"){continue}else{return null}}
+ if(found){total+=part;return total}return null
+}
+function transliterateTelugu(s){
+ const map={"అ":"a","ఆ":"aa","ఇ":"i","ఈ":"ee","ఉ":"u","ఊ":"oo","ఋ":"ru","ఎ":"e","ఏ":"e","ఐ":"ai","ఒ":"o","ఓ":"o","ఔ":"au","క":"ka","ఖ":"kha","గ":"ga","ఘ":"gha","ఙ":"nga","చ":"cha","ఛ":"chha","జ":"ja","ఝ":"jha","ఞ":"nya","ట":"ta","ఠ":"tha","డ":"da","ఢ":"dha","ణ":"na","త":"tha","థ":"thha","ద":"da","ధ":"dha","న":"na","ప":"pa","ఫ":"pha","బ":"ba","భ":"bha","మ":"ma","య":"ya","ర":"ra","ల":"la","వ":"va","శ":"sha","ష":"sha","స":"sa","హ":"ha","ళ":"la","క్ష":"ksha","జ్ఞ":"gya","ం":"n","ః":"h","్":"","ా":"a","ి":"i","ీ":"ee","ు":"u","ూ":"oo","ృ":"ru","ె":"e","ే":"e","ై":"ai","ొ":"o","ో":"o","ౌ":"au","్య":"ya","్ర":"ra","్వ":"va"};
+ let out=String(s||"");for(const k of Object.keys(map).sort((a,b)=>b.length-a.length))out=out.split(k).join(map[k]);return out.replace(/[్ఁః]/g,"").replace(/\s+/g," ").trim().replace(/(^|\s)\S/g,m=>m.toUpperCase())
+}
+function parseSpokenItems(transcript){
+ const normalized=String(transcript||"").replace(/[।;\n]+/g,",").replace(/\s+(?:and|then|తర్వాత|మరియు)\s+/gi,",");
+ const chunks=normalized.split(/[,]+/).map(x=>x.trim()).filter(Boolean);const parsed=[];
+ for(let chunk of chunks){
+  chunk=chunk.replace(/(?:rupees?|rs\.?|₹|రూపాయలు|రూపాయి|రూపాయ)/gi," ").trim();
+  const m=chunk.match(/^(.*?)[\s:=-]+([\d,]+(?:\.\d{1,2})?|[\u0C00-\u0C7F]+(?:\s+[\u0C00-\u0C7F]+)*)$/u);
+  if(!m)continue;
+  const price=teluguNumberWords(m[2].replace(/,/g,""));
+  const rawName=m[1].trim();if(!rawName||price===null||!Number.isFinite(price)||price<=0)continue;
+  const name=/[\u0C00-\u0C7F]/.test(rawName)?transliterateTelugu(rawName):rawName;
+  parsed.push({name,price})
+ }
+ return parsed
+}
+function startKhataSpeech(onTranscript,button){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast("Voice input is not supported here. Please use Chrome or type items.");return}
+ const rec=new SR();rec.lang=speechLang();rec.interimResults=false;rec.continuous=false;rec.maxAlternatives=3;
+ if(button){button.disabled=true;button.classList.add("is-listening");button.dataset.oldText=button.textContent;button.textContent="🔴 Listening…"}
+ rec.onresult=e=>{const text=String(e.results?.[0]?.[0]?.transcript||"").trim();if(text)onTranscript(text)};
+ rec.onerror=e=>toast(e.error==="not-allowed"?"Please allow microphone access.":"Speech was not clear. Try again slowly or type the item.");
+ rec.onend=()=>{if(button){button.disabled=false;button.classList.remove("is-listening");button.textContent=button.dataset.oldText||"🎙️ Speak items"}};
+ try{rec.start()}catch(e){if(button){button.disabled=false;button.classList.remove("is-listening");button.textContent=button.dataset.oldText||"🎙️ Speak items"}toast("Could not start microphone. Try again.")}
+}
+function speakManyItem(row){startKhataSpeech(text=>{const parsed=parseSpokenItems(text);if(parsed.length){row.querySelector(".many-name").value=parsed[0].name;row.querySelector(".many-price").value=parsed[0].price;for(const item of parsed.slice(1))addManyRow(item.name,item.price);recalcManyItems();toast("Voice items added. Please verify names and amounts.");}else{row.querySelector(".many-name").value=/[\u0C00-\u0C7F]/.test(text)?transliterateTelugu(text):text;row.querySelector(".many-name").focus();toast("Item name captured; amount not recognized. Enter the amount manually.")}},row.querySelector(".many-mic"))}
+function speakAllManyItems(){const btn=document.getElementById("voiceAllItemsBtn");startKhataSpeech(text=>{const parsed=parseSpokenItems(text);if(!parsed.length){toast("No complete item-and-amount pairs recognized. Try “Kurkure ten, spirit twenty” or enter prices manually.");return}const rows=[...document.querySelectorAll("#manyRows .many-row")];let idx=0;for(const item of parsed){if(idx<rows.length){rows[idx].querySelector(".many-name").value=item.name;rows[idx].querySelector(".many-price").value=item.price;idx++}else addManyRow(item.name,item.price)}renumberManyRows();recalcManyItems();toast(parsed.length+" item(s) added. Please verify each price.");},btn)}
 function recalcManyItems(){let total=0;document.querySelectorAll("#manyRows .many-row").forEach(r=>total+=Math.max(0,Number(r.querySelector(".many-price")?.value)||0));const e=document.getElementById("manyTotal");if(e)e.textContent=money(total)}
 function saveManyItems(customerId){const lines=[];document.querySelectorAll("#manyRows .many-row").forEach(r=>{const name=(r.querySelector(".many-name")?.value||"").trim(),price=Number(r.querySelector(".many-price")?.value)||0;if(name&&price>0)lines.push({name,qty:1,price,total:price})});if(!lines.length)return toast("Add item name and price");const total=lines.reduce((s,x)=>s+x.total,0);state.tx.unshift({id:uid(),type:"sale",customerId,total,paid:0,mode:"credit",lines,date:new Date().toISOString()});saveState();closeModal();render();toast("Items saved to Khata")}
 
