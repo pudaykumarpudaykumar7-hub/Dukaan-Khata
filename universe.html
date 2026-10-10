@@ -6,14 +6,27 @@
 <title>Dukaan Universe</title>
 <style>
 :root{color-scheme:light;--navy:#071a2a;--green:#087f5b;--lime:#b9f36b;--paper:#f3f7f8;--line:#dce6e9;--ink:#122a38;--muted:#637783}
-*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{max-width:760px;margin:auto;padding:18px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--navy);color:white;padding:16px 18px;border-radius:18px}.brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:850}.mark{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--lime);color:var(--navy)}a{color:white;text-decoration:none;font-size:13px}.tools{display:flex;gap:9px;margin:16px 0}.field{min-width:0;flex:1;border:1px solid var(--line);border-radius:12px;padding:13px;background:white;color:var(--ink);font:inherit}.btn{border:0;border-radius:12px;padding:12px 14px;background:var(--green);color:white;font:inherit;font-weight:750;cursor:pointer}.btn.secondary{background:white;border:1px solid var(--line);color:var(--ink)}.list{display:grid;gap:8px}.shop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;background:white;border:1px solid var(--line);border-radius:14px}.shopname{font-weight:800;font-size:16px;overflow-wrap:anywhere}.distance{font-size:12px;color:var(--muted);white-space:nowrap}.empty{padding:26px 14px;text-align:center;color:var(--muted);background:white;border:1px dashed var(--line);border-radius:14px}.add{margin-top:18px;background:white;border:1px solid var(--line);border-radius:16px;padding:16px}.add summary{font-weight:800;cursor:pointer}.add form{display:grid;gap:9px;margin-top:13px}.status{min-height:18px;color:var(--muted);font-size:12px;margin:10px 2px}@media(max-width:520px){.wrap{padding:11px}.top{padding:13px}.brand{font-size:16px}.tools{flex-wrap:wrap}.tools .field{flex-basis:100%}.shop{padding:14px}}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{max-width:760px;margin:auto;padding:18px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--navy);color:white;padding:16px 18px;border-radius:18px}.brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:850}.mark{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--lime);color:var(--navy)}a{color:white;text-decoration:none;font-size:13px}.tools{display:flex;gap:9px;margin:16px 0}.field{width:100%;min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px;background:white;color:var(--ink);font:inherit}.btn{border:0;border-radius:12px;padding:12px 14px;background:var(--green);color:white;font:inherit;font-weight:750;cursor:pointer}.btn.secondary{background:white;border:1px solid var(--line);color:var(--ink)}.list{display:grid;gap:8px}.shop{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;background:white;border:1px solid var(--line);border-radius:14px}.shopname{font-weight:800;font-size:16px;overflow-wrap:anywhere}.distance{font-size:12px;color:var(--muted);white-space:nowrap}.empty{padding:26px 14px;text-align:center;color:var(--muted);background:white;border:1px dashed var(--line);border-radius:14px}.add{margin-top:18px;background:white;border:1px solid var(--line);border-radius:16px;padding:16px}.add summary{font-weight:800;cursor:pointer}.add form{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:14px}.full{grid-column:1/-1}.field-wrap{font-size:12px;font-weight:750;color:#506675;display:grid;gap:5px}.status{min-height:18px;color:var(--muted);font-size:12px;margin:10px 2px}.form-note{font-size:12px;color:var(--muted);line-height:1.5;margin:12px 0 0}.actions{display:flex;gap:9px}.actions>*{flex:1}@media(max-width:520px){.wrap{padding:11px}.top{padding:13px}.brand{font-size:16px}.tools{flex-wrap:wrap}.tools .field{flex-basis:100%}.shop{padding:14px}.add form{grid-template-columns:1fr}.full{grid-column:auto}}
 </style>
 </head>
 <body><main class="wrap">
 <header class="top"><div class="brand"><span class="mark">DU</span><span>Dukaan Universe</span></div><a href="./index.html">← Back</a></header>
 <div class="tools"><input id="search" class="field" type="search" placeholder="Search shop name"><button id="nearby" class="btn" type="button">Find nearby</button></div>
 <div id="shops" class="list"></div><div id="status" class="status" role="status"></div>
-<details class="add"><summary>＋ Add a shop</summary><form id="addForm"><input id="shopName" class="field" maxlength="70" required placeholder="Shop name"><input id="shopArea" class="field" maxlength="80" placeholder="Area / locality (optional)"><button class="btn" type="submit">Save shop location</button></form></details>
+<details class="add"><summary>＋ Add a shop</summary>
+<form id="addForm">
+<label class="field-wrap full">Shop name *<input id="shopName" class="field" maxlength="70" required placeholder="Enter shop name"></label>
+<label class="field-wrap">Owner name *<input id="ownerName" class="field" maxlength="70" required placeholder="Shop owner name"></label>
+<label class="field-wrap">Owner contact number *<input id="ownerPhone" class="field" type="tel" inputmode="tel" maxlength="18" required placeholder="Public shop contact"></label>
+<label class="field-wrap">Opening time<input id="openTime" class="field" type="time"></label>
+<label class="field-wrap">Closing time<input id="closeTime" class="field" type="time"></label>
+<label class="field-wrap">Shop category<select id="category" class="field"><option>Grocery</option><option>Vegetables & fruits</option><option>Bakery & snacks</option><option>Pharmacy</option><option>Stationery</option><option>Clothing</option><option>Electronics</option><option>Household</option><option>Other</option></select></label>
+<label class="field-wrap">Area / locality<input id="shopArea" class="field" maxlength="80" placeholder="Street, area or locality"></label>
+<label class="field-wrap full">Products available *<textarea id="products" class="field" rows="3" maxlength="600" required placeholder="List products separated by commas, e.g. rice, milk, biscuits, soap"></textarea></label>
+<label class="field-wrap full">Additional shop details<textarea id="details" class="field" rows="2" maxlength="300" placeholder="Optional: services, brands, delivery details"></textarea></label>
+<div class="full actions"><button class="btn secondary" type="reset">Clear form</button><button class="btn" type="submit">Submit shop</button></div>
+</form><p class="form-note">Submitting saves this listing in this browser only. Shop location access is required so it can appear in nearby results. Only enter a contact number intended for public shop enquiries.</p>
+</details>
 </main>
 <script>
 (function(){
@@ -33,14 +46,19 @@ function render(){
 $("nearby").addEventListener("click",function(){
  if(!navigator.geolocation){$("status").textContent="Location is not supported by this browser.";return}
  $("status").textContent="";$("nearby").disabled=true;$("nearby").textContent="Locating…";
- navigator.geolocation.getCurrentPosition(function(p){position={lat:p.coords.latitude,lon:p.coords.longitude};$("nearby").disabled=false;$("nearby").textContent="Refresh location";$("status").textContent="Showing shops within 25 km.";render()},function(){ $("nearby").disabled=false;$("nearby").textContent="Find nearby";$("status").textContent="Allow location access to find nearby shops.";}, {enableHighAccuracy:true,timeout:12000,maximumAge:60000});
+ navigator.geolocation.getCurrentPosition(function(p){position={lat:p.coords.latitude,lon:p.coords.longitude};$("nearby").disabled=false;$("nearby").textContent="Refresh location";$("status").textContent="";render()},function(){ $("nearby").disabled=false;$("nearby").textContent="Find nearby";$("status").textContent="Allow location access to find nearby shops.";}, {enableHighAccuracy:true,timeout:12000,maximumAge:60000});
 });
 $("search").addEventListener("input",render);
 $("addForm").addEventListener("submit",function(e){
- e.preventDefault();var name=$("shopName").value.trim(),area=$("shopArea").value.trim();if(!name)return;
+ e.preventDefault();
+ var name=$("shopName").value.trim(),owner=$("ownerName").value.trim(),phone=$("ownerPhone").value.trim(),products=$("products").value.split(",").map(function(x){return x.trim()}).filter(Boolean);
+ if(!name||!owner||!phone||!products.length){$("status").textContent="Please complete the required fields.";return}
  if(!navigator.geolocation){$("status").textContent="Location is not supported by this browser.";return}
  $("status").textContent="Getting shop location…";
- navigator.geolocation.getCurrentPosition(function(p){var rows=read();rows.push({id:String(Date.now()),name:name,area:area,lat:p.coords.latitude,lon:p.coords.longitude});save(rows);$("shopName").value="";$("shopArea").value="";$("status").textContent="Shop saved on this device.";position={lat:p.coords.latitude,lon:p.coords.longitude};render()},function(){$("status").textContent="Allow location access while saving the shop.";},{enableHighAccuracy:true,timeout:12000});
+ navigator.geolocation.getCurrentPosition(function(p){
+  var row={id:String(Date.now()),name:name,ownerName:owner,phone:phone,openTime:$("openTime").value,closeTime:$("closeTime").value,category:$("category").value,area:$("shopArea").value.trim(),products:products,details:$("details").value.trim(),lat:p.coords.latitude,lon:p.coords.longitude};
+  try{var rows=read();rows.push(row);save(rows);$("addForm").reset();$("status").textContent="Shop submitted and saved on this device.";position={lat:p.coords.latitude,lon:p.coords.longitude};render();document.querySelector(".add").open=false}catch(err){$("status").textContent="Could not save the shop. Please try again."}
+ },function(){$("status").textContent="Allow location access to submit a shop with its nearby location."},{enableHighAccuracy:true,timeout:12000});
 });
 render();
 })();
