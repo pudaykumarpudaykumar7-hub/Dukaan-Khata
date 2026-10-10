@@ -564,7 +564,27 @@ function deleteReturn(id){const x=state.returns.find(e=>e.id===id);if(!x)return;
 function deleteReminder(id){const x=state.reminders.find(e=>e.id===id);if(!x)return;deleteConfirm("Delete this reminder?",()=>{state.reminders=state.reminders.filter(e=>e.id!==id);saveState();render();toast("Reminder deleted")})}
 function filterKhata(f,el){khataFilter=f;document.querySelectorAll(".khata-filter").forEach(x=>x.classList.remove("active"));el?.classList.add("active");renderKhata()}
 
-function renderReports(){const chart=document.getElementById("activityChart");if(chart){const days=[];for(let n=6;n>=0;n--){const d=new Date();d.setDate(d.getDate()-n);days.push({d,v:sales().filter(t=>new Date(t.date).toDateString()===d.toDateString()).reduce((a,t)=>a+(Number(t.total)||0),0)})}const max=Math.max(1,...days.map(x=>x.v));chart.innerHTML=days.map(x=>'<div class="bar" style="height:'+Math.max(7,x.v/max*125)+'px"><small>'+x.d.toLocaleDateString("en-IN",{weekday:"short"})+'</small></div>').join("")}const top=document.getElementById("topCustomers");if(top)top.innerHTML=state.customers.map(c=>({c,v:balance(c.id)})).sort((a,b)=>b.v-a.v).slice(0,5).map(x=>'<div class="line"><span>'+esc(x.c.name)+'</span><b class="'+(x.v>0?"due":"paid")+'">'+money(x.v)+'</b></div>').join("")||'<p class="muted">No customers yet.</p>'}
+function renderReports(){const chart=document.getElementById("activityChart");if(chart){const days=[];for(let n=6;n>=0;n--){const d=new Date();d.setDate(d.getDate()-n);days.push({d,v:sales().filter(t=>new Date(t.date).toDateString()===d.toDateString()).reduce((a,t)=>a+(Number(t.total)||0),0)})}const max=Math.max(1,...days.map(x=>x.v));chart.innerHTML=days.map(x=>'<div class="bar" style="height:'+Math.max(7,x.v/max*125)+'px"><small>'+x.d.toLocaleDateString("en-IN",{weekday:"short"})+'</small></div>').join("")}const top=document.getElementById("topCustomers");if(top)top.innerHTML=state.customers.map(c=>({c,v:balance(c.id)})).sort((a,b)=>b.v-a.v).slice(0,5).map(x=>'<div class="line"><span>'+esc(x.c.name)+'</span><b class="'+(x.v>0?"due":"paid")+'">'+money(x.v)+'</b></div>').join("")||'<p class="muted">No customers yet.</p>';renderDailyCoach()}
+function renderDailyCoach(){
+ const box=document.getElementById("dailyCoachInsights");if(!box)return;
+ const now=new Date(),today=now.toDateString(),yesterday=new Date(now);yesterday.setDate(yesterday.getDate()-1);
+ const todaySales=sales().filter(t=>new Date(t.date).toDateString()===today).reduce((n,t)=>n+(Number(t.total)||0),0);
+ const yesterdaySales=sales().filter(t=>new Date(t.date).toDateString()===yesterday.toDateString()).reduce((n,t)=>n+(Number(t.total)||0),0);
+ const dueCustomers=state.customers.map(c=>({c,v:balance(c.id)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
+ const totalDue=dueCustomers.reduce((n,x)=>n+x.v,0);
+ const oldDue=sales().filter(t=>t.date&&((now-new Date(t.date))/86400000)>=7&&balance(t.customerId)>0).length;
+ const ideas=[];
+ if(!state.customers.length)ideas.push({icon:"👋",title:"Add your first customer",body:"Save a customer name and phone number to organize khata and payment history."});
+ else if(dueCustomers.length)ideas.push({icon:"💬",title:"Follow up on pending dues",body:dueCustomers.length+" customer"+(dueCustomers.length===1?" has":"s have")+" a pending balance. Total currently due: "+money(totalDue)+".",action:"openReminderCenter()"});
+ else ideas.push({icon:"✅",title:"Your dues look clear",body:"No positive customer balances are recorded right now. Keep recording payments when received."});
+ if(todaySales>0)ideas.push({icon:"📈",title:"Today's recorded sales",body:"You have recorded "+money(todaySales)+" in sales today."});
+ else ideas.push({icon:"🧾",title:"Keep today's books up to date",body:"No sales are recorded for today yet. Add each sale to keep reports useful.",action:"openManyItems()"});
+ if(yesterdaySales>0)ideas.push({icon:"📊",title:"Compare with yesterday",body:todaySales>=yesterdaySales?"Today's recorded sales have reached or passed yesterday's total of "+money(yesterdaySales)+".":"Yesterday's recorded sales were "+money(yesterdaySales)+". Today's total is "+money(todaySales)+" so far."});
+ if(oldDue>0)ideas.push({icon:"⏰",title:"Review older unpaid sales",body:oldDue+" sale record"+(oldDue===1?" is":"s are")+" at least 7 days old and linked to a customer with a current due. Check the khata before contacting them.",action:"showPage('khata')"});
+ if(!ideas.length)ideas.push({icon:"💡",title:"Your shop coach is ready",body:"As you record customers, sales, and payments, this area will show practical suggestions."});
+ box.innerHTML=ideas.map(x=>'<div class="dk-coach-item"><span class="dk-coach-icon">'+x.icon+'</span><div><b>'+esc(x.title)+'</b><p>'+esc(x.body)+'</p>'+(x.action?'<button class="text-link" onclick="'+x.action+'">Take action →</button>':'')+'</div></div>').join("");
+}
+
 /* Numeric keyboard helper: amount/price fields open the number keypad on phones. */
 function enableNumericKeyboards(){
   document.querySelectorAll('input[type="number"]').forEach(el=>{
