@@ -31,22 +31,24 @@
 <script>
 (function(){
 "use strict";
-var KEY="dukaan_universe_preview_v1",position=null;
+var KEY="dukaan_universe_preview_v1",position=null,nearbyOnly=false;
 var $=function(id){return document.getElementById(id)};
 function read(){try{var x=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(x)?x:[]}catch(e){return[]}}
 function save(x){localStorage.setItem(KEY,JSON.stringify(x))}
 function esc(s){return String(s||"").replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function dist(a,b){var R=6371,rad=function(x){return x*Math.PI/180},dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),v=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(v))}
 function render(){
- var q=$("search").value.trim().toLowerCase(),all=read().filter(function(s){return s&&s.name&&Number.isFinite(Number(s.lat))&&Number.isFinite(Number(s.lon))});
- if(position)all=all.map(function(s){return Object.assign({},s,{km:dist(position,{lat:Number(s.lat),lon:Number(s.lon)})})}).filter(function(s){return s.km<=25}).sort(function(a,b){return a.km-b.km});
- all=all.filter(function(s){return s.name.toLowerCase().includes(q)});
- $("shops").innerHTML=all.length?all.map(function(s){return '<div class="shop"><span class="shopname">'+esc(s.name)+'</span>'+(position?'<span class="distance">'+s.km.toFixed(1)+' km</span>':(s.area?'<span class="distance">'+esc(s.area)+'</span>':''))+'</div>'}).join(""):'<div class="empty">'+(position?'No listed shops found within 25 km.':'Tap “Find nearby” to show nearby listed shops.')+'</div>';
+ var q=$("search").value.trim().toLowerCase(),all=read().filter(function(s){return s&&s.name});
+ if(position)all=all.map(function(s){var valid=Number.isFinite(Number(s.lat))&&Number.isFinite(Number(s.lon));return Object.assign({},s,{km:valid?dist(position,{lat:Number(s.lat),lon:Number(s.lon)}):null})});
+ if(nearbyOnly&&position)all=all.filter(function(s){return s.km!==null&&s.km<=25}).sort(function(a,b){return a.km-b.km});
+ else if(position)all.sort(function(a,b){if(a.km===null)return 1;if(b.km===null)return -1;return a.km-b.km});
+ all=all.filter(function(s){return String(s.name).toLowerCase().includes(q)});
+ $("shops").innerHTML=all.length?all.map(function(s){return '<div class="shop"><span class="shopname">'+esc(s.name)+'</span>'+(s.km!==null&&s.km!==undefined?'<span class="distance">'+s.km.toFixed(1)+' km</span>':(s.area?'<span class="distance">'+esc(s.area)+'</span>':''))+'</div>'}).join(""):'<div class="empty">'+(nearbyOnly?'No listed shops found within 25 km.':(q?'No shop names match your search.':'No shops registered in this browser yet. Use “Add a shop” to register one.'))+'</div>';
 }
 $("nearby").addEventListener("click",function(){
  if(!navigator.geolocation){$("status").textContent="Location is not supported by this browser.";return}
  $("status").textContent="";$("nearby").disabled=true;$("nearby").textContent="Locating…";
- navigator.geolocation.getCurrentPosition(function(p){position={lat:p.coords.latitude,lon:p.coords.longitude};$("nearby").disabled=false;$("nearby").textContent="Refresh location";$("status").textContent="";render()},function(){ $("nearby").disabled=false;$("nearby").textContent="Find nearby";$("status").textContent="Allow location access to find nearby shops.";}, {enableHighAccuracy:true,timeout:12000,maximumAge:60000});
+ navigator.geolocation.getCurrentPosition(function(p){position={lat:p.coords.latitude,lon:p.coords.longitude};nearbyOnly=true;$("nearby").disabled=false;$("nearby").textContent="Refresh location";$("status").textContent="";render()},function(){ $("nearby").disabled=false;$("nearby").textContent="Find nearby";$("status").textContent="Allow location access to find nearby shops.";}, {enableHighAccuracy:true,timeout:12000,maximumAge:60000});
 });
 
 var pressTimer=null,pressedId=null,longPressed=false;
@@ -68,7 +70,7 @@ $("addForm").addEventListener("submit",function(e){
  $("status").textContent="Getting shop location…";
  navigator.geolocation.getCurrentPosition(function(p){
   var row={id:String(Date.now()),name:name,ownerName:owner,phone:phone,openTime:$("openTime").value,closeTime:$("closeTime").value,category:$("category").value,area:$("shopArea").value.trim(),products:products,details:$("details").value.trim(),lat:p.coords.latitude,lon:p.coords.longitude};
-  try{var rows=read();rows.push(row);save(rows);$("addForm").reset();$("status").textContent="Shop submitted and saved on this device.";position={lat:p.coords.latitude,lon:p.coords.longitude};render();document.querySelector(".add").open=false}catch(err){$("status").textContent="Could not save the shop. Please try again."}
+  try{var rows=read();rows.push(row);save(rows);$("addForm").reset();$("status").textContent="Shop submitted and saved on this device.";position={lat:p.coords.latitude,lon:p.coords.longitude};nearbyOnly=false;render();document.querySelector(".add").open=false}catch(err){$("status").textContent="Could not save the shop. Please try again."}
  },function(){$("status").textContent="Allow location access to submit a shop with its nearby location."},{enableHighAccuracy:true,timeout:12000});
 });
 render();
