@@ -11,7 +11,7 @@
 </head>
 <body><main class="wrap">
 <header class="top"><div class="brand"><span class="mark">DU</span><span>Dukaan Universe</span></div><a href="./index.html">← Back</a></header>
-<div class="tools"><input id="search" class="field" type="search" placeholder="Search shop name"><button id="nearby" class="btn" type="button">Find nearby</button></div>
+<div class="tools"><input id="search" class="field" type="search" placeholder="Search nearby shop names"><button id="nearby" class="btn" type="button">Find nearby</button></div>
 <div id="shops" class="list"></div><div id="status" class="status" role="status"></div>
 <details class="add"><summary>＋ Add a shop</summary>
 <form id="addForm">
@@ -26,7 +26,7 @@
 <label class="field-wrap full">Products available *<textarea id="products" class="field" rows="3" maxlength="600" required placeholder="List products separated by commas, e.g. rice, milk, biscuits, soap"></textarea></label>
 <label class="field-wrap full">Additional shop details<textarea id="details" class="field" rows="2" maxlength="300" placeholder="Optional: services, brands, delivery details"></textarea></label>
 <div class="full actions"><button class="btn secondary" type="reset">Clear form</button><button class="btn" type="submit">Submit shop</button></div>
-</form><p class="form-note">Submitting saves this listing in this browser only. Shop location access is required so it can appear in nearby results. Only enter a contact number intended for public shop enquiries.</p>
+</form><p class="form-note">Add shop details and location so nearby customers can find it. Only enter a contact number intended for public shop enquiries.</p>
 </details>
 </main>
 <script>
@@ -46,7 +46,7 @@ function render(){
  if(nearbyOnly&&position)all=all.filter(function(s){return s.km!==null&&s.km<=25}).sort(function(a,b){return a.km-b.km});
  else if(position)all.sort(function(a,b){if(a.km===null)return 1;if(b.km===null)return -1;return a.km-b.km});
  all=all.filter(function(s){return String(s.name).toLowerCase().includes(q)});
- $("shops").innerHTML=all.length?all.map(function(s){return '<div class="shop" data-shop-id="'+esc(s.id||'')+'"><div><div class="shopname">'+esc(s.name)+'</div>'+(s.area?'<div class="distance">'+esc(s.area)+'</div>':'<div class="distance">GPS location saved</div>')+((Number.isFinite(Number(s.lat))&&Number.isFinite(Number(s.lon)))?'<a class="map-link" href="https://www.google.com/maps?q='+encodeURIComponent(Number(s.lat)+','+Number(s.lon))+'" target="_blank" rel="noopener">View shop location ↗</a>':'')+'</div>'+(s.km!==null&&s.km!==undefined?'<span class="distance">'+s.km.toFixed(1)+' km away</span>':'')+'</div>'}).join(""):'<div class="empty">'+(nearbyOnly?'No listed shops found within 25 km.':(q?'No shop names match your search.':'No shops registered in this browser yet. Use “Add a shop” to register one.'))+'</div>';
+ $("shops").innerHTML=all.length?all.map(function(s){return '<div class="shop" data-shop-id="'+esc(s.id||'')+'"><div class="shopname">'+esc(s.name)+'</div>'+((Number.isFinite(Number(s.lat))&&Number.isFinite(Number(s.lon)))?'<a class="map-link" aria-label="Open shop location on map" href="https://www.google.com/maps?q='+encodeURIComponent(Number(s.lat)+','+Number(s.lon))+'" target="_blank" rel="noopener">📍</a>':'')+'</div>'}).join(""):'<div class="empty">'+(nearbyOnly?'No nearby shops found.':(q?'No matching shop names.':'No shops added yet.'))+'</div>';
 }
 $("nearby").addEventListener("click",function(){
  if(!navigator.geolocation){$("status").textContent="Location is not supported by this browser.";return}
@@ -75,7 +75,7 @@ $("addForm").addEventListener("submit",function(e){
  $("status").textContent="Getting shop location…";
  navigator.geolocation.getCurrentPosition(function(p){saveShop(p.coords.latitude,p.coords.longitude)},function(){$("status").textContent="Allow location access to submit a shop with its nearby location."},{enableHighAccuracy:true,timeout:12000});
 });
-function saveShop(lat,lon){var row={id:String(Date.now()),name:$("shopName").value.trim(),ownerName:$("ownerName").value.trim(),phone:$("ownerPhone").value.trim(),openTime:$("openTime").value,closeTime:$("closeTime").value,category:$("category").value,area:$("shopArea").value.trim(),products:$("products").value.split(",").map(function(x){return x.trim()}).filter(Boolean),details:$("details").value.trim(),lat:Number(lat),lon:Number(lon)};try{var rows=read();rows.push(row);save(rows);$("addForm").reset();selectedLocation=null;$("locationPreview").textContent="Live location will appear here after permission is allowed.";$("status").textContent="Shop submitted with location saved on this device.";position={lat:Number(lat),lon:Number(lon)};nearbyOnly=false;render();document.querySelector(".add").open=false}catch(err){$("status").textContent="Could not save the shop. Please try again."}}
+function saveShop(lat,lon){var row={id:String(Date.now()),name:$("shopName").value.trim(),ownerName:$("ownerName").value.trim(),phone:$("ownerPhone").value.trim(),openTime:$("openTime").value,closeTime:$("closeTime").value,category:$("category").value,area:$("shopArea").value.trim(),products:$("products").value.split(",").map(function(x){return x.trim()}).filter(Boolean),details:$("details").value.trim(),lat:Number(lat),lon:Number(lon)};try{var rows=read();rows.push(row);save(rows);$("addForm").reset();selectedLocation=null;$("locationPreview").textContent="Live location will appear here after permission is allowed.";$("status").textContent="Shop added.";position={lat:Number(lat),lon:Number(lon)};nearbyOnly=false;render();document.querySelector(".add").open=false}catch(err){$("status").textContent="Could not save the shop. Please try again."}}
 render();
 })();
 </script></body></html>
