@@ -20,104 +20,138 @@
     window.DukaanKhataUser=accountFromUser(user);
     localStorage.setItem("dukaan_khata_account",JSON.stringify(window.DukaanKhataUser||null));
   }
-  function syncToken(){
-    try{return crypto.randomUUID()}catch(e){return Date.now().toString(36)+"-"+Math.random().toString(36).slice(2)}
+  function mergeStates(primary, secondary){
+    const a=primary&&typeof primary==="object"?primary:{};
+    const b=secondary&&typeof secondary==="object"?secondary:{};
+    const out={...b,...a};
+    for(const key of ["customers","tx","expenses","returns","reminders"]){
+      const first=Array.isArray(a[key])?a[key]:[];
+      const second=Array.isArray(b[key])?b[key]:[];
+      const map=new Map();
+      // Secondary first, then primary: primary wins if the same record ID exists.
+      for(const item of second)map.set(String(item?.id??JSON.stringify(item)),item);
+      for(const item of first)map.set(String(item?.id??JSON.stringify(item)),item);
+      out[key]=Array.from(map.values());
+    }
+    out.shop={...(b.shop||{}),...(a.shop||{})};
+    out.settings={...(b.settings||{}),...(a.settings||{})};
+    return out;
+  }
+  function stateKey(){return "dukaan_khata_infinity_v2"}
+  function same(a,b){try{return JSON.stringify(a)===JSON.stringify(b)}catch(e){return false}}
+  function localState(){
+    try{const v=JSON.parse(localStorage.getItem(stateKey())||"null");return v&&typeof v==="object"?v:null}catch(e){return null}
+  }
+  async function readCloud(sb,uid){
+    const {data,error}=await sb.from("dukaan_khata_state").select("state,updated_at").eq("user_id",uid).maybeSingle();
+    if(error)throw error;
+    return data||null;
+  }
+  async function writeCloud(sb,uid,data){
+    const {error}=await sb.from("dukaan_khata_state").upsert({user_id:uid,state:data},{onConflict:"user_id"});
+    if(error)throw error;
+    const row=await readCloud(sb,uid);
+    if(row?.updated_at)localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at);
+    localStorage.removeItem("dukaan_khata_local_dirty");
   }
   async function syncToCloud(){
-    const sb=client(); if(!sb||syncing||!window.DukaanKhataUser)return;
+    const sb=client(),userId=window.DukaanKhataUser?.id;
+    if(!sb||!userId||syncing)return;
     syncing=true;
-    const data=typeof window.state==="object"?JSON.parse(JSON.stringify(window.state)):null;
-    if(!data){syncing=false;return}
-    const serialized=JSON.stringify(data);
-    const token=syncToken();
     try{
-      const {error}=await sb.auth.updateUser({data:{
-        dukaan_khata:data,
-        dukaan_khata_sync_id:token,
-        dukaan_khata_sync_at:Date.now()
-      }});
-      if(error)throw error;
-      localStorage.setItem("dukaan_khata_local_sync_id",token);
-      localStorage.setItem("dukaan_khata_local_sync_at",String(Date.now()));
-      if(JSON.stringify(window.state)===serialized){
-        localStorage.removeItem("dukaan_khata_local_dirty");
-      }else{
-        localStorage.setItem("dukaan_khata_local_dirty","1");
-        window.dkQueueSync();
+      const local=localState()||window.state;
+      if(!local||typeof local!=="object")return;
+      const row=await readCloud(sb,userId);
+      // Preserve unique records from both devices; local edits win same-ID conflicts.
+      const merged=row?.state?mergeStates(local,row.state):local;
+      await writeCloud(sb,userId,merged);
+      if(!same(window.state,merged)){
+        localStorage.setItem(stateKey(),JSON.stringify(merged));
+        window.state=merged;
+        location.reload();
+        return;
+      }
+      localStorage.setItem("dukaan_khata_local_cloud_ready","1");
+      if(!same(local,merged)){
+        localStorage.setItem(stateKey(),JSON.stringify(merged));
+        window.state=merged;
       }
     }catch(e){
-      console.warn("Dukaan Khata cloud sync failed:",e);
+      console.error("Dukaan Khata database sync failed:",e);
       localStorage.setItem("dukaan_khata_local_dirty","1");
-      if(window.toast)toast("Cloud sync failed. Your data is still saved on this device.");
+      if(window.toast)window.toast("Cloud sync failed. Check the Supabase database setup; this device's data is still saved.");
     }finally{syncing=false}
   }
   window.dkSyncNow=syncToCloud;
   window.dkQueueSync=function(){
     localStorage.setItem("dukaan_khata_local_dirty","1");
     clearTimeout(syncTimer);
-    syncTimer=setTimeout(syncToCloud,1000);
+    syncTimer=setTimeout(syncToCloud,900);
   };
   async function pollCloud(){
-    const sb=client(); if(!sb||!window.DukaanKhataUser||syncing)return;
-    // Never overwrite local edits that have not reached the cloud yet.
-    if(localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
+    const sb=client(),userId=window.DukaanKhataUser?.id;
+    if(!sb||!userId||syncing||localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
     try{
-      const {data:{user},error}=await sb.auth.getUser();
-      if(error)throw error;
-      const remote=user?.user_metadata?.dukaan_khata;
-      const remoteToken=String(user?.user_metadata?.dukaan_khata_sync_id||"");
-      const localToken=String(localStorage.getItem("dukaan_khata_local_sync_id")||"");
-      // Compare version tokens instead of device timestamps: phone/laptop clocks
-      // can differ, and timestamp comparison can silently block a valid update.
-      if(remote&&remoteToken&&remoteToken!==localToken){
-        localStorage.setItem("dukaan_khata_infinity_v2",JSON.stringify(remote));
-        localStorage.setItem("dukaan_khata_local_sync_id",remoteToken);
-        localStorage.setItem("dukaan_khata_local_sync_at",String(user?.user_metadata?.dukaan_khata_sync_at||""));
-        location.reload();
+      const row=await readCloud(sb,userId);
+      if(!row?.state)return;
+      const last=localStorage.getItem("dukaan_khata_cloud_updated_at")||"";
+      if(row.updated_at&&row.updated_at!==last){
+        const local=localState()||{};
+        // The cloud copy wins conflicts on a clean device, while unique local records
+        // are retained so a device with older data does not lose those records.
+        const merged=mergeStates(row.state,local);
+        localStorage.setItem(stateKey(),JSON.stringify(merged));
+        localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at);
+        if(!same(merged,row.state)){
+          localStorage.setItem("dukaan_khata_local_dirty","1");
+          window.state=merged;
+          window.dkQueueSync();
+        }else{
+          localStorage.removeItem("dukaan_khata_local_dirty");
+          location.reload();
+        }
       }
-    }catch(e){console.warn("Dukaan Khata cloud refresh:",e)}
+    }catch(e){console.error("Dukaan Khata cloud polling failed:",e)}
   }
   function startCloudPolling(){clearInterval(cloudPollTimer);cloudPollTimer=setInterval(pollCloud,5000)}
-
   async function restoreCloudState(user){
-    const cloud=user?.user_metadata?.dukaan_khata;
-    const cloudToken=String(user?.user_metadata?.dukaan_khata_sync_id||"");
     const uid=user?.id;
     const restoredKey=uid?"dukaan_khata_restored_"+uid:"";
-    // Restore once per browser session to avoid reload loops.
+    if(!uid)return;
     if(restoredKey&&sessionStorage.getItem(restoredKey)==="1"){
       startCloudPolling();
       return;
     }
-    const localRaw=localStorage.getItem("dukaan_khata_infinity_v2");
-    const localToken=String(localStorage.getItem("dukaan_khata_local_sync_id")||"");
-    const dirty=localStorage.getItem("dukaan_khata_local_dirty")==="1";
-    if(cloud&&typeof cloud==="object"){
-      // Cloud is authoritative on a clean/new device. If this device already
-      // has unsynced edits, upload them first instead of silently discarding them.
-      if(dirty&&localRaw){
+    try{
+      const sb=client();
+      const local=localState();
+      const legacy=user?.user_metadata?.dukaan_khata;
+      let row=await readCloud(sb,uid);
+      if(!row){
+        // One-time migration from the old metadata-based sync. Do not discard
+        // records already stored locally on this phone/laptop.
+        let initial=local||legacy||{};
+        if(local&&legacy)initial=mergeStates(legacy,local);
+        await writeCloud(sb,uid,initial);
+        row=await readCloud(sb,uid);
+      }else if(local){
+        const dirty=localStorage.getItem("dukaan_khata_local_dirty")==="1";
+        const merged=dirty?mergeStates(local,row.state):mergeStates(row.state,local);
+        if(!same(merged,row.state))await writeCloud(sb,uid,merged);
+        row=await readCloud(sb,uid);
+      }
+      if(row?.state){
+        localStorage.setItem(stateKey(),JSON.stringify(row.state));
+        localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at||"");
+        localStorage.removeItem("dukaan_khata_local_dirty");
+        localStorage.setItem("dukaan_khata_local_cloud_ready","1");
         if(restoredKey)sessionStorage.setItem(restoredKey,"1");
-        await syncToCloud();
-        localStorage.setItem("dukaan_khata_cloud_synced","1");
-        startCloudPolling();
-        return;
+        if(!same(localState(),row.state))location.reload();
       }
-      if(!localRaw||cloudToken!==localToken){
-        try{
-          localStorage.setItem("dukaan_khata_infinity_v2",JSON.stringify(cloud));
-          if(cloudToken)localStorage.setItem("dukaan_khata_local_sync_id",cloudToken);
-          localStorage.setItem("dukaan_khata_local_sync_at",String(user?.user_metadata?.dukaan_khata_sync_at||""));
-          localStorage.removeItem("dukaan_khata_local_dirty");
-          localStorage.setItem("dukaan_khata_cloud_synced","1");
-          if(restoredKey)sessionStorage.setItem(restoredKey,"1");
-          location.reload();
-          return;
-        }catch(e){console.warn("Could not restore cloud data:",e)}
-      }
+    }catch(e){
+      console.error("Dukaan Khata initial database sync failed:",e);
+      if(window.toast)window.toast("Cloud database is not ready yet. Your existing data remains saved on this device.");
     }
-    if(restoredKey)sessionStorage.setItem(restoredKey,"1");
-    if(!cloud)await syncToCloud();
-    localStorage.setItem("dukaan_khata_cloud_synced","1");
     startCloudPolling();
   }
 
