@@ -758,3 +758,15 @@ function dkResetGlobalTheme(){
   localStorage.removeItem(DK_GLOBAL_THEME_KEY);dkApplyGlobalTheme();toast("Background reset ✓");openBackgroundTheme();
 }
 dkApplyGlobalTheme();
+
+
+// Keep the home greeting in sync with the device's local clock, even while the app stays open.
+function dkRefreshHomeGreeting(){
+  const now=new Date();
+  const greeting=document.getElementById("greeting");
+  const today=document.getElementById("todayLabel");
+  if(greeting)greeting.textContent=(now.getHours()<12?"Good morning":now.getHours()<17?"Good afternoon":"Good evening")+" 👋";
+  if(today)today.textContent=now.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});
+}
+setInterval(dkRefreshHomeGreeting,60000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)dkRefreshHomeGreeting()});
