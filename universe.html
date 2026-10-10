@@ -22,6 +22,7 @@
 <label class="field-wrap">Closing time<input id="closeTime" class="field" type="time"></label>
 <label class="field-wrap">Shop category<select id="category" class="field"><option>Grocery</option><option>Vegetables & fruits</option><option>Bakery & snacks</option><option>Pharmacy</option><option>Stationery</option><option>Clothing</option><option>Electronics</option><option>Household</option><option>Other</option></select></label>
 <label class="field-wrap">Area / locality<input id="shopArea" class="field" maxlength="80" placeholder="Street, area or locality"></label>
+<div class="field-wrap full"><span>Shop location on map</span><button class="btn secondary" id="captureLocation" type="button">Use my live shop location</button><div id="locationPreview" class="distance">Live location will appear here after permission is allowed.</div></div>
 <label class="field-wrap full">Products available *<textarea id="products" class="field" rows="3" maxlength="600" required placeholder="List products separated by commas, e.g. rice, milk, biscuits, soap"></textarea></label>
 <label class="field-wrap full">Additional shop details<textarea id="details" class="field" rows="2" maxlength="300" placeholder="Optional: services, brands, delivery details"></textarea></label>
 <div class="full actions"><button class="btn secondary" type="reset">Clear form</button><button class="btn" type="submit">Submit shop</button></div>
@@ -31,12 +32,14 @@
 <script>
 (function(){
 "use strict";
-var KEY="dukaan_universe_preview_v1",position=null,nearbyOnly=false;
+var KEY="dukaan_universe_preview_v1",position=null,nearbyOnly=false,selectedLocation=null;
 var $=function(id){return document.getElementById(id)};
 function read(){try{var x=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(x)?x:[]}catch(e){return[]}}
 function save(x){localStorage.setItem(KEY,JSON.stringify(x))}
 function esc(s){return String(s||"").replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function dist(a,b){var R=6371,rad=function(x){return x*Math.PI/180},dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),v=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.sqrt(v))}
+function setSelectedLocation(lat,lon){selectedLocation={lat:Number(lat),lon:Number(lon)};$("locationPreview").textContent="Selected shop pin: "+selectedLocation.lat.toFixed(6)+", "+selectedLocation.lon.toFixed(6)}
+$("captureLocation").addEventListener("click",function(){if(!navigator.geolocation){$("status").textContent="Location is not supported by this browser.";return}$("status").textContent="Getting live location…";navigator.geolocation.getCurrentPosition(function(p){setSelectedLocation(p.coords.latitude,p.coords.longitude);$("status").textContent="Location selected. Submit the shop form to save it."},function(){$("status").textContent="Location permission denied or unavailable. Allow location access and try again."},{enableHighAccuracy:true,timeout:20000,maximumAge:0})});
 function render(){
  var q=$("search").value.trim().toLowerCase(),all=read().filter(function(s){return s&&s.name});
  if(position)all=all.map(function(s){var valid=Number.isFinite(Number(s.lat))&&Number.isFinite(Number(s.lon));return Object.assign({},s,{km:valid?dist(position,{lat:Number(s.lat),lon:Number(s.lon)}):null})});
@@ -67,13 +70,12 @@ $("addForm").addEventListener("submit",function(e){
  e.preventDefault();
  var name=$("shopName").value.trim(),owner=$("ownerName").value.trim(),phone=$("ownerPhone").value.trim(),products=$("products").value.split(",").map(function(x){return x.trim()}).filter(Boolean);
  if(!name||!owner||!phone||!products.length){$("status").textContent="Please complete the required fields.";return}
+ if(selectedLocation){saveShop(selectedLocation.lat,selectedLocation.lon);return}
  if(!navigator.geolocation){$("status").textContent="Location is not supported by this browser.";return}
  $("status").textContent="Getting shop location…";
- navigator.geolocation.getCurrentPosition(function(p){
-  var row={id:String(Date.now()),name:name,ownerName:owner,phone:phone,openTime:$("openTime").value,closeTime:$("closeTime").value,category:$("category").value,area:$("shopArea").value.trim(),products:products,details:$("details").value.trim(),lat:p.coords.latitude,lon:p.coords.longitude};
-  try{var rows=read();rows.push(row);save(rows);$("addForm").reset();$("status").textContent="Shop submitted and saved on this device.";position={lat:p.coords.latitude,lon:p.coords.longitude};nearbyOnly=false;render();document.querySelector(".add").open=false}catch(err){$("status").textContent="Could not save the shop. Please try again."}
- },function(){$("status").textContent="Allow location access to submit a shop with its nearby location."},{enableHighAccuracy:true,timeout:12000});
+ navigator.geolocation.getCurrentPosition(function(p){saveShop(p.coords.latitude,p.coords.longitude)},function(){$("status").textContent="Allow location access to submit a shop with its nearby location."},{enableHighAccuracy:true,timeout:12000});
 });
+function saveShop(lat,lon){var row={id:String(Date.now()),name:$("shopName").value.trim(),ownerName:$("ownerName").value.trim(),phone:$("ownerPhone").value.trim(),openTime:$("openTime").value,closeTime:$("closeTime").value,category:$("category").value,area:$("shopArea").value.trim(),products:$("products").value.split(",").map(function(x){return x.trim()}).filter(Boolean),details:$("details").value.trim(),lat:Number(lat),lon:Number(lon)};try{var rows=read();rows.push(row);save(rows);$("addForm").reset();selectedLocation=null;$("locationPreview").textContent="Live location will appear here after permission is allowed.";$("status").textContent="Shop submitted with location saved on this device.";position={lat:Number(lat),lon:Number(lon)};nearbyOnly=false;render();document.querySelector(".add").open=false}catch(err){$("status").textContent="Could not save the shop. Please try again."}}
 render();
 })();
 </script></body></html>
