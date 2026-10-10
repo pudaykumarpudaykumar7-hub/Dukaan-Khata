@@ -16,10 +16,21 @@
   function accountFromUser(u){
     return u?{id:u.id,name:u.user_metadata?.full_name||u.user_metadata?.name||u.email?.split("@")[0]||"Google account",email:u.email||"",picture:u.user_metadata?.avatar_url||""}:null;
   }
+  function paintOwnerStartProfile(account){
+    const img=document.getElementById("ownerStartPhoto"),initial=document.getElementById("ownerStartInitial"),btn=document.getElementById("ownerStartProfile");
+    if(!img||!initial||!btn)return;
+    const picture=String(account?.picture||"").trim();
+    if(picture){img.src=picture;img.hidden=false;initial.hidden=true;img.onerror=()=>{img.hidden=true;initial.hidden=false;initial.textContent=(account?.name||"O").trim().charAt(0).toUpperCase()||"O"};}
+    else{img.removeAttribute("src");img.hidden=true;initial.hidden=false;initial.textContent=(account?.name||"Owner").trim().charAt(0).toUpperCase()||"O";}
+    btn.title=account?.name?("Owner: "+account.name):"Owner Google profile";
+    btn.setAttribute("aria-label",account?.name?("Owner Google profile: "+account.name):"Owner Google profile");
+  }
   function saveAccount(user){
     window.DukaanKhataUser=accountFromUser(user);
     localStorage.setItem("dukaan_khata_account",JSON.stringify(window.DukaanKhataUser||null));
+    paintOwnerStartProfile(window.DukaanKhataUser);
   }
+  try{paintOwnerStartProfile(JSON.parse(localStorage.getItem("dukaan_khata_account")||"null"))}catch(e){paintOwnerStartProfile(null)}
   function mergeStates(primary, secondary){
     const a=primary&&typeof primary==="object"?primary:{};
     const b=secondary&&typeof secondary==="object"?secondary:{};
