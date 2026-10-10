@@ -286,12 +286,13 @@ function parseSpokenItems(transcript){
 function startKhataSpeech(onTranscript,button){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){toast("Voice input is not supported here. Open this app in Chrome or type the item.");return}
-  // Give immediate visual feedback before initializing the browser's speech service.
-  if(button){button.dataset.oldText=button.textContent;button.disabled=true;button.classList.add("is-listening");button.textContent="🎙️ Starting…";button.title="Starting microphone…";button.setAttribute("aria-live","polite")}
+  // Tapping again stops recognition immediately.
+  if(button?.__khataRecognition){try{button.__khataRecognition.stop();button.textContent="⏹ Stopping…";button.title="Finishing speech recognition…"}catch(e){}return}
+  if(button){button.dataset.oldText=button.dataset.oldText||button.textContent;button.classList.add("is-listening");button.textContent="⏹ Stop";button.title="Tap to stop listening";button.setAttribute("aria-live","polite")}
   const rec=new SR();rec.lang=speechLang();rec.interimResults=true;rec.continuous=false;rec.maxAlternatives=3;
   let finalText="",lastText="",deliveredFinal=false;
-  if(button){button.textContent="🔴 Listening…";button.title="Listening for Telugu speech…"}
-  rec.onstart=()=>{if(button){button.textContent="🔴 Speak now";button.title="Speak the item name and amount";}};
+  if(button){button.__khataRecognition=rec;}
+  rec.onstart=()=>{if(button){button.textContent="⏹ Stop";button.title="Tap to stop and finish speech recognition";}};
   rec.onresult=e=>{
     let interim="";
     for(let i=e.resultIndex;i<e.results.length;i++){
@@ -315,9 +316,9 @@ function startKhataSpeech(onTranscript,button){
     const text=(finalText||lastText).trim();
     if(text&&!deliveredFinal)onTranscript(text,true);
     else if(!text&&!rec._errorShown)toast("No words captured. Tap the microphone and speak again, or type freely.");
-    if(button){button.disabled=false;button.classList.remove("is-listening");button.textContent=button.dataset.oldText||"🎙️";button.title="Speak item name and amount";button.removeAttribute("aria-live")}
+    if(button){if(button.__khataRecognition===rec)delete button.__khataRecognition;button.classList.remove("is-listening");button.textContent=button.dataset.oldText||"🎙️";button.title="Tap to speak item name and amount";button.removeAttribute("aria-live")}
   };
-  try{rec.start()}catch(e){if(button){button.disabled=false;button.classList.remove("is-listening");button.textContent=button.dataset.oldText||"🎙️"}toast("Could not start microphone. Check browser microphone permission.")}
+  try{rec.start()}catch(e){if(button){delete button.__khataRecognition;button.classList.remove("is-listening");button.textContent=button.dataset.oldText||"🎙️"}toast("Could not start microphone. Check browser microphone permission.")}
 }
 function speakManyItem(row){
   startKhataSpeech((text,isFinal)=>{
