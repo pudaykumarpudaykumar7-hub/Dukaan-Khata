@@ -386,7 +386,7 @@
         return;
       }
       modal('<div class="dk-customer-login"><div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER FOUND</span><h2>Select account</h2></div></div>'+
-        matches.map(c=>'<button class="dk-access-card customer" type="button" onclick="openCustomerPortal(\\''+esc(c.id)+'\\')"><span>👤</span><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+
+        matches.map(c=>'<button class="dk-access-card customer" type="button" data-customer-id="'+esc(c.id)+'" onclick="openCustomerPortal(this.dataset.customerId)"><span>👤</span><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+
         '<button class="dk-login-close" onclick="closeModal()">← Back</button></div>');
     },true);
   }
