@@ -45,22 +45,34 @@
     root.querySelector("#dkCustomerUniverseBtn")?.addEventListener("click",()=>{window.location.href="./universe.html?access=customer"});
     if(hideBack) root.querySelector("#dkCustomerBack")?.remove(); else if(hideBack){ root.querySelector("#dkCustomerBack")?.remove(); root.querySelector(".dk-customer-home-head")?.querySelector(".dk-customer-home-back")?.remove(); } else root.querySelector("#dkCustomerBack")?.addEventListener("click",closeCustomer2);
     function lookup(){
-      const q=phone2(input.value);
-      if(!q){status.textContent="Please enter your mobile number.";input.focus();return}
-      const customers=Array.isArray(window.state?.customers)?window.state.customers:[];
-      const matches=customers.filter(c=>phone2(c.phone)===q);
-      if(!matches.length){status.textContent="No customer found for this mobile number.";return}
-      if(matches.length>1){
-        status.textContent="Multiple accounts found. Select one.";
-        if(typeof window.modal==="function")window.modal('<div class="dk-customer-login"><div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER FOUND</span><h2>Select account</h2></div></div>'+matches.map(c=>'<button class="dk-access-card customer dk-customer-choice" data-id="'+esc2(c.id)+'" type="button"><span>👤</span><div><b>'+esc2(c.name)+'</b><small>'+esc2(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+'<button class="dk-login-close" id="dkChoiceBack">← Back</button></div>');
-        document.querySelectorAll(".dk-customer-choice").forEach(x=>x.addEventListener("click",function(){window.openCustomerPortal(this.dataset.id)}));
-        document.getElementById("dkChoiceBack")?.addEventListener("click",openCustomer2);
-        return;
+      try{
+        const q=phone2(input?.value);
+        if(!q){status.textContent="Please enter your mobile number.";input?.focus();return}
+        const customers=Array.isArray(window.state?.customers)?window.state.customers:[];
+        const matches=customers.filter(c=>phone2(c.phone)===q);
+        if(!matches.length){
+          status.textContent=customers.length
+            ?"No customer found for this number on this device. Please check the number or use the owner's device where customer records are saved."
+            :"Customer records are not loaded on this device yet. Customer access needs the owner's records to be synced first.";
+          return;
+        }
+        if(matches.length>1){
+          status.textContent="Multiple accounts found. Select one.";
+          if(typeof window.modal==="function")window.modal('<div class="dk-customer-login"><div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER FOUND</span><h2>Select account</h2></div></div>'+matches.map(c=>'<button class="dk-access-card customer dk-customer-choice" data-id="'+esc2(c.id)+'" type="button"><span>👤</span><div><b>'+esc2(c.name)+'</b><small>'+esc2(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+'<button class="dk-login-close" id="dkChoiceBack">← Back</button></div>');
+          document.querySelectorAll(".dk-customer-choice").forEach(x=>x.addEventListener("click",function(){window.openCustomerPortal(this.dataset.id)}));
+          document.getElementById("dkChoiceBack")?.addEventListener("click",()=>openCustomer2(true));
+          return;
+        }
+        status.textContent="Account found. Opening your Khata…";
+        customerPortal2(matches[0].id);
+      }catch(err){
+        console.error("Dukaan Khata customer lookup failed:",err);
+        status.textContent="Could not open your Khata. Please refresh and try again.";
       }
-      customerPortal2(matches[0].id);
     }
-    btn.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();status.textContent="Checking account…";lookup()});
-    input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();lookup()}});
+    btn?.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();status.textContent="Checking account…";lookup()});
+    input?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();lookup()}});
+
     setTimeout(()=>input.focus(),100);
   }
   async function owner2(){
