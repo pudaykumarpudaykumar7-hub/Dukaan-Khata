@@ -43,7 +43,7 @@ function render(){
  if(nearbyOnly&&position)all=all.filter(function(s){return s.km!==null&&s.km<=25}).sort(function(a,b){return a.km-b.km});
  else if(position)all.sort(function(a,b){if(a.km===null)return 1;if(b.km===null)return -1;return a.km-b.km});
  all=all.filter(function(s){return String(s.name).toLowerCase().includes(q)});
- $("shops").innerHTML=all.length?all.map(function(s){return '<div class="shop"><span class="shopname">'+esc(s.name)+'</span>'+(s.km!==null&&s.km!==undefined?'<span class="distance">'+s.km.toFixed(1)+' km</span>':(s.area?'<span class="distance">'+esc(s.area)+'</span>':''))+'</div>'}).join(""):'<div class="empty">'+(nearbyOnly?'No listed shops found within 25 km.':(q?'No shop names match your search.':'No shops registered in this browser yet. Use “Add a shop” to register one.'))+'</div>';
+ $("shops").innerHTML=all.length?all.map(function(s){return '<div class="shop" data-shop-id="'+esc(s.id||'')+'"><div><div class="shopname">'+esc(s.name)+'</div>'+(s.area?'<div class="distance">'+esc(s.area)+'</div>':'<div class="distance">Location saved</div>')+'</div>'+(s.km!==null&&s.km!==undefined?'<span class="distance">'+s.km.toFixed(1)+' km away</span>':'')+'</div>'}).join(""):'<div class="empty">'+(nearbyOnly?'No listed shops found within 25 km.':(q?'No shop names match your search.':'No shops registered in this browser yet. Use “Add a shop” to register one.'))+'</div>';
 }
 $("nearby").addEventListener("click",function(){
  if(!navigator.geolocation){$("status").textContent="Location is not supported by this browser.";return}
@@ -61,7 +61,8 @@ $("shops").addEventListener("pointerdown",function(e){
 });
 ["pointerup","pointercancel","pointerleave"].forEach(function(ev){$("shops").addEventListener(ev,function(){clearTimeout(pressTimer);pressTimer=null})});
 $("shops").addEventListener("contextmenu",function(e){if(e.target.closest(".shopname")){e.preventDefault();var card=e.target.closest(".shop");var row=read().find(function(s){return String(s.id)===String(card.dataset.shopId)});if(row&&confirm('Delete the shop listing "'+row.name.replace(/"/g,'\\"')+'"? This only removes it from this browser.')){save(read().filter(function(s){return String(s.id)!==String(row.id)}));render();$("status").textContent="Shop listing deleted."}}});
-\n$("search").addEventListener("input",render);
+
+$("search").addEventListener("input",render);
 $("addForm").addEventListener("submit",function(e){
  e.preventDefault();
  var name=$("shopName").value.trim(),owner=$("ownerName").value.trim(),phone=$("ownerPhone").value.trim(),products=$("products").value.split(",").map(function(x){return x.trim()}).filter(Boolean);
