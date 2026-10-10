@@ -224,7 +224,7 @@
       const u=accountFromUser(session.user);
       window.DukaanKhataUser=u;
       modal('<div class="dk-login-shell dk-login-signed">'+
-        '<div class="dk-login-top"><div class="dk-login-icon dk-owner-profile-box">'+(u.picture?'<img src="'+esc(u.picture)+'" alt="Owner Google profile photo" referrerpolicy="no-referrer">':'👤')+'</div><span class="dk-login-badge">OWNER ACCOUNT</span></div>'+'+
+        '<div class="dk-login-top"><div class="dk-login-icon dk-owner-profile-box">'+(u.picture?'<img src="'+esc(u.picture)+'" alt="Owner Google profile photo" referrerpolicy="no-referrer">':'👤')+'</div><span class="dk-login-badge">OWNER ACCOUNT</span></div>'+
         '<h2>Owner Account</h2><p class="dk-login-sub">Full Dukaan Khata access</p>'+
         '<div class="dk-account-card"><div class="dk-avatar">'+(u.picture?'<img src="'+esc(u.picture)+'" alt="">':'👤')+'</div><div><b>'+esc(u.name)+'</b><small>'+esc(u.email)+'</small></div><span class="dk-cloud">☁</span></div>'+
         '<button class="dk-login-action dk-login-primary" onclick="showPage(\'home\');closeModal()">⌂ Open Full Dashboard <span>→</span></button>'+
