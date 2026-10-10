@@ -2,7 +2,7 @@
 (function(){
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
-  window.DukaanKhataMode="cloud";
+  window.DukaanKhataMode="local";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
   let syncTimer=null, syncing=false, cloudPollTimer=null;
@@ -55,6 +55,8 @@
     localStorage.removeItem("dukaan_khata_local_dirty");
   }
   async function syncToCloud(){
+    // Device-local mode: never merge, upload, or restore customer data from cloud.
+    if(window.DukaanKhataMode==="local")return;
     const sb=client(),userId=window.DukaanKhataUser?.id;
     if(!sb||!userId||syncing)return;
     syncing=true;
@@ -79,6 +81,7 @@
   }
   window.dkSyncNow=syncToCloud;
   window.dkQueueSync=function(){
+    if(window.DukaanKhataMode==="local")return;
     localStorage.setItem("dukaan_khata_local_dirty","1");
     clearTimeout(syncTimer);
     syncTimer=setTimeout(syncToCloud,900);
@@ -167,8 +170,7 @@
       setTimeout(()=>openCustomerLogin(),250);
       return;
     }
-    await restoreCloudState(user);
-    startCloudPolling();
+    // Keep each browser/device independent. Do not restore or poll shared cloud state.
   }
 
   async function init(){
