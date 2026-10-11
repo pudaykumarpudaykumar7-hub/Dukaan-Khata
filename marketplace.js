@@ -97,9 +97,9 @@ function setupUniverse(){
 }
 async function loadShops(){
  status("Loading registered shops…");
- const {data,error}=await sb.from("dk_shops").select("id,owner_id,name,owner_name,phone,area,category,details,lat,lon,active,created_at").eq("active",true).order("created_at",{ascending:false});
+ const {data,error}=await sb.from("dk_shops").select("id,owner_id,name,owner_name,phone,area,category,details,lat,lon,active,created_at").order("created_at",{ascending:false});
  if(error){shops=[];renderShops();const m=$("mapNotice");if(m)m.textContent="Shop list could not load: "+error.message;status("Could not load registered shops: "+error.message);return false}
- shops=data||[];renderShops();updateShopMap();
+ shops=(data||[]).filter(s=>s.active===true);renderShops();updateShopMap();
  const m=$("mapNotice");
  if(m&&shops.length&&!shops.some(s=>s.lat!=null&&s.lon!=null))m.textContent=shops.length+" registered shop"+(shops.length===1?"":"s")+" loaded. Map pins appear when shop owners save their shop coordinates.";
  status(shops.length?"Loaded "+shops.length+" registered shop"+(shops.length===1?"":"s")+".":"No active shops are registered yet.");
