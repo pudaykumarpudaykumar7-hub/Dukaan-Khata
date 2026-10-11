@@ -14,7 +14,7 @@
 <div class="tools"><input id="search" class="field" type="search" placeholder="Search nearby shop names"><button id="nearby" class="btn" type="button">Find nearby</button></div>
 <div id="shops" class="list"></div><div id="status" class="status" role="status"></div>
 <details class="add"><summary>＋ Add a shop</summary>
-<form id="addForm">
+<form id="addForm" onsubmit="return false;">
 <label class="field-wrap full">Shop name *<input id="shopName" class="field" maxlength="70" required placeholder="Enter shop name"></label>
 <label class="field-wrap">Owner name *<input id="ownerName" class="field" maxlength="70" required placeholder="Shop owner name"></label>
 <label class="field-wrap">Owner contact number *<input id="ownerPhone" class="field" type="tel" inputmode="tel" maxlength="18" required placeholder="Public shop contact"></label>
@@ -26,10 +26,10 @@
 <p class="form-note full">Choose one of the location search results to attach the shop location. You do not need a Google Maps API key.</p>
 <label class="field-wrap full">Products available *<textarea id="products" class="field" rows="3" maxlength="600" required placeholder="List products separated by commas, e.g. rice, milk, biscuits, soap"></textarea></label>
 <label class="field-wrap full">Additional shop details<textarea id="details" class="field" rows="2" maxlength="300" placeholder="Optional: services, brands, delivery details"></textarea></label>
-<div class="full actions"><button class="btn secondary" type="reset">Clear form</button><button class="btn" type="submit">Submit shop</button></div>
+<div class="full actions"><button class="btn secondary" type="reset">Clear form</button><button class="btn" type="submit">Submit shop</button></div><p id="shopNotice" class="form-note full" role="status" aria-live="polite">Fill the required fields, sign in with Google, then submit your shop.</p>
 </form><p class="form-note">Add shop details and location so nearby customers can find it. Only enter a contact number intended for public shop enquiries.</p>
 </details>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./marketplace.js?v=20261011-registration-status-v4"></script>
+<script src="./marketplace.js?v=20261011-registration-status-v5"></script>
 </body></html>
