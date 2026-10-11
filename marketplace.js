@@ -8,7 +8,7 @@ const sb=window.supabase?.createClient(URL,KEY,{auth:{persistSession:true,autoRe
 if(!sb){const s=$("status")||$("shopNotice");if(s)s.textContent="Marketplace database library did not load. Refresh the page and try again.";return;}
 let user=null,shops=[],products=[],cart=[],orders=[],activeShop=null,ownedShop=null;
 const universe=location.pathname.endsWith("universe.html");
-function status(msg){const e=$("status")||$("shopNotice");if(e)e.textContent=msg}
+function status(msg){["status","shopNotice"].forEach(id=>{const e=$(id);if(e){e.textContent=msg;e.style.display="block";e.style.padding="10px";e.style.margin="10px 0";e.style.borderRadius="10px";e.style.background="#e8f7ef";e.style.color="#124b35";e.style.fontWeight="700";}})}
 async function signIn(){const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.href,queryParams:{prompt:"select_account"}}});if(error)status("Google login failed: "+error.message)}
 async function signOut(){await sb.auth.signOut();location.reload()}
 function addAuthUI(){const head=document.querySelector(".top");if(!head)return;let box=document.createElement("div");box.style.cssText="display:flex;gap:8px;align-items:center;flex-wrap:wrap";box.innerHTML='<span id="marketUser" style="font-size:12px;color:inherit"></span><button class="btn" id="marketAuthBtn" type="button">Sign in with Google</button>';head.appendChild(box);$("marketAuthBtn").onclick=()=>user?signOut():signIn();paintAuth()}
