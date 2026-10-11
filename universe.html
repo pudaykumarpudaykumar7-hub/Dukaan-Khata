@@ -22,10 +22,8 @@
 <label class="field-wrap">Closing time<input id="closeTime" class="field" type="time"></label>
 <label class="field-wrap">Shop category<select id="category" class="field"><option>Grocery</option><option>Vegetables & fruits</option><option>Bakery & snacks</option><option>Pharmacy</option><option>Stationery</option><option>Clothing</option><option>Electronics</option><option>Household</option><option>Other</option></select></label>
 <label class="field-wrap">Area / locality<input id="shopArea" class="field" maxlength="80" placeholder="Street, area or locality"></label>
-<div class="field-wrap full"><span>Shop location on map</span><button class="btn secondary" id="captureLocation" type="button">Use my live shop location</button><div id="locationPreview" class="distance">You can use live location or enter coordinates manually below.</div></div>
-<label class="field-wrap">Latitude<input id="shopLat" class="field" inputmode="decimal" placeholder="e.g. 17.3850"></label>
-<label class="field-wrap">Longitude<input id="shopLon" class="field" inputmode="decimal" placeholder="e.g. 78.4867"></label>
-<p class="form-note full">Manual coordinates can be typed directly or copied from a map link/code. Latitude must be −90 to 90 and longitude −180 to 180. The Area / locality field above is for writing the address.</p>
+<div class="field-wrap full"><span>Find shop location</span><div class="actions"><input id="locationSearch" class="field" type="search" placeholder="Search street, area, landmark or shop address"><button class="btn secondary" id="searchLocation" type="button">Search</button></div><button class="btn secondary" id="captureLocation" type="button">Use my live shop location</button><div id="locationPreview" class="distance">Search for your shop address or use live location.</div><div id="locationResults" class="list"></div><input id="shopLat" type="hidden"><input id="shopLon" type="hidden"></div>
+<p class="form-note full">Choose one of the location search results to attach the shop location. You do not need a Google Maps API key.</p>
 <label class="field-wrap full">Products available *<textarea id="products" class="field" rows="3" maxlength="600" required placeholder="List products separated by commas, e.g. rice, milk, biscuits, soap"></textarea></label>
 <label class="field-wrap full">Additional shop details<textarea id="details" class="field" rows="2" maxlength="300" placeholder="Optional: services, brands, delivery details"></textarea></label>
 <div class="full actions"><button class="btn secondary" type="reset">Clear form</button><button class="btn" type="submit">Submit shop</button></div>
@@ -33,5 +31,5 @@
 </details>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./marketplace.js?v=20261011-location-search-v2"></script>
+<script src="./marketplace.js?v=20261011-location-search-v3"></script>
 </body></html>
