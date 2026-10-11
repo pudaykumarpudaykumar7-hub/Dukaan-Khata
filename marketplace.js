@@ -20,8 +20,8 @@ function setupUniverse(){
  if(!name||!owner||!phone||!$("products").value.trim()){status("Complete the required shop details.");return}
  const row={owner_id:user.id,name,owner_name:owner,phone,area,category:$("category").value,details:[$("details").value.trim(),"Products: "+$("products").value.trim(),"Hours: "+$("openTime").value+"-"+$("closeTime").value].filter(Boolean).join("\n"),lat:lat?Number(lat):null,lon:lon?Number(lon):null,active:true};
  if((lat&&!lon)||(!lat&&lon)|| (lat&&(!Number.isFinite(row.lat)||row.lat < -90||row.lat>90||!Number.isFinite(row.lon)||row.lon < -180||row.lon>180))){status("Enter valid latitude and longitude, or leave both blank.");return}
- const {error}=await sb.from("dk_shops").insert(row);if(error){status("Shop could not be registered: "+error.message);return}
- form.reset();if($("locationResults"))$("locationResults").innerHTML="";if($("locationPreview"))$("locationPreview").textContent="No location selected yet.";status("Shop registered successfully and is now available to customers.");await loadShops();
+ status("Submitting your shop details…");const {error}=await sb.from("dk_shops").insert(row);if(error){status("Shop could not be registered: "+error.message);alert("Shop could not be registered.\n\n"+error.message+"\n\nYour entered details have been kept. Please correct the issue and try again.");return}
+ status("SUCCESS: Shop registered successfully and is now available to customers.");alert("Shop registered successfully!\n\nYour shop has been saved and is now available to customers.");form.reset();if($("locationResults"))$("locationResults").innerHTML="";if($("locationPreview"))$("locationPreview").textContent="No location selected yet.";await loadShops();
  }catch(err){status("Shop registration failed: "+(err?.message||String(err)));}finally{if(submit)submit.disabled=false}
  },true)}
 
