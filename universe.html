@@ -12,8 +12,8 @@
 <body><main class="wrap">
 <header class="top"><div class="brand"><span class="mark">DU</span><span>Dukaan Universe</span></div><a href="./index.html">← Back</a></header>
 <div class="tools"><input id="search" class="field" type="search" placeholder="Search registered shop names or areas"><button id="nearby" class="btn" type="button">Find nearby</button></div>
-<section class="map-section"><h2>Registered shops near you</h2><p class="map-note">Explore shop pins on the map. Tap a pin to browse that shop or open driving directions.</p><div id="shopMap" role="application" aria-label="Map showing registered shops"></div><p id="mapNotice" class="map-note">Loading registered shop locations…</p></section>
-<div id="shops" class="list"></div><div id="status" class="status" role="status"></div>
+<section class="map-section"><h2>All registered shops</h2><p class="map-note">Every active registered shop is listed below. Search by shop name or area. Map pins are shown for shops with saved coordinates.</p><div id="shops" class="list"><div class="empty">Loading registered shops…</div></div><h2 style="margin-top:22px">Shop locations map</h2><p class="map-note">Tap a pin to browse that shop or open driving directions.</p><div id="shopMap" role="application" aria-label="Map showing registered shops"></div><p id="mapNotice" class="map-note">Loading registered shop locations…</p></section>
+<div id="status" class="status" role="status"></div>
 <details class="add"><summary>＋ Add a shop</summary>
 <form id="addForm" onsubmit="return false;">
 <label class="field-wrap full">Shop name *<input id="shopName" class="field" maxlength="70" required placeholder="Enter shop name"></label>
@@ -34,5 +34,5 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./marketplace.js?v=20261011-all-shops-map-v12"></script>
+<script src="./marketplace.js?v=20261011-all-shops-list-v13"></script>
 </body></html>
