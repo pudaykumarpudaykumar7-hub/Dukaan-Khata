@@ -15,14 +15,56 @@ function addAuthUI(){const head=document.querySelector(".top");if(!head)return;l
 function paintAuth(){const b=$("marketAuthBtn"),u=$("marketUser");if(b)b.textContent=user?"Sign out":"Sign in with Google";if(u)u.textContent=user?(user.user_metadata?.full_name||user.email||"Owner"):"Owner access"}
 async function init(){const {data}=await sb.auth.getSession();user=data.session?.user||null;addAuthUI();sb.auth.onAuthStateChange((_event,session)=>{user=session?.user||null;paintAuth();universe?loadShops():loadStore()});if(universe)setupUniverse();else setupStore()}
 function setupUniverse(){
- const form=$("addForm");if(form){form.addEventListener("submit",async e=>{e.preventDefault();e.stopImmediatePropagation();if(!user){status("Please sign in with Google before registering a shop.");return}
+ const form=$("addForm");if(form){form.addEventListener("submit",async e=>{e.preventDefault();e.stopImmediatePropagation();const submit=form.querySelector("[type=submit]");if(submit)submit.disabled=true;try{if(!user){status("Please sign in with Google before registering a shop.");return}
  const name=$("shopName").value.trim(),owner=$("ownerName").value.trim(),phone=$("ownerPhone").value.trim(),area=$("shopArea").value.trim(),lat=$("shopLat").value.trim(),lon=$("shopLon").value.trim();
  if(!name||!owner||!phone||!$("products").value.trim()){status("Complete the required shop details.");return}
  const row={owner_id:user.id,name,owner_name:owner,phone,area,category:$("category").value,details:[$("details").value.trim(),"Products: "+$("products").value.trim(),"Hours: "+$("openTime").value+"-"+$("closeTime").value].filter(Boolean).join("\n"),lat:lat?Number(lat):null,lon:lon?Number(lon):null,active:true};
  if((lat&&!lon)||(!lat&&lon)|| (lat&&(!Number.isFinite(row.lat)||row.lat < -90||row.lat>90||!Number.isFinite(row.lon)||row.lon < -180||row.lon>180))){status("Enter valid latitude and longitude, or leave both blank.");return}
  const {error}=await sb.from("dk_shops").insert(row);if(error){status("Shop could not be registered: "+error.message);return}
- form.reset();status("Shop registered successfully and is now available to customers.");await loadShops();
+ form.reset();if($("locationResults"))$("locationResults").innerHTML="";if($("locationPreview"))$("locationPreview").textContent="No location selected yet.";status("Shop registered successfully and is now available to customers.");await loadShops();
+ }catch(err){status("Shop registration failed: "+(err?.message||String(err)));}finally{if(submit)submit.disabled=false}
  },true)}
+
+ const locationInput=$("locationSearch"), locationResults=$("locationResults");
+ let searchSequence=0;
+ async function searchShopLocation(){
+   const q=locationInput?.value.trim(); if(!q){status("Type a shop address, area, or landmark first.");return}
+   if(locationResults)locationResults.innerHTML='<div class="distance">Searching locations…</div>';
+   const seq=++searchSequence;
+   try{
+     const response=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&q="+encodeURIComponent(q),{headers:{Accept:"application/json"}});
+     if(!response.ok)throw new Error("Location search service returned HTTP "+response.status);
+     const results=await response.json(); if(seq!==searchSequence)return;
+     if(!results.length){if(locationResults)locationResults.innerHTML='<div class="distance">No match found. Try a nearby landmark or a more specific address.</div>';return}
+     if(locationResults)locationResults.innerHTML=results.map((r,i)=>'<button type="button" class="field location-result" data-location-index="'+i+'" style="text-align:left;margin:4px 0;cursor:pointer;background:white"><b>'+esc((r.name||r.display_name.split(",")[0]))+'</b><div class="distance" style="white-space:normal">'+esc(r.display_name)+'</div></button>').join("");
+     locationResults.querySelectorAll("[data-location-index]").forEach(b=>b.onclick=()=>{
+       const r=results[Number(b.dataset.locationIndex)];$("shopLat").value=String(r.lat);$("shopLon").value=String(r.lon);
+       const addr=r.address||{};const area=[addr.neighbourhood,addr.suburb,addr.city_district,addr.town,addr.city,addr.village,addr.county,stateName(addr),addr.postcode].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(", ");
+       if(area&&$("shopArea"))$("shopArea").value=area;
+       if($("locationPreview"))$("locationPreview").textContent="Selected: "+r.display_name;
+       if(locationInput)locationInput.value=r.display_name;
+       locationResults.innerHTML="";status("Shop location selected. You can now submit the shop details.");
+     });
+   }catch(err){if(locationResults)locationResults.innerHTML='<div class="distance">Location search failed. Check your internet connection or use the live location button.</div>';status("Location search error: "+(err?.message||String(err)))}
+ }
+ function stateName(a){return a.state||a.region||""}
+ $("searchLocation")?.addEventListener("click",searchShopLocation);
+ locationInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();searchShopLocation()}});
+ $("captureLocation")?.addEventListener("click",()=>{
+   if(!navigator.geolocation){status("This browser does not support live location. Search for an address instead.");return}
+   status("Getting your live location…");
+   navigator.geolocation.getCurrentPosition(async p=>{
+     $("shopLat").value=String(p.coords.latitude);$("shopLon").value=String(p.coords.longitude);
+     if($("locationPreview"))$("locationPreview").textContent="Live coordinates selected. Searching for the readable address…";
+     try{
+       const res=await fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat="+encodeURIComponent(p.coords.latitude)+"&lon="+encodeURIComponent(p.coords.longitude)+"&zoom=18&addressdetails=1",{headers:{Accept:"application/json"}});
+       const r=res.ok?await res.json():null;
+       if(r){if(locationInput)locationInput.value=r.display_name||"Current location";if($("locationPreview"))$("locationPreview").textContent="Selected: "+(r.display_name||"Current location");const a=r.address||{};const area=[a.neighbourhood,a.suburb,a.city_district,a.town,a.city,a.village,a.county,a.state,a.postcode].filter(Boolean).filter((v,i,x)=>x.indexOf(v)===i).join(", ");if(area&&$("shopArea"))$("shopArea").value=area}
+       status("Live shop location selected.");
+     }catch(_){if($("locationPreview"))$("locationPreview").textContent="Live coordinates selected: "+p.coords.latitude.toFixed(5)+", "+p.coords.longitude.toFixed(5);status("Live location selected; readable address lookup was unavailable.")}
+   },err=>status("Could not get live location: "+(err.code===1?"allow location permission in browser settings.":err.code===2?"location signal unavailable; search by address instead.":"location request timed out; try address search instead.")),{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
+ });
+
  $("search")?.addEventListener("input",()=>renderShops());
  $("nearby")?.addEventListener("click",()=>{if(!navigator.geolocation){status("Location is unavailable in this browser.");return}navigator.geolocation.getCurrentPosition(p=>{window.dkMarketplacePosition={lat:p.coords.latitude,lon:p.coords.longitude};renderShops()},()=>status("Allow location permission to find nearby shops."),{enableHighAccuracy:true,timeout:12000})});
  loadShops();
