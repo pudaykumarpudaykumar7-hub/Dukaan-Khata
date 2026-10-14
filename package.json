@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "web": "echo \"Static GitHub Pages web app\"",
-    "start": "node payment-server/server.js",
     "android": "npx cap sync android",
     "ios": "npx cap sync ios",
     "open:android": "npx cap open android",
@@ -12,9 +11,7 @@
   },
   "dependencies": {
     "@capacitor/core": "^7.4.0",
-    "paytmchecksum": "^1.5.1",
-    "express": "^4.21.2",
-    "cors": "^2.8.5"
+    "paytmchecksum": "^1.5.1"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.0",
