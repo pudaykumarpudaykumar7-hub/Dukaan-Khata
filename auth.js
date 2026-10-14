@@ -2,7 +2,7 @@
 (function(){
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
-  window.DukaanKhataMode="local";
+  window.DukaanKhataMode="cloud";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
   let syncTimer=null, syncing=false, cloudPollTimer=null;
@@ -142,7 +142,9 @@
     }
     try{
       const sb=client();
-      const local=localState();
+      const previousUid=localStorage.getItem("dukaan_khata_cloud_user_id");
+      // Never copy one Google account's local shop records into another account.
+      const local=(!previousUid||previousUid===uid)?localState():null;
       const legacy=user?.user_metadata?.dukaan_khata;
       let row=await readCloud(sb,uid);
       if(!row){
@@ -163,6 +165,7 @@
         localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at||"");
         localStorage.removeItem("dukaan_khata_local_dirty");
         localStorage.setItem("dukaan_khata_local_cloud_ready","1");
+        localStorage.setItem("dukaan_khata_cloud_user_id",uid);
         if(restoredKey)sessionStorage.setItem(restoredKey,"1");
         if(!same(localState(),row.state)){
           window.state=row.state;
@@ -186,7 +189,8 @@
       setTimeout(()=>openCustomerLogin(),250);
       return;
     }
-    // Keep each browser/device independent. Do not restore or poll shared cloud state.
+    // Owner state is synced only to the authenticated owner row protected by Supabase RLS.
+    await restoreCloudState(user);
   }
 
   let initAttempts=0;
