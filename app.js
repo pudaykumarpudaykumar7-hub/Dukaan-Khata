@@ -412,14 +412,33 @@ async function createCashfreeQR(customerId){
   const customerIdValue=customerId||document.getElementById("qrCustomer")?.value||"";
   stopQRPaymentWatcher();
   window.__dukaanPaymentShortUrl="";
-  if(amount<=0){if(box)box.innerHTML='<div class="qr-empty">Enter the amount first.</div>';if(status)status.innerHTML='<div class="qr-empty">Enter an amount to create the Cashfree payment QR.</div>';return}
+  if(amount<=0){
+    const upi=(state.shop.upi||"").trim();
+    if(upi){
+      createTrackedQR(customerIdValue);
+      if(status)status.innerHTML='<div class="payment-waiting">🟢 UPI QR ready.<small>Enter an amount to create a fixed-amount Cashfree checkout QR. Direct UPI QR payments cannot be auto-verified by this app.</small></div>';
+    }else{
+      if(box)box.innerHTML='<div class="qr-empty">Enter an amount and connect a payment backend, or add your UPI ID in Shop Profile.</div>';
+      if(status)status.innerHTML='<div class="qr-empty">Add your UPI ID in More → Shop Profile to generate a direct UPI QR. For automatic payment confirmation, connect an approved payment gateway.</div>';
+    }
+    return
+  }
   const customer=state.customers.find(c=>c.id===customerIdValue);
   const enteredName=(document.getElementById("qrPayerName")?.value||"").trim();
   const payerName=(customer?.name||enteredName||"Customer").slice(0,100);
   if(box)box.innerHTML='<div class="qr-empty">Creating secure Cashfree payment link…</div>';
   if(status)status.innerHTML='<div class="payment-waiting">Preparing Cashfree payment QR…</div>';
   const base=paymentApiBase();
-  if(!base){if(box)box.innerHTML='<div class="qr-empty">Cashfree backend is not connected.</div>';if(status)status.innerHTML='<div class="qr-empty">Open Payment Center and save your Vercel backend URL.</div>';return}
+  if(!base){
+    if((state.shop.upi||"").trim()){
+      createTrackedQR(customerIdValue);
+      if(status)status.innerHTML='<div class="payment-waiting">🟢 Direct UPI QR ready.<small>Payment goes to your saved UPI ID. This QR cannot confirm payment automatically; record the payment after checking your UPI app.</small></div>';
+    }else{
+      if(box)box.innerHTML='<div class="qr-empty">Cashfree backend is not connected.</div>';
+      if(status)status.innerHTML='<div class="qr-empty">Add your UPI ID in Shop Profile for a direct UPI QR, or connect your payment backend for Cashfree checkout.</div>';
+    }
+    return
+  }
   try{
     const r=await fetch(paymentApiUrl("/api/cashfree/payment-link"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId:customerIdValue,customerName:payerName})});
     const data=await r.json().catch(()=>({}));
