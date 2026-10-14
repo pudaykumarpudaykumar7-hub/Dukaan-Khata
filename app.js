@@ -404,7 +404,7 @@ async function createRazorpayQR(customerId){
     const r=await fetch(paymentApiUrl("/api/razorpay/payment-link"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId:customerIdValue,customerName:customer?.name||"Customer"})});
     const data=await r.json().catch(()=>({}));
     if(!(r.ok&&data.id&&data.shortUrl)){const msg=data.error||("HTTP "+r.status+" from Razorpay backend");if(box)box.innerHTML='<div class="qr-empty">Razorpay payment QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty"><b>Razorpay rejected the payment request.</b><br><small>'+esc(msg)+'</small></div>';return}
-    const qrUrl="https://quickchart.io/qr?size=320&text="+encodeURIComponent(data.shortUrl);
+    window.__dukaanPaymentShortUrl=data.shortUrl;const qrUrl="https://quickchart.io/qr?size=320&text="+encodeURIComponent(data.shortUrl);
     if(box)box.innerHTML='<a href="'+esc(data.shortUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center"><img src="'+qrUrl+'" alt="Razorpay UPI payment QR" style="width:220px;height:220px;max-width:100%;display:block;margin:auto"></a><small style="display:block;text-align:center;margin-top:8px">Scan with any UPI app</small>';
     if(cap)cap.textContent="Pay "+money(amount)+" • Razorpay";
     if(status)status.innerHTML='<div class="payment-waiting">🟡 Waiting for payment…<small>Scan the QR. Payment confirmation will happen automatically.</small></div>';
@@ -421,7 +421,7 @@ function openReceive(customerId=""){
   document.getElementById("qrCustomer")?.addEventListener("change",()=>createRazorpayQR(document.getElementById("qrCustomer").value));
   document.getElementById("qrAmount")?.addEventListener("input",()=>createRazorpayQR(document.getElementById("qrCustomer")?.value||customerId));
   document.getElementById("sharePayBtn")?.addEventListener("click",()=>shareTrackedQR());
-  document.getElementById("copyPayBtn")?.addEventListener("click",copyUPILink);
+  document.getElementById("copyPayBtn")?.addEventListener("click",()=>{const link=window.__dukaanPaymentShortUrl||"";if(!link)return toast("Create the payment QR first");if(navigator.clipboard?.writeText)navigator.clipboard.writeText(link).then(()=>toast("Payment link copied")).catch(()=>toast(link));else toast(link)});
   document.getElementById("savePaymentBtn")?.addEventListener("click",savePayment);
   setTimeout(()=>createRazorpayQR(customerId),50);
 }
