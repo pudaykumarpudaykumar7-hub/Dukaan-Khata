@@ -389,9 +389,9 @@ function createTrackedQR(customerId){
   if(status)status.innerHTML='<div class="payment-waiting">🟢 UPI QR ready.<small>Customer scans with any UPI app. This QR pays directly to your saved UPI ID.</small></div>';
 }
 async function createRazorpayQR(customerId){
-  window.__activePaymentQRBox="razorpayQrBox";
-  const box=document.getElementById("razorpayQrBox"),cap=document.getElementById("razorpayQrCaption"),status=document.getElementById("razorpayQrPaymentStatus");
-  const amount=Number(document.getElementById("razorpayQrAmount")?.value)||0;
+  window.__activePaymentQRBox="qrBox";
+  const box=document.getElementById("qrBox"),cap=document.getElementById("qrCaption"),status=document.getElementById("qrPaymentStatus");
+  const amount=Number(document.getElementById("qrAmount")?.value)||0;
   const customerIdValue=customerId||document.getElementById("qrCustomer")?.value||"";
   if(amount<=0){if(box)box.innerHTML='<div class="qr-empty">Enter the amount first.</div>';if(status)status.innerHTML='<div class="qr-empty">Enter an amount to create the Razorpay payment QR.</div>';return}
   const customer=state.customers.find(c=>c.id===customerIdValue);
@@ -413,17 +413,17 @@ async function createRazorpayQR(customerId){
 }
 function openReceive(customerId=""){
   const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");
-  modal('<div class="smart-receive-shell"><div class="smart-receive-head"><div class="smart-receive-icon">₹</div><div><h2>Smart Receive</h2></div></div><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="recordTab">Record</button></div><div id="receiveQR"><select id="qrCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (optional)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy UPI link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div></div>');
+  modal('<div class="smart-receive-shell"><div class="smart-receive-head"><div class="smart-receive-icon">₹</div><div><h2>Smart Receive</h2></div></div><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="recordTab">Record</button></div><div id="receiveQR"><select id="qrCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (optional)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy payment link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div></div>');
   const qr=document.getElementById("qrTab"),rec=document.getElementById("recordTab"),a=document.getElementById("receiveQR"),b=document.getElementById("receiveRecord");
   const hide=()=>{a?.classList.add("hidden");b?.classList.add("hidden");qr?.classList.remove("active");rec?.classList.remove("active");stopQRPaymentWatcher()};
-  qr?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");createTrackedQR(document.getElementById("qrCustomer")?.value||customerId)});
+  qr?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");createRazorpayQR(document.getElementById("qrCustomer")?.value||customerId)});
   rec?.addEventListener("click",()=>{hide();rec.classList.add("active");b?.classList.remove("hidden")});
-  document.getElementById("qrCustomer")?.addEventListener("change",()=>createTrackedQR(document.getElementById("qrCustomer").value));
-  document.getElementById("qrAmount")?.addEventListener("input",()=>createTrackedQR(document.getElementById("qrCustomer")?.value||customerId));
+  document.getElementById("qrCustomer")?.addEventListener("change",()=>createRazorpayQR(document.getElementById("qrCustomer").value));
+  document.getElementById("qrAmount")?.addEventListener("input",()=>createRazorpayQR(document.getElementById("qrCustomer")?.value||customerId));
   document.getElementById("sharePayBtn")?.addEventListener("click",()=>shareTrackedQR());
   document.getElementById("copyPayBtn")?.addEventListener("click",copyUPILink);
   document.getElementById("savePaymentBtn")?.addEventListener("click",savePayment);
-  setTimeout(()=>createTrackedQR(customerId),50);
+  setTimeout(()=>createRazorpayQR(customerId),50);
 }
 function shareTrackedQR(){const img=document.querySelector("#qrBox img");if(!img)return toast("Generate the QR first");const text="Scan this QR to pay "+state.shop.name+(document.getElementById("qrAmount")?.value?" — "+money(Number(document.getElementById("qrAmount").value)):"");if(navigator.share)navigator.share({title:"Dukaan Khata Payment QR",text}).catch(()=>{});else navigator.clipboard?.writeText(text).then(()=>toast("Payment message copied")).catch(()=>toast(text))}
 async function startGatewayPayment(provider){if(provider==="razorpay"){document.getElementById("qrTab")?.click();return}return toast("Only Razorpay UPI QR is available")}
