@@ -161,13 +161,14 @@
         row=await readCloud(sb,uid);
       }
       if(row?.state){
+        const currentLocal=localState();
         localStorage.setItem(stateKey(),JSON.stringify(row.state));
         localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at||"");
         localStorage.removeItem("dukaan_khata_local_dirty");
         localStorage.setItem("dukaan_khata_local_cloud_ready","1");
         localStorage.setItem("dukaan_khata_cloud_user_id",uid);
         if(restoredKey)sessionStorage.setItem(restoredKey,"1");
-        if(!same(localState(),row.state)){
+        if(!same(currentLocal,row.state)){
           window.state=row.state;
           try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw restored cloud data",e)}
         }
