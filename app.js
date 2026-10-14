@@ -414,6 +414,8 @@ async function createCashfreeQR(customerId){
   window.__dukaanPaymentShortUrl="";
   if(amount<=0){if(box)box.innerHTML='<div class="qr-empty">Enter the amount first.</div>';if(status)status.innerHTML='<div class="qr-empty">Enter an amount to create the Cashfree payment QR.</div>';return}
   const customer=state.customers.find(c=>c.id===customerIdValue);
+  const enteredName=(document.getElementById("qrPayerName")?.value||"").trim();
+  const payerName=(customer?.name||enteredName||"Customer").slice(0,100);
   if(box)box.innerHTML='<div class="qr-empty">Creating secure Cashfree payment link…</div>';
   if(status)status.innerHTML='<div class="payment-waiting">Preparing Cashfree payment QR…</div>';
   const base=paymentApiBase();
