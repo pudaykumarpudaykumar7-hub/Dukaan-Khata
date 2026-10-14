@@ -370,10 +370,28 @@ function openCommissionDashboard(){
 }
 function openPaymentSetup(){
   const current=paymentApiBase();
-  modal('<h2>💳 Payment Center</h2><p class="muted">Cashfree Payments securely creates payment links. Never enter your Cashfree Client Secret in this website.</p><div class="payment-provider-grid"><div class="payment-provider"><b>📲 Cashfree UPI Payment QR</b><small>Customers scan to open secure Cashfree checkout</small><span class="status-chip">Automatic confirmation</span></div></div><label>Secure payment backend URL<input id="paymentApiUrl" value="'+esc(current)+'" placeholder="https://your-vercel-app.vercel.app"></label><button class="btn primary" id="savePaymentApiBtn">Save Payment Connection</button><button class="btn" onclick="openReceive()">Open Smart Receive</button><p class="muted" style="font-size:11px;margin-top:12px">Cashfree API credentials belong only in your Vercel environment variables. This backend uses the Cashfree merchant account connected to those credentials.</p>');
+  modal('<h2>💳 Payment Center</h2><p class="muted">Connect and verify your Cashfree backend. Never enter your Cashfree Client Secret in this website.</p><div class="payment-provider-grid"><div class="payment-provider"><b>📲 Cashfree UPI Payment QR</b><small>Secure checkout with automatic status checks after verified payment</small><span class="status-chip">Backend verification required</span></div></div><label>Secure payment backend URL<input id="paymentApiUrl" value="'+esc(current)+'" placeholder="https://your-vercel-app.vercel.app"></label><div id="paymentConnectionStatus" class="muted" role="status" style="margin:10px 0;font-size:12px">Test the URL before saving it.</div><button class="btn" id="testPaymentApiBtn">Test Backend Connection</button><button class="btn primary" id="savePaymentApiBtn">Save Verified Connection</button><button class="btn" onclick="openReceive()">Open Smart Receive</button><p class="muted" style="font-size:11px;margin-top:12px">Add CASHFREE_CLIENT_ID and CASHFREE_CLIENT_SECRET only in Vercel Environment Variables, then redeploy. A green status requires the backend health check and configured credentials.</p>');
+  const input=document.getElementById("paymentApiUrl"),status=document.getElementById("paymentConnectionStatus");
+  let verifiedUrl="";
+  document.getElementById("testPaymentApiBtn")?.addEventListener("click",async()=>{
+    const u=(input?.value||"").trim().replace(/\/$/,"");
+    verifiedUrl="";
+    if(!/^https:\/\//i.test(u)){if(status)status.textContent="Enter the full HTTPS URL of your deployed Vercel backend.";return}
+    if(status)status.textContent="Checking backend and Cashfree configuration…";
+    try{
+      const r=await fetch(u+"/health",{headers:{Accept:"application/json"}});
+      const d=await r.json().catch(()=>({}));
+      if(!r.ok||!d.ok){if(status)status.textContent="Backend health check failed. Verify the URL and Vercel deployment.";return}
+      if(!d.cashfreeConfigured){if(status)status.textContent="Backend is online, but Cashfree credentials are missing. Add both Cashfree environment variables in Vercel and redeploy.";return}
+      verifiedUrl=u;
+      if(status)status.textContent="✓ Backend online • Cashfree credentials detected • "+(d.environment||"configured")+" environment. You can save this connection.";
+    }catch(e){if(status)status.textContent="Could not reach the backend. Check the URL, deployment and browser access settings."}
+  });
   document.getElementById("savePaymentApiBtn")?.addEventListener("click",()=>{
-    const u=(document.getElementById("paymentApiUrl")?.value||"").trim().replace(/\/$/,"");
-    localStorage.setItem("dukaan_payment_api",u);closeModal();toast(u?"Cashfree payment backend connected":"Payment backend cleared")
+    const u=(input?.value||"").trim().replace(/\/$/,"");
+    if(!u){localStorage.removeItem("dukaan_payment_api");closeModal();toast("Payment backend cleared");return}
+    if(u!==verifiedUrl){if(status)status.textContent="Please test this exact backend URL successfully before saving.";return}
+    localStorage.setItem("dukaan_payment_api",u);closeModal();toast("Verified Cashfree backend connected")
   });
 }
 function stopQRPaymentWatcher(){if(window.__dukaanQRPoll){clearInterval(window.__dukaanQRPoll);window.__dukaanQRPoll=null}}
