@@ -352,6 +352,22 @@ function deleteCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c)ret
 
 function paymentApiBase(){let u=(localStorage.getItem("dukaan_payment_api")||"").trim();if(!u){try{u=(JSON.parse(localStorage.getItem("dukaan_khata_payments_v1")||"{}").backendUrl||"").trim()}catch(e){}}return u.endsWith("/")?u.slice(0,-1):u}
 function paymentApiUrl(path){const base=paymentApiBase();return base?base+path:""}
+function commissionSummary(){
+  const rate=Math.max(0,Math.min(100,Number(state.settings.commissionRate??10)||0));
+  const grossSales=sales().reduce((sum,t)=>sum+Math.max(0,Number(t.total)||0),0);
+  const generated=grossSales*rate/100;
+  return {rate,grossSales,generated,platform:generated*.8,owner:generated*.1,customer:generated*.1};
+}
+function openCommissionDashboard(){
+  const x=commissionSummary();
+  modal('<div class="dk-commission-view"><span class="eyebrow">DUKAAN KHATA • COMMISSION</span><h2>📊 Commission & Rewards</h2><p class="muted">The shop keeps 100% of its recorded sale amount. This preview calculates a separate commission from sales and allocates that commission 80% to the platform, 10% to the shop owner and 10% to the customer.</p><div style="padding:14px;border:1px solid var(--line);border-radius:16px;margin:14px 0"><label for="dkCommissionRate">Commission rate on recorded sales (%)</label><input id="dkCommissionRate" type="number" min="0" max="100" step="0.1" value="'+x.rate+'" style="width:100%;box-sizing:border-box;margin-top:6px"><small class="muted">Default is 10%. Change this only to the rate agreed with the shop owner.</small><button class="btn primary" id="dkSaveCommissionRate" style="width:100%;margin-top:10px">Save commission rate</button></div><div class="dk-commission-stat"><span>Recorded sales total</span><b>'+money(x.grossSales)+'</b></div><div class="dk-commission-stat"><span>Calculated commission ('+x.rate+'%)</span><b>'+money(x.generated)+'</b></div><div class="dk-commission-split"><div><span>Platform · 80%</span><b>'+money(x.platform)+'</b></div><div><span>Shop owner · 10%</span><b>'+money(x.owner)+'</b></div><div><span>Customer reward · 10%</span><b>'+money(x.customer)+'</b></div></div><p style="font-size:12px;line-height:1.5;color:var(--muted);margin-top:14px"><b>Important:</b> These are calculated amounts only. This screen does not charge a shop, move money, issue customer rewards, or transfer funds to a bank account. It uses sales saved on this device only. Real nationwide settlements require a secure shared database, verified shop onboarding, and Cashfree approval for the marketplace and reward payout flow.</p><button class="btn" onclick="closeModal()" style="width:100%">Close</button></div>');
+  document.getElementById("dkSaveCommissionRate")?.addEventListener("click",()=>{
+    const field=document.getElementById("dkCommissionRate"),rate=Number(field?.value);
+    if(!Number.isFinite(rate)||rate<0||rate>100){toast("Enter a commission rate from 0 to 100");return}
+    state.settings={...(state.settings||{}),commissionRate:rate};
+    saveState();openCommissionDashboard();toast("Commission rate saved");
+  });
+}
 function openPaymentSetup(){
   const current=paymentApiBase();
   modal('<h2>💳 Payment Center</h2><p class="muted">Cashfree Payments securely creates payment links. Never enter your Cashfree Client Secret in this website.</p><div class="payment-provider-grid"><div class="payment-provider"><b>📲 Cashfree UPI Payment QR</b><small>Customers scan to open secure Cashfree checkout</small><span class="status-chip">Automatic confirmation</span></div></div><label>Secure payment backend URL<input id="paymentApiUrl" value="'+esc(current)+'" placeholder="https://your-vercel-app.vercel.app"></label><button class="btn primary" id="savePaymentApiBtn">Save Payment Connection</button><button class="btn" onclick="openReceive()">Open Smart Receive</button><p class="muted" style="font-size:11px;margin-top:12px">Cashfree API credentials belong only in your Vercel environment variables. This backend uses the Cashfree merchant account connected to those credentials.</p>');
