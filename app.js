@@ -409,7 +409,7 @@ async function createCashfreeQR(customerId){
   window.__activePaymentQRBox="qrBox";
   const box=document.getElementById("qrBox"),cap=document.getElementById("qrCaption"),status=document.getElementById("qrPaymentStatus");
   const amount=Number(document.getElementById("qrAmount")?.value)||0;
-  const customerIdValue=customerId||document.getElementById("qrCustomer")?.value||"";
+  const customerIdValue=customerId||"";
   stopQRPaymentWatcher();
   window.__dukaanPaymentShortUrl="";
   if(amount<=0){
@@ -423,9 +423,7 @@ async function createCashfreeQR(customerId){
     }
     return
   }
-  const customer=state.customers.find(c=>c.id===customerIdValue);
-  const enteredName=(document.getElementById("qrPayerName")?.value||"").trim();
-  const payerName=(customer?.name||enteredName||"Customer").slice(0,100);
+  const payerName="Customer";
   if(box)box.innerHTML='<div class="qr-empty">Creating secure Cashfree payment link…</div>';
   if(status)status.innerHTML='<div class="payment-waiting">Preparing Cashfree payment QR…</div>';
   const base=paymentApiBase();
@@ -452,14 +450,26 @@ async function createCashfreeQR(customerId){
 }
 function openReceive(customerId=""){
   const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");
-  modal('<div class="smart-receive-shell"><div class="smart-receive-head"><div class="smart-receive-icon">₹</div><div><h2>Smart Receive</h2></div></div><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="recordTab">Record</button></div><div id="receiveQR"><select id="qrCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="qrPayerName" type="text" maxlength="100" placeholder="Customer name (optional)"><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (required for QR)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy payment link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div></div>');
+  modal('<div class="smart-receive-shell"><div class="smart-receive-head"><div class="smart-receive-icon">₹</div><div><h2>Smart Receive</h2></div></div><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="recordTab">Record</button></div><div id="receiveQR"><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (required for QR)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy payment link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div></div>');
   const qr=document.getElementById("qrTab"),rec=document.getElementById("recordTab"),a=document.getElementById("receiveQR"),b=document.getElementById("receiveRecord");
   const hide=()=>{a?.classList.add("hidden");b?.classList.add("hidden");qr?.classList.remove("active");rec?.classList.remove("active");stopQRPaymentWatcher()};
-  qr?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");createCashfreeQR(document.getElementById("qrCustomer")?.value||customerId)});
+  qr?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");createCashfreeQR(customerId)});
   rec?.addEventListener("click",()=>{hide();rec.classList.add("active");b?.classList.remove("hidden")});
-  document.getElementById("qrCustomer")?.addEventListener("change",()=>{const id=document.getElementById("qrCustomer").value;const c=state.customers.find(x=>x.id===id);const name=document.getElementById("qrPayerName");if(c&&name)name.value=c.name;createCashfreeQR(id)});
-  document.getElementById("qrPayerName")?.addEventListener("change",()=>{if(!document.getElementById("qrCustomer")?.value)createCashfreeQR("")});
-  document.getElementById("qrAmount")?.addEventListener("change",()=>createCashfreeQR(document.getElementById("qrCustomer")?.value||customerId));
+  const amountInput=document.getElementById("qrAmount");
+  let qrTypingTimer;
+  amountInput?.addEventListener("input",()=>{
+    clearTimeout(qrTypingTimer);
+    const amount=Number(amountInput.value)||0;
+    if(amount<=0){
+      stopQRPaymentWatcher();window.__dukaanPaymentShortUrl="";
+      const box=document.getElementById("qrBox"),status=document.getElementById("qrPaymentStatus"),cap=document.getElementById("qrCaption");
+      if(box)box.innerHTML="<div class=\"qr-empty\">Enter an amount to generate the QR.</div>";
+      if(status)status.innerHTML="";
+      if(cap)cap.textContent=state.shop.upi||"Payment QR";
+      return;
+    }
+    qrTypingTimer=setTimeout(()=>createCashfreeQR(customerId),350);
+  });
   document.getElementById("sharePayBtn")?.addEventListener("click",()=>shareTrackedQR());
   document.getElementById("copyPayBtn")?.addEventListener("click",()=>{const link=window.__dukaanPaymentShortUrl||"";if(!link)return toast("Create the payment QR first");if(navigator.clipboard?.writeText)navigator.clipboard.writeText(link).then(()=>toast("Payment link copied")).catch(()=>toast(link));else toast(link)});
   document.getElementById("savePaymentBtn")?.addEventListener("click",savePayment);
