@@ -2,9 +2,9 @@
 // Descriptions are keyed to each feature, so changing the order never mismatches them.
 (function(){
   const descriptions={
-    "smart-receive":"QR code • UPI • Cash payments",
-    "shop-profile":"Shop name • Owner • Address • UPI",
-    "language":"Choose and save your language",
+    "smart-receive":"Generate UPI QR • Share payment QR • Record cash or UPI received",
+    "shop-profile":"Edit shop name • Owner • Phone • UPI ID • Address",
+    "language":"Choose from all 23 supported Indian languages",
     "customer-contact":"WhatsApp • Call • SMS • Due reminders",
     "login-access":"Owner Google login • Customer phone access • Logout",
     "club-pass":"Shop identity • Owner details • Shareable pass",
