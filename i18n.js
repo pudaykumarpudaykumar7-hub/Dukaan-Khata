@@ -47,7 +47,8 @@
     map.forEach(([id,key])=>{const h=document.querySelector("#"+id+" .page-title h2");if(h)h.textContent=L[key]});
     document.querySelectorAll("#khata .segmented button").forEach((e,i)=>e.textContent=L[["all","due","paid"][i]]);
     const nav=document.querySelectorAll(".bottom-nav span");[L.home,L.khata,L.customer,L.billsnav,L.more].forEach((v,i)=>{if(nav[i])nav[i].textContent=v});
-    Array.from(document.querySelectorAll("#tools .tools-grid .luxury-tool b")).slice(1,7).forEach((e,i)=>{const k=["smartrcv","shopprofile","language","connect","login","digitalpass"][i];if(k)e.textContent=L[k]});
+    const moreLabelKeys={"smart-receive":"smartrcv","shop-profile":"shopprofile","language":"language","customer-contact":"connect","login-access":"login","club-pass":"digitalpass"};
+    document.querySelectorAll("#tools .tools-grid .luxury-tool[data-more-feature]").forEach(card=>{const key=moreLabelKeys[card.dataset.moreFeature];const label=card.querySelector("b");if(label&&key&&L[key])label.textContent=L[key]});
     document.documentElement.lang=codes[current()]||"en";
   };
   window.setLanguage=function(x){
