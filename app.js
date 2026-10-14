@@ -419,13 +419,13 @@ function openReceive(customerId=""){
   qr?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");createRazorpayQR(document.getElementById("qrCustomer")?.value||customerId)});
   rec?.addEventListener("click",()=>{hide();rec.classList.add("active");b?.classList.remove("hidden")});
   document.getElementById("qrCustomer")?.addEventListener("change",()=>createRazorpayQR(document.getElementById("qrCustomer").value));
-  document.getElementById("qrAmount")?.addEventListener("input",()=>createRazorpayQR(document.getElementById("qrCustomer")?.value||customerId));
+  document.getElementById("qrAmount")?.addEventListener("change",()=>createRazorpayQR(document.getElementById("qrCustomer")?.value||customerId));
   document.getElementById("sharePayBtn")?.addEventListener("click",()=>shareTrackedQR());
   document.getElementById("copyPayBtn")?.addEventListener("click",()=>{const link=window.__dukaanPaymentShortUrl||"";if(!link)return toast("Create the payment QR first");if(navigator.clipboard?.writeText)navigator.clipboard.writeText(link).then(()=>toast("Payment link copied")).catch(()=>toast(link));else toast(link)});
   document.getElementById("savePaymentBtn")?.addEventListener("click",savePayment);
   setTimeout(()=>createRazorpayQR(customerId),50);
 }
-function shareTrackedQR(){const img=document.querySelector("#qrBox img");if(!img)return toast("Generate the QR first");const text="Scan this QR to pay "+state.shop.name+(document.getElementById("qrAmount")?.value?" — "+money(Number(document.getElementById("qrAmount").value)):"");if(navigator.share)navigator.share({title:"Dukaan Khata Payment QR",text}).catch(()=>{});else navigator.clipboard?.writeText(text).then(()=>toast("Payment message copied")).catch(()=>toast(text))}
+function shareTrackedQR(){const link=window.__dukaanPaymentShortUrl||"";if(!link)return toast("Generate the payment QR first");const text="Pay "+(state.shop.name||"Dukaan Khata")+(document.getElementById("qrAmount")?.value?" — "+money(Number(document.getElementById("qrAmount").value)):"")+" using this secure link: "+link;if(navigator.share)navigator.share({title:"Dukaan Khata Payment",text,url:link}).catch(()=>{});else if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>toast("Payment link copied")).catch(()=>toast(text));else toast(text)}
 async function startGatewayPayment(provider){if(provider==="razorpay"){document.getElementById("qrTab")?.click();return}return toast("Only Razorpay UPI QR is available")}
 function loadScript(src){return new Promise((resolve,reject)=>{if(document.querySelector('script[src="'+src+'"]'))return resolve();const s=document.createElement("script");s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)})}
 async function launchRazorpay(order,amount,customerId){
