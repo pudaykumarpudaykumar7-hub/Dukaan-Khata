@@ -12,7 +12,7 @@ const CASHFREE_ENV=(process.env.CASHFREE_ENV||"SANDBOX").toUpperCase();
 const API_BASE=CASHFREE_ENV==="PRODUCTION"?"https://api.cashfree.com/pg":"https://sandbox.cashfree.com/pg";
 const API_VERSION="2022-09-01";
 
-app.get("/health",(req,res)=>res.json({ok:true,service:"dukaan-khata-cashfree-api",environment:CASHFREE_ENV}));
+app.get("/health",(req,res)=>res.json({ok:true,service:"dukaan-khata-cashfree-api",environment:CASHFREE_ENV,cashfreeConfigured:credentialsReady()}));
 
 function credentialsReady(){return Boolean(CLIENT_ID&&CLIENT_SECRET)}
 async function cashfreeRequest(path,options={}){
