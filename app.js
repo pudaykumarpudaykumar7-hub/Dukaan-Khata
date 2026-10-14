@@ -385,7 +385,8 @@ function showMoneyReceived(payment,customerId=""){
     state.tx.unshift({id:uid(),type:"payment",customerId,amount,mode:"upi",gateway:"cashfree_qr",paymentId:payment.id,reference:payment.rrn||"",date:new Date().toISOString()});
     saveState();render();
   }
-  const success='<div class="payment-success-card"><div class="payment-success-icon">✓</div><b>PAYMENT RECEIVED</b><strong>'+money(amount)+'</strong><span>'+esc(customer?.name||"Payment received")+'</span><small>Cashfree payment confirmed automatically</small></div>';
+  const payerName=customer?.name||payment.customerName||"Customer";
+  const success='<div class="payment-success-card"><div class="payment-success-icon">✓</div><b>PAYMENT RECEIVED</b><strong>'+money(amount)+'</strong><span>'+esc(payerName)+'</span><small>Verified by Cashfree</small></div>';
   const qrBox=document.getElementById(window.__activePaymentQRBox||"qrBox");
   if(qrBox)qrBox.innerHTML=success;
   const cap=document.getElementById("qrCaption");if(cap)cap.textContent="✓ Payment received • "+money(amount);
@@ -418,7 +419,7 @@ async function createCashfreeQR(customerId){
   const base=paymentApiBase();
   if(!base){if(box)box.innerHTML='<div class="qr-empty">Cashfree backend is not connected.</div>';if(status)status.innerHTML='<div class="qr-empty">Open Payment Center and save your Vercel backend URL.</div>';return}
   try{
-    const r=await fetch(paymentApiUrl("/api/cashfree/payment-link"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId:customerIdValue,customerName:customer?.name||"Customer"})});
+    const r=await fetch(paymentApiUrl("/api/cashfree/payment-link"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId:customerIdValue,customerName:payerName})});
     const data=await r.json().catch(()=>({}));
     if(!(r.ok&&data.id&&data.linkUrl)){const msg=data.error||("HTTP "+r.status+" from Cashfree backend");if(box)box.innerHTML='<div class="qr-empty">Cashfree payment QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty"><b>Cashfree could not create this payment link.</b><br><small>'+esc(msg)+'</small></div>';return}
     window.__dukaanPaymentShortUrl=data.linkUrl;const qrUrl="https://quickchart.io/qr?size=320&text="+encodeURIComponent(data.linkUrl);
@@ -430,12 +431,13 @@ async function createCashfreeQR(customerId){
 }
 function openReceive(customerId=""){
   const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");
-  modal('<div class="smart-receive-shell"><div class="smart-receive-head"><div class="smart-receive-icon">₹</div><div><h2>Smart Receive</h2></div></div><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="recordTab">Record</button></div><div id="receiveQR"><select id="qrCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (required for QR)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy payment link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div></div>');
+  modal('<div class="smart-receive-shell"><div class="smart-receive-head"><div class="smart-receive-icon">₹</div><div><h2>Smart Receive</h2></div></div><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="recordTab">Record</button></div><div id="receiveQR"><select id="qrCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="qrPayerName" type="text" maxlength="100" placeholder="Customer name (optional)"><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (required for QR)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy payment link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div></div>');
   const qr=document.getElementById("qrTab"),rec=document.getElementById("recordTab"),a=document.getElementById("receiveQR"),b=document.getElementById("receiveRecord");
   const hide=()=>{a?.classList.add("hidden");b?.classList.add("hidden");qr?.classList.remove("active");rec?.classList.remove("active");stopQRPaymentWatcher()};
   qr?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");createCashfreeQR(document.getElementById("qrCustomer")?.value||customerId)});
   rec?.addEventListener("click",()=>{hide();rec.classList.add("active");b?.classList.remove("hidden")});
-  document.getElementById("qrCustomer")?.addEventListener("change",()=>createCashfreeQR(document.getElementById("qrCustomer").value));
+  document.getElementById("qrCustomer")?.addEventListener("change",()=>{const id=document.getElementById("qrCustomer").value;const c=state.customers.find(x=>x.id===id);const name=document.getElementById("qrPayerName");if(c&&name)name.value=c.name;createCashfreeQR(id)});
+  document.getElementById("qrPayerName")?.addEventListener("change",()=>{if(!document.getElementById("qrCustomer")?.value)createCashfreeQR("")});
   document.getElementById("qrAmount")?.addEventListener("change",()=>createCashfreeQR(document.getElementById("qrCustomer")?.value||customerId));
   document.getElementById("sharePayBtn")?.addEventListener("click",()=>shareTrackedQR());
   document.getElementById("copyPayBtn")?.addEventListener("click",()=>{const link=window.__dukaanPaymentShortUrl||"";if(!link)return toast("Create the payment QR first");if(navigator.clipboard?.writeText)navigator.clipboard.writeText(link).then(()=>toast("Payment link copied")).catch(()=>toast(link));else toast(link)});
