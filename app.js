@@ -354,22 +354,22 @@ function paymentApiBase(){let u=(localStorage.getItem("dukaan_payment_api")||"")
 function paymentApiUrl(path){const base=paymentApiBase();return base?base+path:""}
 function openPaymentSetup(){
   const current=paymentApiBase();
-  modal('<h2>💳 Payment Center</h2><p class="muted">Connect your secure payment backend here. Never enter your Razorpay Secret Key in this website.</p><div class="payment-provider-grid"><div class="payment-provider"><b>📲 Razorpay UPI QR</b><small>Scan with any UPI app</small><span class="status-chip">QR ready</span></div></div><label>Secure payment backend URL<input id="paymentApiUrl" value="'+esc(current)+'" placeholder="https://your-vercel-app.vercel.app"></label><button class="btn primary" id="savePaymentApiBtn">Save Payment Connection</button><button class="btn" onclick="openReceive()">Open Smart Receive</button><p class="muted" style="font-size:11px;margin-top:12px">The GitHub Pages site cannot safely store gateway secret keys. The backend creates orders and verifies payments.</p>');
+  modal('<h2>💳 Payment Center</h2><p class="muted">Cashfree Payments securely creates payment links. Never enter your Cashfree Client Secret in this website.</p><div class="payment-provider-grid"><div class="payment-provider"><b>📲 Cashfree UPI Payment QR</b><small>Customers scan to open secure Cashfree checkout</small><span class="status-chip">Automatic confirmation</span></div></div><label>Secure payment backend URL<input id="paymentApiUrl" value="'+esc(current)+'" placeholder="https://your-vercel-app.vercel.app"></label><button class="btn primary" id="savePaymentApiBtn">Save Payment Connection</button><button class="btn" onclick="openReceive()">Open Smart Receive</button><p class="muted" style="font-size:11px;margin-top:12px">Cashfree API credentials belong only in your Vercel environment variables. This backend uses the Cashfree merchant account connected to those credentials.</p>');
   document.getElementById("savePaymentApiBtn")?.addEventListener("click",()=>{
-    const u=(document.getElementById("paymentApiUrl")?.value||"").trim();
-    localStorage.setItem("dukaan_payment_api",u);closeModal();toast(u?"Payment backend connected":"Payment backend cleared")
+    const u=(document.getElementById("paymentApiUrl")?.value||"").trim().replace(/\/$/,"");
+    localStorage.setItem("dukaan_payment_api",u);closeModal();toast(u?"Cashfree payment backend connected":"Payment backend cleared")
   });
 }
 function stopQRPaymentWatcher(){if(window.__dukaanQRPoll){clearInterval(window.__dukaanQRPoll);window.__dukaanQRPoll=null}}
 function showMoneyReceived(payment,customerId=""){
   const amount=Number(payment.amount)||0;
   const customer=state.customers.find(c=>c.id===customerId);
-  const exists=state.tx.some(t=>t.type==="payment"&&t.gateway==="razorpay_qr"&&t.paymentId===payment.id);
+  const exists=state.tx.some(t=>t.type==="payment"&&t.gateway==="cashfree_qr"&&t.paymentId===payment.id);
   if(!exists){
-    state.tx.unshift({id:uid(),type:"payment",customerId,amount,mode:"upi",gateway:"razorpay_qr",paymentId:payment.id,reference:payment.rrn||"",date:new Date().toISOString()});
+    state.tx.unshift({id:uid(),type:"payment",customerId,amount,mode:"upi",gateway:"cashfree_qr",paymentId:payment.id,reference:payment.rrn||"",date:new Date().toISOString()});
     saveState();render();
   }
-  const success='<div class="payment-success-card"><div class="payment-success-icon">✓</div><b>PAYMENT RECEIVED</b><strong>'+money(amount)+'</strong><span>'+esc(customer?.name||"Payment received")+'</span><small>Razorpay UPI payment confirmed automatically</small></div>';
+  const success='<div class="payment-success-card"><div class="payment-success-icon">✓</div><b>PAYMENT RECEIVED</b><strong>'+money(amount)+'</strong><span>'+esc(customer?.name||"Payment received")+'</span><small>Cashfree payment confirmed automatically</small></div>';
   const qrBox=document.getElementById(window.__activePaymentQRBox||"qrBox");
   if(qrBox)qrBox.innerHTML=success;
   const cap=document.getElementById("qrCaption");if(cap)cap.textContent="✓ Payment received • "+money(amount);
@@ -388,52 +388,47 @@ function createTrackedQR(customerId){
   if(cap)cap.textContent=amount>0?"Pay "+money(amount)+" • UPI QR":"UPI: "+upi;
   if(status)status.innerHTML='<div class="payment-waiting">🟢 UPI QR ready.<small>Customer scans with any UPI app. This QR pays directly to your saved UPI ID.</small></div>';
 }
-async function createRazorpayQR(customerId){
+async function createCashfreeQR(customerId){
   window.__activePaymentQRBox="qrBox";
   const box=document.getElementById("qrBox"),cap=document.getElementById("qrCaption"),status=document.getElementById("qrPaymentStatus");
   const amount=Number(document.getElementById("qrAmount")?.value)||0;
   const customerIdValue=customerId||document.getElementById("qrCustomer")?.value||"";
-  if(amount<=0){if(box)box.innerHTML='<div class="qr-empty">Enter the amount first.</div>';if(status)status.innerHTML='<div class="qr-empty">Enter an amount to create the Razorpay payment QR.</div>';return}
-  const customer=state.customers.find(c=>c.id===customerIdValue);
   stopQRPaymentWatcher();
-  if(box)box.innerHTML='<div class="qr-empty">Creating secure Razorpay payment…</div>';
-  if(status)status.innerHTML='<div class="payment-waiting">Preparing payment QR…</div>';
+  window.__dukaanPaymentShortUrl="";
+  if(amount<=0){if(box)box.innerHTML='<div class="qr-empty">Enter the amount first.</div>';if(status)status.innerHTML='<div class="qr-empty">Enter an amount to create the Cashfree payment QR.</div>';return}
+  const customer=state.customers.find(c=>c.id===customerIdValue);
+  if(box)box.innerHTML='<div class="qr-empty">Creating secure Cashfree payment link…</div>';
+  if(status)status.innerHTML='<div class="payment-waiting">Preparing Cashfree payment QR…</div>';
   const base=paymentApiBase();
-  if(!base){if(box)box.innerHTML='<div class="qr-empty">Razorpay backend is not connected.</div>';if(status)status.innerHTML='<div class="qr-empty">Open Payment Gateway Settings and save your Vercel backend URL.</div>';return}
+  if(!base){if(box)box.innerHTML='<div class="qr-empty">Cashfree backend is not connected.</div>';if(status)status.innerHTML='<div class="qr-empty">Open Payment Center and save your Vercel backend URL.</div>';return}
   try{
-    const r=await fetch(paymentApiUrl("/api/razorpay/payment-link"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId:customerIdValue,customerName:customer?.name||"Customer"})});
+    const r=await fetch(paymentApiUrl("/api/cashfree/payment-link"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId:customerIdValue,customerName:customer?.name||"Customer"})});
     const data=await r.json().catch(()=>({}));
-    if(!(r.ok&&data.id&&data.shortUrl)){const msg=data.error||("HTTP "+r.status+" from Razorpay backend");if(box)box.innerHTML='<div class="qr-empty">Razorpay payment QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty"><b>Razorpay rejected the payment request.</b><br><small>'+esc(msg)+'</small></div>';return}
-    window.__dukaanPaymentShortUrl=data.shortUrl;const qrUrl="https://quickchart.io/qr?size=320&text="+encodeURIComponent(data.shortUrl);
-    if(box)box.innerHTML='<a href="'+esc(data.shortUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center"><img src="'+qrUrl+'" alt="Razorpay UPI payment QR" style="width:220px;height:220px;max-width:100%;display:block;margin:auto"></a><small style="display:block;text-align:center;margin-top:8px">Scan with any UPI app</small>';
-    if(cap)cap.textContent="Pay "+money(amount)+" • Razorpay";
-    if(status)status.innerHTML='<div class="payment-waiting">🟡 Waiting for payment…<small>Scan the QR. Payment confirmation will happen automatically.</small></div>';
-    window.__dukaanQRPoll=setInterval(async()=>{try{const pr=await fetch(paymentApiUrl("/api/razorpay/payment-link/"+encodeURIComponent(data.id)));const pd=await pr.json().catch(()=>({}));if(!pr.ok)return;if(pd.paid){stopQRPaymentWatcher();showMoneyReceived({id:data.id,amount:pd.amount,status:"captured"},customerIdValue)}}catch(e){}},3000);
-  }catch(e){if(box)box.innerHTML='<div class="qr-empty">Razorpay payment QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty">'+esc(e.message||"Payment service unavailable")+'</div>'}
+    if(!(r.ok&&data.id&&data.linkUrl)){const msg=data.error||("HTTP "+r.status+" from Cashfree backend");if(box)box.innerHTML='<div class="qr-empty">Cashfree payment QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty"><b>Cashfree could not create this payment link.</b><br><small>'+esc(msg)+'</small></div>';return}
+    window.__dukaanPaymentShortUrl=data.linkUrl;const qrUrl="https://quickchart.io/qr?size=320&text="+encodeURIComponent(data.linkUrl);
+    if(box)box.innerHTML='<a href="'+esc(data.linkUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center"><img src="'+qrUrl+'" alt="Cashfree payment QR" style="width:220px;height:220px;max-width:100%;display:block;margin:auto"></a><small style="display:block;text-align:center;margin-top:8px">Scan to open secure Cashfree checkout</small>';
+    if(cap)cap.textContent="Pay "+money(amount)+" • Cashfree";
+    if(status)status.innerHTML='<div class="payment-waiting">🟡 Waiting for payment…<small>Keep Smart Receive open. Cashfree payment status will be checked automatically.</small></div>';
+    window.__dukaanQRPoll=setInterval(async()=>{try{const pr=await fetch(paymentApiUrl("/api/cashfree/payment-link/"+encodeURIComponent(data.id)));const pd=await pr.json().catch(()=>({}));if(!pr.ok)return;if(pd.paid){stopQRPaymentWatcher();showMoneyReceived({id:data.id,amount:pd.amount,status:"PAID"},customerIdValue)}}catch(e){}},3000);
+  }catch(e){if(box)box.innerHTML='<div class="qr-empty">Cashfree payment QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty">'+esc(e.message||"Payment service unavailable")+'</div>'}
 }
 function openReceive(customerId=""){
   const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");
-  modal('<div class="smart-receive-shell"><div class="smart-receive-head"><div class="smart-receive-icon">₹</div><div><h2>Smart Receive</h2></div></div><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="recordTab">Record</button></div><div id="receiveQR"><select id="qrCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (optional)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy payment link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div></div>');
+  modal('<div class="smart-receive-shell"><div class="smart-receive-head"><div class="smart-receive-icon">₹</div><div><h2>Smart Receive</h2></div></div><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="recordTab">Record</button></div><div id="receiveQR"><select id="qrCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (required for QR)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy payment link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div></div>');
   const qr=document.getElementById("qrTab"),rec=document.getElementById("recordTab"),a=document.getElementById("receiveQR"),b=document.getElementById("receiveRecord");
   const hide=()=>{a?.classList.add("hidden");b?.classList.add("hidden");qr?.classList.remove("active");rec?.classList.remove("active");stopQRPaymentWatcher()};
-  qr?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");createRazorpayQR(document.getElementById("qrCustomer")?.value||customerId)});
+  qr?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");createCashfreeQR(document.getElementById("qrCustomer")?.value||customerId)});
   rec?.addEventListener("click",()=>{hide();rec.classList.add("active");b?.classList.remove("hidden")});
-  document.getElementById("qrCustomer")?.addEventListener("change",()=>createRazorpayQR(document.getElementById("qrCustomer").value));
-  document.getElementById("qrAmount")?.addEventListener("change",()=>createRazorpayQR(document.getElementById("qrCustomer")?.value||customerId));
+  document.getElementById("qrCustomer")?.addEventListener("change",()=>createCashfreeQR(document.getElementById("qrCustomer").value));
+  document.getElementById("qrAmount")?.addEventListener("change",()=>createCashfreeQR(document.getElementById("qrCustomer")?.value||customerId));
   document.getElementById("sharePayBtn")?.addEventListener("click",()=>shareTrackedQR());
   document.getElementById("copyPayBtn")?.addEventListener("click",()=>{const link=window.__dukaanPaymentShortUrl||"";if(!link)return toast("Create the payment QR first");if(navigator.clipboard?.writeText)navigator.clipboard.writeText(link).then(()=>toast("Payment link copied")).catch(()=>toast(link));else toast(link)});
   document.getElementById("savePaymentBtn")?.addEventListener("click",savePayment);
-  setTimeout(()=>createRazorpayQR(customerId),50);
+  setTimeout(()=>createCashfreeQR(customerId),50);
 }
 function shareTrackedQR(){const link=window.__dukaanPaymentShortUrl||"";if(!link)return toast("Generate the payment QR first");const text="Pay "+(state.shop.name||"Dukaan Khata")+(document.getElementById("qrAmount")?.value?" — "+money(Number(document.getElementById("qrAmount").value)):"")+" using this secure link: "+link;if(navigator.share)navigator.share({title:"Dukaan Khata Payment",text,url:link}).catch(()=>{});else if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>toast("Payment link copied")).catch(()=>toast(text));else toast(text)}
-async function startGatewayPayment(provider){if(provider==="razorpay"){document.getElementById("qrTab")?.click();return}return toast("Only Razorpay UPI QR is available")}
+async function startGatewayPayment(provider){if(provider==="cashfree"){document.getElementById("qrTab")?.click();return}return toast("Only Cashfree payment QR is available")}
 function loadScript(src){return new Promise((resolve,reject)=>{if(document.querySelector('script[src="'+src+'"]'))return resolve();const s=document.createElement("script");s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)})}
-async function launchRazorpay(order,amount,customerId){
-  if(!order.keyId||!order.orderId)return toast("Razorpay backend returned an incomplete order");
-  try{await loadScript("https://checkout.razorpay.com/v1/checkout.js")}catch(e){return toast("Razorpay checkout could not load")}
-  const r=new Razorpay({key:order.keyId,amount:order.amount,currency:"INR",name:state.shop.name,description:"Dukaan Khata payment",order_id:order.orderId,handler:async response=>{
-    try{const vr=await fetch(paymentApiUrl("/api/razorpay/verify"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(response)});const vd=await vr.json();if(!vr.ok||!vd.verified)throw new Error("Verification failed");recordOnlinePayment(customerId,amount,"razorpay",response.razorpay_payment_id);toast("Razorpay payment verified ✓")}catch(e){toast("Payment received but verification failed — do not mark it paid yet")}}});r.on("payment.failed",()=>toast("Razorpay payment failed"));r.open()
-}
 async function launchPaytm(data,amount,customerId){
   if(!data.mid||!data.orderId||!data.txnToken)return toast("Paytm backend returned an incomplete transaction");
   try{await loadScript("https://securegw.paytm.in/merchantpgpui/checkoutjs/merchants/"+encodeURIComponent(data.mid)+".js")}catch(e){return toast("Paytm checkout could not load")}
