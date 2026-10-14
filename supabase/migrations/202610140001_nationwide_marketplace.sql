@@ -34,6 +34,19 @@ create table if not exists public.dk_shops (
   active boolean not null default true,
   created_at timestamptz not null default now()
 );
+-- Keep upgrades compatible with an earlier marketplace table created by the prototype.
+alter table public.dk_shops add column if not exists owner_id uuid references auth.users(id) on delete cascade;
+alter table public.dk_shops add column if not exists name text;
+alter table public.dk_shops add column if not exists owner_name text;
+alter table public.dk_shops add column if not exists phone text;
+alter table public.dk_shops add column if not exists area text;
+alter table public.dk_shops add column if not exists category text;
+alter table public.dk_shops add column if not exists details text;
+alter table public.dk_shops add column if not exists lat double precision;
+alter table public.dk_shops add column if not exists lon double precision;
+alter table public.dk_shops add column if not exists active boolean not null default true;
+alter table public.dk_shops add column if not exists created_at timestamptz not null default now();
+
 create index if not exists dk_shops_active_created_idx on public.dk_shops(active, created_at desc);
 create index if not exists dk_shops_owner_idx on public.dk_shops(owner_id);
 alter table public.dk_shops enable row level security;
@@ -66,6 +79,20 @@ create table if not exists public.dk_products (
   updated_at timestamptz not null default now(),
   constraint dk_products_owner_shop_fk foreign key (shop_id, owner_id) references public.dk_shops(id, owner_id) on delete cascade
 );
+alter table public.dk_products add column if not exists shop_id uuid references public.dk_shops(id) on delete cascade;
+alter table public.dk_products add column if not exists owner_id uuid references auth.users(id) on delete cascade;
+alter table public.dk_products add column if not exists name text;
+alter table public.dk_products add column if not exists price numeric(12,2);
+alter table public.dk_products add column if not exists unit text not null default 'piece';
+alter table public.dk_products add column if not exists image_url text;
+alter table public.dk_products add column if not exists category text;
+alter table public.dk_products add column if not exists description text;
+alter table public.dk_products add column if not exists stock numeric(14,3);
+alter table public.dk_products add column if not exists active boolean not null default true;
+alter table public.dk_products add column if not exists created_at timestamptz not null default now();
+alter table public.dk_products add column if not exists updated_at timestamptz not null default now();
+update public.dk_products p set owner_id = s.owner_id from public.dk_shops s where p.shop_id = s.id and p.owner_id is null;
+
 create index if not exists dk_products_shop_active_idx on public.dk_products(shop_id, active, name);
 alter table public.dk_products enable row level security;
 drop policy if exists "Anyone can view active products from active shops" on public.dk_products;
@@ -94,6 +121,19 @@ create table if not exists public.dk_orders (
   status text not null default 'Pending' check (status in ('Pending','Accepted','Rejected','Ready','Completed','Cancelled')),
   created_at timestamptz not null default now()
 );
+alter table public.dk_orders add column if not exists shop_id uuid references public.dk_shops(id) on delete cascade;
+alter table public.dk_orders add column if not exists owner_id uuid references auth.users(id) on delete cascade;
+alter table public.dk_orders add column if not exists customer_name text;
+alter table public.dk_orders add column if not exists customer_phone text;
+alter table public.dk_orders add column if not exists delivery_method text;
+alter table public.dk_orders add column if not exists delivery_address text;
+alter table public.dk_orders add column if not exists note text;
+alter table public.dk_orders add column if not exists items jsonb not null default '[]'::jsonb;
+alter table public.dk_orders add column if not exists total numeric(12,2) not null default 0;
+alter table public.dk_orders add column if not exists status text not null default 'Pending';
+alter table public.dk_orders add column if not exists created_at timestamptz not null default now();
+update public.dk_orders o set owner_id = s.owner_id from public.dk_shops s where o.shop_id = s.id and o.owner_id is null;
+
 create index if not exists dk_orders_shop_created_idx on public.dk_orders(shop_id, created_at desc);
 alter table public.dk_orders enable row level security;
 drop policy if exists "Shop owners can read their own orders" on public.dk_orders;
