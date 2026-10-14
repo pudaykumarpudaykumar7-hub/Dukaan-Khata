@@ -1,4 +1,6 @@
 const KEY="dukaan_khata_infinity_v2";
+// Remove legacy Cashfree/backend configuration without touching shop or transaction records.
+try{localStorage.removeItem("dukaan_payment_api");localStorage.removeItem("dukaan_khata_payments_v1")}catch(e){}
 let state=loadState(),khataFilter="all",longPress=null,suppressClickUntil=0;
 Object.defineProperty(window,"state",{configurable:true,get:()=>state,set:v=>{state=v}});
 
@@ -350,8 +352,6 @@ function deleteConfirm(message,onDelete){
 }
 function deleteCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c)return;deleteConfirm("Delete "+c.name+" and its khata history?",()=>{state.customers=state.customers.filter(x=>x.id!==id);state.tx=state.tx.filter(x=>x.customerId!==id);state.reminders=state.reminders.filter(x=>x.customerId!==id);saveState();render();toast("Customer deleted")})}
 
-function paymentApiBase(){let u=(localStorage.getItem("dukaan_payment_api")||"").trim();if(!u){try{u=(JSON.parse(localStorage.getItem("dukaan_khata_payments_v1")||"{}").backendUrl||"").trim()}catch(e){}}return u.endsWith("/")?u.slice(0,-1):u}
-function paymentApiUrl(path){const base=paymentApiBase();return base?base+path:""}
 function commissionSummary(){
   const rate=Math.max(0,Math.min(100,Number(state.settings.commissionRate??10)||0));
   const grossSales=sales().reduce((sum,t)=>sum+Math.max(0,Number(t.total)||0),0);
@@ -368,49 +368,7 @@ function openCommissionDashboard(){
     saveState();openCommissionDashboard();toast("Commission rate saved");
   });
 }
-function openPaymentSetup(){
-  const current=paymentApiBase();
-  modal('<h2>💳 Payment Center</h2><p class="muted">Connect and verify your Cashfree backend. Never enter your Cashfree Client Secret in this website.</p><div class="payment-provider-grid"><div class="payment-provider"><b>📲 Cashfree UPI Payment QR</b><small>Secure checkout with automatic status checks after verified payment</small><span class="status-chip">Backend verification required</span></div></div><label>Secure payment backend URL<input id="paymentApiUrl" value="'+esc(current)+'" placeholder="https://your-vercel-app.vercel.app"></label><div id="paymentConnectionStatus" class="muted" role="status" style="margin:10px 0;font-size:12px">Test the URL before saving it.</div><button class="btn" id="testPaymentApiBtn">Test Backend Connection</button><button class="btn primary" id="savePaymentApiBtn">Save Verified Connection</button><button class="btn" onclick="openReceive()">Open Smart Receive</button><p class="muted" style="font-size:11px;margin-top:12px">Add CASHFREE_CLIENT_ID and CASHFREE_CLIENT_SECRET only in Vercel Environment Variables, then redeploy. A green status requires the backend health check and configured credentials.</p>');
-  const input=document.getElementById("paymentApiUrl"),status=document.getElementById("paymentConnectionStatus");
-  let verifiedUrl="";
-  document.getElementById("testPaymentApiBtn")?.addEventListener("click",async()=>{
-    const u=(input?.value||"").trim().replace(/\/$/,"");
-    verifiedUrl="";
-    if(!/^https:\/\//i.test(u)){if(status)status.textContent="Enter the full HTTPS URL of your deployed Vercel backend.";return}
-    if(status)status.textContent="Checking backend and Cashfree configuration…";
-    try{
-      const r=await fetch(u+"/health",{headers:{Accept:"application/json"}});
-      const d=await r.json().catch(()=>({}));
-      if(!r.ok||!d.ok){if(status)status.textContent="Backend health check failed. Verify the URL and Vercel deployment.";return}
-      if(!d.cashfreeConfigured){if(status)status.textContent="Backend is online, but Cashfree credentials are missing. Add both Cashfree environment variables in Vercel and redeploy.";return}
-      verifiedUrl=u;
-      if(status)status.textContent="✓ Backend online • Cashfree credentials detected • "+(d.environment||"configured")+" environment. You can save this connection.";
-    }catch(e){if(status)status.textContent="Could not reach the backend. Check the URL, deployment and browser access settings."}
-  });
-  document.getElementById("savePaymentApiBtn")?.addEventListener("click",()=>{
-    const u=(input?.value||"").trim().replace(/\/$/,"");
-    if(!u){localStorage.removeItem("dukaan_payment_api");closeModal();toast("Payment backend cleared");return}
-    if(u!==verifiedUrl){if(status)status.textContent="Please test this exact backend URL successfully before saving.";return}
-    localStorage.setItem("dukaan_payment_api",u);closeModal();toast("Verified Cashfree backend connected")
-  });
-}
 function stopQRPaymentWatcher(){if(window.__dukaanQRPoll){clearInterval(window.__dukaanQRPoll);window.__dukaanQRPoll=null}}
-function showMoneyReceived(payment,customerId=""){
-  const amount=Number(payment.amount)||0;
-  const customer=state.customers.find(c=>c.id===customerId);
-  const exists=state.tx.some(t=>t.type==="payment"&&t.gateway==="cashfree_qr"&&t.paymentId===payment.id);
-  if(!exists){
-    state.tx.unshift({id:uid(),type:"payment",customerId,amount,mode:"upi",gateway:"cashfree_qr",paymentId:payment.id,reference:payment.rrn||"",date:new Date().toISOString()});
-    saveState();render();
-  }
-  const payerName=customer?.name||payment.customerName||"Customer";
-  const success='<div class="payment-success-card"><div class="payment-success-icon">✓</div><b>PAYMENT RECEIVED</b><strong>'+money(amount)+'</strong><span>'+esc(payerName)+'</span><small>Verified by Cashfree</small></div>';
-  const qrBox=document.getElementById(window.__activePaymentQRBox||"qrBox");
-  if(qrBox)qrBox.innerHTML=success;
-  const cap=document.getElementById("qrCaption");if(cap)cap.textContent="✓ Payment received • "+money(amount);
-  const box=document.getElementById("qrPaymentStatus");if(box)box.innerHTML=success;
-  toast("Money received: "+money(amount));
-}
 function createTrackedQR(customerId){
   window.__activePaymentQRBox="qrBox";
   const box=document.getElementById("qrBox"),cap=document.getElementById("qrCaption"),status=document.getElementById("qrPaymentStatus");
@@ -423,49 +381,7 @@ function createTrackedQR(customerId){
   if(cap)cap.textContent=amount>0?"Pay "+money(amount)+" • UPI QR":"UPI: "+upi;
   if(status)status.innerHTML='<div class="payment-waiting">🟢 UPI QR ready.<small>Customer scans with any UPI app. This QR pays directly to your saved UPI ID.</small></div>';
 }
-async function createCashfreeQR(customerId){
-  window.__activePaymentQRBox="qrBox";
-  const box=document.getElementById("qrBox"),cap=document.getElementById("qrCaption"),status=document.getElementById("qrPaymentStatus");
-  const amount=Number(document.getElementById("qrAmount")?.value)||0;
-  const customerIdValue=customerId||"";
-  stopQRPaymentWatcher();
-  window.__dukaanPaymentShortUrl="";
-  if(amount<=0){
-    const upi=(state.shop.upi||"").trim();
-    if(upi){
-      createTrackedQR(customerIdValue);
-      if(status)status.innerHTML='<div class="payment-waiting">🟢 UPI QR ready.<small>Enter an amount to create a fixed-amount Cashfree checkout QR. Direct UPI QR payments cannot be auto-verified by this app.</small></div>';
-    }else{
-      if(box)box.innerHTML='<div class="qr-empty">Enter an amount and connect a payment backend, or add your UPI ID in Shop Profile.</div>';
-      if(status)status.innerHTML='<div class="qr-empty">Add your UPI ID in More → Shop Profile to generate a direct UPI QR. For automatic payment confirmation, connect an approved payment gateway.</div>';
-    }
-    return
-  }
-  const payerName="Customer";
-  if(box)box.innerHTML='<div class="qr-empty">Creating secure Cashfree payment link…</div>';
-  if(status)status.innerHTML='<div class="payment-waiting">Preparing Cashfree payment QR…</div>';
-  const base=paymentApiBase();
-  if(!base){
-    if((state.shop.upi||"").trim()){
-      createTrackedQR(customerIdValue);
-      if(status)status.innerHTML='<div class="payment-waiting">🟢 Direct UPI QR ready.<small>Payment goes to your saved UPI ID. This QR cannot confirm payment automatically; record the payment after checking your UPI app.</small></div>';
-    }else{
-      if(box)box.innerHTML='<div class="qr-empty">Cashfree backend is not connected.</div>';
-      if(status)status.innerHTML='<div class="qr-empty">Add your UPI ID in Shop Profile for a direct UPI QR, or connect your payment backend for Cashfree checkout.</div>';
-    }
-    return
-  }
-  try{
-    const r=await fetch(paymentApiUrl("/api/cashfree/payment-link"),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount,customerId:customerIdValue,customerName:payerName})});
-    const data=await r.json().catch(()=>({}));
-    if(!(r.ok&&data.id&&data.linkUrl)){const msg=data.error||("HTTP "+r.status+" from Cashfree backend");if(box)box.innerHTML='<div class="qr-empty">Cashfree payment QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty"><b>Cashfree could not create this payment link.</b><br><small>'+esc(msg)+'</small></div>';return}
-    window.__dukaanPaymentShortUrl=data.linkUrl;const qrUrl="https://quickchart.io/qr?size=320&text="+encodeURIComponent(data.linkUrl);
-    if(box)box.innerHTML='<a href="'+esc(data.linkUrl)+'" target="_blank" rel="noopener" style="display:block;text-align:center"><img src="'+qrUrl+'" alt="Cashfree payment QR" style="width:220px;height:220px;max-width:100%;display:block;margin:auto"></a><small style="display:block;text-align:center;margin-top:8px">Scan to open secure Cashfree checkout</small>';
-    if(cap)cap.textContent="Pay "+money(amount)+" • Cashfree";
-    if(status)status.innerHTML='<div class="payment-waiting">🟡 Waiting for payment…<small>Keep Smart Receive open. Cashfree payment status will be checked automatically.</small></div>';
-    window.__dukaanQRPoll=setInterval(async()=>{try{const pr=await fetch(paymentApiUrl("/api/cashfree/payment-link/"+encodeURIComponent(data.id)));const pd=await pr.json().catch(()=>({}));if(!pr.ok)return;if(pd.paid){stopQRPaymentWatcher();showMoneyReceived({id:data.id,amount:pd.amount,status:"PAID"},customerIdValue)}}catch(e){}},3000);
-  }catch(e){if(box)box.innerHTML='<div class="qr-empty">Cashfree payment QR could not be generated.</div>';if(status)status.innerHTML='<div class="qr-empty">'+esc(e.message||"Payment service unavailable")+'</div>'}
-}
+function createCashfreeQR(customerId){createTrackedQR(customerId)}
 function openReceive(customerId=""){
   const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");
   modal('<div class="smart-receive-shell"><div class="smart-receive-head"><div class="smart-receive-icon">₹</div><div><h2>Smart Receive</h2></div></div><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="recordTab">Record</button></div><div id="receiveQR"><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (required for QR)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy payment link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div></div>');
@@ -489,12 +405,12 @@ function openReceive(customerId=""){
     qrTypingTimer=setTimeout(()=>createCashfreeQR(customerId),350);
   });
   document.getElementById("sharePayBtn")?.addEventListener("click",()=>shareTrackedQR());
-  document.getElementById("copyPayBtn")?.addEventListener("click",()=>{const link=window.__dukaanPaymentShortUrl||"";if(!link)return toast("Create the payment QR first");if(navigator.clipboard?.writeText)navigator.clipboard.writeText(link).then(()=>toast("Payment link copied")).catch(()=>toast(link));else toast(link)});
+  document.getElementById("copyPayBtn")?.addEventListener("click",()=>copyUPILink());
   document.getElementById("savePaymentBtn")?.addEventListener("click",savePayment);
   setTimeout(()=>createCashfreeQR(customerId),50);
 }
-function shareTrackedQR(){const link=window.__dukaanPaymentShortUrl||"";if(!link)return toast("Generate the payment QR first");const text="Pay "+(state.shop.name||"Dukaan Khata")+(document.getElementById("qrAmount")?.value?" — "+money(Number(document.getElementById("qrAmount").value)):"")+" using this secure link: "+link;if(navigator.share)navigator.share({title:"Dukaan Khata Payment",text,url:link}).catch(()=>{});else if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>toast("Payment link copied")).catch(()=>toast(text));else toast(text)}
-async function startGatewayPayment(provider){if(provider==="cashfree"){document.getElementById("qrTab")?.click();return}return toast("Only Cashfree payment QR is available")}
+function shareTrackedQR(){sharePaymentLink()}
+function startGatewayPayment(){return toast("Cashfree payment setup has been removed. Use the shop UPI QR or record a payment manually.")}
 function loadScript(src){return new Promise((resolve,reject)=>{if(document.querySelector('script[src="'+src+'"]'))return resolve();const s=document.createElement("script");s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)})}
 async function launchPaytm(data,amount,customerId){
   if(!data.mid||!data.orderId||!data.txnToken)return toast("Paytm backend returned an incomplete transaction");
