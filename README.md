@@ -9,9 +9,9 @@ Cashfree payment-link integration and its backend configuration have been remove
 
 Open `index.html` in a browser for the static frontend. For a public link, upload the frontend to GitHub Pages and deploy the payment backend on Vercel.
 
-## Nationwide readiness: shared shops, products, orders, and owner sync
+## Shop discovery and owner sync
 
-The migration at `supabase/migrations/202610140001_nationwide_marketplace.sql` adds the shared shop/product/order tables, an order-creation RPC that recalculates prices on the server and checks stock, per-owner row-level security, account-isolated owner cloud sync, and audit-ledger tables for provider-confirmed payments and eligible commissions.
+The migration at `supabase/migrations/202610140001_nationwide_marketplace.sql` contains shared marketplace tables and account-isolated owner cloud sync. The Digital Shop & Ordering storefront has been removed from the website; these database tables may remain unused.
 
 ### Required one-time Supabase setup
 
@@ -21,7 +21,7 @@ The migration at `supabase/migrations/202610140001_nationwide_marketplace.sql` a
 4. Confirm the query completes successfully. If it reports an error, stop and share the exact error text rather than repeatedly running partial SQL.
 5. In Supabase **Authentication → Providers**, enable Google and configure the OAuth callback URLs for the Supabase project and the published Dukaan Khata site.
 6. Open the live site in a fresh browser session, choose **More → Login Access → Owner Login**, sign in with Google, and verify that the owner's data syncs. Test with a second test account before inviting real shops.
-7. Test shop registration in **Dukaan Universe**, then add a product in **Digital Shop & Ordering**, place a test order, and confirm it appears only in that shop owner's Order Management.
+7. Test shop registration and local shop discovery in **Dukaan Universe**.
 
 The migration does not create or approve a Cashfree marketplace account and does not itself move money. The database ledger is deliberately not writable from public browser clients. Only a trusted backend using server-only credentials should write verified payment events and commission rows.
 
