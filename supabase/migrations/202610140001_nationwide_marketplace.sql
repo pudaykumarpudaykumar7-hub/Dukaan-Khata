@@ -48,6 +48,8 @@ create policy "Owners can delete their own shops" on public.dk_shops for delete 
 grant select on public.dk_shops to anon, authenticated;
 grant insert, update, delete on public.dk_shops to authenticated;
 
+create unique index if not exists dk_shops_id_owner_unique on public.dk_shops(id, owner_id);
+
 create table if not exists public.dk_products (
   id uuid primary key default gen_random_uuid(),
   shop_id uuid not null references public.dk_shops(id) on delete cascade,
@@ -64,7 +66,6 @@ create table if not exists public.dk_products (
   updated_at timestamptz not null default now(),
   constraint dk_products_owner_shop_fk foreign key (shop_id, owner_id) references public.dk_shops(id, owner_id) on delete cascade
 );
-create unique index if not exists dk_shops_id_owner_unique on public.dk_shops(id, owner_id);
 create index if not exists dk_products_shop_active_idx on public.dk_products(shop_id, active, name);
 alter table public.dk_products enable row level security;
 drop policy if exists "Anyone can view active products from active shops" on public.dk_products;
