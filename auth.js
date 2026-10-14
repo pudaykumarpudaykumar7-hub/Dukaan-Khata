@@ -136,7 +136,7 @@
     const uid=user?.id;
     const restoredKey=uid?"dukaan_khata_restored_"+uid:"";
     if(!uid)return;
-    if(restoredKey&&sessionStorage.getItem(restoredKey)==="1"){
+    if(restoredKey&&sessionStorage.getItem(restoredKey)==="1"&&localStorage.getItem("dukaan_khata_cloud_user_id")===uid){
       startCloudPolling();
       return;
     }
