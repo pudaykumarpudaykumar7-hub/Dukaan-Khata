@@ -524,11 +524,12 @@ function renderCustomers(){
     return matches&&(customerStatusFilter==="all"||(customerStatusFilter==="due"&&b>0)||(customerStatusFilter==="clear"&&b<=0));
   });
   box.innerHTML=customers.map(c=>
-    '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" onclick="customerView(\\''+esc(c.id)+'\\')">'+
+    '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" data-customer-open="'+esc(c.id)+'">'+
       '<div><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone")+'</small></div>'+
       '<b class="'+(balance(c.id)>0?"due":"paid")+'">'+(balance(c.id)>0?"Due ":"Clear ")+money(Math.abs(balance(c.id)))+'</b>'+
     '</div>'
   ).join("") || '<p class="muted">'+(customerStatusFilter==="due"?"No customers with due.":customerStatusFilter==="clear"?"No clear customers found.":"No customers yet.")+'</p>';
+  box.querySelectorAll("[data-customer-open]").forEach(el=>el.addEventListener("click",()=>customerView(el.dataset.customerOpen)));
 }
 function renderBills(){const box=document.getElementById("billList");if(!box)return;box.innerHTML=sales().slice(0,50).map(t=>{const c=state.customers.find(x=>x.id===t.customerId);return'<div class="bill" data-long-delete data-delete-type="sale" data-delete-id="'+esc(t.id)+'" onclick="billView(\''+esc(t.id)+'\')"><div><h3>'+esc(c?.name||"Walk-in")+'</h3><small>'+new Date(t.date).toLocaleString("en-IN")+'</small></div><b>'+money(t.total)+'</b></div>'}).join("")||'<p class="muted">No bills yet.</p>'}
 function billView(id){const t=state.tx.find(x=>x.id===id);if(!t)return;const c=state.customers.find(x=>x.id===t.customerId);const lines=(t.lines||[]).map(l=>'<div class="line"><span>'+esc(l.name)+' × '+l.qty+'</span><b>'+money(l.total)+'</b></div>').join("");modal('<h2>Bill</h2><p><b>'+esc(c?.name||"Walk-in")+'</b><br><small>'+new Date(t.date).toLocaleString("en-IN")+'</small></p>'+lines+'<div class="line"><b>Total</b><b>'+money(t.total)+'</b></div><button class="btn" style="background:#dc2626" onclick="deleteSale(\''+esc(id)+'\')">Delete Bill</button>')}
