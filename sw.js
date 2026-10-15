@@ -1,4 +1,4 @@
-const CACHE="dukaan-khata-app-v61-clean-refresh";
+const CACHE="dukaan-khata-app-v62-signature-ui";
 const CORE=["./","./index.html","./style.css","./redesign.css","./app.js","./auth.js","./login-access.js","./i18n.js","./more-routing.js","./manifest.json","./universe.html"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil((async()=>{const names=await caches.keys();await Promise.all(names.filter(n=>n.startsWith("dukaan-khata-app-")&&n!==CACHE).map(n=>caches.delete(n)));await self.clients.claim();})()));
