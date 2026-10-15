@@ -199,3 +199,68 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
  .balance-hero strong{font-size:31px}.hero-ring{width:52px;height:52px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+
+/* ── DU KAAN COMMAND CENTRE · purpose-built merchant layout ── */
+:root{
+ --bg:#f0f1e9;--surface:#fffef8;--text:#182821;--muted:#72796e;--line:#d9ded0;
+ --primary:#234f3b;--primary2:#3b7957;--blue:#385d73;--orange:#e4a344;--purple:#77634d;
+ --danger:#b8322b;--shadow:0 3px 0 rgba(25,44,31,.035);--shadow-hover:0 7px 0 rgba(25,44,31,.06);
+}
+body{background:var(--bg);letter-spacing:0}
+.topbar{background:#1b3026;box-shadow:none;border-bottom:3px solid #e4a344}
+.uvms-logo-button{background:#e4a344!important;color:#1b3026!important;border-radius:9px!important}
+main{max-width:1240px}
+#home.active{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);grid-template-areas:"welcome welcome" "balance actions" "stats actions" "recent recent";column-gap:18px;align-content:start}
+#home>.welcome{grid-area:welcome;border-bottom:1px solid #d8ddcf;padding:8px 2px 16px;margin-bottom:2px}
+#home>.balance-hero{grid-area:balance;min-height:208px;align-self:stretch;border-radius:6px 22px 6px 22px;background:#1e4733;border:0;box-shadow:none;padding:25px 24px}
+#home>.balance-hero:after{right:-24px;top:-150px;width:280px;height:280px;border:2px dashed #ffffff2b;box-shadow:0 0 0 28px #ffffff08,0 0 0 56px #ffffff05}
+#home>.balance-hero strong{font-size:clamp(34px,4vw,48px);font-variant-numeric:tabular-nums;letter-spacing:-1.5px}
+#home>.balance-hero .hero-ring{width:70px;height:70px;border-radius:50%;border:1px dashed #f0c16e;background:#ffffff08;transform:none}
+#home>.balance-hero .hero-ring span{transform:none;color:#f0c16e;font-size:13px}
+#home>.stat-grid{grid-area:stats;align-self:start;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid #d6ddcf;border-radius:6px;background:#fffef8;overflow:hidden;margin:0}
+#home>.stat-grid .stat{border:0;border-right:1px solid #dfe3d7;border-radius:0;padding:14px 13px;background:transparent}
+#home>.stat-grid .stat:last-child{border-right:0}
+#home>.stat-grid .stat b{font-size:20px;letter-spacing:-.7px}
+#home>.quick-grid{grid-area:actions;display:grid;grid-template-columns:1fr 1fr;align-content:start;gap:8px;margin:0;padding:15px;border:1px solid #d6ddcf;border-radius:6px 18px 6px 18px;background:#e6e9dd}
+#home>.quick-grid:before{content:"YOUR DAILY DESK";grid-column:1/-1;color:#6d7869;font-size:9px;font-weight:900;letter-spacing:.19em;padding:0 2px 5px}
+#home>.quick-grid .quick{min-height:100px;padding:13px;border-radius:5px 13px 5px 13px;border:1px solid #d4dbce;background:#fffef8;box-shadow:none;display:flex;align-items:flex-start;justify-content:flex-start;gap:6px}
+#home>.quick-grid .quick:nth-of-type(1){background:#244f3b;color:white;border-color:#244f3b}
+#home>.quick-grid .quick:nth-of-type(1) small{color:#d2e1d4}
+#home>.quick-grid .quick:nth-of-type(2){background:#f8e7c8;color:#4c3a21;border-color:#f0d9b0}
+#home>.quick-grid .quick:nth-of-type(3){background:#f9f8f1}
+#home>.quick-grid .quick:nth-of-type(4){background:#e4ece2;color:#254b37}
+#home>.quick-grid .quick.universe{grid-column:1/-1;min-height:65px;flex-direction:row;align-items:center;background:#fffef8;color:#234f3b;border-style:dashed;border-color:#9caf9c}
+#home>.quick-grid .quick>span{font-size:12px;line-height:1.25}
+#home>.quick-grid .quick small{font-size:10px;line-height:1.35;color:#747a6f}
+#home>.section-head{grid-area:recent;margin:8px 0 0;padding:17px 0 8px;border-top:1px solid #d8ddcf}
+#home>.section-head h3{font-size:16px}
+#home>#recent{grid-area:recent;margin-top:46px}
+.page-title h2{letter-spacing:-.6px}
+.card,.customer-card,.khata-card,.bill-card,.tool-card,.customer,.item,.activity,.bill{border-radius:5px 14px 5px 14px;border-color:#d9ded0;box-shadow:none}
+.search,.field,input.search,select,textarea{border-radius:5px 10px 5px 10px;border-color:#d5dccf}
+button.primary,.primary:not(.quick){border-radius:5px 10px 5px 10px}
+.quick:hover,.luxury-tool:hover{transform:translateY(-1px);box-shadow:none}
+.tools-grid{gap:8px}
+.luxury-tool{border-radius:5px 14px 5px 14px;background:#fffef8}
+.bottom-nav{border-radius:8px 18px 8px 18px}
+@media(max-width:760px){
+ #home.active{grid-template-columns:minmax(0,1fr);grid-template-areas:"welcome" "balance" "stats" "actions" "recent";row-gap:10px}
+ #home>.welcome{padding:2px 1px 12px;margin-bottom:0}
+ #home>.balance-hero{min-height:160px;padding:19px 16px}
+ #home>.balance-hero strong{font-size:34px}
+ #home>.balance-hero .hero-ring{width:55px;height:55px}
+ #home>.stat-grid{margin:0}
+ #home>.stat-grid .stat{padding:11px 9px}
+ #home>.stat-grid .stat b{font-size:16px}
+ #home>.quick-grid{padding:10px;gap:7px}
+ #home>.quick-grid .quick{min-height:78px;padding:10px}
+ #home>.quick-grid .quick.universe{min-height:56px}
+ #home>.section-head{margin-top:4px;padding-top:13px}
+ #home>#recent{margin-top:42px}
+}
+@media(max-width:360px){
+ #home>.quick-grid{padding:8px}
+ #home>.quick-grid .quick{padding:8px;min-height:74px}
+ #home>.balance-hero strong{font-size:29px}
+}
