@@ -75,13 +75,13 @@
     const exact={"New Customer":"newCustomer","Edit Customer":"editCustomer","Customer name":"customerName","Mobile / WhatsApp number":"mobileWhatsApp","Mobile number":"mobile","Address (optional)":"addressOptional","Address":"address","Save Customer":"saveCustomer","Search":"search","Customer or phone...":"customerOrPhone","No customers found.":"noCustomersFound","No customers with due.":"noCustomersDue","No clear customers found.":"noClearCustomers","No customers yet.":"noCustomersYet","No phone":"noPhone","No phone added":"noPhoneAdded","＋ Add Mobile":"addMobile"};
     const nodes=document.querySelectorAll("#modalBody h1,#modalBody h2,#modalBody h3,#modalBody p,#modalBody button,#modalBody label,#modalBody small,#modalBody input,#khataList small,#khataList button,#khataList .khata-money-due,#khataList .khata-money-paid,#customerList small,#customerList button,#customerList .due,#customerList .paid,#customerList p");
     nodes.forEach(el=>{
-      if(el.tagName==="INPUT"){const key=exact[el.placeholder];if(key)el.placeholder=L[key]||UI.English[key];return}
-      if(el.children.length===0){const raw=(el.textContent||"").trim();const key=exact[raw];if(key)el.textContent=L[key]||UI.English[key];}
+      if(el.tagName==="INPUT"){if(!el.dataset.dkOriginalPlaceholder)el.dataset.dkOriginalPlaceholder=el.placeholder;const key=exact[el.dataset.dkOriginalPlaceholder];if(key)el.placeholder=L[key]||UI.English[key];return}
+      if(el.children.length===0){if(el.dataset.dkOriginalText===undefined)el.dataset.dkOriginalText=el.textContent||"";const raw=el.dataset.dkOriginalText.trim();const key=exact[raw];if(key)el.textContent=L[key]||UI.English[key];}
     });
-    const applyPrefix=(selector,from,key)=>document.querySelectorAll(selector).forEach(el=>{const raw=el.textContent||"";if(raw.startsWith(from+" "))el.textContent=(L[key]||UI.English[key])+raw.slice(from.length)});
+    const applyPrefix=(selector,from,key)=>document.querySelectorAll(selector).forEach(el=>{if(el.dataset.dkOriginalText===undefined)el.dataset.dkOriginalText=el.textContent||"";const raw=el.dataset.dkOriginalText;if(raw.startsWith(from+" "))el.textContent=(L[key]||UI.English[key])+raw.slice(from.length)});
     applyPrefix("#khataList .khata-money-due","Due","dueStatus");applyPrefix("#khataList .khata-money-paid","Paid","paidStatus");
     applyPrefix("#customerList .due","Due","dueStatus");applyPrefix("#customerList .paid","Clear","clearStatus");
-    document.querySelectorAll("#khataList small,#customerList small").forEach(el=>{let s=el.textContent||"";s=s.replace(/No phone added/g,L.noPhoneAdded||UI.English.noPhoneAdded).replace(/No phone/g,L.noPhone||UI.English.noPhone).replace(/Total paid/g,L.totalPaid||UI.English.totalPaid);el.textContent=s});
+    document.querySelectorAll("#khataList small,#customerList small").forEach(el=>{if(el.dataset.dkOriginalText===undefined)el.dataset.dkOriginalText=el.textContent||"";let s=el.dataset.dkOriginalText;s=s.replace(/No phone added/g,L.noPhoneAdded||UI.English.noPhoneAdded).replace(/No phone/g,L.noPhone||UI.English.noPhone).replace(/Total paid/g,L.totalPaid||UI.English.totalPaid);el.textContent=s});
   }
   window.applyLanguage=function(){
     const L=Object.assign({},T.English,T[current()]||{},EXTRAFALLBACK,EXTRA[current()]||{},UI[current()]||{});
