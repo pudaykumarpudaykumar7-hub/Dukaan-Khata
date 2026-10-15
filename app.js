@@ -199,7 +199,7 @@ function receivedTotal(id){return state.tx.filter(t=>String(t.customerId)===Stri
 function sales(){return state.tx.filter(t=>t.type==="sale")}
 function payments(){return state.tx.filter(t=>t.type==="payment")}
 function toast(msg){const e=document.getElementById("toast");if(!e)return;e.textContent=msg;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),2200)}
-function modal(html){const m=document.getElementById("modal"),b=document.getElementById("modalBody");if(!m||!b)return;b.innerHTML=html;m.classList.remove("hidden");if(!m.dataset.backdropClose){m.dataset.backdropClose="1";m.addEventListener("click",e=>{if(e.target===m)closeModal()})}}
+function modal(html){const m=document.getElementById("modal"),b=document.getElementById("modalBody");if(!m||!b)return;b.innerHTML=html;m.classList.remove("hidden");try{window.applyLanguage?.()}catch(e){}if(!m.dataset.backdropClose){m.dataset.backdropClose="1";m.addEventListener("click",e=>{if(e.target===m)closeModal()})}}
 function closeModal(){stopQRPaymentWatcher();document.getElementById("modal")?.classList.add("hidden");document.getElementById("modal")?.classList.remove("uvms-logo-modal");document.body.classList.remove("uvms-logo-open")}
 function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const page=document.getElementById(id);if(!page)return;page.classList.add("active");document.querySelectorAll(".bottom-nav button,.top-menu button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));window.scrollTo({top:0,behavior:"smooth"});try{render()}catch(e){console.error("Dukaan Khata render error:",e);toast("Page loaded. Please try again.")}}
 function openSearch(){modal('<h2>Search</h2><input id="globalSearch" placeholder="Customer or phone..." autocomplete="off"><div id="globalResults"></div>');document.getElementById("globalSearch")?.addEventListener("input",globalResults);globalResults();document.getElementById("globalSearch")?.focus()}
@@ -529,6 +529,7 @@ function renderCustomers(){
       '<b class="'+(balance(c.id)>0?"due":"paid")+'">'+(balance(c.id)>0?"Due ":"Clear ")+money(Math.abs(balance(c.id)))+'</b>'+
     '</div>'
   ).join("") || '<p class="muted">'+(customerStatusFilter==="due"?"No customers with due.":customerStatusFilter==="clear"?"No clear customers found.":"No customers yet.")+'</p>';
+  try{window.applyLanguage?.()}catch(e){}
   box.querySelectorAll("[data-customer-open]").forEach(el=>el.addEventListener("click",()=>customerView(el.dataset.customerOpen)));
 }
 function renderBills(){const box=document.getElementById("billList");if(!box)return;box.innerHTML=sales().slice(0,50).map(t=>{const c=state.customers.find(x=>x.id===t.customerId);return'<div class="bill" data-long-delete data-delete-type="sale" data-delete-id="'+esc(t.id)+'" onclick="billView(\''+esc(t.id)+'\')"><div><h3>'+esc(c?.name||"Walk-in")+'</h3><small>'+new Date(t.date).toLocaleString("en-IN")+'</small></div><b>'+money(t.total)+'</b></div>'}).join("")||'<p class="muted">No bills yet.</p>'}
