@@ -2209,3 +2209,92 @@ main{max-width:1120px;padding:25px 20px 38px}
 }
 @media(min-width:901px){.bottom-nav{width:min(1120px,100%)}.quick:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}.customer:hover,.item:hover,.bill:hover{border-color:#c6dfd1;box-shadow:var(--shadow-hover);transform:translateY(-1px)}.sheet{border-radius:27px;margin-bottom:18px}.modal{align-items:center}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+
+/* MORE FEATURE THEME — merchant toolboard, scoped only to the More screen */
+#tools.active{
+ position:relative;
+ isolation:isolate;
+ padding:clamp(15px,3vw,28px);
+ margin:8px 0 20px;
+ border:1px solid #d5c5a5;
+ border-radius:8px 24px 8px 24px;
+ background:
+   linear-gradient(135deg,rgba(255,255,255,.72),rgba(250,245,231,.9)),
+   repeating-linear-gradient(0deg,transparent 0 31px,rgba(100,85,53,.045) 31px 32px);
+}
+#tools.active:before{
+ content:"SHOPKEEPER TOOLBOARD";
+ display:block;
+ width:max-content;
+ max-width:100%;
+ margin:0 0 9px;
+ padding:5px 9px;
+ border-radius:3px;
+ background:#203d2d;
+ color:#f7d58b;
+ font-size:9px;
+ font-weight:900;
+ letter-spacing:.18em;
+}
+#tools.active .page-title{margin:0 0 18px;align-items:flex-end}
+#tools.active .page-title .eyebrow{color:#94713b;letter-spacing:.2em;font-weight:900}
+#tools.active .page-title h2{font-size:clamp(25px,3vw,32px);letter-spacing:-.06em}
+#tools.active .tools-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#tools.active .luxury-tool{
+ position:relative;
+ min-height:118px;
+ overflow:hidden;
+ display:flex;
+ flex-direction:column;
+ align-items:flex-start;
+ justify-content:space-between;
+ gap:12px;
+ padding:15px;
+ border:1px solid #ddd0b5;
+ border-radius:5px 16px 5px 16px;
+ background:#fffdf7;
+ color:#24372a;
+ box-shadow:3px 3px 0 #e6dcc8;
+ text-align:left;
+}
+#tools.active .luxury-tool:before{
+ content:"";
+ position:absolute;
+ right:-18px;
+ top:-20px;
+ width:62px;
+ height:62px;
+ border:1px dashed #c3a46b;
+ border-radius:50%;
+ opacity:.8;
+}
+#tools.active .luxury-tool:after{
+ content:"↗";
+ position:absolute;
+ top:11px;
+ right:12px;
+ color:#987642;
+ font-size:13px;
+ font-weight:900;
+}
+#tools.active .luxury-tool:nth-child(3n+1){border-top:3px solid #2c6849}
+#tools.active .luxury-tool:nth-child(3n+2){border-top:3px solid #d49a3c}
+#tools.active .luxury-tool:nth-child(3n){border-top:3px solid #718b83}
+#tools.active .luxury-tool>b{font-size:13px;line-height:1.25;max-width:90%;font-weight:850}
+#tools.active .luxury-tool>small{font-size:10px;line-height:1.45;color:#6f766b}
+#tools.active .luxury-tool:hover{transform:translateY(-2px);border-color:#b99a61;box-shadow:3px 5px 0 #d8c7a7;background:#fffaf0}
+#tools.active .luxury-tool:focus-visible{outline:3px solid #c18c37;outline-offset:3px}
+.darkmode #tools.active{background:linear-gradient(135deg,#17261e,#202b20);border-color:#52664c}
+.darkmode #tools.active:before{background:#d9aa54;color:#1a2b20}
+.darkmode #tools.active .luxury-tool{background:#1c2d23;color:#f2f0e4;border-color:#495c45;box-shadow:3px 3px 0 #101b15}
+.darkmode #tools.active .luxury-tool>small{color:#c0c9b9}
+.darkmode #tools.active .luxury-tool:after{color:#e0b968}
+@media(max-width:760px){
+ #tools.active{padding:13px 10px;margin:4px 0 14px;border-radius:6px 18px 6px 18px}
+ #tools.active .tools-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #tools.active .luxury-tool{min-height:108px;padding:12px;gap:10px}
+ #tools.active .luxury-tool>b{font-size:12px}
+ #tools.active .luxury-tool>small{font-size:10px}
+}
+@media(max-width:350px){#tools.active .tools-grid{grid-template-columns:1fr}}
