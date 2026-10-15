@@ -2209,3 +2209,10 @@ main{max-width:1120px;padding:25px 20px 38px}
 }
 @media(min-width:901px){.bottom-nav{width:min(1120px,100%)}.quick:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}.customer:hover,.item:hover,.bill:hover{border-color:#c6dfd1;box-shadow:var(--shadow-hover);transform:translateY(-1px)}.sheet{border-radius:27px;margin-bottom:18px}.modal{align-items:center}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Customer balance summary controls */
+.customer-status-filters button{border:1px solid #d8eee2;background:#edf8f1;color:#087f5b;padding:8px 12px;border-radius:20px;font-size:11px;font-weight:750;cursor:pointer;transition:background .15s,border-color .15s,box-shadow .15s}
+.customer-status-filters button b{font-size:12px}
+.customer-status-filters button.active{background:#176b4d;color:#fff;border-color:#176b4d;box-shadow:0 0 0 2px #176b4d20}
+.darkmode .customer-status-filters button{background:#173c2b;border-color:#285940;color:#8de0b3}
+.darkmode .customer-status-filters button.active{background:#287a52;color:#fff;border-color:#55d59b}
