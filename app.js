@@ -384,11 +384,13 @@ function createTrackedQR(customerId){
 function createCashfreeQR(customerId){createTrackedQR(customerId)}
 function openReceive(customerId=""){
   const opts=state.customers.map(c=>'<option value="'+esc(c.id)+'" '+(c.id===customerId?"selected":"")+'>'+esc(c.name)+'</option>').join("");
-  modal('<div class="smart-receive-shell"><div class="smart-receive-head"><div class="smart-receive-icon">₹</div><div><h2>Smart Receive</h2></div></div><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="recordTab">Record</button></div><div id="receiveQR"><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (required for QR)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile")+'</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy UPI link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div></div>');
+  modal('<div class="smart-receive-shell"><div class="smart-receive-head"><div class="smart-receive-icon">₹</div><div><h2>Smart Receive</h2></div></div><div class="receive-tabs"><button class="active" id="qrTab">UPI QR</button><button id="recordTab">Record</button></div><div id="receiveQR"><label for="qrCustomer" class="receive-customer-label">Select customer for QR</label><select id="qrCustomer"><option value="">General QR / No customer</option>'+opts+'</select><input id="qrAmount" type="number" min="1" placeholder="Amount to collect (required for QR)"><div class="qr-card"><div id="qrBox"></div><b id="qrCaption">'+esc(state.shop.upi||"Add UPI ID in Shop Profile") + '</b></div><div id="qrPaymentStatus"></div><div class="row"><button class="btn primary" id="sharePayBtn">↗ Share QR</button><button class="btn" id="copyPayBtn">Copy UPI link</button></div></div><div id="receiveRecord" class="hidden"><select id="payCustomer"><option value="">Walk-in / Other</option>'+opts+'</select><input id="payAmount" type="number" min="1" placeholder="Amount received"><select id="payMode"><option value="cash">Cash</option><option value="upi">UPI</option><option value="bank">Bank</option><option value="card">Card</option></select><button class="btn primary" id="savePaymentBtn">Save Payment</button></div></div>');
   const qr=document.getElementById("qrTab"),rec=document.getElementById("recordTab"),a=document.getElementById("receiveQR"),b=document.getElementById("receiveRecord");
   const hide=()=>{a?.classList.add("hidden");b?.classList.add("hidden");qr?.classList.remove("active");rec?.classList.remove("active");stopQRPaymentWatcher()};
   qr?.addEventListener("click",()=>{hide();qr.classList.add("active");a?.classList.remove("hidden");createCashfreeQR(customerId)});
   rec?.addEventListener("click",()=>{hide();rec.classList.add("active");b?.classList.remove("hidden")});
+  const qrCustomer=document.getElementById("qrCustomer");
+  qrCustomer?.addEventListener("change",()=>{const selected=state.customers.find(c=>c.id===qrCustomer.value);const status=document.getElementById("qrPaymentStatus");if(status)status.innerHTML=selected?'<div class="payment-waiting">QR for <b>'+esc(selected.name)+'</b><small>Payments still go directly to your shop UPI ID. Record the payment after you confirm receipt.</small></div>':"";const amount=Number(document.getElementById("qrAmount")?.value)||0;if(amount>0)createCashfreeQR(qrCustomer.value)});
   const amountInput=document.getElementById("qrAmount");
   let qrTypingTimer;
   amountInput?.addEventListener("input",()=>{
@@ -402,12 +404,12 @@ function openReceive(customerId=""){
       if(cap)cap.textContent=state.shop.upi||"Payment QR";
       return;
     }
-    qrTypingTimer=setTimeout(()=>createCashfreeQR(customerId),350);
+    qrTypingTimer=setTimeout(()=>createCashfreeQR(document.getElementById("qrCustomer")?.value||""),350);
   });
   document.getElementById("sharePayBtn")?.addEventListener("click",()=>shareTrackedQR());
   document.getElementById("copyPayBtn")?.addEventListener("click",()=>copyUPILink());
   document.getElementById("savePaymentBtn")?.addEventListener("click",savePayment);
-  setTimeout(()=>createCashfreeQR(customerId),50);
+  setTimeout(()=>createCashfreeQR(document.getElementById("qrCustomer")?.value||customerId),50);
 }
 function shareTrackedQR(){sharePaymentLink()}
 function startGatewayPayment(){return toast("Use the shop UPI QR or record a payment manually.")}
