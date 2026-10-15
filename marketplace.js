@@ -29,7 +29,7 @@ function updateShopMap(){
  located.forEach(s=>{
   const marker=L.marker([Number(s.lat),Number(s.lon)]).addTo(shopMarkers);
   const direction='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(Number(s.lat)+','+Number(s.lon))+'&travelmode=driving';
-  marker.bindPopup('<strong>'+esc(s.name)+'</strong><br>'+esc(s.area||"Area not added")+'<br><a href="./shop.html?shop='+encodeURIComponent(s.id)+'" style="color:#087f5b">Browse products</a> · <a href="'+direction+'" target="_blank" rel="noopener noreferrer" style="color:#087f5b">Directions</a>');
+  marker.bindPopup('<strong>'+esc(s.name)+'</strong><br>'+esc(s.area||"Area not added")+'<br><a href="'+direction+'" target="_blank" rel="noopener noreferrer" style="color:#087f5b">Directions</a>');
  });
  const msg=$("mapNotice");
  if(msg)msg.textContent=located.length?located.length+" registered shop"+(located.length===1?"":"s")+" mapped. Shops without saved coordinates remain in the list below.":"No registered shops have map coordinates yet. Shop owners must save their exact shop location to appear as a map pin.";
