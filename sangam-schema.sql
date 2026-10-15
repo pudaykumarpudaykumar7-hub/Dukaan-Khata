@@ -18,7 +18,7 @@ create index if not exists dk_sangam_posts_open_created_idx on public.dk_sangam_
 create index if not exists dk_sangam_posts_owner_idx on public.dk_sangam_posts(created_by);
 alter table public.dk_sangam_posts enable row level security;
 drop policy if exists "Sangam open posts are visible" on public.dk_sangam_posts;
-create policy "Sangam open posts are visible" on public.dk_sangam_posts for select to authenticated using (status = 'open' or created_by = auth.uid());
+create policy "Sangam open posts are visible" on public.dk_sangam_posts for select to anon, authenticated using (status = 'open' or created_by = auth.uid());
 drop policy if exists "Sangam users create own posts" on public.dk_sangam_posts;
 create policy "Sangam users create own posts" on public.dk_sangam_posts for insert to authenticated with check (created_by = auth.uid());
 drop policy if exists "Sangam owners update own posts" on public.dk_sangam_posts;
