@@ -1,7 +1,7 @@
 const KEY="dukaan_khata_infinity_v2";
 // Remove legacy Cashfree/backend configuration without touching shop or transaction records.
 try{localStorage.removeItem("dukaan_payment_api");localStorage.removeItem("dukaan_khata_payments_v1")}catch(e){}
-let state=loadState(),khataFilter="all",longPress=null,suppressClickUntil=0;
+let state=loadState(),khataFilter="all",customerStatusFilter="all",longPress=null,suppressClickUntil=0;
 Object.defineProperty(window,"state",{configurable:true,get:()=>state,set:v=>{state=v}});
 
 function defaults(){return{shop:{name:"My Dukaan",owner:"Shop Owner",phone:"",upi:"",address:""},customers:[],tx:[],expenses:[],returns:[],reminders:[],settings:{theme:"light",language:"English"}}}
@@ -505,19 +505,30 @@ function renderKhata(){
     return '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'"><div onclick="customerView(\''+esc(c.id)+'\')" style="flex:1;cursor:pointer"><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone added")+(received>0?" • Total paid "+money(received):"")+'</small></div><div style="text-align:right">'+right+(!c.phone?'<button class="btn small" onclick="event.stopPropagation();addCustomerNumber(\''+esc(c.id)+'\')">＋ Add Mobile</button>':"")+'</div></div>';
   }).join("")||'<p class="muted">No customers found.</p>';
 }
+function filterCustomers(status){
+  customerStatusFilter=(customerStatusFilter===status)?"all":status;
+  renderCustomers();
+}
 function renderCustomers(){
   const box=document.getElementById("customerList");
   if(!box)return;
   const q=(document.getElementById("customerSearch")?.value||"").trim().toLowerCase();
-  const customers=state.customers.filter(c=>(c.name+" "+c.phone).toLowerCase().includes(q));
+  const dueCount=state.customers.filter(c=>balance(c.id)>0).length;
+  const clearCount=state.customers.length-dueCount;
+  const dueBtn=document.getElementById("customerDueFilter");
+  const clearBtn=document.getElementById("customerClearFilter");
+  if(dueBtn){dueBtn.innerHTML='<b id="customerDueCount">'+dueCount+'</b> with due';dueBtn.classList.toggle("active",customerStatusFilter==="due");dueBtn.setAttribute("aria-pressed",String(customerStatusFilter==="due"))}
+  if(clearBtn){clearBtn.innerHTML='<b id="customerPaidCount">'+clearCount+'</b> clear';clearBtn.classList.toggle("active",customerStatusFilter==="clear");clearBtn.setAttribute("aria-pressed",String(customerStatusFilter==="clear"))}
+  const customers=state.customers.filter(c=>{
+    const b=balance(c.id),matches=(c.name+" "+c.phone).toLowerCase().includes(q);
+    return matches&&(customerStatusFilter==="all"||(customerStatusFilter==="due"&&b>0)||(customerStatusFilter==="clear"&&b<=0));
+  });
   box.innerHTML=customers.map(c=>
-    '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" onclick="customerView(\''+esc(c.id)+'\')">'+
+    '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" onclick="customerView(\\''+esc(c.id)+'\\')">'+
       '<div><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone")+'</small></div>'+
+      '<b class="'+(balance(c.id)>0?"due":"paid")+'">'+(balance(c.id)>0?"Due ":"Clear ")+money(Math.abs(balance(c.id)))+'</b>'+
     '</div>'
-  ).join("") || '<p class="muted">No customers yet.</p>';
-  const due=state.customers.filter(c=>balance(c.id)>0).length;
-  document.getElementById("customerDueCount")&&(document.getElementById("customerDueCount").textContent=due);
-  document.getElementById("customerPaidCount")&&(document.getElementById("customerPaidCount").textContent=state.customers.length-due);
+  ).join("") || '<p class="muted">'+(customerStatusFilter==="due"?"No customers with due.":customerStatusFilter==="clear"?"No clear customers found.":"No customers yet.")+'</p>';
 }
 function renderBills(){const box=document.getElementById("billList");if(!box)return;box.innerHTML=sales().slice(0,50).map(t=>{const c=state.customers.find(x=>x.id===t.customerId);return'<div class="bill" data-long-delete data-delete-type="sale" data-delete-id="'+esc(t.id)+'" onclick="billView(\''+esc(t.id)+'\')"><div><h3>'+esc(c?.name||"Walk-in")+'</h3><small>'+new Date(t.date).toLocaleString("en-IN")+'</small></div><b>'+money(t.total)+'</b></div>'}).join("")||'<p class="muted">No bills yet.</p>'}
 function billView(id){const t=state.tx.find(x=>x.id===id);if(!t)return;const c=state.customers.find(x=>x.id===t.customerId);const lines=(t.lines||[]).map(l=>'<div class="line"><span>'+esc(l.name)+' × '+l.qty+'</span><b>'+money(l.total)+'</b></div>').join("");modal('<h2>Bill</h2><p><b>'+esc(c?.name||"Walk-in")+'</b><br><small>'+new Date(t.date).toLocaleString("en-IN")+'</small></p>'+lines+'<div class="line"><b>Total</b><b>'+money(t.total)+'</b></div><button class="btn" style="background:#dc2626" onclick="deleteSale(\''+esc(id)+'\')">Delete Bill</button>')}
