@@ -30,7 +30,7 @@ async function loadAll(){
   if(shopRow){write(K.shop,{id:shopRow.id,owner_id:user.id,name:shopRow.name,owner:shopRow.owner,phone:shopRow.phone,category:shopRow.category,area:shopRow.area,delivery:shopRow.delivery});fillShop(shopRow)}
   const shopSelect=$("marketShopFilter");
   if(!shopSelect){const sel=document.createElement("select");sel.id="marketShopFilter";sel.style.margin="0 0 12px";sel.innerHTML='<option value="all">🛍️ All published shops</option>'+remoteShops.map(s=>'<option value="'+esc(s.id)+'">'+esc(s.name)+' — '+esc(s.area)+'</option>').join("");$("categories")?.insertAdjacentElement("beforebegin",sel);sel.onchange=()=>{document.querySelectorAll("#catalog .product").forEach(card=>{card.style.display=sel.value==="all"||card.dataset.shopId===sel.value?"":"none"})}}
-  const cat=$("catalog");if(cat)paintCatalogWithShops();
+  $("search")?.dispatchEvent(new Event("input"));const cat=$("catalog");if(cat)paintCatalogWithShops();
   status("Shared marketplace connected: "+remoteShops.length+" shops and "+remoteProducts.length+" published products. Sign in with Google to manage your own shop.");
   if(user)await loadOwnerOrders();
  }catch(e){console.error("Dukaan Shop cloud:",e);status("Cloud database needs setup. Run supabase/dukaan-shop-marketplace.sql in Supabase SQL Editor. Current device preview remains available.")}
