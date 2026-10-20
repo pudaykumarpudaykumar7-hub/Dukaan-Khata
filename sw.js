@@ -1,4 +1,4 @@
-const CACHE="dukaan-khata-app-v71-dukaan-pay";
+const CACHE="dukaan-khata-app-v72-rewards-owner-orders";
 const CORE=["./","./index.html","./style.css","./app.js","./auth.js","./login-access.js","./i18n.js","./more-routing.js","./manifest.json","./universe.html","./shop.html","./shop-cloud.js","./dukaan-pay.html"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil((async()=>{const names=await caches.keys();await Promise.all(names.filter(n=>n.startsWith("dukaan-khata-app-")&&n!==CACHE).map(n=>caches.delete(n)));await self.clients.claim();})()));
