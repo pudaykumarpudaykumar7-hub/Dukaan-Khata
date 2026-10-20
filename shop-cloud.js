@@ -75,7 +75,7 @@ async function loadOwnerOrders(){
  if(!user)return;
  const {data,error}=await sb.from("dk_market_orders").select("*").eq("owner_id",user.id).order("created_at",{ascending:false});
  if(error){console.warn(error);return}
- const area=$("myOrders");if(!area)return;
+ const area=$("ownerOrders");if(!area)return;
  if(data?.length){const old=area.innerHTML;area.innerHTML=data.map(o=>'<div class="itemrow"><div class="grow"><b>Order '+esc(o.id)+' · '+esc(o.buyer_name)+'</b><div class="muted">'+esc(o.buyer_phone)+' · '+esc(o.delivery_method)+' · '+esc(new Date(o.created_at).toLocaleString())+'</div><div>'+esc((o.items||[]).map(i=>i.name+" × "+i.qty+" "+i.unit).join(", "))+'</div><b>₹'+Number(o.total).toLocaleString("en-IN")+'</b></div><span class="status">'+esc(o.status)+'</span><button class="btn alt" data-order-status="'+esc(o.id)+'">Mark accepted</button></div>').join("")+old;
   area.querySelectorAll("[data-order-status]").forEach(b=>b.onclick=async()=>{const {error}=await sb.from("dk_market_orders").update({status:"Accepted"}).eq("id",b.dataset.orderStatus).eq("owner_id",user.id);if(error)alert(error.message);else{b.textContent="Accepted ✓";b.disabled=true}});
  }
