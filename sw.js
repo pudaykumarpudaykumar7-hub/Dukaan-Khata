@@ -1,5 +1,5 @@
-const CACHE="dukaan-khata-app-v70-shared-marketplace";
-const CORE=["./","./index.html","./style.css","./app.js","./auth.js","./login-access.js","./i18n.js","./more-routing.js","./manifest.json","./universe.html","./shop.html","./shop-cloud.js"];
+const CACHE="dukaan-khata-app-v71-dukaan-pay";
+const CORE=["./","./index.html","./style.css","./app.js","./auth.js","./login-access.js","./i18n.js","./more-routing.js","./manifest.json","./universe.html","./shop.html","./shop-cloud.js","./dukaan-pay.html"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil((async()=>{const names=await caches.keys();await Promise.all(names.filter(n=>n.startsWith("dukaan-khata-app-")&&n!==CACHE).map(n=>caches.delete(n)));await self.clients.claim();})()));
 self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;const u=new URL(e.request.url);const fresh=e.request.mode==="navigate"||u.pathname.endsWith(".html")||u.pathname.endsWith(".js");if(fresh){e.respondWith(fetch(e.request).then(x=>{if(x.ok){const copy=x.clone();caches.open(CACHE).then(c=>c.put(e.request,copy)).catch(()=>{})}return x}).catch(()=>caches.match(e.request).then(r=>r||caches.match("./"))));return}e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(x=>{const copy=x.clone();caches.open(CACHE).then(c=>c.put(e.request,copy)).catch(()=>{});return x}).catch(()=>caches.match("./"))))});
