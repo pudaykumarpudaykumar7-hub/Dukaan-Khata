@@ -4069,3 +4069,9 @@ body:has(#languagePage.active) main{width:100%!important;max-width:none!importan
  #modal .digital-pass-qr-wrap canvas,#modal .digital-pass-qr-wrap img{width:70px!important;height:70px!important;max-width:70px!important;max-height:70px!important}
  #modal .digital-pass-info{left:14px!important;right:108px!important;bottom:23px!important}
 }
+
+/* Shop pass title and QR visibility fix */
+#modal .digital-pass .digital-pass-shop-name{color:#fff!important;font-weight:900!important;opacity:1!important;text-shadow:0 1px 2px #0005!important}
+#modal .digital-pass-qr-wrap{background:#fff!important;z-index:10!important}
+#modal .digital-pass-qr-wrap .digital-pass-qr{background:#fff!important;min-height:78px!important;min-width:78px!important}
+#modal .digital-pass-qr-wrap canvas,#modal .digital-pass-qr-wrap img{display:block!important;visibility:visible!important;opacity:1!important}
