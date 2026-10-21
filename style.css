@@ -3445,3 +3445,38 @@ body.dk-contact-fullscreen-open{overflow:hidden!important}
 #modal .dk-language-fullscreen .dk-language-panel{width:100%;box-sizing:border-box}
 #modal .dk-language-fullscreen .dk-language-close{display:none!important}
 @media(max-width:600px){#modal .dk-language-fullscreen{padding-left:16px!important;padding-right:16px!important}#modal:has(.dk-language-fullscreen) .sheet{padding:0!important}}
+
+
+/* Global rounded-layout refresh: consistently rounded on all four corners. */
+:root{--dk-layout-radius:20px;--dk-control-radius:14px}
+.card,.stat,.report-hero,.report-grid>div,.balance-hero,.dk-daily-metric,.quick,
+.luxury-tool,.customer-card,.khata-card,.bill-card,.activity-item,.tool-card,
+.dk-coach-card,.dk-club-card,.dk-club-feature-card,.dk-club-features>button,
+.dk-owner-dashboard>div,.dk-pass-shell,.dk-shop-profile-all,.dk-shop-profile-fields,
+.dk-language-panel,.dk-language-option,.dk-customer-hub-card,.dk-contact-card,
+.dk-login-card,.dk-receive-card,.dk-modal,.logo-editor,.outstanding-color-editor,
+.install-guide,.report-grid,.stat-grid,.quick-grid,.tools-grid,.dk-daily-metrics{
+  border-radius:var(--dk-layout-radius)!important;
+}
+#modal .sheet{border-radius:24px!important;overflow:hidden}
+#modal .dk-shop-profile-all{border-radius:24px!important;overflow:hidden;padding:18px!important;
+  background:linear-gradient(155deg,#f0fff9 0%,#e0f7f0 52%,#d5f2ed 100%)!important;
+  border:1px solid #b7e5d8!important;box-shadow:0 18px 48px #064e3b20!important}
+#modal .dk-shop-profile-all .dk-modal-head{border-radius:18px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field input,
+#modal .dk-shop-profile-all .dk-shop-profile-field textarea{border-radius:14px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-save{border-radius:16px!important}
+button,.btn,.primary,.secondary,.text-link,.khata-filter,.round,.quick,
+.top-menu button,.bottom-nav button,.bill-tools button,.home-tools button{
+  border-radius:var(--dk-control-radius);
+}
+input,select,textarea,.search{border-radius:13px!important}
+@media(max-width:600px){
+  .card,.stat,.report-hero,.report-grid>div,.balance-hero,.dk-daily-metric,.quick,
+  .luxury-tool,.customer-card,.khata-card,.bill-card,.dk-coach-card,.dk-club-card,
+  .dk-shop-profile-all,.dk-language-panel,.dk-customer-hub-card,.dk-login-card,
+  .dk-receive-card,.install-guide{border-radius:18px!important}
+  #modal:has(.dk-shop-profile-all) .sheet{width:calc(100vw - 16px)!important;max-width:none!important;
+    border-radius:24px!important;padding:8px!important}
+  #modal .dk-shop-profile-all{padding:16px!important}
+}
