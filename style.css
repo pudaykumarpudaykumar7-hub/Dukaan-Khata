@@ -3604,3 +3604,10 @@ body:has(#languagePage.active) main{width:100%!important;max-width:none!importan
 #languagePage .dk-lang-name small{display:inline!important;flex:0 1 auto!important;min-width:0!important;font-size:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 #languagePage .dk-lang-name small:before{content:"· ";color:#69ead1!important}
 @media(max-width:380px){#languagePage .dk-lang-name{gap:3px!important}#languagePage .dk-lang-name b{font-size:9px!important}#languagePage .dk-lang-name small{font-size:8px!important}}
+
+
+/* Show every language in one vertical list with touch-friendly up/down scrolling. */
+#languagePage .dk-language-list{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:none!important;grid-auto-flow:row!important;grid-auto-rows:minmax(42px,auto)!important;flex:1 1 auto!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:contain!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:thin!important;scrollbar-color:#49d9c0 #ffffff12!important;padding:0 3px 4px 0!important;gap:5px!important}
+#languagePage .dk-lang-option{height:auto!important;min-height:42px!important;box-sizing:border-box!important}
+#languagePage .dk-lang-name{overflow:hidden!important}
+@media(max-height:650px){#languagePage .dk-language-list{grid-auto-rows:minmax(38px,auto)!important;gap:3px!important}#languagePage .dk-lang-option{min-height:38px!important}}
