@@ -2688,3 +2688,40 @@ body:not(.darkmode) :focus-visible{outline:2px solid #16845b!important;outline-o
  body:not(.darkmode) .row{gap:7px!important}
 }
 @media(prefers-reduced-motion:reduce){body:not(.darkmode) *,body:not(.darkmode) *::before,body:not(.darkmode) *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+/* ===== ONE-BOX DAILY BUSINESS SUMMARY ===== */
+body:not(.darkmode) .balance-hero.dk-today-summary{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) auto!important;
+ grid-template-rows:auto auto!important;
+ align-items:center!important;
+ column-gap:18px!important;
+ row-gap:14px!important;
+ padding:clamp(16px,2.5vw,24px)!important;
+ background:linear-gradient(125deg,#176b4c,#16845b)!important;
+ border:1px solid #13744f!important;
+ border-radius:16px!important;
+ color:#fff!important;
+}
+body:not(.darkmode) .dk-balance-main{min-width:0;grid-column:1;grid-row:1}
+body:not(.darkmode) .dk-balance-main .dk-summary-label{display:block;color:#e2f5e9!important;font-size:12px!important;font-weight:750!important;letter-spacing:.02em}
+body:not(.darkmode) .dk-balance-main #totalDue{display:block;color:#fff!important;font-size:clamp(30px,4vw,42px)!important;line-height:1.18!important;letter-spacing:-1px!important;margin:5px 0 10px!important;font-variant-numeric:tabular-nums}
+body:not(.darkmode) .dk-today-metrics{grid-column:1;grid-row:2;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;min-width:0}
+body:not(.darkmode) .dk-today-metric{min-width:0;padding:11px 12px!important;border:1px solid #ffffff38!important;border-radius:11px!important;background:#ffffff14!important;display:flex!important;flex-direction:column!important;gap:4px!important}
+body:not(.darkmode) .dk-today-metric>span{color:#e2f5e9!important;font-size:11px!important;font-weight:700!important}
+body:not(.darkmode) .dk-today-metric>b{color:#fff!important;font-size:clamp(17px,2.2vw,23px)!important;line-height:1.25!important;font-weight:850!important;letter-spacing:-.35px!important;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+body:not(.darkmode) .dk-today-metric>small{color:#e2f5e9!important;font-size:10px!important}
+body:not(.darkmode) .dk-today-summary .hero-meta{gap:7px!important}
+body:not(.darkmode) .dk-today-summary .hero-meta span{color:#fff!important;border-color:#ffffff42!important;background:#ffffff10!important}
+body:not(.darkmode) .dk-today-summary .hero-ring{grid-column:2;grid-row:1 / span 2;align-self:center;width:58px!important;height:58px!important;border-color:#ffffff45!important;background:#ffffff12!important;font-size:20px!important}
+body:not(.darkmode) .stat-grid:has(#customerCount){grid-template-columns:minmax(0,1fr)!important}
+@media(max-width:599px){
+ body:not(.darkmode) .balance-hero.dk-today-summary{grid-template-columns:minmax(0,1fr) 42px!important;column-gap:10px!important;row-gap:12px!important;padding:15px!important}
+ body:not(.darkmode) .dk-balance-main #totalDue{font-size:29px!important}
+ body:not(.darkmode) .dk-today-metrics{gap:7px!important}
+ body:not(.darkmode) .dk-today-metric{padding:10px 9px!important}
+ body:not(.darkmode) .dk-today-metric>b{font-size:17px!important}
+ body:not(.darkmode) .dk-today-summary .hero-ring{width:40px!important;height:40px!important;font-size:13px!important}
+}
+@media(prefers-reduced-motion:reduce){body:not(.darkmode) .dk-today-summary *{transition:none!important;animation:none!important}}
