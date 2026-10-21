@@ -3433,3 +3433,15 @@ body.dk-contact-fullscreen-open{overflow:hidden!important}
 #modal .dk-shop-profile-all .dk-shop-profile-save{display:block;width:100%;min-height:48px;margin-top:4px;border:0!important;border-radius:14px!important;background:linear-gradient(110deg,#087f72,#0eaa88)!important;color:#fff!important;font-weight:850!important;box-shadow:0 8px 18px #087f7225!important}
 #modal .dk-shop-profile-all .dk-shop-step-foot{margin:12px 4px 0}
 @media(max-width:520px){#modal:has(.dk-shop-profile-all) .sheet{width:calc(100vw - 16px);max-width:none;padding:10px!important;border-radius:24px!important}#modal .dk-shop-profile-all{padding:14px!important}#modal .dk-shop-profile-all .dk-shop-profile-fields{gap:10px;margin:14px 0}#modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{padding:12px!important}}
+
+
+/* Language selector full-screen view with persistent top Back control */
+#modal:has(.dk-language-fullscreen){position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-height:100dvh!important;padding:0!important;margin:0!important;align-items:stretch!important;justify-content:stretch!important;overflow:hidden!important;border-radius:0!important;z-index:2147483000!important}
+#modal:has(.dk-language-fullscreen) .sheet{width:100%!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;min-height:100dvh!important;margin:0!important;padding:0!important;border-radius:0!important;overflow-y:auto!important;overscroll-behavior:contain!important}
+#modal .dk-language-fullscreen{box-sizing:border-box;min-height:100dvh;width:100%;padding:calc(env(safe-area-inset-top,0px) + 18px) 20px calc(env(safe-area-inset-bottom,0px) + 24px)!important;border:0!important;border-radius:0!important;display:flex;flex-direction:column;justify-content:flex-start}
+#modal .dk-language-fullscreen .dk-language-back{align-self:flex-start;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;margin:0 0 22px;border:1px solid #f0abff66;border-radius:14px;background:#ffffff12;color:#fff;font-size:14px;font-weight:800;cursor:pointer}
+#modal .dk-language-fullscreen .dk-language-top{margin-bottom:14px}
+#modal .dk-language-fullscreen .dk-language-world{flex-shrink:0}
+#modal .dk-language-fullscreen .dk-language-panel{width:100%;box-sizing:border-box}
+#modal .dk-language-fullscreen .dk-language-close{display:none!important}
+@media(max-width:600px){#modal .dk-language-fullscreen{padding-left:16px!important;padding-right:16px!important}#modal:has(.dk-language-fullscreen) .sheet{padding:0!important}}
