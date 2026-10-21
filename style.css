@@ -3174,3 +3174,59 @@ body.darkmode #modal .dk-language-world{background:radial-gradient(circle at 50%
 #modal:has(.digital-pass-modal) .digital-pass-shop-name{font-family:Georgia,serif!important;letter-spacing:.1px!important}
 #modal:has(.digital-pass-modal) .digital-pass-upi{display:inline-block!important;margin-top:13px!important;padding:7px 12px!important;border:1px solid #ffffff4a!important;border-radius:999px!important;background:#ffffff12!important}
 @media(prefers-reduced-motion:reduce){#tools [data-more-feature="smart-receive"],#tools [data-more-feature="shop-profile"],#tools [data-more-feature="customer-contact"],#tools [data-more-feature="login-access"],#tools [data-more-feature="club-pass"]{transition:none!important}}
+
+
+/* Dukaan Khata signature themes v2 — selected palettes + live motion */
+:root{--dk-motion-fast:220ms;--dk-motion-slow:620ms;--dk-emerald:#087f5b;--dk-champagne:#f3d99a;--dk-ocean:#0878b9;--dk-ivory:#fffdf6;--dk-forest:#123d2d}
+@keyframes dkLiveShimmer{0%{background-position:0% 50%;filter:saturate(1)}50%{background-position:100% 50%;filter:saturate(1.13)}100%{background-position:0% 50%;filter:saturate(1)}}
+@keyframes dkLiveFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes dkLiveGlow{0%,100%{box-shadow:0 10px 28px #087f5b18, inset 0 1px #ffffffb8}50%{box-shadow:0 16px 36px #087f5b35, inset 0 1px #ffffffd9}}
+@keyframes dkLiveBorder{0%,100%{border-color:#8ed9bd}50%{border-color:#e8c878}}
+/* Smart Receive — translucent emerald glass */
+#modal:has(.receive-tabs) .sheet,#modal:has(.qr-card) .sheet{background:linear-gradient(145deg,#e8fff5f5,#f8fffcf5 48%,#d8f7e9f5)!important;border:1px solid #9adfc5!important;box-shadow:0 20px 70px #064e3b35!important;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+#modal:has(.receive-tabs) .receive-tabs,#modal:has(.qr-card) .receive-tabs{background:#d5f5e8b8!important;border-color:#9adfc5!important;backdrop-filter:blur(14px)}
+#modal:has(.receive-tabs) .receive-tabs button.active,#modal:has(.qr-card) .receive-tabs button.active{background:linear-gradient(120deg,#075b45,#0e9f6e,#087f5b)!important;background-size:220% 220%!important;color:#fff!important;animation:dkLiveShimmer 7s ease infinite}
+#modal:has(.qr-card) .qr-card{background:linear-gradient(145deg,#ffffffed,#e5fff3d9)!important;border-color:#a8e3cd!important;box-shadow:0 12px 32px #087f5b18!important}
+#modal:has(.receive-tabs) .btn.primary,#modal:has(.qr-card) .btn.primary{background:linear-gradient(110deg,#075b45,#0e9f6e,#087f5b)!important;background-size:220% 220%!important;animation:dkLiveShimmer 8s ease infinite}
+/* Shop Profile — emerald enamel + champagne */
+#modal:has(.dk-modal.dk-shop-theme) .dk-modal-head{background:linear-gradient(115deg,#0b4c39,#087f5b 55%,#d7b86a)!important;border:1px solid #e8d39a!important;box-shadow:0 12px 28px #087f5b20!important}
+#modal:has(.dk-modal.dk-shop-theme) .dk-modal-head h2,#modal:has(.dk-modal.dk-shop-theme) .dk-modal-head small{color:#fffdf2!important}
+#modal:has(.dk-modal.dk-shop-theme) .dk-modal-icon{background:linear-gradient(145deg,#fff1bd,#d8b45d)!important;color:#174a36!important;box-shadow:0 5px 16px #0002!important}
+#modal:has(.dk-modal.dk-shop-theme) .dk-modal-head{animation:dkLiveBorder 6s ease-in-out infinite}
+/* Customer Contact — crisp ocean blue */
+#modal:has(.hub-actions) .sheet{background:linear-gradient(155deg,#edf9ff,#f8fcff 55%,#e1f3ff)!important;border:1px solid #a6dafa!important}
+#modal:has(.hub-actions) .hub-actions .btn{background:linear-gradient(115deg,#075985,#0878b9,#38a5df)!important;background-size:220% 220%!important;border:1px solid #7bc5ee!important;box-shadow:0 8px 20px #0878b926!important;animation:dkLiveShimmer 9s ease infinite}
+#modal:has(.hub-actions) h2,#modal:has(.hub-actions) h3{color:#084b78}
+/* Login Access — clean ivory, legible, calm */
+#dkLoginAccessStandalone .dk-access-shell,#modal .dk-access-shell{background:linear-gradient(145deg,#fffdf6,#f4f0e5 72%,#e8e1d2)!important;color:#24352e!important;border:1px solid #e1d4b8!important;box-shadow:0 20px 60px #11182735!important}
+#dkLoginAccessStandalone .dk-access-shell h2,#dkLoginAccessStandalone .dk-access-shell p,#dkLoginAccessStandalone .dk-access-shell .dk-login-badge,#modal .dk-access-shell h2,#modal .dk-access-shell .dk-login-badge{color:#263c32!important}
+#dkLoginAccessStandalone .dk-access-card,#modal .dk-access-shell .dk-access-card{background:linear-gradient(115deg,#fff,#f5f0e4)!important;color:#263c32!important;border:1px solid #ded2b7!important;box-shadow:0 6px 18px #6d5b3712!important}
+#dkLoginAccessStandalone .dk-access-card b,#dkLoginAccessStandalone .dk-access-card small,#modal .dk-access-shell .dk-access-card b,#modal .dk-access-shell .dk-access-card small{color:#33483d!important}
+#dkLoginAccessStandalone .dk-access-card.owner,#modal .dk-access-shell .dk-access-card.owner{border-left:4px solid #087f5b!important}
+#dkLoginAccessStandalone .dk-access-card.customer,#modal .dk-access-shell .dk-access-card.customer{border-left:4px solid #0878b9!important}
+/* Digital Shop Pass — royal forest and champagne gold */
+#modal:has(.digital-pass-modal) .digital-pass{position:relative;overflow:hidden;background:radial-gradient(ellipse at 95% 0%,#d6b65c55,transparent 38%),linear-gradient(140deg,#092b20 0%,#14543a 48%,#1c6846 100%)!important;border:1px solid #e9ce7b!important;box-shadow:0 22px 48px #082f223d,inset 0 1px #ffffff32!important;animation:dkLiveGlow 7s ease-in-out infinite}
+#modal:has(.digital-pass-modal) .digital-pass:after{content:"";position:absolute;inset:8px;border:1px solid #e8cf865e;border-radius:21px;pointer-events:none}
+#modal:has(.digital-pass-modal) .pass-logo{background:linear-gradient(145deg,#fff0ae,#c49a3b)!important;color:#123d2d!important;box-shadow:0 0 0 4px #f3d99a20,0 9px 26px #d6b65c45!important;animation:dkLiveFloat 5s ease-in-out infinite}
+#modal:has(.digital-pass-modal) .digital-pass-shop-name{color:#fff7d9!important;text-shadow:0 2px 16px #0005!important;font-family:Georgia,serif!important;font-weight:800!important;overflow-wrap:anywhere}
+#modal:has(.digital-pass-modal) .digital-pass p{color:#d7eadc!important}
+#modal:has(.digital-pass-modal) .digital-pass-upi{border-color:#f3d99a99!important;background:#f3d99a18!important;color:#fff0b7!important}
+/* Live motion on the five feature cards; touch-friendly and data-neutral */
+#tools [data-more-feature="smart-receive"],#tools [data-more-feature="shop-profile"],#tools [data-more-feature="customer-contact"],#tools [data-more-feature="login-access"],#tools [data-more-feature="club-pass"]{background-size:220% 220%!important;transition:transform var(--dk-motion-fast) ease,box-shadow var(--dk-motion-fast) ease,filter var(--dk-motion-fast) ease!important;animation:dkLiveShimmer 12s ease-in-out infinite,dkLiveBorder 8s ease-in-out infinite}
+#tools [data-more-feature="smart-receive"]{background-image:linear-gradient(125deg,#e7fff4,#a9ebd0 48%,#d9fff0)!important;color:#075b45!important;border-color:#8bd9ba!important}
+#tools [data-more-feature="smart-receive"] b,#tools [data-more-feature="smart-receive"] small{color:#075b45!important}
+#tools [data-more-feature="smart-receive"]:before{background:linear-gradient(145deg,#087f5b,#34d399)!important;color:#fff!important}
+#tools [data-more-feature="shop-profile"]{background-image:linear-gradient(125deg,#0b4c39,#087f5b 58%,#d7b86a)!important;border-color:#e8d39a!important;color:#fffdf2!important}
+#tools [data-more-feature="shop-profile"] b,#tools [data-more-feature="shop-profile"] small{color:#fffdf2!important}
+#tools [data-more-feature="shop-profile"]:before{background:linear-gradient(145deg,#fff1bd,#d8b45d)!important;color:#174a36!important}
+#tools [data-more-feature="customer-contact"]{background-image:linear-gradient(125deg,#effaff,#bfe8ff 48%,#d9f3ff)!important;border-color:#8dcff1!important;color:#084b78!important}
+#tools [data-more-feature="customer-contact"] b,#tools [data-more-feature="customer-contact"] small{color:#084b78!important}
+#tools [data-more-feature="customer-contact"]:before{background:linear-gradient(145deg,#075985,#38a5df)!important;color:#fff!important}
+#tools [data-more-feature="login-access"]{background-image:linear-gradient(125deg,#fffdf6,#f4f0e5 55%,#e8e1d2)!important;border-color:#ded2b7!important;color:#263c32!important}
+#tools [data-more-feature="login-access"] b,#tools [data-more-feature="login-access"] small{color:#263c32!important}
+#tools [data-more-feature="login-access"]:before{background:linear-gradient(145deg,#fff,#d9cfb8)!important;color:#263c32!important}
+#tools [data-more-feature="club-pass"]{background-image:linear-gradient(125deg,#092b20,#14543a 58%,#c49a3b)!important;border-color:#e9ce7b!important;color:#fff7d9!important}
+#tools [data-more-feature="club-pass"] b,#tools [data-more-feature="club-pass"] small{color:#fff7d9!important}
+#tools [data-more-feature="club-pass"]:before{background:linear-gradient(145deg,#fff0ae,#c49a3b)!important;color:#123d2d!important}
+#tools [data-more-feature]:hover{transform:translateY(-3px) scale(1.008)!important;filter:saturate(1.12)!important;box-shadow:0 16px 34px #063c2b22!important}
+@media(prefers-reduced-motion:reduce){#tools [data-more-feature],#modal:has(.receive-tabs) .receive-tabs button.active,#modal:has(.qr-card) .receive-tabs button.active,#modal:has(.digital-pass-modal) .digital-pass,#modal:has(.digital-pass-modal) .pass-logo{animation:none!important;transition:none!important}}
