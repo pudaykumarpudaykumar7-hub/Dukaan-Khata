@@ -2354,3 +2354,129 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   .bottom-nav button span{font-size:9px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+
+/* DUKAAN UNIVERSE — SKY BLUE LIVE THEME */
+:root{
+  --bg:#eaf7ff;
+  --surface:#ffffff;
+  --text:#15334b;
+  --muted:#5d7b91;
+  --line:#d0e9f8;
+  --primary:#168bd0;
+  --primary2:#36b8f2;
+  --shadow:0 8px 24px rgba(24,126,190,.10);
+}
+html{background:#eaf7ff}
+body{
+  color:#15334b!important;
+  background:linear-gradient(-35deg,#eaf7ff,#d7f1ff,#f5fcff,#c9ebff)!important;
+  background-size:300% 300%!important;
+  animation:dukaanSkyDrift 20s ease-in-out infinite;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(circle at 12% 18%,rgba(71,190,255,.20),transparent 28%),
+    radial-gradient(circle at 88% 28%,rgba(97,218,255,.19),transparent 26%),
+    radial-gradient(circle at 55% 92%,rgba(83,160,255,.12),transparent 32%);
+  animation:dukaanCloudFloat 16s ease-in-out infinite alternate;
+}
+@keyframes dukaanSkyDrift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes dukaanCloudFloat{from{transform:translate3d(-1%,0,0) scale(1)}to{transform:translate3d(1%,1%,0) scale(1.035)}}
+.topbar{
+  background:linear-gradient(115deg,#0879bd,#159fe0 52%,#42c4f4)!important;
+  color:#fff!important;border:0!important;
+  box-shadow:0 8px 26px rgba(14,130,194,.22)!important;
+  backdrop-filter:blur(14px);
+}
+.topbar .brand h1,.topbar .brand small{color:#fff!important}
+.top-menu button,.round{
+  color:#fff!important;background:rgba(255,255,255,.16)!important;
+  border-color:rgba(255,255,255,.34)!important;
+}
+.balance-hero,.report-hero{
+  color:#fff!important;
+  background:linear-gradient(125deg,#0879bd,#139fe0 58%,#43c6f4)!important;
+  border:1px solid rgba(255,255,255,.62)!important;
+  box-shadow:0 12px 30px rgba(15,140,207,.22)!important;
+}
+.balance-hero *,.report-hero *{color:inherit}
+.hero-ring{border-color:rgba(255,255,255,.55)!important;background:rgba(255,255,255,.13)!important}
+.stat,.quick,.customer,.item,.activity,.bill,.card,.tools-grid button,
+.report-grid>div,.inventory-cards>div,.qr-card,.digital-pass{
+  background:rgba(255,255,255,.88)!important;
+  color:#15334b!important;
+  border:1px solid rgba(169,220,247,.8)!important;
+  box-shadow:0 6px 18px rgba(24,126,190,.075)!important;
+}
+.stat span,.stat small,.quick small,.customer small,.item small,.bill small,
+.activity small,.muted,.eyebrow{color:#5d7b91}
+.quick span,.tools-grid b,.tools-grid button,.customer h3,.item h3,.bill h3{color:#15334b!important}
+button,.btn,a,.quick,.stat,.customer,.item,.activity,.bill,.card,
+.tools-grid button,.bottom-nav button,.khata-filter,.mini-stats button,
+.top-menu button,.round,.hero-ring,.report-grid>div,.inventory-cards>div{
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease,
+    background-color .22s ease,border-color .22s ease,filter .22s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+button,a,.quick,.tools-grid button,.bottom-nav button,.khata-filter,.mini-stats button{
+  position:relative;
+}
+button:hover,a:hover,.quick:hover,.stat:hover,.customer:hover,.item:hover,
+.activity:hover,.bill:hover,.card:hover,.tools-grid button:hover,
+.report-grid>div:hover,.inventory-cards>div:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 24px rgba(15,143,210,.16)!important;
+  border-color:#8dd7fb!important;
+}
+button:active,a:active,.quick:active,.tools-grid button:active,
+.bottom-nav button:active,.khata-filter:active,.mini-stats button:active{
+  transform:scale(.97);
+  filter:brightness(.98);
+}
+.btn.primary,.primary,.tools-grid button.primary{
+  color:#fff!important;
+  background:linear-gradient(115deg,#087fc2,#23b4ed)!important;
+  border-color:transparent!important;
+  box-shadow:0 5px 15px rgba(12,145,210,.20)!important;
+}
+input,select,textarea,.search{
+  color:#15334b!important;background:rgba(255,255,255,.96)!important;
+  border:1px solid #c7e5f7!important;
+}
+input:focus,select:focus,textarea:focus,.search:focus{
+  border-color:#28a9e8!important;box-shadow:0 0 0 4px rgba(40,169,232,.14)!important;
+}
+.bottom-nav{
+  background:rgba(247,252,255,.94)!important;border-top:1px solid #cfe9f8!important;
+  box-shadow:0 -7px 24px rgba(24,126,190,.08)!important;
+  backdrop-filter:blur(18px);
+}
+.bottom-nav button{color:#4b7897!important}
+.bottom-nav button.active,.bottom-nav button[aria-current="page"]{color:#078bd0!important}
+.sheet{background:#f4fbff!important;color:#15334b!important;border-color:#cfe9f8!important}
+.modal{background:rgba(10,63,95,.38)!important;backdrop-filter:blur(5px)}
+.toast{background:#0879bd!important;color:#fff!important}
+.close{background:#d9f0ff!important;color:#155077!important}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:3px solid #48c5fa!important;outline-offset:3px;
+}
+@keyframes dukaanOptionGlow{
+  0%,100%{box-shadow:0 5px 16px rgba(24,126,190,.07)}
+  50%{box-shadow:0 8px 22px rgba(24,165,230,.15)}
+}
+.quick,.tools-grid button,.bottom-nav button,.khata-filter,.mini-stats button{
+  animation:dukaanOptionGlow 5s ease-in-out infinite;
+}
+.quick:nth-child(2n),.tools-grid button:nth-child(2n),.stat:nth-child(2n){animation-delay:-2.5s}
+@media(max-width:720px){
+  body{background-size:260% 260%!important}
+  .topbar{background:linear-gradient(115deg,#0879bd,#20a9e8,#42c4f4)!important}
+  .quick,.tools-grid button,.bottom-nav button{animation-duration:6s}
+}
+@media(prefers-reduced-motion:reduce){
+  body,body::before,.quick,.tools-grid button,.bottom-nav button,.khata-filter,.mini-stats button{animation:none!important}
+  *,*::before,*::after{transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
