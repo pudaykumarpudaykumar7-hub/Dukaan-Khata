@@ -2725,3 +2725,11 @@ body:not(.darkmode) .stat-grid:has(#customerCount){grid-template-columns:minmax(
  body:not(.darkmode) .dk-today-summary .hero-ring{width:40px!important;height:40px!important;font-size:13px!important}
 }
 @media(prefers-reduced-motion:reduce){body:not(.darkmode) .dk-today-summary *{transition:none!important;animation:none!important}}
+
+/* Home-screen theme design shortcut */
+.home-tools{display:flex;align-items:center;gap:7px}
+.home-theme-design{width:36px;height:36px;display:inline-grid;place-items:center;border:1px solid #dce7e0;border-radius:11px;background:#fff;color:#16845b;font-size:16px;line-height:1;box-shadow:none;padding:0}
+.home-theme-design:focus-visible{outline:2px solid #16845b;outline-offset:2px}
+.home-theme-design:hover{background:#eaf7ef;border-color:#16845b}
+.pwa-install-btn[hidden]{display:none!important}
+@media(max-width:599px){.home-theme-design{width:34px;height:34px;border-radius:10px;font-size:15px}}
