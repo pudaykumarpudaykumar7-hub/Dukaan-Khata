@@ -116,14 +116,22 @@
     try{if(window.state&&window.state.settings){window.state.settings.language=x;if(typeof window.saveState==="function")window.saveState()}}catch(e){}
     window.applyLanguage();
     const m=document.getElementById("modal");if(m)m.classList.add("hidden");
+    const languagePage=document.getElementById("languagePage");if(languagePage&&languagePage.classList.contains("active")&&typeof window.showPage==="function")window.showPage("tools");
     try{if(typeof toast==="function")toast("Language: "+x+" ✓")}catch(e){}
   };
   window.openLanguage=function(){
     const selected=current();
     const nativeNames={English:"English",Hindi:"हिन्दी",Telugu:"తెలుగు",Kannada:"ಕನ್ನಡ",Marathi:"मराठी",Bengali:"বাংলা",Assamese:"অসমীয়া",Gujarati:"ગુજરાતી",Malayalam:"മലയാളം",Punjabi:"ਪੰਜਾਬੀ",Odia:"ଓଡ଼ିଆ",Tamil:"தமிழ்",Urdu:"اردو",Kashmiri:"کٲشُر",Konkani:"कोंकणी",Manipuri:"ꯃꯤꯇꯩ ꯂꯣꯟ",Sanskrit:"संस्कृतम्",Maithili:"मैथिली",Nepali:"नेपाली",Sindhi:"سنڌي",Dogri:"डोगरी",Bodo:"बड़ो",Santali:"ᱥᱟᱱᱛᱟᱲᱤ"};
-    const options=keys.map(x=>'<button type="button" class="dk-lang-option'+(x===selected?' is-selected':'')+'" data-lang="'+x+'"><span class="dk-lang-flag">'+(x==="English"?"🇬🇧":"🇮🇳")+'</span><span class="dk-lang-name"><b>'+x+'</b><span class="dk-lang-arrow">→</span><small>'+(nativeNames[x]||x)+'</small></span><i>'+(x===selected?'✓':'○')+'</i></button>').join("");
-    modal('<div class="dk-language-showcase dk-language-fullscreen"><button type="button" class="dk-language-back" onclick="closeModal()" aria-label="Back to More">← Back</button><div class="dk-language-top"><div class="dk-language-brand"><span>PERSONALIZE</span><h2>Language</h2><small>Choose your app language</small></div><b class="dk-language-pro">✦ INDIA • 23 LANGUAGES</b></div><div class="dk-language-panel"><div class="dk-language-panel-title"><span>🌐</span><div><b>Choose your language</b><small>All 23 Indian languages</small></div></div><div class="dk-language-list">'+options+'</div></div><div class="dk-language-save">🌐 <span>Your preferred language is saved automatically</span><b>✓</b></div></div>');
-    document.querySelectorAll(".dk-language-showcase .dk-lang-option").forEach(b=>b.addEventListener("click",function(){window.setLanguage(this.dataset.lang)}));
+    const options=keys.map(x=>'<button type="button" class="dk-lang-option'+(x===selected?' is-selected':'')+'" data-lang="'+x+'"><span class="dk-lang-flag">'+(x==="English"?"🇬🇧":"🇮🇳")+'</span><span class="dk-lang-name"><b>'+x+'</b><small>'+(nativeNames[x]||x)+'</small></span><i>'+(x===selected?'✓':'○')+'</i></button>').join("");
+    const markup='<div class="dk-language-showcase dk-language-fullscreen"><button type="button" class="dk-language-back" id="dkLanguageBack" aria-label="Back to More">← Back</button><div class="dk-language-top"><div class="dk-language-brand"><span>PERSONALIZE</span><h2>Language</h2><small>Choose your app language</small></div><b class="dk-language-pro">✦ INDIA • 23 LANGUAGES</b></div><div class="dk-language-panel"><div class="dk-language-panel-title"><span>🌐</span><div><b>Choose your language</b><small>All 23 Indian languages</small></div></div><div class="dk-language-list">'+options+'</div></div><div class="dk-language-save">🌐 <span>Your preferred language is saved automatically</span><b>✓</b></div></div>';
+    let page=document.getElementById("languagePage");
+    if(!page){page=document.createElement("section");page.id="languagePage";page.className="page dk-language-page";document.querySelector("main")?.appendChild(page);}
+    page.innerHTML=markup;
+    const m=document.getElementById("modal");if(m)m.classList.add("hidden");
+    page.querySelector("#dkLanguageBack")?.addEventListener("click",()=>{if(typeof window.showPage==="function")window.showPage("tools");else page.classList.remove("active");});
+    page.querySelectorAll(".dk-lang-option").forEach(b=>b.addEventListener("click",function(){window.setLanguage(this.dataset.lang)}));
+    if(typeof window.showPage==="function")window.showPage("languagePage");
+    else{document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));page.classList.add("active");}
   };
   document.addEventListener("DOMContentLoaded",()=>setTimeout(window.applyLanguage,100));
 })();
