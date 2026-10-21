@@ -4194,3 +4194,36 @@ body:has(#languagePage.active) main{width:100%!important;max-width:none!importan
  #modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:36px!important;padding:7px!important}
  #modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:52px!important}
 }
+
+/* Final compact sizing for Smart Receive and Shop Profile popups */
+#modal:has(.dukaan-pay-shell){padding:8px!important;align-items:center!important}
+#modal:has(.dukaan-pay-shell) .sheet{width:calc(100vw - 28px)!important;max-width:460px!important;max-height:calc(100dvh - 32px)!important;overflow-y:auto!important;padding:12px!important;border-radius:20px!important}
+#modal:has(.dukaan-pay-shell) .dukaan-pay-shell{gap:7px!important}
+#modal:has(.dukaan-pay-shell) .dukaan-pay-head{padding:9px!important;gap:9px!important;border-radius:13px!important}
+#modal:has(.dukaan-pay-shell) .dukaan-pay-head h2{font-size:18px!important}
+#modal:has(.dukaan-pay-shell) .dukaan-pay-icon{flex-basis:36px!important;width:36px!important;height:36px!important;border-radius:11px!important;font-size:20px!important}
+#modal:has(.dukaan-pay-shell) .receive-tabs{padding:3px!important;gap:4px!important}
+#modal:has(.dukaan-pay-shell) .receive-tabs button{min-height:34px!important;border-radius:9px!important;font-size:13px!important}
+#modal:has(.dukaan-pay-shell) #qrCustomer,#modal:has(.dukaan-pay-shell) #payCustomer,#modal:has(.dukaan-pay-shell) #qrAmount,#modal:has(.dukaan-pay-shell) #payAmount,#modal:has(.dukaan-pay-shell) #payMode{min-height:40px!important;padding:8px 10px!important;border-radius:10px!important;font-size:14px!important}
+#modal:has(.dukaan-pay-shell) .smart-receive-quick{gap:5px!important;padding:8px!important;border-radius:11px!important}
+#modal:has(.dukaan-pay-shell) .smart-receive-chips{gap:5px!important}
+#modal:has(.dukaan-pay-shell) .smart-receive-chips button{min-height:32px!important;padding:6px 9px!important;border-radius:9px!important;font-size:11px!important}
+#modal:has(.dukaan-pay-shell) .qr-card{padding:9px!important;border-radius:13px!important}
+#modal:has(.dukaan-pay-shell) #sharePayBtn,#modal:has(.dukaan-pay-shell) #copyPayBtn,#modal:has(.dukaan-pay-shell) #savePaymentBtn{min-height:38px!important;border-radius:10px!important;font-size:13px!important}
+#modal:has(.dk-shop-profile-all){padding:8px!important;align-items:center!important}
+#modal:has(.dk-shop-profile-all) .sheet{width:calc(100vw - 28px)!important;max-width:460px!important;max-height:calc(100dvh - 32px)!important;overflow-y:auto!important;padding:10px!important;border-radius:18px!important}
+#modal .dk-shop-profile-all{padding:8px!important;border-radius:14px!important}
+#modal .dk-shop-profile-all .dk-modal-head{padding:9px!important;border-radius:13px!important}
+#modal .dk-shop-profile-all .dk-modal-icon{border-radius:10px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-fields{gap:4px!important;margin:6px 0!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field{padding:7px!important;border-radius:10px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field label{margin-bottom:3px!important;font-size:12px!important;line-height:1.15!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{padding:7px!important;min-height:36px!important;border-radius:8px!important;font-size:14px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:48px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-save{min-height:38px!important;border-radius:10px!important}
+#modal .dk-shop-profile-all .dk-shop-step-foot{margin-top:5px!important;font-size:10px!important}
+@media(max-width:480px){
+ #modal:has(.dukaan-pay-shell) .sheet{width:calc(100vw - 28px)!important;max-height:calc(100dvh - 28px)!important;padding:10px!important}
+ #modal:has(.dk-shop-profile-all) .sheet{width:calc(100vw - 28px)!important;max-height:calc(100dvh - 28px)!important;padding:8px!important}
+ #modal .dk-shop-profile-all .dk-shop-profile-fields{grid-template-columns:minmax(0,1fr)!important;gap:4px!important}
+}
