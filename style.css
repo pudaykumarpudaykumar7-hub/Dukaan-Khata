@@ -2765,3 +2765,28 @@ body.darkmode .quick-grid>button.quick.gold{background:linear-gradient(135deg,#6
 body.darkmode .quick-grid>button.quick.blue span,body.darkmode .quick-grid>button.quick.blue small,
 body.darkmode .quick-grid>button.quick.orange span,body.darkmode .quick-grid>button.quick.orange small,
 body.darkmode .quick-grid>button.quick.gold span,body.darkmode .quick-grid>button.quick.gold small{color:#fff!important}
+
+
+/* Outstanding-only Home summary — compact premium emerald card */
+body:not(.darkmode) .balance-hero.dk-today-summary{
+ display:grid!important;grid-template-columns:minmax(0,1fr) 58px!important;grid-template-rows:auto!important;
+ align-items:center!important;column-gap:16px!important;row-gap:0!important;padding:clamp(18px,2.8vw,26px)!important;
+ background:linear-gradient(120deg,#104b36 0%,#16845b 62%,#20a36c 100%)!important;
+ border:1px solid #14764f!important;border-radius:20px!important;color:#fff!important;
+ box-shadow:0 12px 28px rgba(16,105,72,.18)!important;position:relative!important;overflow:hidden!important;
+}
+body:not(.darkmode) .balance-hero.dk-today-summary:after{content:"";position:absolute;right:-30px;top:-55px;width:150px;height:150px;border:1px solid #ffffff18;border-radius:50%;box-shadow:0 0 0 22px #ffffff08,0 0 0 46px #ffffff05;pointer-events:none}
+body:not(.darkmode) .dk-balance-main{min-width:0;grid-column:1;grid-row:1;position:relative;z-index:1}
+body:not(.darkmode) .dk-balance-main .dk-summary-label{display:block;color:#d8f4e4!important;font-size:12px!important;font-weight:800!important;letter-spacing:.045em!important}
+body:not(.darkmode) .dk-balance-main #totalDue{display:block;color:#fff!important;font-size:clamp(32px,4.3vw,44px)!important;line-height:1.12!important;letter-spacing:-1.2px!important;margin:7px 0 12px!important;font-variant-numeric:tabular-nums}
+body:not(.darkmode) .dk-today-summary .hero-meta{display:flex!important;gap:7px!important;flex-wrap:wrap!important}
+body:not(.darkmode) .dk-today-summary .hero-meta span{color:#fff!important;border:1px solid #ffffff40!important;background:#ffffff12!important;border-radius:20px!important;padding:6px 9px!important;font-size:10px!important}
+body:not(.darkmode) .dk-outstanding-mark{grid-column:2;grid-row:1;z-index:1;display:grid;place-items:center;width:58px;height:58px;border:1px solid #ffffff45;border-radius:19px;background:#ffffff16;color:#fff;font-size:31px;font-weight:850;box-shadow:inset 0 1px 0 #ffffff20}
+body.darkmode .balance-hero.dk-today-summary{display:grid!important;grid-template-columns:minmax(0,1fr) 58px!important;grid-template-rows:auto!important;align-items:center!important;column-gap:16px!important;row-gap:0!important;padding:clamp(18px,2.8vw,26px)!important;background:linear-gradient(120deg,#082c20,#0b6544 65%,#128456)!important;border:1px solid #276b4e!important;border-radius:20px!important;box-shadow:0 12px 28px #0003!important}
+body.darkmode .dk-balance-main{grid-column:1;grid-row:1;min-width:0}
+body.darkmode .dk-balance-main .dk-summary-label{display:block;color:#d8f4e4!important;font-size:12px!important;font-weight:800!important;letter-spacing:.045em!important}
+body.darkmode .dk-balance-main #totalDue{display:block;color:#fff!important;font-size:clamp(32px,4.3vw,44px)!important;line-height:1.12!important;letter-spacing:-1.2px!important;margin:7px 0 12px!important;font-variant-numeric:tabular-nums}
+body.darkmode .dk-today-summary .hero-meta{display:flex!important;gap:7px!important;flex-wrap:wrap!important}
+body.darkmode .dk-today-summary .hero-meta span{color:#fff!important;border:1px solid #ffffff40!important;background:#ffffff12!important;border-radius:20px!important;padding:6px 9px!important;font-size:10px!important}
+body.darkmode .dk-outstanding-mark{grid-column:2;grid-row:1;display:grid;place-items:center;width:58px;height:58px;border:1px solid #ffffff45;border-radius:19px;background:#ffffff16;color:#fff;font-size:31px;font-weight:850}
+@media(max-width:599px){body:not(.darkmode) .balance-hero.dk-today-summary,body.darkmode .balance-hero.dk-today-summary{grid-template-columns:minmax(0,1fr) 46px!important;column-gap:10px!important;padding:17px!important;border-radius:17px!important}body:not(.darkmode) .dk-balance-main #totalDue,body.darkmode .dk-balance-main #totalDue{font-size:30px!important;margin:7px 0 11px!important}body:not(.darkmode) .dk-outstanding-mark,body.darkmode .dk-outstanding-mark{width:46px;height:46px;border-radius:15px;font-size:25px!important}}
