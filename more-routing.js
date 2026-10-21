@@ -8,8 +8,7 @@
     "customer-contact":"WhatsApp • Call • SMS • Due reminders",
     "login-access":"Owner Google login • Customer phone access • Logout",
     "club-pass":"Shop identity • Owner details • Shareable pass",
-    "digital-shop":"Products • Cart • Pickup / delivery • Orders",
-    "dukaan-universe":"Discover local shops • Request items"
+    "digital-shop":"Products • Cart • Pickup / delivery • Orders"
   };
   function fixMoreDescriptions(){
     document.querySelectorAll("#tools .luxury-tool[data-more-feature]").forEach(card=>{
