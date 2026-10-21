@@ -3421,3 +3421,15 @@ body.dk-contact-fullscreen-open{overflow:hidden!important}
 #modal .dk-shop-theme-mint .dk-shop-nav-spacer{flex:1}
 #modal .dk-shop-theme-mint .dk-shop-step-foot{text-align:center;font-size:11px;line-height:1.5;color:#6d8983;margin:15px 8px 0}
 @media(max-width:520px){#modal:has(.dk-shop-theme-mint) .sheet{width:calc(100vw - 16px);max-width:none;padding:10px!important;border-radius:26px!important}#modal .dk-shop-theme-mint{padding:13px!important}#modal .dk-shop-theme-mint .dk-shop-step-card{min-height:260px;padding:20px 15px}#modal .dk-shop-theme-mint .dk-shop-step-card label{font-size:22px}}
+
+
+/* Shop Profile: all fields together in one mint/teal box; no step navigation */
+#modal .dk-shop-profile-all .dk-shop-profile-fields{display:flex;flex-direction:column;gap:12px;margin:18px 0}
+#modal .dk-shop-profile-all .dk-shop-profile-field{display:flex;flex-direction:column;gap:6px;padding:0;background:transparent;border:0;box-shadow:none}
+#modal .dk-shop-profile-all .dk-shop-profile-field label{font-size:13px;line-height:1.35;font-weight:800;color:#164c47}
+#modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{display:block;width:100%;box-sizing:border-box;border:1.5px solid #b9e2d5!important;border-radius:12px!important;background:#f8fffc!important;padding:13px!important;color:#173f3b!important;font-size:16px!important;outline:none}
+#modal .dk-shop-profile-all .dk-shop-profile-field input:focus,#modal .dk-shop-profile-all .dk-shop-profile-field textarea:focus{border-color:#0d9488!important;box-shadow:0 0 0 3px #0d94881a!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:84px;resize:vertical}
+#modal .dk-shop-profile-all .dk-shop-profile-save{display:block;width:100%;min-height:48px;margin-top:4px;border:0!important;border-radius:14px!important;background:linear-gradient(110deg,#087f72,#0eaa88)!important;color:#fff!important;font-weight:850!important;box-shadow:0 8px 18px #087f7225!important}
+#modal .dk-shop-profile-all .dk-shop-step-foot{margin:12px 4px 0}
+@media(max-width:520px){#modal:has(.dk-shop-profile-all) .sheet{width:calc(100vw - 16px);max-width:none;padding:10px!important;border-radius:24px!important}#modal .dk-shop-profile-all{padding:14px!important}#modal .dk-shop-profile-all .dk-shop-profile-fields{gap:10px;margin:14px 0}#modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{padding:12px!important}}
