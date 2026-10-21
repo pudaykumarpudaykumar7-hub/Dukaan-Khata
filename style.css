@@ -3680,3 +3680,66 @@ body:has(#languagePage.active) main{width:100%!important;max-width:none!importan
 #modal .digital-pass-info b{color:#ffe6a0!important}
 #modal .digital-pass-thanks{color:#f3d47e!important}
 #modal #shareDigitalPassBtn{width:100%!important;min-height:50px!important;border-radius:16px!important;background:linear-gradient(100deg,#8b6418,#d8b24f 55%,#f4df94)!important;color:#171208!important;border:1px solid #c49b38!important;box-shadow:0 9px 20px #8f67182e!important;font-weight:950!important}
+
+
+/* Digital Shop Pass — Prism Midnight: replace green/gold with a distinctive sapphire holographic finish */
+#modal:has(.digital-pass-modal) .sheet{
+  background:linear-gradient(145deg,#f7f9ff 0%,#edf2ff 55%,#f9f7ff 100%)!important;
+  border:1px solid #d8e1ff!important;border-radius:30px!important;
+  box-shadow:0 26px 80px #17255438!important
+}
+#modal .digital-pass-heading{padding:5px 0 10px!important}
+#modal .digital-pass-kicker{color:#5369c9!important;letter-spacing:2.4px!important}
+#modal .digital-pass-title{color:#101a3c!important;font-weight:950!important}
+#modal .digital-pass{
+  position:relative!important;isolation:isolate!important;overflow:hidden!important;
+  background:radial-gradient(ellipse at 0% 0%,#304fbb 0%,transparent 42%),
+    radial-gradient(ellipse at 100% 100%,#5c2da6 0%,transparent 43%),
+    linear-gradient(135deg,#080f27 0%,#111d46 48%,#171137 100%)!important;
+  color:#f8faff!important;border:1px solid #8ea8ff!important;border-radius:28px!important;
+  box-shadow:0 22px 44px #111b4538,inset 0 1px 0 #ffffff38!important
+}
+#modal .digital-pass:before{
+  content:"";position:absolute;inset:8px;z-index:-1;border:1px solid #a9baff55;
+  border-radius:21px;pointer-events:none
+}
+#modal .digital-pass:after{
+  content:"";position:absolute;z-index:-1;width:210px;height:210px;right:-105px;top:-105px;
+  border-radius:50%;border:1px solid #69e2ff65;
+  box-shadow:0 0 0 16px #8a7dff0b,0 0 0 34px #69e2ff09,0 0 50px #5478ff25;
+  pointer-events:none
+}
+#modal .digital-pass-topline{position:relative;z-index:1}
+#modal .digital-pass .pass-logo{
+  background:linear-gradient(145deg,#f5fbff,#9bdcff 45%,#8e8bff)!important;
+  color:#101a3c!important;border:1px solid #d6f3ff!important;
+  box-shadow:0 7px 24px #65bfff42!important
+}
+#modal .digital-pass-verified{
+  color:#baf4ff!important;border-color:#6dc9ff88!important;
+  background:#5ebdff18!important;border-radius:999px!important
+}
+#modal .digital-pass .digital-pass-shop-name{
+  color:#fff!important;font-size:clamp(22px,5vw,29px)!important;
+  text-shadow:0 2px 20px #5c7dff45!important;overflow-wrap:anywhere!important
+}
+#modal .digital-pass .digital-pass-owner,#modal .digital-pass .digital-pass-address{color:#c8d4ff!important}
+#modal .digital-pass-qr-wrap{
+  position:relative;z-index:1;background:#fff!important;color:#26345d!important;
+  border:2px solid #a5dfff!important;border-radius:20px!important;
+  box-shadow:0 9px 26px #050a1c55!important
+}
+#modal .digital-pass-qr-wrap small{color:#45527d!important}
+#modal .digital-pass-info{
+  background:linear-gradient(120deg,#7e9dff1c,#c38cff18)!important;
+  border:1px solid #9eafff78!important;border-radius:18px!important;color:#e5eaff!important
+}
+#modal .digital-pass-info b{color:#b9eaff!important}
+#modal .digital-pass-thanks{color:#b9eaff!important}
+#modal .digital-pass-thanks small{color:#d2d8ff!important}
+#modal #shareDigitalPassBtn{
+  width:100%!important;min-height:52px!important;border-radius:17px!important;
+  background:linear-gradient(100deg,#315bdc 0%,#4f72f5 48%,#8255d9 100%)!important;
+  color:#fff!important;border:1px solid #91a7ff!important;
+  box-shadow:0 10px 24px #445de83d!important;font-weight:950!important
+}
