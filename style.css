@@ -2537,3 +2537,79 @@ body.dk-live-background[data-global-theme="custom"]{background-color:#07110c!imp
 .dk-bg-label,.dk-color-title,.dk-bg-controls label,.dk-bg-slider{color:var(--text)!important}
 .dk-bg-upload{border-color:#16845b66!important;background:#16845b08!important;color:var(--text)!important}
 .dk-bg-upload small{color:var(--muted)!important}
+
+
+/* ===== DUKAAN KHATA CLEAN WHITE / CHARCOAL / EMERALD DESIGN ===== */
+:root{
+ --bg:#f3f5f4!important;
+ --surface:#ffffff!important;
+ --surface-2:#f8faf9!important;
+ --text:#27312d!important;
+ --muted:#707b75!important;
+ --line:#e1e7e3!important;
+ --primary:#16845b!important;
+ --primary-2:#20a36c!important;
+ --due:#d96b70!important;
+ --paid:#238653!important;
+ --radius:14px;
+}
+html,body{background:#f3f5f4!important;color:#27312d!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+body:not(.darkmode){background:#f3f5f4!important;color:#27312d!important}
+body:not(.darkmode) .app{background:transparent!important;color:#27312d!important}
+body:not(.darkmode) .topbar{background:#fff!important;color:#27312d!important;border-bottom:1px solid #e1e7e3!important;box-shadow:none!important}
+body:not(.darkmode) .brand h1,body:not(.darkmode) .brand strong,body:not(.darkmode) .top-menu button{color:#27312d!important}
+body:not(.darkmode) .top-menu button.active,body:not(.darkmode) .top-menu button[aria-current=page]{background:#e7f4ed!important;color:#16845b!important;border-color:#cce8d8!important}
+body:not(.darkmode) .page-title h2,body:not(.darkmode) .welcome h2,body:not(.darkmode) .section-head h3{color:#27312d!important;letter-spacing:-.025em}
+body:not(.darkmode) .eyebrow,body:not(.darkmode) .page-title .eyebrow{color:#707b75!important;font-size:10px!important;letter-spacing:.09em!important;font-weight:750!important}
+body:not(.darkmode) .stat,body:not(.darkmode) .card,body:not(.darkmode) .customer,body:not(.darkmode) .item,body:not(.darkmode) .activity,body:not(.darkmode) .bill,body:not(.darkmode) .tools-grid button,body:not(.darkmode) .inventory-cards>div,body:not(.darkmode) .report-grid>div,body:not(.darkmode) .mini-stats>div{
+ background:#fff!important;color:#27312d!important;border:1px solid #e1e7e3!important;border-radius:14px!important;box-shadow:none!important
+}
+body:not(.darkmode) .stat b,body:not(.darkmode) .customer b,body:not(.darkmode) .bill b,body:not(.darkmode) .item b,body:not(.darkmode) .activity b,body:not(.darkmode) .tools-grid button b{color:#27312d!important}
+body:not(.darkmode) .balance-hero,body:not(.darkmode) .report-hero{background:linear-gradient(120deg,#176b4c,#16845b)!important;color:#fff!important;border:1px solid #13744f!important;border-radius:16px!important;box-shadow:none!important}
+body:not(.darkmode) .balance-hero *,body:not(.darkmode) .report-hero *{color:#fff!important}
+body:not(.darkmode) .primary,body:not(.darkmode) .btn.primary,body:not(.darkmode) button.primary,body:not(.darkmode) .quick.primary,body:not(.darkmode) .pwa-install-btn{
+ background:#16845b!important;color:#fff!important;border:1px solid #16845b!important;box-shadow:none!important
+}
+body:not(.darkmode) .btn,body:not(.darkmode) .quick,body:not(.darkmode) .small{box-shadow:none!important}
+body:not(.darkmode) .btn.secondary,body:not(.darkmode) .close{background:#f1f4f2!important;color:#27312d!important;border:1px solid #e1e7e3!important}
+body:not(.darkmode) .quick.blue,body:not(.darkmode) .quick.orange,body:not(.darkmode) .quick.purple,body:not(.darkmode) .quick.gold,body:not(.darkmode) .quick.universe{background:#fff!important;color:#27312d!important;border:1px solid #e1e7e3!important}
+body:not(.darkmode) .quick span,body:not(.darkmode) .quick small{color:#27312d!important}
+body:not(.darkmode) input,body:not(.darkmode) select,body:not(.darkmode) textarea,body:not(.darkmode) .search{
+ background:#fff!important;color:#27312d!important;border:1px solid #dce4df!important;border-radius:10px!important;box-shadow:none!important
+}
+body:not(.darkmode) input:focus,body:not(.darkmode) select:focus,body:not(.darkmode) textarea:focus{outline:2px solid #16845b2b!important;border-color:#16845b!important}
+body:not(.darkmode) .khata-filters,body:not(.darkmode) .segmented,body:not(.darkmode) .receive-tabs{background:#edf1ee!important;border:1px solid #e1e7e3!important;border-radius:12px!important}
+body:not(.darkmode) .khata-filter,body:not(.darkmode) .segmented button,body:not(.darkmode) .receive-tabs button{color:#56635b!important}
+body:not(.darkmode) .khata-filter.active,body:not(.darkmode) .segmented button.active,body:not(.darkmode) .receive-tabs button.active{background:#fff!important;color:#16845b!important;border:1px solid #cce8d8!important;box-shadow:none!important}
+body:not(.darkmode) .bottom-nav{background:rgba(255,255,255,.98)!important;border-top:1px solid #e1e7e3!important;box-shadow:none!important}
+body:not(.darkmode) .bottom-nav button{color:#707b75!important}
+body:not(.darkmode) .bottom-nav button.active{color:#16845b!important}
+body:not(.darkmode) .bottom-nav button.active:before{background:#16845b!important}
+body:not(.darkmode) .sheet{background:#fff!important;color:#27312d!important;border:1px solid #e1e7e3!important;box-shadow:0 14px 40px #17211c18!important;border-radius:18px!important}
+body:not(.darkmode) .sheet h2,body:not(.darkmode) .sheet h3,body:not(.darkmode) .sheet label{color:#27312d!important}
+body:not(.darkmode) .text-link{color:#16845b!important}
+body:not(.darkmode) .due,body:not(.darkmode) .khata-money-due,body:not(.darkmode) .khata-filter-due{color:#d96b70!important;-webkit-text-fill-color:#d96b70!important}
+body:not(.darkmode) .paid,body:not(.darkmode) .khata-money-paid,body:not(.darkmode) .khata-total-paid,body:not(.darkmode) .khata-filter-paid{color:#238653!important;-webkit-text-fill-color:#238653!important}
+body:not(.darkmode) .dk-bg-editor{background:#fff!important;color:#27312d!important;border:1px solid #e1e7e3!important;box-shadow:none!important}
+body:not(.darkmode) .dk-bg-head h2,body:not(.darkmode) .dk-bg-head small{color:#27312d!important}
+body:not(.darkmode) .dk-bg-preview{border:1px solid #e1e7e3!important;box-shadow:none!important}
+body:not(.darkmode) .dk-bg-presets button{background:#fff!important;color:#27312d!important;border:1px solid #e1e7e3!important;box-shadow:none!important}
+body:not(.darkmode) .dk-bg-presets button:hover{border-color:#16845b!important;background:#f1faf5!important}
+body:not(.darkmode) .dk-bg-controls select{background:#fff!important;color:#27312d!important;border-color:#dce4df!important}
+body:not(.darkmode) .dk-bg-upload{background:#f8faf9!important;color:#27312d!important;border-color:#b8d8c6!important}
+body:not(.darkmode) .dk-bg-upload small{color:#707b75!important}
+@media(min-width:900px){
+ body:not(.darkmode) .sidebar,body:not(.darkmode) aside.sidebar{background:#fff!important;border-right:1px solid #e1e7e3!important;box-shadow:none!important}
+ body:not(.darkmode) .sidebar a,body:not(.darkmode) .sidebar button{color:#27312d!important}
+ body:not(.darkmode) .sidebar .active,body:not(.darkmode) .sidebar a.active,body:not(.darkmode) .sidebar button.active{background:#e7f4ed!important;color:#16845b!important}
+}
+@media(max-width:899px){
+ body:not(.darkmode) .app{padding-bottom:calc(72px + env(safe-area-inset-bottom))!important}
+ body:not(.darkmode) .page{padding-left:12px!important;padding-right:12px!important}
+ body:not(.darkmode) .stat,body:not(.darkmode) .customer,body:not(.darkmode) .item,body:not(.darkmode) .bill{border-radius:12px!important}
+}
+@media(min-width:600px) and (max-width:1024px){
+ body:not(.darkmode) .stat-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ body:not(.darkmode) .tools-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(prefers-reduced-motion:reduce){body:not(.darkmode) *,body:not(.darkmode) *::before,body:not(.darkmode) *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
