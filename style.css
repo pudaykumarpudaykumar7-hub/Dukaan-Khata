@@ -4175,3 +4175,22 @@ body:has(#languagePage.active) main{width:100%!important;max-width:none!importan
  #modal .digital-pass-qr-wrap small{font-size:5px!important}
  #modal #shareDigitalPassBtn{min-height:54px!important;font-size:clamp(18px,4.5vw,22px)!important}
 }
+
+/* Shop Profile: remove excess gaps and make the popup more compact */
+#modal:has(.dk-shop-profile-all){padding:8px!important;align-items:center!important}
+#modal:has(.dk-shop-profile-all) .sheet{width:calc(100vw - 32px)!important;max-width:460px!important;max-height:calc(100dvh - 40px)!important;overflow-y:auto!important;padding:12px!important;border-radius:20px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-fields{gap:5px!important;margin:8px 0!important;row-gap:5px!important;column-gap:5px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field{padding:8px!important;margin:0!important;border-radius:12px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field label{margin-bottom:3px!important;font-size:12px!important;line-height:1.15!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{padding:8px!important;min-height:38px!important;border-radius:9px!important;font-size:14px!important;line-height:1.2!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:58px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-save{min-height:42px!important;border-radius:12px!important}
+#modal .dk-shop-profile-all .dk-shop-step-foot{margin-top:6px!important;font-size:11px!important}
+@media(max-width:480px){
+ #modal:has(.dk-shop-profile-all){padding:8px!important}
+ #modal:has(.dk-shop-profile-all) .sheet{width:calc(100vw - 28px)!important;max-height:calc(100dvh - 32px)!important;padding:10px!important;border-radius:18px!important}
+ #modal .dk-shop-profile-all .dk-shop-profile-fields{grid-template-columns:minmax(0,1fr)!important;gap:4px!important;margin:6px 0!important}
+ #modal .dk-shop-profile-all .dk-shop-profile-field{padding:7px!important}
+ #modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:36px!important;padding:7px!important}
+ #modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:52px!important}
+}
