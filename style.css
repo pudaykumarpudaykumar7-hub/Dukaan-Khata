@@ -3981,3 +3981,29 @@ body:has(#languagePage.active) main{width:100%!important;max-width:none!importan
 #modal #shareDigitalPassBtn{display:block!important;width:100%!important;min-height:54px!important;border-radius:15px!important;margin-top:16px!important;background:#16845b!important;color:#fff!important;border:0!important;box-shadow:none!important;font-size:17px!important;font-family:Georgia,"Times New Roman",serif!important;font-weight:800!important}
 #modal #shareDigitalPassBtn:active{transform:translateY(1px)!important}
 @media(max-width:480px){#modal .sheet:has(.digital-pass-modal){padding:18px!important;border-radius:24px!important}#modal .digital-pass{border-radius:30px!important;padding:23px 15px 19px!important}#modal .digital-pass .pass-logo{width:80px!important;height:80px!important;border-radius:25px!important;font-size:37px!important}#modal .digital-pass-qr-wrap .digital-pass-qr{width:140px!important;height:140px!important;min-width:140px!important;min-height:140px!important}#modal .digital-pass-qr-wrap canvas,#modal .digital-pass-qr-wrap img{width:132px!important;height:132px!important;max-width:132px!important}}
+
+
+/* Reference screenshot sizing: same wide centered sheet and compact pass proportions */
+#modal .sheet:has(.digital-pass-modal){width:calc(100vw - 40px)!important;max-width:680px!important;max-height:calc(100dvh - 80px)!important;overflow-y:auto!important;padding:30px!important;border-radius:29px!important;margin:auto!important}
+#modal .digital-pass-modal{width:100%!important;max-width:none!important}
+#modal .digital-pass{padding:24px 16px 20px!important;border-radius:38px!important}
+#modal .digital-pass .pass-logo{width:66px!important;height:66px!important;border-radius:22px!important;font-size:32px!important}
+#modal .digital-pass .digital-pass-shop-name{font-size:clamp(22px,4.5vw,30px)!important;margin:18px 4px 6px!important}
+#modal .digital-pass .digital-pass-owner{font-size:16px!important;margin:0 4px 5px!important}
+#modal .digital-pass .digital-pass-address{font-size:15px!important;margin:0 4px 6px!important}
+#modal .digital-pass-qr-wrap{margin:10px auto 12px!important;padding:8px!important;gap:5px!important;border-radius:12px!important}
+#modal .digital-pass-qr-wrap .digital-pass-qr{width:108px!important;height:108px!important;min-width:108px!important;min-height:108px!important;padding:2px!important}
+#modal .digital-pass-qr-wrap canvas,#modal .digital-pass-qr-wrap img{width:104px!important;height:104px!important;max-width:104px!important}
+#modal .digital-pass-info{padding:9px 12px!important;margin-top:2px!important}
+#modal .digital-pass-info b{margin-bottom:3px!important}
+#modal .digital-pass-info span{padding:5px 0!important;font-size:11px!important}
+#modal .digital-pass-thanks{margin:10px 0 0!important}
+#modal #shareDigitalPassBtn{margin-top:14px!important;min-height:54px!important}
+@media(max-width:480px){
+#modal .sheet:has(.digital-pass-modal){width:calc(100vw - 40px)!important;max-width:680px!important;max-height:calc(100dvh - 70px)!important;padding:20px!important;border-radius:25px!important}
+#modal .digital-pass{padding:20px 13px 17px!important;border-radius:30px!important}
+#modal .digital-pass .pass-logo{width:62px!important;height:62px!important;border-radius:20px!important;font-size:30px!important}
+#modal .digital-pass .digital-pass-shop-name{margin-top:15px!important}
+#modal .digital-pass-qr-wrap .digital-pass-qr{width:100px!important;height:100px!important;min-width:100px!important;min-height:100px!important}
+#modal .digital-pass-qr-wrap canvas,#modal .digital-pass-qr-wrap img{width:96px!important;height:96px!important;max-width:96px!important}
+}
