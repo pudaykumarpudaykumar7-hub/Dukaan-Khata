@@ -2733,3 +2733,35 @@ body:not(.darkmode) .stat-grid:has(#customerCount){grid-template-columns:minmax(
 .home-theme-design:hover{background:#eaf7ef;border-color:#16845b}
 .pwa-install-btn[hidden]{display:none!important}
 @media(max-width:599px){.home-theme-design{width:34px;height:34px;border-radius:10px;font-size:15px}}
+
+
+/* Distinct colours for key Home actions */
+body:not(.darkmode) .quick-grid>button.quick.blue{
+ background:linear-gradient(135deg,#087f8c,#10a6a0)!important;
+ border:1px solid #087f8c!important;color:#fff!important;
+}
+body:not(.darkmode) .quick-grid>button.quick.orange{
+ background:linear-gradient(135deg,#c45b12,#f08a24)!important;
+ border:1px solid #c45b12!important;color:#fff!important;
+}
+body:not(.darkmode) .quick-grid>button.quick.gold{
+ background:linear-gradient(135deg,#6542b8,#8b5cf6)!important;
+ border:1px solid #6542b8!important;color:#fff!important;
+}
+body:not(.darkmode) .quick-grid>button.quick.blue span,
+body:not(.darkmode) .quick-grid>button.quick.blue small,
+body:not(.darkmode) .quick-grid>button.quick.orange span,
+body:not(.darkmode) .quick-grid>button.quick.orange small,
+body:not(.darkmode) .quick-grid>button.quick.gold span,
+body:not(.darkmode) .quick-grid>button.quick.gold small{
+ color:#fff!important;
+}
+body:not(.darkmode) .quick-grid>button.quick.blue small,
+body:not(.darkmode) .quick-grid>button.quick.orange small,
+body:not(.darkmode) .quick-grid>button.quick.gold small{opacity:.88!important}
+body.darkmode .quick-grid>button.quick.blue{background:linear-gradient(135deg,#087f8c,#10a6a0)!important;border-color:#087f8c!important;color:#fff!important}
+body.darkmode .quick-grid>button.quick.orange{background:linear-gradient(135deg,#c45b12,#f08a24)!important;border-color:#c45b12!important;color:#fff!important}
+body.darkmode .quick-grid>button.quick.gold{background:linear-gradient(135deg,#6542b8,#8b5cf6)!important;border-color:#6542b8!important;color:#fff!important}
+body.darkmode .quick-grid>button.quick.blue span,body.darkmode .quick-grid>button.quick.blue small,
+body.darkmode .quick-grid>button.quick.orange span,body.darkmode .quick-grid>button.quick.orange small,
+body.darkmode .quick-grid>button.quick.gold span,body.darkmode .quick-grid>button.quick.gold small{color:#fff!important}
