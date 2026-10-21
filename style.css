@@ -3395,3 +3395,29 @@ body.dk-contact-fullscreen-open{overflow:hidden!important}
 #modal .dk-shop-theme-sky button.btn.primary{width:100%;padding:14px 16px!important;border:0!important;border-radius:14px!important;background:linear-gradient(105deg,#203d7c,#4168c7 70%,#718be2)!important;color:#fff!important;font-weight:800!important;box-shadow:0 9px 20px #203d7c2b!important}
 #modal .dk-shop-theme-sky button.btn.primary:active{transform:scale(.99)}
 @media(max-width:520px){#modal:has(.dk-shop-theme-sky) .sheet{width:calc(100vw - 16px);max-width:none;padding:12px!important;border-radius:21px!important}#modal .dk-shop-theme-sky .dk-modal-head{padding:12px!important}#modal .dk-shop-theme-sky .dk-modal-head h2{font-size:20px}#modal .dk-shop-theme-sky .dk-shop-field{padding:10px;margin-bottom:9px}#modal .dk-shop-theme-sky .dk-shop-field input,#modal .dk-shop-theme-sky .dk-shop-field textarea{padding:12px!important}}
+
+/* Shop Profile: fresh mint + teal, single reusable detail card */
+#modal .dk-shop-theme-mint{--dk-mint:#d9f8ed;--dk-teal:#087f72;--dk-deep:#075e59;--dk-ink:#163c3a;box-sizing:border-box;background:linear-gradient(155deg,#f0fff8 0%,#e3f8f2 48%,#e9f7ff 100%)!important;border:1px solid #b8e9d9!important;border-radius:24px!important;color:var(--dk-ink);padding:18px!important;overflow:hidden}
+#modal .dk-shop-theme-mint .dk-modal-head{display:flex;align-items:center;gap:12px;padding:6px 2px 15px;border-bottom:1px solid #c8eade}
+#modal .dk-shop-theme-mint .dk-modal-icon{display:grid;place-items:center;width:48px;height:48px;flex-shrink:0;border-radius:16px;background:linear-gradient(140deg,#baf2dc,#d7f7ed);font-size:24px}
+#modal .dk-shop-theme-mint .dk-modal-head span{font-size:10px;letter-spacing:1.7px;font-weight:900;color:#087f72}
+#modal .dk-shop-theme-mint .dk-modal-head h2{margin:3px 0;color:#124e49;font-size:22px}
+#modal .dk-shop-theme-mint .dk-modal-head small{color:#64847e;font-size:12px}
+#modal .dk-shop-theme-mint .dk-modal-head>b{margin-left:auto;white-space:nowrap;border-radius:99px;background:#d2f5e7;color:#087f72;padding:7px 10px;font-size:12px}
+#modal .dk-shop-theme-mint .dk-shop-progress{height:5px;background:#cdeee2;border-radius:99px;margin:18px 0 22px;overflow:hidden}
+#modal .dk-shop-theme-mint .dk-shop-progress span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#0d9488,#39c99c);transition:width .2s ease}
+#modal .dk-shop-theme-mint .dk-shop-step-card{min-height:255px;display:flex;flex-direction:column;justify-content:center;padding:22px 18px;background:rgba(255,255,255,.88);border:1px solid #c8e9df;border-radius:22px;box-shadow:0 12px 28px #176e5c10}
+#modal .dk-shop-theme-mint .dk-shop-step-kicker{font-size:10px;letter-spacing:1.5px;font-weight:900;color:#0a9485;margin-bottom:12px}
+#modal .dk-shop-theme-mint .dk-shop-step-card label{font-size:23px;line-height:1.25;font-weight:850;color:#164c47}
+#modal .dk-shop-theme-mint .dk-shop-step-card p{font-size:13px;color:#66857e;margin:8px 0 20px}
+#modal .dk-shop-theme-mint .dk-shop-step-card input,#modal .dk-shop-theme-mint .dk-shop-step-card textarea{display:block;width:100%;box-sizing:border-box;border:1.5px solid #b9e2d5!important;border-radius:14px!important;background:#f8fffc!important;padding:15px!important;color:#173f3b!important;font-size:16px!important;outline:none}
+#modal .dk-shop-theme-mint .dk-shop-step-card input:focus,#modal .dk-shop-theme-mint .dk-shop-step-card textarea:focus{border-color:#0d9488!important;box-shadow:0 0 0 3px #0d94881a!important}
+#modal .dk-shop-theme-mint .dk-shop-step-card textarea{min-height:110px;resize:vertical}
+#modal .dk-shop-theme-mint .dk-shop-step-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:25px}
+#modal .dk-shop-theme-mint .dk-shop-step-nav button{min-height:46px;padding:0 19px;border-radius:13px;font-weight:800;font-size:14px;cursor:pointer}
+#modal .dk-shop-theme-mint .dk-shop-back{border:1px solid #b8ddd2;background:#fff;color:#39766e}
+#modal .dk-shop-theme-mint .dk-shop-next{border:0;background:linear-gradient(110deg,#087f72,#0d9488);color:#fff;box-shadow:0 7px 16px #087f7225;margin-left:auto}
+#modal .dk-shop-theme-mint .dk-shop-save{background:linear-gradient(110deg,#087f72,#0eaa88)}
+#modal .dk-shop-theme-mint .dk-shop-nav-spacer{flex:1}
+#modal .dk-shop-theme-mint .dk-shop-step-foot{text-align:center;font-size:11px;line-height:1.5;color:#6d8983;margin:15px 8px 0}
+@media(max-width:520px){#modal:has(.dk-shop-theme-mint) .sheet{width:calc(100vw - 16px);max-width:none;padding:10px!important;border-radius:26px!important}#modal .dk-shop-theme-mint{padding:13px!important}#modal .dk-shop-theme-mint .dk-shop-step-card{min-height:260px;padding:20px 15px}#modal .dk-shop-theme-mint .dk-shop-step-card label{font-size:22px}}
