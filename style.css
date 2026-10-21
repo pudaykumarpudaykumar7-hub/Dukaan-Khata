@@ -2369,3 +2369,153 @@ body.darkmode .due{color:#ff7777!important}
 @media(prefers-reduced-motion:reduce){
  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
 }
+
+
+/* ===== DUKAAN KHATA EMERALD LIGHT PREMIUM SYSTEM v1 ===== */
+/* Stage 1: shared design tokens, responsive shell, and reusable components. */
+:root{
+ --bg:#f5f8f6;--surface:#ffffff;--text:#17211c;--muted:#68756e;--line:#e0e8e3;
+ --primary:#16845b;--primary2:#20a36c;--blue:#16845b;--purple:#28785b;--orange:#a66b22;
+ --danger:#c62828;--shadow:0 8px 26px rgba(17,55,37,.055);
+ color-scheme:light;
+}
+body{background:var(--bg)!important;color:var(--text)!important;transition:background-color .22s ease,color .22s ease}
+body.dk-live-background,body.dk-live-background::before,body.dk-live-background::after{background:var(--bg)!important}
+body.dk-live-background::before,body.dk-live-background::after{display:none!important}
+.topbar{background:rgba(255,255,255,.94)!important;color:#17211c!important;border-bottom:1px solid var(--line)!important;box-shadow:0 5px 24px rgba(17,55,37,.045)!important;backdrop-filter:blur(18px)}
+.brand h1,.brand .uvms-logo-button,.brand .logo-editable{color:#17211c!important}
+.brand small{color:#68756e!important}
+.uvms-logo-button{background:#16845b!important;color:#fff!important;border-color:#16845b!important}
+.top-actions .round{background:#f1f6f3!important;color:#173d2c!important;border:1px solid #dfe9e3!important}
+.login-btn{background:#16845b!important;color:#fff!important;border:1px solid #16845b!important}
+.top-menu{gap:7px!important}
+.top-menu button{border:1px solid transparent!important;background:transparent!important;color:#627169!important;border-radius:11px!important;font-weight:700!important;transition:background .18s ease,border-color .18s ease,transform .18s ease}
+.top-menu button.active,.top-menu button[aria-current=page]{background:#16845b!important;color:#fff!important;border-color:#16845b!important;box-shadow:0 5px 16px rgba(22,132,91,.18)!important}
+main{max-width:1160px}
+.page-title h2,.welcome h2{color:var(--text)!important}
+.welcome span,.eyebrow{color:#52665a!important}
+.balance-hero,.report-hero{background:linear-gradient(135deg,#0d3928,#16845b 72%,#20a36c)!important;color:#fff!important;border:1px solid #1a7954!important;box-shadow:0 14px 32px rgba(22,132,91,.16)!important}
+.balance-hero:after{border-color:#ffffff22!important;box-shadow:0 0 0 22px #ffffff08,0 0 0 48px #ffffff05!important}
+.hero-ring{background:#ffffff12!important;border-color:#ffffff45!important;box-shadow:inset 0 0 22px #ffffff09!important}
+.stat,.card,.customer,.item,.activity,.bill,.tools-grid button,.inventory-cards>div,.report-grid>div{
+ background:var(--surface)!important;color:var(--text)!important;border:1px solid var(--line)!important;
+ box-shadow:var(--shadow)!important;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease
+}
+.stat b,.customer b,.bill b,.item b,.activity b,.tools-grid button b{color:var(--text)!important}
+.customer h3,.item h3,.bill h3{font-size:13px!important}
+.customer,.item,.bill,.activity{padding:11px 13px!important;border-radius:13px!important}
+.customer small,.item small,.bill small,.activity small{color:var(--muted)!important}
+.stat{padding:12px!important;border-radius:14px!important}
+.stat b{font-size:18px!important}
+.quick-grid{gap:9px!important}
+.quick,.quick.primary,.quick.blue,.quick.orange,.quick.purple,.quick.gold,.quick.universe,.btn,.primary,.small{
+ background:#16845b!important;color:#fff!important;border:1px solid #16845b!important;box-shadow:0 5px 16px rgba(22,132,91,.12)!important
+}
+.quick{min-height:78px!important;border-radius:14px!important;padding:12px!important}
+.quick:before,.tools-grid button:before{background:linear-gradient(120deg,#ffffff16,transparent 55%,#ffffff08)!important}
+.quick:hover,.tools-grid button:hover,.stat:hover,.card:hover,.customer:hover,.item:hover,.bill:hover{
+ border-color:#8ebaa2!important;box-shadow:0 10px 26px rgba(22,132,91,.11)!important
+}
+.text-link{color:#16845b!important}
+.search,input,select,textarea{background:var(--surface)!important;color:var(--text)!important;border-color:var(--line)!important;border-radius:10px!important}
+.search:focus,input:focus,select:focus,textarea:focus{border-color:#16845b!important;box-shadow:0 0 0 3px #16845b18!important}
+.due,.customer .due,.paid,.customer .paid{font-weight:850!important}
+.due{color:#c62828!important}
+.paid{color:#16804a!important}
+.mini-stats span{background:#eef5f0!important;color:#244433!important}
+.khata-filters,.segmented,.receive-tabs{background:#edf3ef!important;border-color:#dce7df!important}
+.khata-filter,.segmented button,.receive-tabs button{color:#53675b!important}
+.khata-filter.active,.segmented button.active,.receive-tabs button.active{background:#16845b!important;color:#fff!important;box-shadow:0 3px 10px #16845b20!important}
+.bottom-nav{background:rgba(255,255,255,.96)!important;border-top:1px solid #dfe8e2!important;box-shadow:0 -8px 26px rgba(17,55,37,.06)!important;backdrop-filter:blur(18px)!important}
+.bottom-nav button{color:#718077!important}
+.bottom-nav button.active{color:#16845b!important;font-weight:900!important}
+.bottom-nav button.active:before{content:"";display:block;width:22px;height:3px;border-radius:9px;background:#16845b!important;margin-bottom:2px}
+.modal{background:rgba(10,24,16,.48)!important;backdrop-filter:blur(9px)!important}
+.sheet{background:var(--surface)!important;color:var(--text)!important;border:1px solid var(--line)!important}
+.sheet h2,.sheet h3,.sheet label{color:var(--text)!important}
+.close{background:#edf3ef!important;color:#173d2c!important}
+.btn.secondary{background:#edf3ef!important;color:#173d2c!important;border:1px solid #dce7df!important}
+.toast{background:#123d2b!important;color:#fff!important;border:1px solid #276b4e!important}
+.pwa-install-btn{background:#16845b!important;color:#fff!important;border:1px solid #16845b!important}
+.install-orbit{background:#16845b!important;color:#fff!important;box-shadow:0 0 0 7px #16845b12!important}
+:focus-visible{outline:2px solid #16845b!important;outline-offset:3px}
+@media(hover:hover){
+ button:not(:disabled){transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}
+ button:not(:disabled):hover{filter:brightness(.97)}
+ .quick:hover{transform:translateY(-1px)}
+}
+@media(min-width:900px){
+ body{padding-bottom:0!important}
+ .topbar{height:72px!important;padding:10px 24px!important}
+ .top-menu{
+  position:fixed!important;top:72px!important;left:0!important;bottom:0!important;width:224px!important;
+  z-index:29!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  justify-content:flex-start!important;gap:7px!important;padding:22px 14px!important;
+  background:rgba(255,255,255,.97)!important;border-right:1px solid var(--line)!important;
+  border-top:1px solid var(--line)!important;box-shadow:8px 0 24px rgba(17,55,37,.025)!important;
+  backdrop-filter:blur(18px)!important
+ }
+ .top-menu button{width:100%!important;min-height:44px!important;text-align:left!important;padding:0 14px!important;display:flex!important;align-items:center!important}
+ main{margin-left:224px!important;max-width:none!important;width:auto!important;padding:26px clamp(22px,3vw,48px) 42px!important}
+ .bottom-nav{display:none!important}
+}
+@media(max-width:899px){
+ .top-menu{display:none!important}
+ .bottom-nav{display:grid!important}
+ body{padding-bottom:calc(76px + env(safe-area-inset-bottom))!important}
+ main{margin-left:auto!important}
+}
+@media(max-width:560px){
+ .topbar{height:62px!important;padding:8px 12px!important}
+ .brand h1{font-size:15px!important}
+ .brand small{font-size:10px!important}
+ .brand .uvms-logo-button{transform:scale(.9);transform-origin:left center}
+ .top-actions{gap:5px!important}
+ .top-actions .round{width:36px!important;height:36px!important}
+ main{padding:12px 11px 22px!important}
+ .welcome h2{font-size:21px!important}
+ .page-title h2{font-size:23px!important}
+ .customer h3,.item h3,.bill h3{font-size:12px!important}
+ .customer,.item,.bill,.activity{gap:8px!important}
+ .bottom-nav{height:76px!important}
+}
+body.darkmode{
+ --bg:#0b100d;--surface:#141b16;--text:#f2f7f3;--muted:#a7b5ac;--line:#2b3a30;
+ --primary:#36b37e;--primary2:#54c995;--blue:#36b37e;--purple:#59b98d;--orange:#d6a55e;
+ --danger:#ff7777;--shadow:0 12px 30px rgba(0,0,0,.28);
+ color-scheme:dark!important
+}
+body.darkmode,body.darkmode.dk-live-background{background:#0b100d!important;color:#f2f7f3!important}
+body.darkmode.dk-live-background::before,body.darkmode.dk-live-background::after{display:none!important}
+body.darkmode .topbar{background:rgba(11,16,13,.96)!important;color:#f2f7f3!important;border-bottom-color:#2b3a30!important}
+body.darkmode .brand h1{color:#f2f7f3!important}
+body.darkmode .brand .uvms-logo-button{background:#36b37e!important;color:#07130d!important;border-color:#36b37e!important}
+body.darkmode .brand small{color:#a7b5ac!important}
+body.darkmode .top-actions .round{background:#19231c!important;color:#f2f7f3!important;border-color:#34463a!important}
+body.darkmode .top-menu{background:rgba(11,16,13,.98)!important;border-color:#2b3a30!important}
+body.darkmode .top-menu button{color:#a7b5ac!important}
+body.darkmode .top-menu button.active,body.darkmode .top-menu button[aria-current=page]{background:#36b37e!important;color:#07130d!important;border-color:#36b37e!important}
+body.darkmode .balance-hero,body.darkmode .report-hero{background:linear-gradient(135deg,#0a2519,#126b48 72%,#16845b)!important;border-color:#276b4e!important}
+body.darkmode .stat,body.darkmode .card,body.darkmode .customer,body.darkmode .item,body.darkmode .activity,body.darkmode .bill,body.darkmode .tools-grid button,body.darkmode .inventory-cards>div,body.darkmode .report-grid>div{background:#141b16!important;color:#f2f7f3!important;border-color:#2b3a30!important}
+body.darkmode .stat b,body.darkmode .customer b,body.darkmode .bill b,body.darkmode .item b,body.darkmode .activity b,body.darkmode .tools-grid button b{color:#f2f7f3!important}
+body.darkmode .quick,body.darkmode .quick.primary,body.darkmode .quick.blue,body.darkmode .quick.orange,body.darkmode .quick.purple,body.darkmode .quick.gold,body.darkmode .quick.universe,body.darkmode .btn,body.darkmode .primary,body.darkmode .small{background:#36b37e!important;color:#07130d!important;border-color:#36b37e!important}
+body.darkmode .search,body.darkmode input,body.darkmode select,body.darkmode textarea{background:#101712!important;color:#f2f7f3!important;border-color:#34463a!important}
+body.darkmode .khata-filters,body.darkmode .segmented,body.darkmode .receive-tabs{background:#19231c!important;border-color:#2b3a30!important}
+body.darkmode .khata-filter,body.darkmode .segmented button,body.darkmode .receive-tabs button{color:#a7b5ac!important}
+body.darkmode .khata-filter.active,body.darkmode .segmented button.active,body.darkmode .receive-tabs button.active{background:#36b37e!important;color:#07130d!important}
+body.darkmode .mini-stats span{background:#202d24!important;color:#e0eee5!important}
+body.darkmode .bottom-nav{background:rgba(11,16,13,.97)!important;border-color:#2b3a30!important}
+body.darkmode .bottom-nav button{color:#a7b5ac!important}
+body.darkmode .bottom-nav button.active{color:#54c995!important}
+body.darkmode .bottom-nav button.active:before{background:#54c995!important}
+body.darkmode .sheet{background:#141b16!important;color:#f2f7f3!important;border-color:#2b3a30!important}
+body.darkmode .sheet h2,body.darkmode .sheet h3,body.darkmode .sheet label{color:#f2f7f3!important}
+body.darkmode .close,body.darkmode .btn.secondary{background:#202d24!important;color:#f2f7f3!important;border-color:#34463a!important}
+body.darkmode .toast{background:#e7f6ed!important;color:#0b2417!important;border-color:#36b37e!important}
+body.darkmode .pwa-install-btn{background:#36b37e!important;color:#07130d!important;border-color:#36b37e!important}
+body.darkmode .text-link{color:#54c995!important}
+body.darkmode .paid{color:#65d99a!important}
+body.darkmode .due{color:#ff7777!important}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
