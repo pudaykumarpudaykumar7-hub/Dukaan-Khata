@@ -3298,3 +3298,13 @@ body.darkmode #modal .dk-language-world{background:radial-gradient(circle at 50%
  #modal:has(.dk-contact-screen) .dk-contact-person-actions{max-width:none;gap:3px}
  #modal:has(.dk-contact-screen) .dk-contact-person-actions button{width:28px;height:28px;flex:0 0 28px}
 }
+
+
+/* Hard override: Customer Contact occupies the entire viewport edge-to-edge */
+html:has(#modal .dk-contact-screen),body:has(#modal .dk-contact-screen){overflow:hidden!important}
+#modal:has(.dk-contact-screen).modal{display:flex!important;position:fixed!important;top:0!important;right:0!important;bottom:0!important;left:0!important;inset:0!important;width:100%!important;height:100%!important;height:100dvh!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;align-items:stretch!important;justify-content:stretch!important;border-radius:0!important;overflow:hidden!important;background:#eaf6ff!important;z-index:99999!important}
+#modal:has(.dk-contact-screen) .sheet{display:block!important;position:absolute!important;top:0!important;right:0!important;bottom:0!important;left:0!important;inset:0!important;width:100%!important;width:100vw!important;max-width:none!important;height:100%!important;height:100dvh!important;max-height:none!important;min-height:100%!important;margin:0!important;padding:calc(env(safe-area-inset-top,0px) + 12px) 12px calc(env(safe-area-inset-bottom,0px) + 12px)!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow-x:hidden!important;overflow-y:auto!important;box-sizing:border-box!important}
+#modal:has(.dk-contact-screen) #modalBody{width:100%!important;max-width:none!important;min-height:100%!important;margin:0!important;padding:0!important;box-sizing:border-box!important}
+#modal:has(.dk-contact-screen) .dk-contact-screen{display:flex!important;flex-direction:column!important;width:100%!important;max-width:760px!important;min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 24px)!important;margin:0 auto!important;padding:0 0 12px!important;box-sizing:border-box!important}
+@media(max-width:520px){#modal:has(.dk-contact-screen) .sheet{padding:calc(env(safe-area-inset-top,0px) + 8px) 8px calc(env(safe-area-inset-bottom,0px) + 8px)!important}#modal:has(.dk-contact-screen) .dk-contact-screen{min-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 16px)!important}}
+@media(prefers-reduced-motion:reduce){#modal:has(.dk-contact-screen) *{scroll-behavior:auto!important}}
