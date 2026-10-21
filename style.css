@@ -2519,3 +2519,21 @@ body.darkmode .due{color:#ff7777!important}
 @media(prefers-reduced-motion:reduce){
  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
 }
+
+
+/* ===== MORE > THEME DESIGN: make selected backgrounds visible ===== */
+body.dk-live-background[data-global-theme="futuristic"]{background:radial-gradient(ellipse 80% 60% at 50% 0%,#16845b40,transparent 65%),linear-gradient(180deg,#071b13,#0b2118 52%,#07110c)!important}
+body.dk-live-background[data-global-theme="midnight"]{background:radial-gradient(ellipse 75% 55% at 50% 0%,#33415555,transparent 65%),linear-gradient(180deg,#030712,#080b14 55%,#02040a)!important}
+body.dk-live-background[data-global-theme="ocean"]{background:radial-gradient(ellipse 80% 55% at 50% 0%,#0891b266,transparent 65%),linear-gradient(180deg,#02151d,#062532 55%,#02090d)!important}
+body.dk-live-background[data-global-theme="sunset"]{background:radial-gradient(ellipse 75% 55% at 50% 0%,#f9731666,transparent 65%),linear-gradient(180deg,#1a0710,#21102b 55%,#09030a)!important}
+body.dk-live-background[data-global-theme="light"]{background:linear-gradient(135deg,#f8fafc,#e8f5ed 50%,#f5f3ff)!important}
+body.dk-live-background[data-global-theme="gradient"]{background:linear-gradient(135deg,var(--dk-gradient-1,#16845b),var(--dk-gradient-2,#2563eb) 50%,var(--dk-gradient-3,#09031b))!important}
+body.dk-live-background[data-global-theme="custom"]{background-color:#07110c!important;background-image:linear-gradient(rgba(0,0,0,var(--dk-global-overlay,.18)),rgba(0,0,0,var(--dk-global-overlay,.18))),var(--dk-global-image,none)!important;background-size:var(--dk-global-fit,cover)!important;background-position:var(--dk-global-position,center)!important;background-repeat:no-repeat!important;background-attachment:fixed!important}
+.dk-bg-head span,.dk-bg-slider span{color:#16845b!important}
+.dk-bg-head>b{background:#16845b!important}
+.dk-bg-presets button{border-color:#16845b30!important;color:var(--text)!important;background:var(--surface)!important}
+.dk-bg-presets button:hover{background:#16845b12!important;border-color:#16845b!important}
+.dk-bg-presets small{color:var(--muted)!important}
+.dk-bg-label,.dk-color-title,.dk-bg-controls label,.dk-bg-slider{color:var(--text)!important}
+.dk-bg-upload{border-color:#16845b66!important;background:#16845b08!important;color:var(--text)!important}
+.dk-bg-upload small{color:var(--muted)!important}
