@@ -3112,3 +3112,65 @@ body.darkmode #modal .dk-language-world{background:radial-gradient(circle at 50%
 }
 #modal .digital-pass-modal .btn{display:flex!important;visibility:visible!important;opacity:1!important;width:100%!important;min-height:48px!important;align-items:center!important;justify-content:center!important}
 @media(max-width:380px){#modal .digital-pass{padding:22px 13px!important}#modal .digital-pass .digital-pass-shop-name{font-size:23px!important}}
+
+
+/* Signature section themes v1 — distinct visual identity for the five Dukaan tools */
+#tools [data-more-feature="smart-receive"]{
+ border:1px solid #9bdcf1!important;border-radius:23px!important;
+ background:linear-gradient(135deg,#071f3d 0%,#124b78 55%,#087f8c 100%)!important;
+ color:#f4fbff!important;box-shadow:0 12px 28px #07598524,inset 0 1px #ffffff24!important;
+}
+#tools [data-more-feature="smart-receive"]::before{background:linear-gradient(145deg,#36d8f2,#1767b7)!important;color:#062d4b!important;box-shadow:0 7px 18px #38bdf844!important}
+#tools [data-more-feature="smart-receive"] b,#tools [data-more-feature="smart-receive"] small{color:#f4fbff!important}
+#tools [data-more-feature="shop-profile"]{
+ border:1px solid #f1c48a!important;border-radius:23px!important;
+ background:linear-gradient(135deg,#fff8ec 0%,#ffecd2 55%,#f7d5a5 100%)!important;
+ color:#5a3215!important;box-shadow:0 12px 28px #a65b1720,inset 0 1px #fff!important;
+}
+#tools [data-more-feature="shop-profile"]::before{background:linear-gradient(145deg,#f5b94f,#b76524)!important;color:white!important}
+#tools [data-more-feature="shop-profile"] b{color:#623513!important}#tools [data-more-feature="shop-profile"] small{color:#865b37!important}
+#tools [data-more-feature="customer-contact"]{
+ border:1px solid #c8b8ff!important;border-radius:23px!important;
+ background:linear-gradient(135deg,#f9f5ff 0%,#eee8ff 54%,#ded6ff 100%)!important;
+ color:#34236c!important;box-shadow:0 12px 28px #5b36a51c,inset 0 1px #fff!important;
+}
+#tools [data-more-feature="customer-contact"]::before{background:linear-gradient(145deg,#a78bfa,#6d42d8)!important;color:#fff!important}
+#tools [data-more-feature="customer-contact"] b{color:#382675!important}#tools [data-more-feature="customer-contact"] small{color:#69579a!important}
+#tools [data-more-feature="login-access"]{
+ border:1px solid #b9c8d9!important;border-radius:23px!important;
+ background:linear-gradient(135deg,#101a2b 0%,#202e43 58%,#34465c 100%)!important;
+ color:#f5f8ff!important;box-shadow:0 12px 28px #0b17282b,inset 0 1px #ffffff18!important;
+}
+#tools [data-more-feature="login-access"]::before{background:linear-gradient(145deg,#d7e5f5,#7f9fbe)!important;color:#17283c!important}
+#tools [data-more-feature="login-access"] b,#tools [data-more-feature="login-access"] small{color:#f5f8ff!important}
+#tools [data-more-feature="club-pass"]{
+ border:1px solid #e7c77c!important;border-radius:23px!important;
+ background:linear-gradient(135deg,#211632 0%,#493052 52%,#80513f 100%)!important;
+ color:#fff8e8!important;box-shadow:0 12px 28px #44254b2b,inset 0 1px #ffffff20!important;
+}
+#tools [data-more-feature="club-pass"]::before{background:linear-gradient(145deg,#ffe5a0,#d5a447)!important;color:#38213c!important}
+#tools [data-more-feature="club-pass"] b,#tools [data-more-feature="club-pass"] small{color:#fff8e8!important}
+#tools [data-more-feature="smart-receive"]:hover,#tools [data-more-feature="shop-profile"]:hover,#tools [data-more-feature="customer-contact"]:hover,#tools [data-more-feature="login-access"]:hover,#tools [data-more-feature="club-pass"]:hover{transform:translateY(-3px)!important;filter:saturate(1.08)!important}
+#modal:has(.dk-modal.dk-shop-theme) .dk-modal-head{background:linear-gradient(120deg,#fff0d9,#ffdfad)!important;border:1px solid #f0c98e!important;border-radius:20px!important;padding:16px!important}
+#modal:has(.dk-modal.dk-shop-theme) .dk-modal-head h2{color:#633715!important;font-weight:900!important}
+#modal:has(.dk-modal.dk-shop-theme) .dk-modal-icon{background:linear-gradient(145deg,#f7c36b,#bd6b2b)!important;color:white!important;border-radius:15px!important}
+#modal:has(.dk-access-shell) .dk-access-shell,#modal:has(.dk-login-shell) .dk-login-shell,#modal:has(.dk-customer-login) .dk-customer-login{border-radius:25px!important}
+#modal .dk-access-shell{background:linear-gradient(150deg,#101a2c,#1d3047 70%,#283c53)!important;color:#f4f8ff!important;padding:20px!important;border:1px solid #425773!important}
+#modal .dk-access-shell h2,#modal .dk-access-shell .dk-login-badge{color:#f4f8ff!important}
+#modal .dk-access-shell .dk-access-card{border-radius:17px!important;border:1px solid #485d76!important;box-shadow:0 8px 20px #0003!important}
+#modal .dk-access-shell .dk-access-card.owner{background:linear-gradient(120deg,#183d50,#245c65)!important;color:#e9ffff!important}
+#modal .dk-access-shell .dk-access-card.customer{background:linear-gradient(120deg,#2c2857,#51417c)!important;color:#f7f2ff!important}
+#modal .dk-access-shell .dk-access-card b,#modal .dk-access-shell .dk-access-card small{color:inherit!important}
+#modal .dk-login-shell{background:linear-gradient(150deg,#101a2c,#1d3047 70%,#283c53)!important;color:#f4f8ff!important;padding:22px!important;border:1px solid #425773!important}
+#modal .dk-login-shell h2,#modal .dk-login-shell .dk-login-sub,#modal .dk-login-shell .dk-login-badge{color:#f4f8ff!important}
+#modal .dk-login-shell .dk-login-action{border:1px solid #465d76!important;border-radius:15px!important;background:linear-gradient(110deg,#1d3047,#293d54)!important;color:#f5f8ff!important}
+#modal .dk-login-shell .dk-login-primary{background:linear-gradient(110deg,#087b68,#10a78a)!important;border-color:#37c8ad!important}
+#modal .dk-customer-login{background:linear-gradient(145deg,#f8f5ff,#e8e1ff)!important;border:1px solid #c9bafa!important;padding:20px!important}
+#modal .dk-customer-login h2,#modal .dk-customer-login .dk-login-badge{color:#382675!important}
+#modal .dk-customer-login .dk-access-card{border:1px solid #d3c7fa!important;border-radius:16px!important;background:linear-gradient(110deg,#fff,#f1edff)!important;color:#382675!important}
+#modal .dk-customer-login .dk-access-card b,#modal .dk-customer-login .dk-access-card small{color:#4b3c79!important}
+#modal:has(.digital-pass-modal) .digital-pass{background:radial-gradient(ellipse at 90% 0%,#b991f755,transparent 42%),linear-gradient(145deg,#211432 0%,#432454 48%,#78503e 100%)!important;border:1px solid #e6c47b!important;box-shadow:0 20px 45px #38204440!important;border-radius:28px!important}
+#modal:has(.digital-pass-modal) .pass-logo{background:linear-gradient(145deg,#ffe7a3,#d3a244)!important;color:#382044!important;box-shadow:0 8px 22px #d8b15d35!important}
+#modal:has(.digital-pass-modal) .digital-pass-shop-name{font-family:Georgia,serif!important;letter-spacing:.1px!important}
+#modal:has(.digital-pass-modal) .digital-pass-upi{display:inline-block!important;margin-top:13px!important;padding:7px 12px!important;border:1px solid #ffffff4a!important;border-radius:999px!important;background:#ffffff12!important}
+@media(prefers-reduced-motion:reduce){#tools [data-more-feature="smart-receive"],#tools [data-more-feature="shop-profile"],#tools [data-more-feature="customer-contact"],#tools [data-more-feature="login-access"],#tools [data-more-feature="club-pass"]{transition:none!important}}
