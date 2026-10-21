@@ -224,7 +224,7 @@
       '<button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
   }
   async function popupOwnerGooglePhoto(){let u=window.DukaanKhataUser||{};try{u={...JSON.parse(localStorage.getItem("dukaan_khata_account")||"{}"),...u}}catch(e){}const src=u.picture||u.avatar_url||u.photo_url||"";if(!src){toast("Google profile photo is not available for this account");return}modal('<div class="dk-google-photo-view" onclick="closeModal()"><img src="'+esc(src)+'" alt="Google account profile photo" referrerpolicy="no-referrer"><p>Touch anywhere to go back</p></div>')}
-function openOwnerLogin(){
+async function openOwnerLogin(){
     const sb=client();
     if(!sb){toast("Cloud login is still loading. Try again.");return}
     const {data:{session}}=await sb.auth.getSession();
