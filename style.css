@@ -3372,3 +3372,26 @@ body.dk-contact-fullscreen-open{overflow:hidden!important}
 #modal .dk-shop-theme button.btn.primary{width:100%;padding:14px 16px!important;border:1px solid #d9c58f!important;border-radius:15px!important;background:linear-gradient(105deg,#065f46,#0a936a 70%,#c6a95f 155%)!important;color:#fff!important;font-weight:800!important;box-shadow:0 9px 20px #065f4626!important}
 #modal .dk-shop-theme button.btn.primary:active{transform:scale(.99)}
 @media(max-width:520px){#modal:has(.dk-shop-theme) .sheet{width:calc(100vw - 18px);max-width:none;padding:13px!important;border-radius:23px!important}#modal .dk-shop-theme .dk-modal-head{padding:13px!important}#modal .dk-shop-theme .dk-modal-head h2{font-size:20px}#modal .dk-shop-theme input,#modal .dk-shop-theme textarea{padding:13px 12px!important}}
+
+
+/* Shop Profile refresh: Sky & Indigo, with one clearly labelled detail per row */
+#modal:has(.dk-shop-theme-sky) .sheet{background:linear-gradient(145deg,#e9f5ff 0%,#f7faff 48%,#e9eaff 100%)!important;border:1px solid #c7d9f7!important;border-radius:24px!important;box-shadow:0 22px 55px #233d7625!important}
+#modal .dk-shop-theme-sky{padding:3px 0 8px;color:#172b50!important}
+#modal .dk-shop-theme-sky .dk-modal-head{display:flex;align-items:center;gap:12px;margin:0 0 14px!important;padding:15px!important;border:1px solid #b9d0f5!important;border-radius:19px!important;background:linear-gradient(115deg,#172d59 0%,#315caa 68%,#738ce0 130%)!important;color:#fff!important;box-shadow:0 10px 24px #233d7620}
+#modal .dk-shop-theme-sky .dk-modal-head span,#modal .dk-shop-theme-sky .dk-modal-head h2,#modal .dk-shop-theme-sky .dk-modal-head small{color:#fff!important}
+#modal .dk-shop-theme-sky .dk-modal-head h2{font-size:22px;letter-spacing:-.4px;margin:3px 0}
+#modal .dk-shop-theme-sky .dk-modal-head .dk-modal-icon{display:grid;place-items:center;width:48px;height:48px;flex:0 0 48px;border:1px solid #c9d9ff;border-radius:15px;background:#ffffff18;color:#fff;font-size:24px}
+#modal .dk-shop-theme-sky .dk-modal-head>b{margin-left:auto;border:1px solid #b8ccff;border-radius:99px;padding:6px 9px;color:#e1eaff!important;font-size:9px;letter-spacing:.8px}
+#modal .dk-shop-profile-intro{display:flex;align-items:center;gap:11px;padding:13px;margin:0 0 12px;border:1px solid #c9dafa;border-radius:16px;background:linear-gradient(120deg,#fff,#f0f6ff)}
+#modal .dk-shop-profile-intro>span{display:grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:#e0eaff;color:#315caa;font-size:21px}
+#modal .dk-shop-profile-intro h3{margin:0 0 3px!important;color:#203f7b!important;font-size:14px}
+#modal .dk-shop-profile-intro p{margin:0;color:#647796;font-size:11px;line-height:1.4}
+#modal .dk-shop-theme-sky .dk-shop-field{margin:0 0 11px;padding:11px 12px 9px;border:1px solid #d4e0f5;border-radius:15px;background:#fff;box-shadow:0 4px 13px #284c8610}
+#modal .dk-shop-theme-sky .dk-shop-field label{display:block;margin:0 0 7px;color:#31528c;font-size:12px;font-weight:800;letter-spacing:.15px}
+#modal .dk-shop-theme-sky .dk-shop-field input,#modal .dk-shop-theme-sky .dk-shop-field textarea{display:block;width:100%;box-sizing:border-box;margin:0!important;padding:11px 12px!important;border:1px solid #dce5f5!important;border-radius:11px!important;background:#f8faff!important;color:#172b50!important;box-shadow:none!important;font-size:14px!important;outline:none}
+#modal .dk-shop-theme-sky .dk-shop-field input::placeholder,#modal .dk-shop-theme-sky .dk-shop-field textarea::placeholder{color:#8a9ab8!important}
+#modal .dk-shop-theme-sky .dk-shop-field input:focus,#modal .dk-shop-theme-sky .dk-shop-field textarea:focus{border-color:#5278d5!important;box-shadow:0 0 0 3px #5278d51c!important}
+#modal .dk-shop-theme-sky .dk-shop-field textarea{min-height:78px;resize:vertical}
+#modal .dk-shop-theme-sky button.btn.primary{width:100%;padding:14px 16px!important;border:0!important;border-radius:14px!important;background:linear-gradient(105deg,#203d7c,#4168c7 70%,#718be2)!important;color:#fff!important;font-weight:800!important;box-shadow:0 9px 20px #203d7c2b!important}
+#modal .dk-shop-theme-sky button.btn.primary:active{transform:scale(.99)}
+@media(max-width:520px){#modal:has(.dk-shop-theme-sky) .sheet{width:calc(100vw - 16px);max-width:none;padding:12px!important;border-radius:21px!important}#modal .dk-shop-theme-sky .dk-modal-head{padding:12px!important}#modal .dk-shop-theme-sky .dk-modal-head h2{font-size:20px}#modal .dk-shop-theme-sky .dk-shop-field{padding:10px;margin-bottom:9px}#modal .dk-shop-theme-sky .dk-shop-field input,#modal .dk-shop-theme-sky .dk-shop-field textarea{padding:12px!important}}
