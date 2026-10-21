@@ -480,7 +480,7 @@ function openLanguage(){
     '<button class="dk-lang-option" onclick="setLanguage(\'Marathi\')"><span class="dk-lang-flag">🇮🇳</span><span><b>मराठी</b><small>मराठीत वापरा</small></span><i>○</i></button>'+
     '</div></div>'+
     '<div class="dk-language-save">🌐 <span>Your preferred language<br>will be saved automatically</span><b>✓</b></div>'+
-    '<button class="dk-language-close" onclick="closeModal()">× Close</button></div>');
+    '</div>');
 }
 function voiceEntry(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return toast("Voice input is not supported in this browser");const r=new R();r.lang=state.settings.language==="Telugu"?"te-IN":state.settings.language==="Hindi"?"hi-IN":"en-IN";r.onresult=e=>toast("Heard: "+e.results[0][0].transcript);r.start()}
 function openAbout(){modal('<h2>✦ Dukaan Khata Infinity</h2><p>Simple digital tools for Indian shops.</p><div class="line"><span>Digital Khata</span><b>✓</b></div><div class="line"><span>Many items with individual prices</span><b>✓</b></div><div class="line"><span>UPI QR Receive</span><b>✓</b></div><div class="line"><span>Customer Connect</span><b>✓</b></div><div class="line"><span>Backup & Restore</span><b>✓</b></div>')}
