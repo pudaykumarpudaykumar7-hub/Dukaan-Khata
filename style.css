@@ -3277,3 +3277,24 @@ body.darkmode #modal .dk-language-world{background:radial-gradient(circle at 50%
 #tools [data-more-feature="language"] b,#tools [data-more-feature="language"] small{color:#293b68}
 @media(max-width:520px){#modal:has(.dk-contact-screen) .sheet{width:calc(100vw - 18px);max-width:none;padding:14px!important}.dk-contact-person{gap:7px;padding:8px}.dk-contact-avatar{width:32px;height:32px;flex-basis:32px}.dk-contact-person-actions{max-width:74px;gap:3px}.dk-contact-person-actions button{width:29px;height:29px}.dk-contact-stats span{font-size:10px}#modal .digital-pass{padding:16px 12px 13px!important}}
 @media(prefers-reduced-motion:reduce){#tools [data-more-feature="language"],#modal .digital-pass,#modal .pass-logo{animation:none!important;transition:none!important}}
+
+
+/* Customer Contact: full-viewport mobile screen, not a clipped modal */
+#modal:has(.dk-contact-screen){position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-height:100dvh!important;padding:0!important;margin:0!important;display:flex!important;align-items:stretch!important;justify-content:stretch!important;overflow:hidden!important;background:#eaf6ff!important;z-index:99999!important}
+#modal:has(.dk-contact-screen) .sheet{position:relative!important;inset:auto!important;width:100%!important;max-width:none!important;height:100%!important;max-height:100%!important;min-height:0!important;margin:0!important;padding:calc(env(safe-area-inset-top,0px) + 14px) 14px calc(env(safe-area-inset-bottom,0px) + 14px)!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;box-sizing:border-box!important}
+#modal:has(.dk-contact-screen) .dk-contact-screen{width:100%!important;max-width:760px!important;min-height:100%!important;margin:0 auto!important;padding:0 0 16px!important;box-sizing:border-box!important}
+#modal:has(.dk-contact-screen) .dk-contact-screen .dk-modal-head{position:relative!important;top:auto!important;border-radius:20px!important;margin-bottom:12px!important}
+#modal:has(.dk-contact-screen) .dk-contact-search-wrap{position:sticky;top:0;z-index:2;box-shadow:0 4px 12px #0759850d}
+#modal:has(.dk-contact-screen) .dk-contact-person{width:100%;box-sizing:border-box}
+#modal:has(.dk-contact-screen) .dk-contact-person-main{overflow:hidden}
+#modal:has(.dk-contact-screen) .dk-contact-person-actions{flex:0 0 auto}
+#modal:has(.dk-contact-screen) .dk-contact-receive{position:sticky;bottom:0;z-index:2;padding:14px!important;box-shadow:0 -8px 20px #eaf6ffcc;border-radius:16px}
+@media(max-width:520px){
+ #modal:has(.dk-contact-screen) .sheet{padding:calc(env(safe-area-inset-top,0px) + 10px) 10px calc(env(safe-area-inset-bottom,0px) + 10px)!important}
+ #modal:has(.dk-contact-screen) .dk-contact-screen .dk-modal-head{padding:12px!important}
+ #modal:has(.dk-contact-screen) .dk-contact-person{padding:8px 7px;gap:6px}
+ #modal:has(.dk-contact-screen) .dk-contact-person-main b{font-size:12px}
+ #modal:has(.dk-contact-screen) .dk-contact-person-main small,#modal:has(.dk-contact-screen) .dk-contact-due{font-size:10px}
+ #modal:has(.dk-contact-screen) .dk-contact-person-actions{max-width:none;gap:3px}
+ #modal:has(.dk-contact-screen) .dk-contact-person-actions button{width:28px;height:28px;flex:0 0 28px}
+}
