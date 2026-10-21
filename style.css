@@ -3230,3 +3230,50 @@ body.darkmode #modal .dk-language-world{background:radial-gradient(circle at 50%
 #tools [data-more-feature="club-pass"]:before{background:linear-gradient(145deg,#fff0ae,#c49a3b)!important;color:#123d2d!important}
 #tools [data-more-feature]:hover{transform:translateY(-3px) scale(1.008)!important;filter:saturate(1.12)!important;box-shadow:0 16px 34px #063c2b22!important}
 @media(prefers-reduced-motion:reduce){#tools [data-more-feature],#modal:has(.receive-tabs) .receive-tabs button.active,#modal:has(.qr-card) .receive-tabs button.active,#modal:has(.digital-pass-modal) .digital-pass,#modal:has(.digital-pass-modal) .pass-logo{animation:none!important;transition:none!important}}
+
+
+/* Screenshot-aligned More screens: contact directory, ivory login, forest pass */
+#modal:has(.dk-contact-screen) .sheet{max-height:min(92dvh,900px);overflow:auto;background:linear-gradient(160deg,#edf8ff,#f8fcff 55%,#e2f3ff)!important;border:1px solid #a6dafa!important;border-radius:26px!important}
+#modal .dk-contact-screen{padding:4px 0 0}
+#modal .dk-contact-screen .dk-modal-head{margin:0 0 15px;background:linear-gradient(115deg,#e0f4ff,#c4e8fb 65%,#d8f8ec);border:1px solid #a6dafa;border-radius:20px;padding:14px}
+.dk-contact-search-wrap{display:flex;align-items:center;gap:8px;border:1px solid #c9e5f5;border-radius:15px;background:#fff;padding:0 12px;margin:0 0 12px;color:#0878b9;font-size:24px}
+.dk-contact-search-wrap input{border:0!important;box-shadow:none!important;margin:0!important;background:transparent!important;padding:12px 0!important;min-width:0}
+.dk-contact-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 12px}
+.dk-contact-stats span{display:flex;align-items:center;gap:5px;justify-content:center;flex-wrap:wrap;background:#fff;border:1px solid #d4ebf8;border-radius:13px;padding:9px 5px;color:#075985;font-size:11px}
+.dk-contact-stats b{font-size:13px}
+.dk-contact-list{display:grid;gap:8px}
+.dk-contact-person{display:flex;align-items:center;gap:9px;min-width:0;padding:10px;background:linear-gradient(110deg,#fff,#f3faff);border:1px solid #d5eaf7;border-radius:16px;box-shadow:0 5px 14px #0759850b}
+.dk-contact-avatar{width:37px;height:37px;flex:0 0 37px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,#0878b9,#55b8e7);color:#fff;font-weight:900}
+.dk-contact-person-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.dk-contact-person-main b{font-size:13px;color:#173b52;overflow-wrap:anywhere}
+.dk-contact-person-main small{font-size:10px;color:#587789;overflow-wrap:anywhere}
+.dk-contact-due{font-size:10px;color:#0878b9;font-weight:800}
+.dk-contact-person-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px;max-width:100px}
+.dk-contact-person-actions button{width:31px;height:31px;display:grid;place-items:center;border:1px solid #c7e5f5;border-radius:10px;background:#eaf7ff;color:#075985;font-weight:800;padding:0}
+.dk-contact-receive{width:100%;margin-top:12px!important}
+.dk-contact-empty{text-align:center;padding:24px 12px;background:#fff;border:1px dashed #9ecfe9;border-radius:16px;color:#31566d}
+.dk-contact-empty p{font-size:13px;color:#587789}
+#modal:has(.dk-login-shell) .sheet{background:linear-gradient(150deg,#fffdf6,#f6f0e2 70%,#e8e1d2)!important;border:1px solid #ded2b7!important;box-shadow:0 22px 60px #33271330!important}
+#modal .dk-login-shell{background:linear-gradient(150deg,#fffdf6,#f6f0e2 70%,#e8e1d2)!important;color:#263c32!important;border:1px solid #ded2b7!important;border-radius:24px!important}
+#modal .dk-login-shell h2,#modal .dk-login-shell .dk-login-sub,#modal .dk-login-shell .dk-login-badge{color:#263c32!important}
+#modal .dk-login-shell .dk-login-action{background:linear-gradient(110deg,#fff,#f1eadb)!important;color:#263c32!important;border:1px solid #ded2b7!important;border-radius:15px!important}
+#modal .dk-login-shell .dk-login-primary{background:linear-gradient(110deg,#087f5b,#20a879)!important;color:#fff!important;border-color:#087f5b!important}
+#modal .digital-pass-modal{max-width:560px;margin:auto}
+#modal .digital-pass-heading{text-align:center;margin:0 0 12px}
+#modal .digital-pass-kicker{font-size:10px;letter-spacing:1.5px;font-weight:900;color:#087f5b}
+#modal .digital-pass-title{margin:4px 0 12px}
+#modal .digital-pass{padding:20px 17px 15px!important}
+#modal .digital-pass-topline{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#modal .digital-pass-verified{border:1px solid #f3d99a;color:#ffe7a3;background:#ffffff10;border-radius:99px;padding:5px 9px;font-size:10px;font-weight:800}
+#modal .digital-pass-qr-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;margin:13px auto;padding:10px;width:max-content;max-width:100%;background:#fff;border-radius:14px;color:#123d2d;font-size:10px;font-weight:800}
+#modal .digital-pass-qr{width:124px;min-height:124px;display:grid;place-items:center;overflow:hidden}
+#modal .digital-pass-qr img,#modal .digital-pass-qr canvas{max-width:100%;height:auto!important}
+#modal .digital-pass-qr-fallback{display:block;width:124px;padding:40px 8px;text-align:center;font-size:11px}
+#modal .digital-pass-info{display:grid;gap:6px;padding:10px 12px;border-radius:12px;background:#082b20a8;border:1px solid #e9ce7b70;color:#f4e6b5;font-size:11px;overflow-wrap:anywhere}
+#modal .digital-pass-info b{font-size:12px;color:#fff1bd;margin-bottom:2px}
+#modal .digital-pass-thanks{text-align:center;color:#f3d99a!important;font-family:Georgia,serif;font-style:italic;font-size:16px;margin:13px 0 0}
+#modal .digital-pass-thanks small{font-family:inherit;font-size:10px;color:#e1e9d8}
+#tools [data-more-feature="language"]{background:linear-gradient(125deg,#f5f1ff,#dfe9ff 55%,#e5f8f1);border-color:#c5d4f4;color:#293b68;animation:dkLiveShimmer 14s ease-in-out infinite}
+#tools [data-more-feature="language"] b,#tools [data-more-feature="language"] small{color:#293b68}
+@media(max-width:520px){#modal:has(.dk-contact-screen) .sheet{width:calc(100vw - 18px);max-width:none;padding:14px!important}.dk-contact-person{gap:7px;padding:8px}.dk-contact-avatar{width:32px;height:32px;flex-basis:32px}.dk-contact-person-actions{max-width:74px;gap:3px}.dk-contact-person-actions button{width:29px;height:29px}.dk-contact-stats span{font-size:10px}#modal .digital-pass{padding:16px 12px 13px!important}}
+@media(prefers-reduced-motion:reduce){#tools [data-more-feature="language"],#modal .digital-pass,#modal .pass-logo{animation:none!important;transition:none!important}}
