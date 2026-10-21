@@ -3644,3 +3644,39 @@ body:has(#languagePage.active) main{width:100%!important;max-width:none!importan
 #modal:has(.dukaan-pay-shell) #sharePayBtn,#modal:has(.dukaan-pay-shell) #copyPayBtn,#modal:has(.dukaan-pay-shell) #savePaymentBtn{min-height:46px;border-radius:13px!important;font-weight:850!important}
 @media(max-width:380px){#modal:has(.dukaan-pay-shell) .smart-receive-chips button{padding:8px 10px;font-size:11px}#modal:has(.dukaan-pay-shell) .dukaan-pay-head{padding:12px}}
 @media(prefers-reduced-motion:reduce){#modal:has(.dukaan-pay-shell) .smart-receive-chips button{transition:none!important}}
+
+
+/* Shop Profile — Fresh Gradient */
+#modal:has(.dk-shop-profile-all){background:rgba(8,35,34,.48)!important;backdrop-filter:blur(9px)!important}
+#modal:has(.dk-shop-profile-all) .sheet{background:linear-gradient(155deg,#f4fffb,#e1faf2 52%,#d9f4f5)!important;border:1px solid #b8e8dc!important;border-radius:28px!important;box-shadow:0 24px 70px #055b4f38!important;color:#123d3b!important}
+#modal .dk-shop-profile-all{padding:clamp(16px,4vw,26px)!important;border-radius:24px!important;background:linear-gradient(145deg,#fffffff2,#e6fbf5f5)!important;border:1px solid #20a08430!important}
+#modal .dk-shop-profile-all .dk-modal-head{padding:16px!important;border-radius:21px!important;background:linear-gradient(120deg,#087f70,#12a88c 58%,#46c9b0)!important;color:#fff!important;box-shadow:0 12px 26px #087f7033!important}
+#modal .dk-shop-profile-all .dk-modal-head span,#modal .dk-shop-profile-all .dk-modal-head h2,#modal .dk-shop-profile-all .dk-modal-head small,#modal .dk-shop-profile-all .dk-modal-head>b{color:#fff!important}
+#modal .dk-shop-profile-all .dk-modal-icon{border-radius:16px!important;background:#ffffff2e!important;border:1px solid #ffffff47!important}
+#modal .dk-shop-profile-all .dk-shop-profile-fields{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;margin:16px 0!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field{min-width:0!important;padding:12px!important;border-radius:17px!important;background:#ffffffd6!important;border:1px solid #c8eee4!important;box-shadow:0 5px 14px #0967570b!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field label{display:block!important;color:#146b60!important;font-weight:850!important;margin-bottom:7px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{width:100%!important;box-sizing:border-box!important;border:1px solid #b9e4d9!important;border-radius:13px!important;background:#fff!important;color:#173d3a!important;padding:12px!important;min-height:46px!important;outline:none!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field input:focus,#modal .dk-shop-profile-all .dk-shop-profile-field textarea:focus{border-color:#0e9f83!important;box-shadow:0 0 0 3px #0e9f8321!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field:has(textarea){grid-column:1/-1!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:82px!important;resize:vertical!important}
+#modal .dk-shop-profile-all .dk-shop-profile-save{width:100%!important;min-height:50px!important;border-radius:16px!important;background:linear-gradient(100deg,#087f70,#12aa8c)!important;color:#fff!important;border:0!important;box-shadow:0 9px 20px #087f7033!important;font-weight:900!important}
+#modal .dk-shop-profile-all .dk-shop-step-foot{color:#47766e!important;text-align:center!important;font-size:12px!important;margin-top:12px!important}
+@media(max-width:480px){#modal .dk-shop-profile-all .dk-shop-profile-fields{grid-template-columns:minmax(0,1fr)!important;gap:10px!important}#modal .dk-shop-profile-all .dk-shop-profile-field:has(textarea){grid-column:auto!important}#modal:has(.dk-shop-profile-all) .sheet{padding:12px!important}}
+/* Digital Shop Pass — Black & Gold */
+#modal:has(.digital-pass-modal) .sheet{background:linear-gradient(150deg,#fffdf7,#f6f0df)!important;border:1px solid #e5d29b!important;border-radius:28px!important;box-shadow:0 24px 70px #2319053d!important}
+#modal .digital-pass-heading{padding:5px 0 8px!important}
+#modal .digital-pass-kicker{color:#9a7625!important;letter-spacing:2px!important}
+#modal .digital-pass-title{color:#20190c!important;font-weight:950!important;letter-spacing:-.4px!important}
+#modal .digital-pass{position:relative!important;overflow:hidden!important;background:radial-gradient(ellipse at 90% 0%,#4b3a17 0%,transparent 38%),linear-gradient(145deg,#090a0d,#17150f 48%,#29200e)!important;color:#fff!important;border:1px solid #c8a64c!important;border-radius:25px!important;box-shadow:0 20px 38px #140f053f,inset 0 1px 0 #ffe69a3d!important}
+#modal .digital-pass:before{content:"";position:absolute;inset:7px;border:1px solid #dcb95b52;border-radius:19px;pointer-events:none}
+#modal .digital-pass-topline{position:relative;z-index:1}
+#modal .digital-pass .pass-logo{background:linear-gradient(145deg,#ffe9a0,#d3a63a 52%,#8d6417)!important;color:#171208!important;border:1px solid #ffe9a0!important;box-shadow:0 6px 20px #d3a63a30!important}
+#modal .digital-pass-verified{color:#ffe8a0!important;border-color:#d7b454!important;background:#d6ae461f!important}
+#modal .digital-pass .digital-pass-shop-name{color:#fff5d2!important;font-size:clamp(22px,5vw,29px)!important;text-shadow:0 2px 16px #0006!important;overflow-wrap:anywhere!important}
+#modal .digital-pass .digital-pass-owner,#modal .digital-pass .digital-pass-address{color:#d7c99f!important}
+#modal .digital-pass-qr-wrap{position:relative;z-index:1;border:2px solid #d9b653!important;box-shadow:0 7px 20px #0003!important}
+#modal .digital-pass-info{background:linear-gradient(135deg,#d6ae4621,#ffffff09)!important;border:1px solid #dcb95b85!important;color:#f1e4bb!important}
+#modal .digital-pass-info b{color:#ffe6a0!important}
+#modal .digital-pass-thanks{color:#f3d47e!important}
+#modal #shareDigitalPassBtn{width:100%!important;min-height:50px!important;border-radius:16px!important;background:linear-gradient(100deg,#8b6418,#d8b24f 55%,#f4df94)!important;color:#171208!important;border:1px solid #c49b38!important;box-shadow:0 9px 20px #8f67182e!important;font-weight:950!important}
