@@ -2888,3 +2888,20 @@ body.darkmode .quick-grid>button.quick.gold{background:linear-gradient(135deg,#3
 #tools .tools-grid .luxury-tool:active{transform:scale(.98)}
 @media(max-width:380px){#tools .tools-grid{gap:9px}#tools .tools-grid .luxury-tool{min-height:112px!important;padding:13px 11px!important;border-radius:18px!important}#tools .tools-grid .luxury-tool b{font-size:14px!important}#tools .tools-grid .luxury-tool small{font-size:10px!important}}
 @media(prefers-reduced-motion:reduce){#tools .tools-grid .luxury-tool{transition:none}}
+
+
+/* Android mobile polish: clear Shop Pass text, refreshed language chooser, and visible home controls */
+
+/* Shop Pass: guarantee readable shop identity on dark premium card */
+.digital-shop-pass .shop-pass-card h2,.shop-pass-card h2,.shop-pass-card .shop-name,.digital-pass-card .shop-name,#shopPassCard h2,#shopPassCard .shop-name{color:#fff!important;text-shadow:0 2px 12px rgba(0,0,0,.38)!important;opacity:1!important;font-weight:900!important;}
+/* Language chooser: distinct light jade/ivory theme, high contrast and easier scanning */
+.language-modal,.language-panel,.language-picker,.language-screen,#languageModal,#languagePanel{background:linear-gradient(145deg,#f5fffc 0%,#e2faf3 48%,#f8f4ff 100%)!important;color:#153b39!important;border:1px solid rgba(24,132,103,.18)!important;}
+.language-modal h1,.language-modal h2,.language-panel h1,.language-panel h2,.language-picker h1,.language-picker h2,#languageModal h1,#languageModal h2{color:#143f38!important;}
+.language-modal .language-option,.language-panel .language-option,.language-picker .language-option,.language-card,.language-item,[data-language],#languageModal .language-option{background:linear-gradient(135deg,#fff 0%,#e9fbf5 100%)!important;color:#163f3b!important;border:1px solid #b9e7db!important;border-radius:20px!important;box-shadow:0 5px 16px rgba(21,92,76,.07)!important;}
+.language-modal .language-option *, .language-panel .language-option *, .language-picker .language-option *, .language-card *, .language-item *, #languageModal .language-option *{color:inherit;}
+/* Home top controls: strong contrast, fixed touch targets, visible glyphs */
+.home-tools{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;flex-wrap:nowrap!important;min-width:0!important;}
+.home-tools button,.home-tools .pwa-install-btn,.home-tools .home-theme-design,.home-tools .store-pill{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;min-width:48px!important;min-height:48px!important;width:48px!important;height:48px!important;padding:0!important;border:1px solid rgba(26,103,80,.2)!important;border-radius:16px!important;background:linear-gradient(145deg,#fff,#eaf7f1)!important;color:#176b51!important;box-shadow:0 4px 14px rgba(25,80,65,.09)!important;font-size:22px!important;line-height:1!important;opacity:1!important;visibility:visible!important;}
+.home-tools .pwa-install-btn{width:auto!important;min-width:88px!important;padding:0 12px!important;background:linear-gradient(135deg,#16845b,#0d6a4c)!important;color:#fff!important;font-size:14px!important;font-weight:800!important;white-space:nowrap!important;}
+.home-tools button:focus-visible{outline:3px solid #72d9bb!important;outline-offset:2px!important;}
+@media(max-width:420px){.welcome{gap:10px!important}.home-tools{gap:6px!important}.home-tools button,.home-tools .home-theme-design,.home-tools .store-pill{min-width:42px!important;width:42px!important;height:44px!important;border-radius:14px!important;font-size:20px!important}.home-tools .pwa-install-btn{min-width:76px!important;padding:0 8px!important;font-size:12px!important}.welcome h2{font-size:clamp(20px,5.5vw,28px)!important}}
