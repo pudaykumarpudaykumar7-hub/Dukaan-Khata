@@ -3352,3 +3352,23 @@ body.dk-contact-fullscreen-open{overflow:hidden!important}
 #dkCustomerContactFullscreen .dk-contact-receive>span:last-child{font-size:24px}
 @media(max-width:520px){#dkCustomerContactFullscreen.dk-contact-fullscreen{padding-left:9px!important;padding-right:9px!important;gap:9px!important}#dkCustomerContactFullscreen .dk-contact-appbar{padding:9px;gap:9px}#dkCustomerContactFullscreen .dk-contact-appbar h1{font-size:18px}#dkCustomerContactFullscreen .dk-contact-stats{gap:5px}#dkCustomerContactFullscreen .dk-contact-stats span{font-size:10px;padding:8px 2px}#dkCustomerContactFullscreen .dk-contact-person{padding:8px 6px;gap:6px}#dkCustomerContactFullscreen .dk-contact-avatar{width:32px;height:32px;flex-basis:32px}#dkCustomerContactFullscreen .dk-contact-person-main b{font-size:12px}#dkCustomerContactFullscreen .dk-contact-person-actions{max-width:68px;gap:2px}#dkCustomerContactFullscreen .dk-contact-person-actions button{width:27px;height:27px;flex-basis:27px}}
 @media(prefers-reduced-motion:reduce){#dkCustomerContactFullscreen *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+
+/* Shop Profile: Emerald & Champagne premium form theme */
+#modal:has(.dk-shop-theme) .sheet{background:linear-gradient(150deg,#f6fff9 0%,#fffdf5 58%,#f2ead7 100%)!important;border:1px solid #d9c58f!important;border-radius:26px!important;box-shadow:0 22px 55px #064e3b25!important}
+#modal .dk-shop-theme{color:#123f32!important;padding:4px 0 8px}
+#modal .dk-shop-theme .dk-modal-head{display:flex;align-items:center;gap:12px;margin:0 0 16px!important;padding:16px!important;border:1px solid #d7c28b!important;border-radius:20px!important;background:linear-gradient(120deg,#064e3b 0%,#087f5b 62%,#d8c18a 145%)!important;color:#fff!important;box-shadow:0 10px 24px #064e3b20}
+#modal .dk-shop-theme .dk-modal-head span,#modal .dk-shop-theme .dk-modal-head h2,#modal .dk-shop-theme .dk-modal-head small{color:#fff!important}
+#modal .dk-shop-theme .dk-modal-head h2{font-size:22px;letter-spacing:-.4px;margin:3px 0}
+#modal .dk-shop-theme .dk-modal-head .dk-modal-icon{display:grid;place-items:center;width:48px;height:48px;flex:0 0 48px;border:1px solid #f1dfa6;border-radius:16px;background:#ffffff18;color:#ffe9ac;font-size:24px}
+#modal .dk-shop-theme .dk-modal-head>b{margin-left:auto;border:1px solid #f1dfa6;border-radius:99px;padding:6px 10px;color:#ffedbd!important;font-size:10px;letter-spacing:1px}
+#modal .dk-shop-theme .dk-modal-card{padding:14px!important;margin:0 0 13px!important;border:1px solid #e4d5aa!important;border-radius:17px!important;background:linear-gradient(120deg,#fff,#f7f0df)!important}
+#modal .dk-shop-theme .dk-modal-card h3{margin:0 0 5px;color:#075e46!important;font-size:15px}
+#modal .dk-shop-theme .dk-modal-card p{margin:0;color:#64776a!important;font-size:12px;line-height:1.5}
+#modal .dk-shop-theme input,#modal .dk-shop-theme textarea{display:block;width:100%;box-sizing:border-box;margin:0 0 11px!important;padding:14px 13px!important;border:1px solid #d8d0b7!important;border-radius:14px!important;background:#fffef9!important;color:#163e31!important;box-shadow:0 3px 10px #064e3b08!important;font-size:14px!important;outline:none}
+#modal .dk-shop-theme input::placeholder,#modal .dk-shop-theme textarea::placeholder{color:#87968a!important}
+#modal .dk-shop-theme input:focus,#modal .dk-shop-theme textarea:focus{border-color:#0a936a!important;box-shadow:0 0 0 3px #0a936a1b!important}
+#modal .dk-shop-theme textarea{min-height:86px;resize:vertical}
+#modal .dk-shop-theme button.btn.primary{width:100%;padding:14px 16px!important;border:1px solid #d9c58f!important;border-radius:15px!important;background:linear-gradient(105deg,#065f46,#0a936a 70%,#c6a95f 155%)!important;color:#fff!important;font-weight:800!important;box-shadow:0 9px 20px #065f4626!important}
+#modal .dk-shop-theme button.btn.primary:active{transform:scale(.99)}
+@media(max-width:520px){#modal:has(.dk-shop-theme) .sheet{width:calc(100vw - 18px);max-width:none;padding:13px!important;border-radius:23px!important}#modal .dk-shop-theme .dk-modal-head{padding:13px!important}#modal .dk-shop-theme .dk-modal-head h2{font-size:20px}#modal .dk-shop-theme input,#modal .dk-shop-theme textarea{padding:13px 12px!important}}
