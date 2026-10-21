@@ -2,7 +2,7 @@
 // Descriptions are keyed to each feature, so changing the order never mismatches them.
 (function(){
   const descriptions={
-    "smart-receive":"Generate UPI QR • Share payment QR • Record cash or UPI received",
+    "smart-receive":"Show UPI QR • Select customer • Record cash or UPI received",
     "shop-profile":"Edit shop name • Owner • Phone • UPI ID • Address",
     "language":"Choose from all 23 supported Indian languages",
     "customer-contact":"WhatsApp • Call • SMS • Due reminders",
