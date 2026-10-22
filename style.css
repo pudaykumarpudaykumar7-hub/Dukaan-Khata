@@ -4397,3 +4397,24 @@ html body #uvmsLaunchSplash .uvms-launch-letters span:nth-child(4n){animation:uv
 /* v72: 144 individually distributed glyphs fill the full launch viewport. */
 html body #uvmsLaunchSplash .uvms-launch-letters{inset:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;overflow:hidden!important;}
 html body #uvmsLaunchSplash .uvms-launch-letters span{font-size:clamp(16px,4.5vw,32px)!important;opacity:.82!important;color:#b5f5ff!important;text-shadow:0 0 7px #22d8ff,0 0 16px #22d8ff99!important;}
+
+
+/* v75 quality pass: keyboard focus, touch safety, safe-area spacing and reduced motion. */
+:where(a,button,input,select,textarea,[role="button"],[tabindex]):focus-visible{
+  outline:3px solid #43c7d8!important;
+  outline-offset:3px!important;
+  box-shadow:0 0 0 3px rgba(67,199,216,.18)!important;
+}
+:where(button,[role="button"]){-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+:where(input,select,textarea){scroll-margin-block:96px}
+html{scroll-padding-top:84px;overflow-x:clip}
+body{overflow-x:clip;padding-bottom:max(92px,calc(92px + env(safe-area-inset-bottom)))}
+@supports not (overflow:clip){html,body{overflow-x:hidden}}
+@media(max-width:520px){
+  body{padding-bottom:max(92px,calc(92px + env(safe-area-inset-bottom)))}
+  .modal .sheet{max-height:calc(100dvh - env(safe-area-inset-top) - 16px);overflow-y:auto;overscroll-behavior:contain}
+}
+@media(prefers-reduced-motion:reduce){
+  html:focus-within{scroll-behavior:auto!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
