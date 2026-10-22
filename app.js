@@ -730,6 +730,11 @@ function openBackgroundTheme(){
       '<button type="button" class="dk-color-dot" style="--dot:#f43f5e" aria-label="Rose gradient" onclick="dkSetGradientColor(\'#f43f5e\',\'#7f1d1d\',\'#2a0710\')"></button>'+
       '<button type="button" class="dk-color-dot" style="--dot:#ffffff" aria-label="Light gradient" onclick="dkSetGradientColor(\'#ffffff\',\'#e0e7ff\',\'#f5f3ff\')"></button>'+
     '</div>'+
+    '<div class="dk-custom-colors"><div class="dk-color-title">Customize this theme — choose any colours</div><div class="dk-custom-color-grid">'+
+      '<label>Glow colour <input id="dkThemeColor1" type="color" value="'+(t.color1||"#7c3aed")+'" oninput="dkSetPresetColor(1,this.value)"></label>'+
+      '<label>Middle colour <input id="dkThemeColor2" type="color" value="'+(t.color2||"#2563eb")+'" oninput="dkSetPresetColor(2,this.value)"></label>'+
+      '<label>Base colour <input id="dkThemeColor3" type="color" value="'+(t.color3||"#09031b")+'" oninput="dkSetPresetColor(3,this.value)"></label>'+
+    '</div><small>Pick a preset first, then change any of its three colours. Your choices are saved automatically.</small></div>'+
     '<div class="dk-bg-presets">'+
       '<button type="button" onclick="dkChooseGlobalPreset(\'futuristic\')">✦<b>Futuristic</b><small>Purple AI</small></button>'+
       '<button type="button" onclick="dkChooseGlobalPreset(\'midnight\')">◐<b>Midnight</b><small>Deep dark</small></button>'+
@@ -752,7 +757,7 @@ function openBackgroundTheme(){
 function dkUpdateGlobalPreview(){
   const p=document.getElementById("dkBgPreview");if(!p)return;
   const t=dkGetGlobalTheme();
-  p.dataset.previewTheme=t.mode||"futuristic";if(t.mode==="gradient")p.style.background="linear-gradient(135deg,"+(t.color1||"#7c3aed")+","+(t.color2||"#2563eb")+" 50%,"+(t.color3||"#09031b")+")";
+  p.dataset.previewTheme=t.mode||"futuristic";if(["futuristic","midnight","ocean","sunset","light","gradient"].includes(t.mode))p.style.background="radial-gradient(ellipse 80% 60% at 50% 0%,"+(t.color1||"#7c3aed")+"99,transparent 65%),linear-gradient(135deg,"+(t.color1||"#7c3aed")+","+(t.color2||"#2563eb")+" 50%,"+(t.color3||"#09031b")+")";
   p.style.backgroundImage=t.image?"linear-gradient(#0005,#0005),url("+JSON.stringify(t.image)+")":"";
   p.style.backgroundSize=t.fit||"cover";p.style.backgroundPosition=t.position||"center";
 }
@@ -764,8 +769,23 @@ function dkToggleLiveBackground(){
   document.body.classList.toggle("dk-live-background",!!t.live);
   dkUpdateGlobalPreview();
 }
+const DK_PRESET_COLORS={
+  futuristic:["#7c3aed","#2563eb","#09031b"],
+  midnight:["#64748b","#1e293b","#020617"],
+  ocean:["#06b6d4","#0f766e","#02151d"],
+  sunset:["#fb7185","#f97316","#2a0710"],
+  light:["#ffffff","#e0e7ff","#f5f3ff"]
+};
 function dkChooseGlobalPreset(mode){
-  const t=dkGetGlobalTheme();t.mode=mode;t.image="";
+  const t=dkGetGlobalTheme(),colors=DK_PRESET_COLORS[mode]||DK_PRESET_COLORS.futuristic;
+  t.mode=mode;t.image="";t.color1=colors[0];t.color2=colors[1];t.color3=colors[2];
+  dkSaveGlobalTheme(t);dkUpdateGlobalPreview();
+  [1,2,3].forEach((n)=>{const el=document.getElementById("dkThemeColor"+n);if(el)el.value=t["color"+n]});
+}
+function dkSetPresetColor(slot,color){
+  if(!/^#[0-9a-f]{6}$/i.test(color))return;
+  const t=dkGetGlobalTheme();if(!["futuristic","midnight","ocean","sunset","light","gradient"].includes(t.mode))t.mode="futuristic";
+  t.image="";t["color"+slot]=color;
   dkSaveGlobalTheme(t);dkUpdateGlobalPreview();
 }
 function dkSetGradientColor(a,b,c){const t=dkGetGlobalTheme();t.mode="gradient";t.image="";t.color1=a;t.color2=b;t.color3=c;dkSaveGlobalTheme(t);dkUpdateGlobalPreview();}
