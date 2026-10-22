@@ -4466,3 +4466,17 @@ input,select,textarea{background:#fffefb!important;border-color:#dce3d9!importan
 @media(min-width:760px){.home-tools{grid-template-columns:repeat(4,minmax(0,1fr))}.bottom-nav{max-width:720px;left:50%!important;transform:translateX(-50%);width:calc(100% - 40px);border:1px solid rgba(23,79,60,.13)!important;border-radius:22px 22px 0 0}}
 @media(max-width:520px){body{background:radial-gradient(ellipse at 100% 0%,rgba(228,163,59,.11),transparent 20rem),var(--bg)}.balance-hero{border-radius:24px!important}:where(.card,.stat-card,.summary-card,.customer-card,.transaction-card,.luxury-tool,.home-tools button){border-radius:19px!important}.home-tools{grid-template-columns:repeat(2,minmax(0,1fr))}.home-tools button,.luxury-tool{min-height:92px!important;padding:13px!important}.bottom-nav{padding-left:max(8px,env(safe-area-inset-left))!important;padding-right:max(8px,env(safe-area-inset-right))!important}}
 @media(prefers-reduced-motion:reduce){:where(button,.btn,[role="button"]){transition:none!important}}
+
+/* v78 — visible mobile-first polish: clearer hierarchy, richer shop surfaces, and safer tap targets */
+:root{--shadow:0 12px 32px rgba(16,24,40,.085)}
+body{ -webkit-tap-highlight-color:transparent; text-rendering:optimizeLegibility}
+:where(button,.btn,[role="button"],a,input,select,textarea){touch-action:manipulation}
+:where(button,.btn,[role="button"]){transition:transform .16s ease,box-shadow .2s ease,filter .2s ease}
+:where(button,.btn,[role="button"]):active{transform:scale(.985)}
+:where(.balance-hero,.hero,.shop-hero){box-shadow:0 14px 34px rgba(23,107,77,.16)}
+:where(.card,.stat-card,.summary-card,.customer-card,.transaction-card,.luxury-tool){border:1px solid rgba(16,24,40,.055);box-shadow:0 8px 24px rgba(16,24,40,.055)}
+:where(input,select,textarea){min-height:44px}
+:where(button,.btn){min-height:42px}
+:focus-visible{outline:3px solid rgba(217,153,42,.72)!important;outline-offset:2px}
+@media(max-width:520px){main,.main-content,.app-content{padding-left:14px!important;padding-right:14px!important} .balance-hero{box-shadow:0 16px 36px rgba(23,107,77,.2)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
