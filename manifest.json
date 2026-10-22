@@ -1,20 +1,27 @@
 {
-  "name": "Dukaan Khata — Smart Business Universe",
+  "name": "UVMS Dukaan Khata",
   "short_name": "UVMS Dukaan Khata",
   "description": "A modern business companion for customer ledgers, sales, payments, reminders and shop discovery.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
   "background_color": "#050817",
   "theme_color": "#050817",
   "lang": "en",
-  "categories": ["business", "finance", "productivity"],
+  "categories": [
+    "business",
+    "finance",
+    "productivity"
+  ],
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icon.svg?v=uvms-cosmic-v1",
+      "src": "icon.svg?v=uvms-logo-final-v41",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
