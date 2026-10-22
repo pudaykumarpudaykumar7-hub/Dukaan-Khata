@@ -4343,20 +4343,26 @@ html body .topbar .brand .uvms-header-image-button{box-sizing:border-box!importa
 html body .topbar .brand .uvms-header-image-button .uvms-header-inline-svg{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;flex:0 0 100%!important;object-fit:contain!important;position:relative!important;z-index:2!important}
 @media(max-width:520px){html body .topbar .brand .uvms-header-image-button{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;flex-basis:44px!important}}
 
-/* v66: compact, legible UVMS emblem designed for the small mobile header tile. */
+/* v67: compact, legible UVMS emblem designed for the small mobile header tile. */
 html body .topbar .brand .uvms-header-image-button{display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 52px!important;width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important;padding:0!important;overflow:hidden!important;background:#061326!important;border:1px solid #42dcff!important;border-radius:13px!important;box-shadow:0 0 0 1px #8c4dff66,0 0 14px #20cfff55!important;}
 html body .topbar .brand .uvms-header-image-button .uvms-header-inline-svg{display:block!important;flex:none!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:fill!important;opacity:1!important;visibility:visible!important;position:relative!important;z-index:2!important;}
 html body .topbar .brand .uvms-header-image-button .uvms-header-inline-svg text{font-size:27px!important;font-weight:900!important;}
 @media(max-width:520px){html body .topbar .brand .uvms-header-image-button{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;flex-basis:48px!important}}
 
-/* v66: ensure every letter in UVMS, especially the final S, fits clearly inside the compact header badge. */
+/* v67: ensure every letter in UVMS, especially the final S, fits clearly inside the compact header badge. */
 html body .topbar .brand .uvms-header-image-button .uvms-header-inline-svg text{font-size:36px!important;letter-spacing:0!important;}
 
-/* v66: draw UVMS as four individually positioned letters so the final S cannot be clipped. */
+/* v67: draw UVMS as four individually positioned letters so the final S cannot be clipped. */
 html body .topbar .brand .uvms-header-image-button .uvms-header-inline-svg{overflow:visible!important;}
 html body .topbar .brand .uvms-header-image-button .uvms-header-inline-svg text{font-size:34px!important;font-weight:900!important;}
 
-/* v66: use real HTML text for the compact header wordmark; keeps the final S visible after refresh on mobile. */
+/* v67: use real HTML text for the compact header wordmark; keeps the final S visible after refresh on mobile. */
 html body .topbar .brand .uvms-header-image-button{display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 52px!important;width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important;padding:0!important;overflow:visible!important;background:linear-gradient(145deg,#10294b,#050817)!important;border:1px solid #42dcff!important;border-radius:13px!important;box-shadow:0 0 0 1px #8c4dff66,0 0 14px #20cfff55!important;}
 html body .topbar .brand .uvms-header-wordmark{display:block!important;visibility:visible!important;opacity:1!important;white-space:nowrap!important;overflow:visible!important;width:100%!important;text-align:center!important;font-family:Arial,sans-serif!important;font-size:15px!important;font-weight:900!important;letter-spacing:-.45px!important;line-height:1!important;color:#fff!important;text-shadow:0 0 1px #fff!important;}
 @media(max-width:520px){html body .topbar .brand .uvms-header-image-button{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;flex-basis:48px!important}html body .topbar .brand .uvms-header-wordmark{font-size:14px!important;letter-spacing:-.4px!important}}
+
+/* v67: use the actual brand emblem artwork in the header box, never floating letters. */
+html body .topbar .brand .uvms-header-image-button{display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 52px!important;width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important;padding:3px!important;overflow:hidden!important;background:#061326!important;border:1px solid #42dcff!important;border-radius:13px!important;box-shadow:0 0 0 1px #8c4dff66,0 0 14px #20cfff55!important;}
+html body .topbar .brand .uvms-header-image-button .uvms-header-logo-img{display:block!important;position:static!important;flex:0 0 100%!important;width:100%!important;height:100%!important;min-width:0!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;visibility:visible!important;opacity:1!important;border:0!important;border-radius:9px!important;}
+html body .topbar .brand .uvms-header-wordmark{display:none!important;}
+@media(max-width:520px){html body .topbar .brand .uvms-header-image-button{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;flex-basis:48px!important}}
