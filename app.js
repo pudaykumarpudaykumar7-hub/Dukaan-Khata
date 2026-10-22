@@ -9,7 +9,8 @@ function loadState(){
   try{
     const raw=localStorage.getItem(KEY)||localStorage.getItem("dukaan_khata_infinity_v1");
     const x=raw?JSON.parse(raw):{};
-    return {...defaults(),...x,shop:{...defaults().shop,...(x.shop||{})},settings:{...defaults().settings,...(x.settings||{})},
+    const savedTheme=localStorage.getItem("dukaan_khata_background_theme");
+    return {...defaults(),...x,shop:{...defaults().shop,...(x.shop||{})},settings:{...defaults().settings,...(x.settings||{}),theme:(savedTheme==="dark"||savedTheme==="light")?savedTheme:((x.settings||{}).theme==="dark"?"dark":"light")},
       customers:Array.isArray(x.customers)?x.customers:[],tx:Array.isArray(x.tx)?x.tx:[],
       expenses:Array.isArray(x.expenses)?x.expenses:[],returns:Array.isArray(x.returns)?x.returns:[],
       reminders:Array.isArray(x.reminders)?x.reminders:[]};
@@ -507,8 +508,8 @@ function openLanguage(){
 }
 function voiceEntry(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return toast("Voice input is not supported in this browser");const r=new R();r.lang=state.settings.language==="Telugu"?"te-IN":state.settings.language==="Hindi"?"hi-IN":"en-IN";r.onresult=e=>toast("Heard: "+e.results[0][0].transcript);r.start()}
 function openAbout(){modal('<h2>✦ Dukaan Khata Infinity</h2><p>Simple digital tools for Indian shops.</p><div class="line"><span>Digital Khata</span><b>✓</b></div><div class="line"><span>Many items with individual prices</span><b>✓</b></div><div class="line"><span>UPI QR Receive</span><b>✓</b></div><div class="line"><span>Customer Connect</span><b>✓</b></div><div class="line"><span>Backup & Restore</span><b>✓</b></div>')}
-function toggleTheme(){state.settings.theme=state.settings.theme==="dark"?"light":"dark";saveState();applyAppTheme();render()}
-function applyAppTheme(){const mode=state?.settings?.theme==="dark"?"dark":"light";document.documentElement.dataset.dkTheme=mode;document.body.classList.toggle("darkmode",mode==="dark");document.body.dataset.dkTheme=mode;document.body.style.colorScheme=mode;}
+function toggleTheme(){state.settings.theme=state.settings.theme==="dark"?"light":"dark";try{localStorage.setItem("dukaan_khata_background_theme",state.settings.theme)}catch(e){}saveState();applyAppTheme();render()}
+function applyAppTheme(){let mode="light";try{const saved=localStorage.getItem("dukaan_khata_background_theme");mode=(saved==="dark"||saved==="light")?saved:(state?.settings?.theme==="dark"?"dark":"light")}catch(e){mode=state?.settings?.theme==="dark"?"dark":"light"}if(state?.settings)state.settings.theme=mode;document.documentElement.dataset.dkTheme=mode;document.body.classList.toggle("darkmode",mode==="dark");document.body.dataset.dkTheme=mode;document.body.style.colorScheme=mode;}
 function clearDemo(){if(confirm("Clear all Dukaan Khata data on this device?")){localStorage.removeItem(KEY);state=defaults();render();toast("Data reset")}}
 
 function renderKhata(){
@@ -674,6 +675,7 @@ document.addEventListener("DOMContentLoaded",()=>{
         filterKhata(filters[i]||"all",btn);
       });
     });
+    if(typeof applyAppTheme==="function")applyAppTheme();
     if(typeof render==="function")render();
     if(typeof applyHomeLogo==="function")applyHomeLogo();
     if(typeof applyOutstandingColor==="function")applyOutstandingColor();
