@@ -4265,3 +4265,10 @@ body.dk-live-background[data-global-theme="gradient"]{
 @keyframes uvmsLaunchIn{from{opacity:0;transform:translateY(18px) scale(.92)}to{opacity:1;transform:none}}@keyframes uvmsTextReveal{from{opacity:0;transform:translateY(12px);filter:blur(5px)}to{opacity:1;transform:none;filter:blur(0)}}@keyframes uvmsOrbitDraw{to{stroke-dashoffset:0}}@keyframes uvmsBorderGlow{0%,100%{filter:drop-shadow(0 0 2px #26dfff)}50%{filter:drop-shadow(0 0 9px #b348ff)}}@keyframes uvmsMarkFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}@keyframes uvmsStarDrift{from{transform:translateY(0)}to{transform:translateY(-30px)}}
 @media(prefers-reduced-motion:reduce){.uvms-launch-splash,.uvms-launch-frame,.uvms-launch-word,.uvms-launch-sub,.uvms-launch-mark,.uvms-launch-stars:before,.uvms-launch-stars:after,.launch-orbit{animation:none!important;transition:none!important}.uvms-launch-word,.uvms-launch-sub{opacity:1}}
 @media(max-width:380px){.uvms-launch-frame{width:84vw;border-radius:26px}.uvms-launch-mark{width:69%}.uvms-launch-sub{letter-spacing:.25em}}
+
+/* Exact shared UVMS brand artwork for the header and launch screen */
+.uvms-header-image-button{width:48px;height:48px;flex:0 0 48px;padding:0;border:0;background:transparent!important;box-shadow:none!important;display:block;overflow:hidden;border-radius:13px}
+.uvms-header-image-button img{width:100%;height:100%;display:block;object-fit:cover;border-radius:13px;filter:drop-shadow(0 0 8px #23cfff36)}
+.uvms-launch-mark{width:min(73%,270px);max-width:270px;filter:drop-shadow(0 0 17px #3bbcff42)}
+.uvms-launch-mark img{display:block;width:100%;height:auto;border-radius:22%;box-shadow:0 0 28px #2c8dff25}
+.uvms-launch-mark svg{display:none}
