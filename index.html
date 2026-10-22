@@ -97,5 +97,5 @@ window.openAppInstall=async function(){
 };
 })();
 </script>
-<script>(()=>{const splash=document.getElementById("uvmsLaunchSplash");if(!splash)return;let finished=false;const dismiss=()=>{if(finished)return;finished=true;splash.classList.add("uvms-launch-hide");window.dispatchEvent(new Event("uvms-launch-complete"));window.setTimeout(()=>splash.remove(),750)};const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;window.setTimeout(dismiss,3600);window.addEventListener("pageshow",()=>{if(!finished){splash.classList.remove("uvms-launch-hide");splash.style.display="flex";}}, {once:true});})();</script></body>
+<script>(()=>{const splash=document.getElementById("uvmsLaunchSplash");if(!splash)return;let finished=false;const dismiss=()=>{if(finished)return;finished=true;splash.classList.add("uvms-launch-hide");window.dispatchEvent(new Event("uvms-launch-complete"));window.setTimeout(()=>splash.remove(),750)};const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;window.setTimeout(dismiss,2500);window.addEventListener("pageshow",()=>{if(!finished){splash.classList.remove("uvms-launch-hide");splash.style.display="flex";}}, {once:true});})();</script></body>
 </html>
