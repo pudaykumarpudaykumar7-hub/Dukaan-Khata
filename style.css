@@ -4272,3 +4272,21 @@ body.dk-live-background[data-global-theme="gradient"]{
 .uvms-launch-mark{width:min(73%,270px);max-width:270px;filter:drop-shadow(0 0 17px #3bbcff42)}
 .uvms-launch-mark img{display:block;width:100%;height:auto;border-radius:22%;box-shadow:0 0 28px #2c8dff25}
 .uvms-launch-mark svg{display:none}
+
+/* UVMS live launch animation v45 */
+.uvms-launch-splash{isolation:isolate;animation:uvmsSplashAppear .45s ease-out both;will-change:opacity}
+.uvms-launch-frame{overflow:visible;will-change:transform,opacity}
+.uvms-launch-mark img{animation:uvmsLogoPulse 2.2s ease-in-out infinite;will-change:transform,filter}
+.uvms-live-orbit{position:absolute;left:50%;top:38%;width:70%;aspect-ratio:1;border:1px solid transparent;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%) rotate(-24deg);background:linear-gradient(transparent,transparent) padding-box,linear-gradient(90deg,#25e8ff,#654bff,#ed3bff) border-box;opacity:.7;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;padding:2px}
+.uvms-live-orbit-one{animation:uvmsOrbitSpin 4.8s linear infinite}
+.uvms-live-orbit-two{width:82%;aspect-ratio:1.12;transform:translate(-50%,-50%) rotate(42deg);opacity:.36;animation:uvmsOrbitSpin 7s linear infinite reverse}
+.uvms-launch-status{display:flex;align-items:center;gap:8px;margin-top:22px;font-size:9px;letter-spacing:.17em;color:#b9d9ff;opacity:.85;animation:uvmsTextReveal .8s 1s both}
+.uvms-launch-status i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#41f3d1;box-shadow:0 0 12px #41f3d1;animation:uvmsLiveDot 1.2s ease-in-out infinite}
+.uvms-launch-rule span{animation:uvmsLineGlow 2s ease-in-out infinite alternate}
+.uvms-launch-rule span:last-child{animation-delay:1s}
+@keyframes uvmsSplashAppear{from{opacity:0}to{opacity:1}}
+@keyframes uvmsLogoPulse{0%,100%{transform:translateY(0) scale(1);filter:drop-shadow(0 0 8px #23dfff30)}50%{transform:translateY(-7px) scale(1.025);filter:drop-shadow(0 0 24px #7d47ff85)}}
+@keyframes uvmsOrbitSpin{from{rotate:0deg}to{rotate:360deg}}
+@keyframes uvmsLiveDot{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.35)}}
+@keyframes uvmsLineGlow{from{opacity:.45;filter:brightness(.8)}to{opacity:1;filter:brightness(1.8)}}
+@media(prefers-reduced-motion:reduce){.uvms-live-orbit,.uvms-launch-mark img,.uvms-launch-status i,.uvms-launch-rule span{animation:none!important}}
