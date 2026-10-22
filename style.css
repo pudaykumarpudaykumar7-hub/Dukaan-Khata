@@ -4290,3 +4290,22 @@ body.dk-live-background[data-global-theme="gradient"]{
 @keyframes uvmsLiveDot{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.35)}}
 @keyframes uvmsLineGlow{from{opacity:.45;filter:brightness(.8)}to{opacity:1;filter:brightness(1.8)}}
 @media(prefers-reduced-motion:reduce){.uvms-live-orbit,.uvms-launch-mark img,.uvms-launch-status i,.uvms-launch-rule span{animation:none!important}}
+
+
+/* UVMS live launch sequence v45 */
+.uvms-launch-splash{isolation:isolate;animation:uvmsBootFade .55s ease-out both}
+.uvms-launch-aura{position:absolute;z-index:-1;width:min(90vw,620px);aspect-ratio:1;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 18%,#1de9ff 24%,#315dff 36%,#a42bff 48%,transparent 58% 100%);filter:blur(2px);opacity:.55;mask:radial-gradient(circle,transparent 57%,#000 58%,#000 60%,transparent 62%);animation:uvmsAuraSpin 5s linear infinite}
+.uvms-launch-frame{animation:uvmsLaunchIn .9s cubic-bezier(.2,.8,.2,1) both,uvmsFrameBreathe 3.4s ease-in-out .9s infinite}
+.uvms-launch-frame:after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,transparent 25%,#ffffff0a 42%,#9ef4ff38 50%,#ffffff08 58%,transparent 75%);background-size:240% 100%;animation:uvmsGlassSweep 2.8s ease-in-out .7s infinite}
+.uvms-launch-mark img{animation:uvmsLogoLift 2.8s ease-in-out infinite;filter:drop-shadow(0 0 8px #23dfff25)}
+.uvms-launch-rule span{background-size:200% 100%;animation:uvmsRuleFlow 1.8s ease-in-out infinite}
+.uvms-launch-rule span:last-child{animation-delay:.3s}
+.uvms-launch-rule{animation:uvmsSparkle 2s ease-in-out infinite}
+@keyframes uvmsAuraSpin{to{transform:rotate(360deg)}}
+@keyframes uvmsFrameBreathe{0%,100%{box-shadow:0 0 35px #00c8ff20,inset 0 0 36px #5228b91c}50%{box-shadow:0 0 58px #00d9ff38,0 0 85px #922cff20,inset 0 0 48px #5228b932}}
+@keyframes uvmsGlassSweep{0%,100%{background-position:130% 0}50%{background-position:-50% 0}}
+@keyframes uvmsLogoLift{0%,100%{transform:translateY(0) scale(1);filter:drop-shadow(0 0 9px #20dfff35)}50%{transform:translateY(-7px) scale(1.025);filter:drop-shadow(0 0 23px #694cff88)}}
+@keyframes uvmsRuleFlow{0%,100%{opacity:.65;filter:brightness(1)}50%{opacity:1;filter:brightness(1.8)}}
+@keyframes uvmsSparkle{0%,100%{opacity:.8}50%{opacity:1;text-shadow:0 0 16px #ad83ff}}
+@keyframes uvmsBootFade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.uvms-launch-aura,.uvms-launch-frame,.uvms-launch-frame:after,.uvms-launch-mark img,.uvms-launch-rule,.uvms-launch-rule span{animation:none!important}}
