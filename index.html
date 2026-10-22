@@ -15,7 +15,7 @@
 <meta property="og:url" content="https://pudaykumarpudaykumar7-hub.github.io/Dukaan-Khata/">
 <meta name="google-site-verification" content="yxGmsKLNh80x8p2xAea4jExg0TK-CKe7ma8ZCLY6lmE" />
 <link rel="manifest" href="manifest.json?v=uvms-launch-v46"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="icon" type="image/svg+xml" href="icon.svg?v=uvms-launch-v46"><link rel="apple-touch-icon" href="icon.svg?v=uvms-launch-v46">
-<link rel="stylesheet" href="style.css?v=20261022-uvms-launch-v47">
+<link rel="stylesheet" href="style.css?v=20261022-uvms-launch-v48">
 <title>Dukaan Khata (Dukaan Kotha) - Digital Khata &amp; Shop Management</title>
 </head>
 <body>
@@ -48,13 +48,13 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" async></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" async></script>
 <script>(()=>{const h=new Date().getHours();const e=document.getElementById("greeting");if(e)e.textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+" 👋";const d=document.getElementById("todayLabel");if(d)d.textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});})();</script>
-<script src="app.js?v=20261022-uvms-launch-v47" defer></script>
+<script src="app.js?v=20261022-uvms-launch-v48" defer></script>
 <script src="auth.js?v=20261021-owner-login-async-v3" defer></script>
-<script src="login-access.js?v=20261020-remove-dukaan-pay-v1" defer></script>
+<script src="login-access.js?v=20261022-launch-gate-v48" defer></script>
 <script src="i18n.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 <script src="more-routing.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 </div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=20261022-uvms-launch-v47",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=20261022-uvms-launch-v48",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
 <script>
 (()=>{let deferredPrompt=null;const btn=()=>document.getElementById("pwaInstallBtn");
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=btn();if(b)b.hidden=false;});
@@ -68,5 +68,5 @@ window.openAppInstall=async function(){
 };
 })();
 </script>
-<script>(()=>{const splash=document.getElementById("uvmsLaunchSplash");if(!splash)return;let finished=false;const dismiss=()=>{if(finished)return;finished=true;splash.classList.add("uvms-launch-hide");window.setTimeout(()=>splash.remove(),750)};const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;window.setTimeout(dismiss,reduced?900:5000);splash.addEventListener("click",dismiss,{once:true});window.addEventListener("pageshow",()=>{if(!finished){splash.classList.remove("uvms-launch-hide");splash.style.display="flex";}}, {once:true});})();</script></body>
+<script>(()=>{const splash=document.getElementById("uvmsLaunchSplash");if(!splash)return;let finished=false;const dismiss=()=>{if(finished)return;finished=true;splash.classList.add("uvms-launch-hide");window.dispatchEvent(new Event("uvms-launch-complete"));window.setTimeout(()=>splash.remove(),750)};const reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;window.setTimeout(dismiss,5000);splash.addEventListener("click",dismiss,{once:true});window.addEventListener("pageshow",()=>{if(!finished){splash.classList.remove("uvms-launch-hide");splash.style.display="flex";}}, {once:true});})();</script></body>
 </html>
