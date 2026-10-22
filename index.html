@@ -51,7 +51,7 @@ html body #uvmsLaunchSplash .uvms-launch-frame{position:relative!important;z-ind
 </script>
 <!-- Launch animation must remain on top for five seconds; login starts only after it completes. --><div class="app">
 <header class="topbar">
-  <div class="brand"><button class="uvms-logo-button uvms-header-image-button" type="button" aria-label="Open UVMS logo" onclick="openUVMSLogo()"><span class="uvms-header-wordmark" aria-label="UVMS">UVMS</span></button><div><h1>Dukaan Khata</h1><small id="ownerHeader">Smart Business</small></div></div>
+  <div class="brand"><button class="uvms-logo-button uvms-header-image-button" type="button" aria-label="Open UVMS logo" onclick="openUVMSLogo()"><img class="uvms-header-logo-img" src="icon.svg?v=uvms-header-logo-v67" alt="UVMS logo"></button><div><h1>Dukaan Khata</h1><small id="ownerHeader">Smart Business</small></div></div>
   <nav class="top-menu" aria-label="Main navigation"><button data-page="home" onclick="showPage('home')">Home</button><button data-page="khata" onclick="showPage('khata')">Khata</button><button data-page="customers" onclick="showPage('customers')">Customers</button><button data-page="bills" onclick="showPage('bills')">Bills</button><button data-page="tools" onclick="showPage('tools')">More</button></nav>
   <div class="top-actions"><button class="round" onclick="openSearch()" aria-label="Search">⌕</button><button class="round" onclick="toggleTheme()" aria-label="Theme">◐</button></div>
 </header>
@@ -83,7 +83,7 @@ html body #uvmsLaunchSplash .uvms-launch-frame{position:relative!important;z-ind
 <script src="i18n.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 <script src="more-routing.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 </div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=20261022-home-logo-v66",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=20261022-home-logo-v67",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
 <script>
 (()=>{let deferredPrompt=null;const btn=()=>document.getElementById("pwaInstallBtn");
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=btn();if(b)b.hidden=false;});
