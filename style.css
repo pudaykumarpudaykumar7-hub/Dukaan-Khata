@@ -4227,3 +4227,21 @@ body:has(#languagePage.active) main{width:100%!important;max-width:none!importan
  #modal:has(.dk-shop-profile-all) .sheet{width:calc(100vw - 28px)!important;max-height:calc(100dvh - 28px)!important;padding:8px!important}
  #modal .dk-shop-profile-all .dk-shop-profile-fields{grid-template-columns:minmax(0,1fr)!important;gap:4px!important}
 }
+
+/* Customizable colours for every built-in background preset. */
+body.dk-live-background[data-global-theme="futuristic"],
+body.dk-live-background[data-global-theme="midnight"],
+body.dk-live-background[data-global-theme="ocean"],
+body.dk-live-background[data-global-theme="sunset"],
+body.dk-live-background[data-global-theme="light"],
+body.dk-live-background[data-global-theme="gradient"]{
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%,color-mix(in srgb,var(--dk-gradient-1) 62%,transparent),transparent 65%),
+    linear-gradient(135deg,var(--dk-gradient-1),var(--dk-gradient-2) 50%,var(--dk-gradient-3))!important;
+}
+.dk-custom-colors{padding:12px;margin:10px 0 14px;border:1px solid #16845b30;border-radius:16px;background:var(--surface,#ffffff08)}
+.dk-custom-color-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:10px 0}
+.dk-custom-color-grid label{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:700;color:var(--text,#fff)}
+.dk-custom-color-grid input[type=color]{width:100%;height:44px;padding:3px;border:1px solid #8885;border-radius:10px;background:transparent;cursor:pointer}
+.dk-custom-colors>small{display:block;font-size:11px;line-height:1.5;color:var(--muted,#888)}
+@media(max-width:520px){.dk-custom-color-grid{gap:7px}.dk-custom-color-grid label{font-size:11px}.dk-custom-color-grid input[type=color]{height:40px}}
