@@ -67,5 +67,6 @@ window.openAppInstall=async function(){
  b.innerHTML='<div class="install-guide"><span class="install-orbit">✦</span><p class="eyebrow">DUKAAN KHATA • EVERYWHERE</p><h2>Take your shop with you</h2><p>'+msg.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</p><button class="btn primary" type="button" onclick="closeModal()">Got it</button></div>';m.classList.remove("hidden");
 };
 })();
-</script></body>
+</script>
+<script>(()=>{const splash=document.getElementById('uvmsLaunchSplash');if(!splash)return;const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;const delay=reduced?450:2600;const dismiss=()=>{splash.classList.add('uvms-launch-hide');window.setTimeout(()=>splash.remove(),700)};window.setTimeout(dismiss,delay);splash.addEventListener('click',dismiss,{once:true});})();</script></body>
 </html>
