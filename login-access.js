@@ -197,6 +197,14 @@
 
   function startupLogin2(){
     if(document.getElementById("dkLoginAccessStandalone")||document.getElementById("dkCustomerFullScreen"))return;
+    const splash=document.getElementById("uvmsLaunchSplash");
+    if(splash && !splash.classList.contains("uvms-launch-hide")){
+      if(!window.__dkLoginWaitingForLaunch){
+        window.__dkLoginWaitingForLaunch=true;
+        window.addEventListener("uvms-launch-complete",()=>{window.__dkLoginWaitingForLaunch=false;setTimeout(startupLogin2,50)},{once:true});
+      }
+      return;
+    }
     loginAccess2();
   }
   window.openDukaanLogin=loginAccess2;
