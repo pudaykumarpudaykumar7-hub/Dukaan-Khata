@@ -47,7 +47,7 @@ html body #uvmsLaunchSplash .uvms-launch-frame{position:relative!important;z-ind
 @media(prefers-reduced-motion:reduce){html body #uvmsLaunchSplash .uvms-live-orbit{animation:uvmsLaunchCriticalOrbit 2.4s linear infinite!important}html body #uvmsLaunchSplash .uvms-live-orbit-two{animation:uvmsLaunchCriticalOrbit 3.1s linear infinite reverse!important}}
 </style>
 <script>
-(()=>{const el=document.getElementById("uvmsLaunchSplash");if(!el)return;el.classList.remove("uvms-launch-hide","uvms-launch-auth-skip");el.style.setProperty("display","flex","important");el.style.setProperty("opacity","1","important");el.style.setProperty("visibility","visible","important");el.style.setProperty("z-index","2147483647","important");})();
+(()=>{const el=document.getElementById("uvmsLaunchSplash");if(!el)return;let seen=false;try{seen=sessionStorage.getItem("uvmsLaunchSeen") === "1";if(!seen)sessionStorage.setItem("uvmsLaunchSeen","1");}catch(e){}if(seen){el.remove();window.dispatchEvent(new Event("uvms-launch-complete"));return;}el.classList.remove("uvms-launch-hide","uvms-launch-auth-skip");el.style.setProperty("display","flex","important");el.style.setProperty("opacity","1","important");el.style.setProperty("visibility","visible","important");el.style.setProperty("z-index","2147483647","important");})();
 </script>
 <!-- Launch animation must remain on top for five seconds; login starts only after it completes. --><div class="app">
 <header class="topbar">
@@ -83,7 +83,7 @@ html body #uvmsLaunchSplash .uvms-launch-frame{position:relative!important;z-ind
 <script src="i18n.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 <script src="more-routing.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 </div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=20261022-uvms-launch-v58",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=20261022-uvms-launch-v59",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
 <script>
 (()=>{let deferredPrompt=null;const btn=()=>document.getElementById("pwaInstallBtn");
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=btn();if(b)b.hidden=false;});
@@ -97,5 +97,5 @@ window.openAppInstall=async function(){
 };
 })();
 </script>
-<script>(()=>{const splash=document.getElementById("uvmsLaunchSplash");if(!splash)return;let finished=false;const dismiss=()=>{if(finished)return;finished=true;splash.classList.add("uvms-launch-hide");window.dispatchEvent(new Event("uvms-launch-complete"));splash.remove()};window.setTimeout(dismiss,2500);})();</script></body>
+<script>(()=>{const splash=document.getElementById("uvmsLaunchSplash");if(!splash)return;let finished=false;const dismiss=()=>{if(finished)return;finished=true;window.dispatchEvent(new Event("uvms-launch-complete"));splash.remove()};window.setTimeout(dismiss,2500);})();</script></body>
 </html>
