@@ -4343,8 +4343,11 @@ html body .topbar .brand .uvms-header-image-button{box-sizing:border-box!importa
 html body .topbar .brand .uvms-header-image-button .uvms-header-inline-svg{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;flex:0 0 100%!important;object-fit:contain!important;position:relative!important;z-index:2!important}
 @media(max-width:520px){html body .topbar .brand .uvms-header-image-button{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;flex-basis:44px!important}}
 
-/* v63: compact, legible UVMS emblem designed for the small mobile header tile. */
+/* v64: compact, legible UVMS emblem designed for the small mobile header tile. */
 html body .topbar .brand .uvms-header-image-button{display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 52px!important;width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important;padding:0!important;overflow:hidden!important;background:#061326!important;border:1px solid #42dcff!important;border-radius:13px!important;box-shadow:0 0 0 1px #8c4dff66,0 0 14px #20cfff55!important;}
 html body .topbar .brand .uvms-header-image-button .uvms-header-inline-svg{display:block!important;flex:none!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:fill!important;opacity:1!important;visibility:visible!important;position:relative!important;z-index:2!important;}
 html body .topbar .brand .uvms-header-image-button .uvms-header-inline-svg text{font-size:27px!important;font-weight:900!important;}
 @media(max-width:520px){html body .topbar .brand .uvms-header-image-button{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;flex-basis:48px!important}}
+
+/* v64: ensure every letter in UVMS, especially the final S, fits clearly inside the compact header badge. */
+html body .topbar .brand .uvms-header-image-button .uvms-header-inline-svg text{font-size:36px!important;letter-spacing:0!important;}
