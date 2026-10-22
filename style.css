@@ -4312,3 +4312,12 @@ body.dk-live-background[data-global-theme="gradient"]{
 
 /* Avoid showing the launch artwork underneath the first rendered frame. */
 .uvms-launch-splash{will-change:opacity;backface-visibility:hidden}.uvms-launch-splash.uvms-launch-auth-skip{display:none!important}
+
+/* Restore clearly visible animated launch screen */
+.uvms-launch-splash{z-index:2147483000!important;display:flex!important;opacity:1;visibility:visible}
+.uvms-launch-aura{z-index:0!important;pointer-events:none}
+.uvms-launch-frame{z-index:1}
+.uvms-launch-mark img{display:block;animation:uvmsLogoLift 2.8s ease-in-out infinite!important}
+.uvms-launch-frame:before{animation:uvmsBorderGlow 2.4s ease-in-out infinite!important}
+.uvms-launch-frame:after{animation:uvmsGlassSweep 2.8s ease-in-out .7s infinite!important}
+.uvms-launch-splash.uvms-launch-hide{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
