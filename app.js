@@ -676,6 +676,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       });
     });
     if(typeof applyAppTheme==="function")applyAppTheme();
+    if(typeof dkApplyGlobalTheme==="function")dkApplyGlobalTheme();
     if(typeof render==="function")render();
     if(typeof applyHomeLogo==="function")applyHomeLogo();
     if(typeof applyOutstandingColor==="function")applyOutstandingColor();
@@ -707,7 +708,7 @@ function dkApplyGlobalTheme(){
   b.style.setProperty("--dk-global-overlay",String(Number(t.overlay??.18)));
 }
 function dkSaveGlobalTheme(t){
-  try{localStorage.setItem(DK_GLOBAL_THEME_KEY,JSON.stringify(t));dkApplyGlobalTheme();document.body.classList.toggle("dk-live-background",!!dkGetGlobalTheme().live);toast("Background theme applied ✓")}
+  try{localStorage.setItem(DK_GLOBAL_THEME_KEY,JSON.stringify(t));dkApplyGlobalTheme();document.body.classList.add("dk-live-background");toast("Background theme saved on this device ✓")}
   catch(e){toast("Could not save this theme")}
 }
 function openBackgroundTheme(){
