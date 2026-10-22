@@ -15,11 +15,11 @@
 <meta property="og:url" content="https://pudaykumarpudaykumar7-hub.github.io/Dukaan-Khata/">
 <meta name="google-site-verification" content="yxGmsKLNh80x8p2xAea4jExg0TK-CKe7ma8ZCLY6lmE" />
 <link rel="manifest" href="manifest.json?v=uvms-launch-v54"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="icon" type="image/svg+xml" href="icon.svg?v=uvms-launch-v54"><link rel="apple-touch-icon" href="icon.svg?v=uvms-launch-v54">
-<link rel="stylesheet" href="style.css?v=20261022-home-logo-v68">
+<link rel="stylesheet" href="style.css?v=20261022-home-logo-v69">
 <title>Dukaan Khata (Dukaan Kotha) - Digital Khata &amp; Shop Management</title>
 </head>
 <body>
-<div id="uvmsLaunchSplash" class="uvms-launch-splash" aria-label="UVMS Dukaan Khata animated launch screen" role="status"><div class="uvms-launch-stars" aria-hidden="true"></div><div class="uvms-launch-aura" aria-hidden="true"></div><div class="uvms-launch-frame"><div class="uvms-live-orbit uvms-live-orbit-one"></div><div class="uvms-live-orbit uvms-live-orbit-two"></div><div class="uvms-launch-mark" aria-hidden="true"><img src="icon.svg?v=uvms-launch-v54" alt="UVMS Dukaan Khata"></div><div class="uvms-launch-word">UVMS</div><div class="uvms-launch-sub">DUKAAN KHATA</div><div class="uvms-launch-rule"><span></span>✦<span></span></div><div class="uvms-launch-status"><i></i> SMART BUSINESS • MADE PREMIUM</div></div></div>
+<div id="uvmsLaunchSplash" class="uvms-launch-splash" aria-label="UVMS Dukaan Khata animated launch screen" role="status"><div class="uvms-launch-stars" aria-hidden="true"></div><div class="uvms-launch-letters" aria-hidden="true"><span>D</span><span>U</span><span>K</span><span>A</span><span>A</span><span>N</span><span>K</span><span>H</span><span>A</span><span>T</span><span>A</span><span>✦</span><span>•</span><span>◦</span></div><div class="uvms-launch-aura" aria-hidden="true"></div><div class="uvms-launch-frame"><div class="uvms-live-orbit uvms-live-orbit-one"></div><div class="uvms-live-orbit uvms-live-orbit-two"></div><div class="uvms-launch-mark" aria-hidden="true"><img src="icon.svg?v=uvms-launch-v54" alt="UVMS Dukaan Khata"></div><div class="uvms-launch-word">UVMS</div><div class="uvms-launch-sub">DUKAAN KHATA</div><div class="uvms-launch-rule"><span></span>✦<span></span></div><div class="uvms-launch-status"><i></i> SMART BUSINESS • MADE PREMIUM</div></div></div>
 <style id="uvms-launch-critical-css">
 /* Self-contained launch animation: 3.6s splash with full-screen travelling rings. */
 @keyframes uvmsLaunchCriticalIn{0%{opacity:0;transform:translateY(22px) scale(.86);filter:blur(8px)}70%{opacity:1;transform:translateY(-2px) scale(1.02);filter:blur(0)}100%{opacity:1;transform:none;filter:blur(0)}}
@@ -45,47 +45,32 @@ html body #uvmsLaunchSplash .uvms-launch-frame{position:relative!important;z-ind
 #uvmsLaunchSplash.uvms-launch-hide{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
 @keyframes uvmsForceRing{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){html body #uvmsLaunchSplash .uvms-live-orbit{animation:uvmsLaunchCriticalOrbit 2.4s linear infinite!important}html body #uvmsLaunchSplash .uvms-live-orbit-two{animation:uvmsLaunchCriticalOrbit 3.1s linear infinite reverse!important}}
+
+/* v69 launch polish: compact orbit rings and letters drifting in all four directions. */
+@keyframes uvmsSmallRingDrift{0%{transform:translate(-50%,-50%) translate(-8vw,-4vh) rotate(0deg) scale(.78)}25%{transform:translate(-50%,-50%) translate(8vw,-7vh) rotate(90deg) scale(.92)}50%{transform:translate(-50%,-50%) translate(7vw,7vh) rotate(180deg) scale(.82)}75%{transform:translate(-50%,-50%) translate(-7vw,6vh) rotate(270deg) scale(.96)}100%{transform:translate(-50%,-50%) translate(-8vw,-4vh) rotate(360deg) scale(.78)}}
+@keyframes uvmsGlyphUp{0%{transform:translate3d(0,110vh,0) rotate(-16deg);opacity:0}12%{opacity:.46}88%{opacity:.38}100%{transform:translate3d(9vw,-120vh,0) rotate(28deg);opacity:0}}
+@keyframes uvmsGlyphDown{0%{transform:translate3d(0,-120vh,0) rotate(20deg);opacity:0}12%{opacity:.4}88%{opacity:.32}100%{transform:translate3d(-8vw,115vh,0) rotate(-24deg);opacity:0}}
+@keyframes uvmsGlyphRight{0%{transform:translate3d(-110vw,0,0) rotate(-18deg);opacity:0}12%{opacity:.42}88%{opacity:.35}100%{transform:translate3d(115vw,8vh,0) rotate(25deg);opacity:0}}
+@keyframes uvmsGlyphLeft{0%{transform:translate3d(115vw,0,0) rotate(18deg);opacity:0}12%{opacity:.42}88%{opacity:.34}100%{transform:translate3d(-115vw,-7vh,0) rotate(-25deg);opacity:0}}
+html body #uvmsLaunchSplash .uvms-launch-letters{position:absolute!important;inset:0!important;z-index:1!important;overflow:hidden!important;pointer-events:none!important;}
+html body #uvmsLaunchSplash .uvms-launch-letters span{position:absolute!important;display:block!important;color:#9deeff!important;font:900 clamp(17px,4vw,31px)/1 Arial,sans-serif!important;letter-spacing:.08em!important;text-shadow:0 0 12px #25cfff66!important;opacity:0!important;}
+html body #uvmsLaunchSplash .uvms-launch-letters span:nth-child(4n+1){left:8%;top:16%;animation:uvmsGlyphUp 7s linear infinite!important;animation-delay:-2s!important}
+html body #uvmsLaunchSplash .uvms-launch-letters span:nth-child(4n+2){left:76%;top:24%;color:#e9d5ff!important;animation:uvmsGlyphDown 8s linear infinite!important;animation-delay:-5s!important}
+html body #uvmsLaunchSplash .uvms-launch-letters span:nth-child(4n+3){left:28%;top:67%;animation:uvmsGlyphRight 9s linear infinite!important;animation-delay:-6s!important}
+html body #uvmsLaunchSplash .uvms-launch-letters span:nth-child(4n){left:62%;top:45%;color:#f4d99c!important;animation:uvmsGlyphLeft 8.5s linear infinite!important;animation-delay:-3s!important}
+html body #uvmsLaunchSplash .uvms-launch-aura{width:min(48vw,260px)!important;opacity:.25!important;}
+html body #uvmsLaunchSplash .uvms-live-orbit{left:50%!important;top:50%!important;width:48%!important;max-width:220px!important;border-width:1px!important;opacity:.32!important;animation:uvmsSmallRingDrift 6s ease-in-out infinite!important;filter:drop-shadow(0 0 3px #35dfff55)!important;}
+html body #uvmsLaunchSplash .uvms-live-orbit-two{width:58%!important;max-width:260px!important;opacity:.23!important;border-width:1px!important;border-color:#d8bd82!important;animation-duration:8s!important;}
+html body #uvmsLaunchSplash .uvms-launch-frame{z-index:3!important;}
+html body .topbar .brand .uvms-header-image-button .uvms-header-logo-svg{display:block!important;flex:0 0 100%!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;overflow:hidden!important;}
+@media(prefers-reduced-motion:reduce){html body #uvmsLaunchSplash .uvms-launch-letters span,html body #uvmsLaunchSplash .uvms-live-orbit,html body #uvmsLaunchSplash .uvms-live-orbit-two{animation:none!important;opacity:.16!important}}
 </style>
 <script>
 (()=>{const el=document.getElementById("uvmsLaunchSplash");if(!el)return;let seen=false;try{seen=sessionStorage.getItem("uvmsLaunchSeen") === "1";if(!seen)sessionStorage.setItem("uvmsLaunchSeen","1");}catch(e){}if(seen){el.remove();window.dispatchEvent(new Event("uvms-launch-complete"));return;}el.classList.remove("uvms-launch-hide","uvms-launch-auth-skip");el.style.setProperty("display","flex","important");el.style.setProperty("opacity","1","important");el.style.setProperty("visibility","visible","important");el.style.setProperty("z-index","2147483647","important");})();
 </script>
 <!-- Launch animation must remain on top for five seconds; login starts only after it completes. --><div class="app">
 <header class="topbar">
-  <div class="brand"><button class="uvms-logo-button uvms-header-image-button" type="button" aria-label="Open UVMS logo" onclick="openUVMSLogo()"><svg class="uvms-header-logo-svg" role="img" aria-label="UVMS logo" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-<defs>
- <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#00152c"/><stop offset=".55" stop-color="#020817"/><stop offset="1" stop-color="#100021"/></linearGradient>
- <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#00f4ff"/><stop offset=".34" stop-color="#087cff"/><stop offset=".67" stop-color="#652aff"/><stop offset="1" stop-color="#ff28e9"/></linearGradient>
- <linearGradient id="u" x1="0" y1="0" x2=".85" y2="1"><stop stop-color="#19f8ff"/><stop offset=".32" stop-color="#087dff"/><stop offset=".63" stop-color="#5942ff"/><stop offset="1" stop-color="#f02bff"/></linearGradient>
- <linearGradient id="paper" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#eaf3ff"/><stop offset="1" stop-color="#839ef5"/></linearGradient>
- <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff7b0"/><stop offset=".25" stop-color="#ffdf63"/><stop offset=".62" stop-color="#ffad20"/><stop offset="1" stop-color="#9a4c00"/></linearGradient>
- <linearGradient id="text" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff"/><stop offset=".36" stop-color="#8ceeff"/><stop offset=".68" stop-color="#388bff"/><stop offset="1" stop-color="#d13cff"/></linearGradient>
- <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="8"/></filter>
- <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur in="SourceAlpha" stdDeviation="5"/><feOffset dy="5"/><feComponentTransfer><feFuncA type="linear" slope=".55"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-</defs>
-<rect width="512" height="512" rx="86" fill="url(#bg)"/>
-<rect x="28" y="28" width="456" height="456" rx="74" fill="none" stroke="url(#frame)" stroke-width="12" opacity=".28" filter="url(#glow)"/>
-<rect x="29" y="29" width="454" height="454" rx="73" fill="none" stroke="url(#frame)" stroke-width="5"/>
-<path d="M169 119v123c0 57 31 91 87 91s87-34 87-91V119" fill="none" stroke="#102d87" stroke-width="64" stroke-linecap="round" stroke-linejoin="round" opacity=".8" transform="translate(3 8)"/>
-<path d="M169 119v123c0 57 31 91 87 91s87-34 87-91V119" fill="none" stroke="url(#u)" stroke-width="58" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)"/>
-<path d="M169 119v123c0 57 31 91 87 91s87-34 87-91V119" fill="none" stroke="#bafaff" stroke-width="3" stroke-linecap="round" opacity=".65"/>
-<path d="M233 83q0-18 18-18h62q18 0 18 18v120l-26 24-26-24V103h-46Z" fill="#111d56" opacity=".7" transform="translate(5 7)"/>
-<path d="M233 83q0-18 18-18h62q18 0 18 18v120l-26 24-26-24V103h-46Z" fill="url(#paper)" filter="url(#shadow)"/>
-<path d="M250 109h61M250 130h61M250 151h53M250 172h43" stroke="#253c89" stroke-width="8" stroke-linecap="round"/>
-<path d="M97 225C104 150 160 105 222 103" fill="none" stroke="url(#frame)" stroke-width="11" stroke-linecap="round"/>
-<path d="M304 196c46-20 83-3 106 26" fill="none" stroke="url(#u)" stroke-width="18" stroke-linecap="round"/>
-<g filter="url(#shadow)" transform="rotate(-15 385 190)">
- <ellipse cx="385" cy="207" rx="47" ry="15" fill="#8a4100"/>
- <ellipse cx="385" cy="194" rx="47" ry="16" fill="url(#gold)" stroke="#fff0a0" stroke-width="3"/>
- <ellipse cx="385" cy="179" rx="44" ry="15" fill="#bd6c08" stroke="#ffe68a" stroke-width="3"/>
- <ellipse cx="385" cy="165" rx="44" ry="18" fill="url(#gold)" stroke="#fff4b3" stroke-width="4"/>
- <ellipse cx="385" cy="165" rx="34" ry="12" fill="none" stroke="#a7650c" stroke-width="2"/>
- <text x="385" y="177" text-anchor="middle" font-family="Arial,sans-serif" font-size="33" font-weight="900" fill="#754100">₹</text>
-</g>
-<text x="256" y="390" text-anchor="middle" font-family="Arial,sans-serif" font-size="74" font-weight="900" letter-spacing="-2" fill="url(#text)" stroke="#102c81" stroke-width="1">UVMS</text>
-<text x="256" y="427" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" letter-spacing="4.5" fill="#f6f8ff">DUKAAN KHATA</text>
-<path d="M120 453h118m36 0h118" stroke="url(#frame)" stroke-width="3" stroke-linecap="round"/>
-<path d="M256 440l8 13-8 13-8-13Z" fill="url(#frame)"/>
-</svg></button><div><h1>Dukaan Khata</h1><small id="ownerHeader">Smart Business</small></div></div>
+  <div class="brand"><button class="uvms-logo-button uvms-header-image-button" type="button" aria-label="Open UVMS logo" onclick="openUVMSLogo()"><svg class="uvms-header-logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="UVMS emblem"><defs><linearGradient id="smallU" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8fffff"/><stop offset=".5" stop-color="#20baff"/><stop offset="1" stop-color="#8c55ff"/></linearGradient><linearGradient id="smallGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0a0"/><stop offset=".5" stop-color="#ffc247"/><stop offset="1" stop-color="#b96a0b"/></linearGradient></defs><rect width="128" height="128" rx="24" fill="#061326"/><rect x="3" y="3" width="122" height="122" rx="21" fill="none" stroke="#42dcff" stroke-width="3"/><path d="M25 24v38c0 24 13 38 34 38s34-14 34-38V24" fill="none" stroke="url(#smallU)" stroke-width="13" stroke-linecap="round"/><path d="M42 19h35v42L59.5 75 42 61Z" fill="#f8fcff" stroke="#a8eaff" stroke-width="2"/><path d="M50 32h19M50 42h19M50 52h13" stroke="#24518b" stroke-width="3.5" stroke-linecap="round"/><circle cx="91" cy="88" r="22" fill="url(#smallGold)" stroke="#fff0a0" stroke-width="2"/><circle cx="91" cy="88" r="16" fill="none" stroke="#9c5907" stroke-width="2"/><text x="91" y="97" text-anchor="middle" font-family="Arial,sans-serif" font-size="25" font-weight="900" fill="#754100">₹</text></svg></button><div><h1>Dukaan Khata</h1><small id="ownerHeader">Smart Business</small></div></div>
   <nav class="top-menu" aria-label="Main navigation"><button data-page="home" onclick="showPage('home')">Home</button><button data-page="khata" onclick="showPage('khata')">Khata</button><button data-page="customers" onclick="showPage('customers')">Customers</button><button data-page="bills" onclick="showPage('bills')">Bills</button><button data-page="tools" onclick="showPage('tools')">More</button></nav>
   <div class="top-actions"><button class="round" onclick="openSearch()" aria-label="Search">⌕</button><button class="round" onclick="toggleTheme()" aria-label="Theme">◐</button></div>
 </header>
@@ -117,7 +102,7 @@ html body #uvmsLaunchSplash .uvms-launch-frame{position:relative!important;z-ind
 <script src="i18n.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 <script src="more-routing.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 </div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=20261022-home-logo-v68",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=20261022-home-logo-v69",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
 <script>
 (()=>{let deferredPrompt=null;const btn=()=>document.getElementById("pwaInstallBtn");
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=btn();if(b)b.hidden=false;});
