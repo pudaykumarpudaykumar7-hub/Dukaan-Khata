@@ -4392,3 +4392,8 @@ html body #uvmsLaunchSplash .uvms-launch-letters span:nth-child(4n+1){animation:
 html body #uvmsLaunchSplash .uvms-launch-letters span:nth-child(4n+2){animation:uvmsGlyphDown 3.1s linear infinite!important;}
 html body #uvmsLaunchSplash .uvms-launch-letters span:nth-child(4n+3){animation:uvmsGlyphRight 3.3s linear infinite!important;}
 html body #uvmsLaunchSplash .uvms-launch-letters span:nth-child(4n){animation:uvmsGlyphLeft 3.5s linear infinite!important;}
+
+
+/* v72: 144 individually distributed glyphs fill the full launch viewport. */
+html body #uvmsLaunchSplash .uvms-launch-letters{inset:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;overflow:hidden!important;}
+html body #uvmsLaunchSplash .uvms-launch-letters span{font-size:clamp(16px,4.5vw,32px)!important;opacity:.82!important;color:#b5f5ff!important;text-shadow:0 0 7px #22d8ff,0 0 16px #22d8ff99!important;}
