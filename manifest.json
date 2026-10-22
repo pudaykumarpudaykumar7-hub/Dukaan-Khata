@@ -21,10 +21,10 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icon.svg?v=uvms-logo-final-v41",
+      "src": "icon.svg?v=uvms-logo-final-v42",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }
