@@ -4321,3 +4321,12 @@ body.dk-live-background[data-global-theme="gradient"]{
 .uvms-launch-frame:before{animation:uvmsBorderGlow 2.4s ease-in-out infinite!important}
 .uvms-launch-frame:after{animation:uvmsGlassSweep 2.8s ease-in-out .7s infinite!important}
 .uvms-launch-splash.uvms-launch-hide{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+
+
+/* Home header: keep the UVMS brand logo clearly visible at the upper-left on all screen sizes. */
+body #home.page.active ~ *{}
+html body .topbar .brand{display:flex!important;align-items:center!important;gap:10px!important;min-width:0!important;flex:1 1 auto!important;justify-content:flex-start!important}
+html body .topbar .brand .uvms-header-image-button{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;flex:0 0 48px!important;width:48px!important;height:48px!important;margin:0!important;transform:none!important;z-index:2!important}
+html body .topbar .brand .uvms-header-image-button img{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:100%!important;object-fit:contain!important}
+html body .topbar .brand h1,html body .topbar .brand small{visibility:visible!important;}
+@media(max-width:520px){html body .topbar{padding-left:12px!important;padding-right:12px!important;gap:8px!important}html body .topbar .brand{gap:8px!important}html body .topbar .brand .uvms-header-image-button{width:44px!important;height:44px!important;flex-basis:44px!important}html body .topbar .brand h1{font-size:15px!important;white-space:nowrap!important}html body .topbar .brand small{font-size:10px!important}}
