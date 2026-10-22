@@ -4438,3 +4438,31 @@ input,select,textarea{max-width:100%}
   .modal .sheet{padding-bottom:max(18px,env(safe-area-inset-bottom))}
 }
 @media(prefers-reduced-motion:reduce){button,.btn,[role="button"],:where(.card,.stat-card,.summary-card,.customer-card,.transaction-card){transition:none!important}}
+
+
+/* v77: Dukaan Khata signature visual system — editorial ivory, deep forest and Indian marigold. */
+:root{--bg:#f5f3ec;--surface:#fffdf8;--text:#172b25;--muted:#6d7b72;--line:#e3e5d9;--primary:#176b4d;--primary2:#25845e;--blue:#285c55;--orange:#d68b27;--purple:#6c5a83;--shadow:0 12px 32px rgba(24,51,40,.075);--dk-ink:#142c24;--dk-forest:#174f3c;--dk-saffron:#e4a33b;--dk-cream:#fff9ec}
+html{background:var(--bg)}body{background:radial-gradient(ellipse at 92% 0%,rgba(228,163,59,.12),transparent 32rem),var(--bg);color:var(--text)}
+header.topbar{background:rgba(255,253,248,.92)!important;border-bottom:1px solid rgba(23,79,60,.12)!important;box-shadow:0 8px 26px rgba(24,51,40,.045)!important;backdrop-filter:blur(18px) saturate(1.25)!important}
+header.topbar .brand button.uvms-header-image-button{border-radius:16px!important;background:linear-gradient(145deg,#173e31,#226b4d)!important;box-shadow:0 5px 14px #174f3c24!important}
+.app{max-width:1120px!important;margin-inline:auto!important}
+:where(.card,.stat-card,.summary-card,.customer-card,.transaction-card,.luxury-tool,.home-tools button,.home-theme-design){background:linear-gradient(155deg,rgba(255,255,252,.98),rgba(250,249,241,.98));border:1px solid rgba(32,81,59,.12)!important;border-radius:22px!important;box-shadow:0 7px 22px rgba(28,57,42,.045)!important}
+:where(.card,.stat-card,.summary-card,.customer-card,.transaction-card){padding:clamp(15px,3vw,22px)}
+:where(.card,.stat-card,.summary-card,.customer-card,.transaction-card,.luxury-tool){position:relative;isolation:isolate}
+:where(.card,.stat-card,.summary-card,.customer-card,.transaction-card)::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;border-radius:22px 0 0 22px;background:linear-gradient(180deg,var(--dk-saffron),var(--primary));opacity:.72;pointer-events:none}
+:where(h1,h2,h3,.section-title){letter-spacing:-.035em}h1,h2{color:var(--dk-ink)}.eyebrow,.section-eyebrow{letter-spacing:.15em;text-transform:uppercase;font-weight:800}
+.balance-hero{position:relative;overflow:hidden!important;background:radial-gradient(circle at 90% 12%,rgba(255,216,143,.22),transparent 34%),linear-gradient(130deg,#123b2d 0%,#1b5a41 58%,#287050 100%)!important;color:#fff9ec!important;border:1px solid rgba(239,190,105,.34)!important;border-radius:28px!important;box-shadow:0 18px 42px rgba(23,79,60,.19)!important}
+.balance-hero::after{content:"";position:absolute;width:190px;height:190px;right:-72px;bottom:-100px;border:1px solid rgba(255,231,184,.3);border-radius:50%;box-shadow:0 0 0 18px rgba(255,231,184,.045),0 0 0 38px rgba(255,231,184,.035);pointer-events:none}
+.balance-hero :where(h1,h2,h3,p,span,strong,small){color:inherit}.balance-hero :where(button,.btn){border-radius:14px!important}
+button,.btn,[role="button"]{border-radius:14px;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+.btn.primary,button.primary{background:linear-gradient(135deg,#176b4d,#25845e)!important;color:#fffdf8!important;box-shadow:0 7px 16px rgba(23,107,77,.17)!important;border:1px solid rgba(255,255,255,.16)!important}
+button:active,.btn:active,[role="button"]:active{transform:scale(.985)}
+.home-tools{gap:12px!important}.home-tools button,.luxury-tool{min-height:100px!important;text-align:left!important;padding:16px!important;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;color:var(--dk-ink)!important}
+.home-tools button:hover,.luxury-tool:hover{border-color:rgba(214,139,39,.48)!important;box-shadow:0 12px 28px rgba(28,57,42,.09)!important;transform:translateY(-2px)}
+.bottom-nav{background:rgba(255,253,248,.95)!important;backdrop-filter:blur(18px) saturate(1.25)!important;border-top:1px solid rgba(23,79,60,.13)!important;box-shadow:0 -8px 26px rgba(24,51,40,.05)!important;padding-bottom:max(6px,env(safe-area-inset-bottom))!important}
+.bottom-nav button{border-radius:15px!important;color:#718078!important;font-weight:700}.bottom-nav button.active{color:#176b4d!important;background:linear-gradient(145deg,#e7f2e9,#f4f7ed)!important}.bottom-nav button.active span{color:#176b4d!important}
+input,select,textarea{background:#fffefb!important;border-color:#dce3d9!important;border-radius:13px!important;color:var(--dk-ink)!important}input:focus,select:focus,textarea:focus{border-color:#25845e!important;box-shadow:0 0 0 4px rgba(37,132,94,.12)!important}
+.modal .sheet{border-radius:28px 28px 0 0!important;background:#fffdf8!important}.toast{border-radius:14px!important}
+@media(min-width:760px){.home-tools{grid-template-columns:repeat(4,minmax(0,1fr))}.bottom-nav{max-width:720px;left:50%!important;transform:translateX(-50%);width:calc(100% - 40px);border:1px solid rgba(23,79,60,.13)!important;border-radius:22px 22px 0 0}}
+@media(max-width:520px){body{background:radial-gradient(ellipse at 100% 0%,rgba(228,163,59,.11),transparent 20rem),var(--bg)}.balance-hero{border-radius:24px!important}:where(.card,.stat-card,.summary-card,.customer-card,.transaction-card,.luxury-tool,.home-tools button){border-radius:19px!important}.home-tools{grid-template-columns:repeat(2,minmax(0,1fr))}.home-tools button,.luxury-tool{min-height:92px!important;padding:13px!important}.bottom-nav{padding-left:max(8px,env(safe-area-inset-left))!important;padding-right:max(8px,env(safe-area-inset-right))!important}}
+@media(prefers-reduced-motion:reduce){:where(button,.btn,[role="button"]){transition:none!important}}
