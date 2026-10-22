@@ -4292,7 +4292,7 @@ body.dk-live-background[data-global-theme="gradient"]{
 @media(prefers-reduced-motion:reduce){.uvms-live-orbit,.uvms-launch-mark img,.uvms-launch-status i,.uvms-launch-rule span{animation:none!important}}
 
 
-/* UVMS live launch sequence v45 */
+/* UVMS live launch sequence v46 */
 .uvms-launch-splash{isolation:isolate;animation:uvmsBootFade .55s ease-out both}
 .uvms-launch-aura{position:absolute;z-index:-1;width:min(90vw,620px);aspect-ratio:1;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 18%,#1de9ff 24%,#315dff 36%,#a42bff 48%,transparent 58% 100%);filter:blur(2px);opacity:.55;mask:radial-gradient(circle,transparent 57%,#000 58%,#000 60%,transparent 62%);animation:uvmsAuraSpin 5s linear infinite}
 .uvms-launch-frame{animation:uvmsLaunchIn .9s cubic-bezier(.2,.8,.2,1) both,uvmsFrameBreathe 3.4s ease-in-out .9s infinite}
@@ -4309,3 +4309,6 @@ body.dk-live-background[data-global-theme="gradient"]{
 @keyframes uvmsSparkle{0%,100%{opacity:.8}50%{opacity:1;text-shadow:0 0 16px #ad83ff}}
 @keyframes uvmsBootFade{from{opacity:0}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.uvms-launch-aura,.uvms-launch-frame,.uvms-launch-frame:after,.uvms-launch-mark img,.uvms-launch-rule,.uvms-launch-rule span{animation:none!important}}
+
+/* Avoid showing the launch artwork underneath the first rendered frame. */
+.uvms-launch-splash{will-change:opacity;backface-visibility:hidden}.uvms-launch-splash.uvms-launch-auth-skip{display:none!important}
