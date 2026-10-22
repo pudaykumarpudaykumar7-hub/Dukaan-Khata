@@ -1,6 +1,6 @@
 {
   "name": "Dukaan Khata — Smart Business Universe",
-  "short_name": "Dukaan Khata",
+  "short_name": "UVMS Dukaan Khata",
   "description": "A modern business companion for customer ledgers, sales, payments, reminders and shop discovery.",
   "start_url": "./",
   "scope": "./",
@@ -14,7 +14,7 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icon.svg",
+      "src": "icon.svg?v=uvms-cosmic-v1",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
