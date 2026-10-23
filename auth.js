@@ -368,14 +368,14 @@ async function openOwnerLogin(){
     const payments=allTx.filter(t=>t.type==="payment");
     const totalSales=sales.reduce((s,t)=>s+(Number(t.total)||0),0);
     const totalPaid=payments.reduce((s,t)=>s+(Number(t.amount)||0),0);
-    const totalDue=accounts.reduce((s,a)=>s+(Array.isArray(a.transactions)?a.transactions.reduce((x,t)=>x+(t.type==="sale"?(Number(t.total)||0)-(Number(t.paid)||Number(t.paidAmount)||0):t.type==="payment"?-(Number(t.amount)||0):0),0):0),0);
+    const totalDue=accounts.reduce((s,a)=>{const tx=Array.isArray(a.transactions)?a.transactions:[];const sales=tx.filter(t=>t.type==="sale").reduce((x,t)=>x+(Number(t.total)||0),0);const paid=tx.filter(t=>t.type==="payment").reduce((x,t)=>x+(Number(t.amount)||0),0);return s+Math.max(0,sales-paid)},0);
     const shopCards=accounts.map(a=>{
       const shop=a.shop||{}, customer=a.customer||{};
       const tx=Array.isArray(a.transactions)?a.transactions:[];
       const shopSales=tx.filter(t=>t.type==="sale");
       const shopPaid=tx.filter(t=>t.type==="payment").reduce((s,t)=>s+(Number(t.amount)||0),0);
       const shopTotal=shopSales.reduce((s,t)=>s+(Number(t.total)||0),0);
-      const shopDue=shopSales.reduce((s,t)=>s+Math.max(0,(Number(t.total)||0)-(Number(t.paid)||Number(t.paidAmount)||0)),0);
+      const shopDue=Math.max(0,shopTotal-shopPaid);
       const phone=String(shop.phone||"").replace(/\\D/g,"");
       const wa=phone.length===10?"91"+phone:phone;
       const bills=shopSales.sort((x,y)=>new Date(y.date||y.created_at||0)-new Date(x.date||x.created_at||0)).map(t=>{
