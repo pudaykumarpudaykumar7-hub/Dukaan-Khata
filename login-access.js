@@ -32,6 +32,8 @@
   function renderGlobalCustomerAccounts2(accounts){
     const root=document.getElementById("dkCustomerFullScreen");
     if(!root)return;
+    root.className="dk-customer-fullscreen";
+    root.style.cssText="position:fixed;inset:0;z-index:2147483001;background:#f8fafc;display:block;padding:0;overflow:auto;";
     const safe=Array.isArray(accounts)?accounts:[];
     const esc=esc2;
     const money=money2;
@@ -64,7 +66,7 @@
 
     const root=document.createElement("div");
     root.id="dkCustomerFullScreen";
-    root.className="dk-customer-fullscreen";
+    root.className="dk-login-access-overlay";
     root.style.cssText="position:fixed;inset:0;z-index:2147483001;background:rgba(7,12,24,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto";
     root.innerHTML='<div class="dk-access-shell" style="width:min(520px,100%);max-height:calc(100vh - 40px);overflow:auto;position:relative"><div class="dk-access-head"><div class="dk-access-icon">👤</div><div><span class="dk-login-badge">DUKAAN KHATA</span><h2>Customer Login</h2><p>View your items, bills, payments and outstanding balance.</p></div></div><section style="padding:4px 0 0"><label class="dk-customer-label">Mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter registered mobile number" style="width:100%;box-sizing:border-box"></label><label class="dk-customer-label" style="display:block;margin-top:12px">Common customer PIN<input id="customerLoginPin" class="search dk-customer-phone-input" inputmode="numeric" autocomplete="current-password" type="password" maxlength="4" placeholder="Enter 4-digit PIN" style="width:100%;box-sizing:border-box"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button" style="width:100%;margin-top:16px">View My Khata <span>→</span></button><div id="dkCustomerStatus" role="status" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px"><span>🛍️ Items Taken</span><span>🧾 Bills</span><span>₹ Taken / Paid / Due</span><span>☎ Call Shop Owners</span></div></section><button type="button" class="dk-login-close" id="dkCustomerBack" style="margin-top:14px">← Back</button></div>';
     document.body.appendChild(root);
