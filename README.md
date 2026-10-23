@@ -29,3 +29,16 @@ The migration does not create or approve a Cashfree marketplace account and does
 
 Direct UPI QR payments go to the UPI ID saved in the current shop profile. This app does not automatically verify these payments or route payments to every registered shop owner. A future marketplace payment gateway must be configured through an approved provider and a secure backend before claiming automatic confirmation or split settlement.
 
+
+
+## Upgrade v83 — Fresh Premium Green + Champagne Gold
+
+This release introduces a presentation-only visual layer for the existing app: fresh green surfaces, forest-green primary actions, champagne-gold accents, refined cards and inputs, and updated browser/PWA theme colors. Existing app logic, storage keys, authentication flow, customer records, ledger entries, and transaction data are intentionally left unchanged.
+
+The service-worker cache namespace and stylesheet URL are versioned to help browsers load the updated styles. This visual release does not add a payment gateway or change the payment verification status. Smart Receive's direct UPI QR remains user-verified unless a separately configured and approved payment integration verifies transactions server-side.
+
+## Verification notes
+
+- Static review: confirmed the existing stylesheet, JavaScript entry point, service worker, PWA manifest, and Capacitor configuration before changes.
+- Scope: visual CSS, stylesheet cache-busting, service-worker cache namespace, and PWA theme colors only.
+- A successful Git commit does not by itself prove the GitHub Pages build has finished or that the UI has been visually checked on a device.
