@@ -13,7 +13,7 @@ function loadState(){
     return {...defaults(),...x,shop:{...defaults().shop,...(x.shop||{})},settings:{...defaults().settings,...(x.settings||{}),theme:(savedTheme==="dark"||savedTheme==="light")?savedTheme:((x.settings||{}).theme==="dark"?"dark":"light")},
       customers:Array.isArray(x.customers)?x.customers:[],tx:Array.isArray(x.tx)?x.tx:[],
       expenses:Array.isArray(x.expenses)?x.expenses:[],returns:Array.isArray(x.returns)?x.returns:[],
-      reminders:Array.isArray(x.reminders)?x.reminders:[],deletedCustomerIds:[]};
+      reminders:Array.isArray(x.reminders)?x.reminders:[],deletedCustomerIds:Array.isArray(x.deletedCustomerIds)?x.deletedCustomerIds.map(String):[]};
   }catch(e){return defaults()}
 }
 function saveState(){try{localStorage.setItem(KEY,JSON.stringify(state));if(window.dkQueueSync)window.dkQueueSync()}catch(e){toast("Could not save data")}}
