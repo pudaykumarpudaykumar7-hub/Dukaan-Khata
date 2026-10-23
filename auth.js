@@ -209,8 +209,7 @@
 
   let initAttempts=0;
   async function init(){
-    // Local-only mode: never initialise auth, restore cloud snapshots, or start polling.
-    if(window.DukaanKhataMode==="local")return;
+    // Local-only data mode: allow Google identity login but never restore or sync cloud data.
     const sb=client();
     if(!sb){
       if(initAttempts++<20){setTimeout(init,500);return;}
@@ -240,8 +239,18 @@
   }
   async function popupOwnerGooglePhoto(){let u=window.DukaanKhataUser||{};try{u={...JSON.parse(localStorage.getItem("dukaan_khata_account")||"{}"),...u}}catch(e){}const src=u.picture||u.avatar_url||u.photo_url||"";if(!src){toast("Google profile photo is not available for this account");return}modal('<div class="dk-google-photo-view" onclick="closeModal()"><img src="'+esc(src)+'" alt="Google account profile photo" referrerpolicy="no-referrer"><p>Touch anywhere to go back</p></div>')}
 async function openOwnerLogin(){
-    // Owner access is local-only; no Google account or cloud connection is needed.
-    modal('<div class="dk-login-shell"><div class="dk-login-top"><div class="dk-login-icon">🏪</div><div><span class="dk-login-badge">LOCAL OWNER ACCESS</span><h2>Owner Dashboard</h2></div></div><p class="dk-login-sub">Your shop, customer, bill and payment data is saved on this device only. It is not synced to other devices.</p><button class="dk-login-action dk-login-primary" onclick="showPage(\'home\');closeModal()">⌂ Open Full Dashboard <span>→</span></button><button class="dk-login-close" onclick="openDukaanLogin()">← Back</button></div>');
+    const sb=client();
+    if(!sb){toast("Google sign-in is unavailable right now. Please refresh and try again.");return}
+    const {data,error}=await sb.auth.getSession();
+    if(error){toast("Could not check Google sign-in: "+error.message);return}
+    if(data?.session?.user){
+      saveAccount(data.session.user);
+      if(window.showPage)window.showPage("home");
+      if(window.closeModal)window.closeModal();
+      toast("Signed in with Google. Your data stays on this device.");
+      return;
+    }
+    modal('<div class="dk-login-shell"><div class="dk-login-top"><div class="dk-login-icon">🏪</div><div><span class="dk-login-badge">OWNER ACCESS</span><h2>Sign in with Google</h2></div></div><p class="dk-login-sub">Use your Google account to verify your owner identity. Shop records are saved on this device only; cross-device syncing is disabled.</p><button class="dk-login-action dk-login-primary" onclick="startGoogleLogin()">Continue with Google <span>→</span></button><button class="dk-login-close" onclick="closeModal()">Cancel</button></div>');
   }
   function normPhone(v){
     let d=String(v??"").replace(/\D/g,"");
@@ -368,9 +377,11 @@ async function openOwnerLogin(){
       '<button class="dk-login-close" onclick="closeModal()">× Close Customer View</button></div>');
   }
   async function startGoogleLogin(){
-    if(window.showPage)window.showPage("home");
-    if(window.closeModal)window.closeModal();
-    if(window.toast)window.toast("Local-only mode: no account sign-in or cross-device sync.");
+    const sb=client();
+    if(!sb){toast("Google sign-in is unavailable. Please refresh and try again.");return}
+    const redirectTo=window.location.origin+window.location.pathname;
+    const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{prompt:"select_account"}}});
+    if(error)toast("Google sign-in failed: "+error.message);
   }
 
   async function logoutDukaanKhata(){
