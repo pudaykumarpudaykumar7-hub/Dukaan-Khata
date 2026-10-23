@@ -80,52 +80,11 @@
     const root=document.createElement("div");
     root.id="dkCustomerFullScreen";
     root.className="dk-customer-fullscreen";
-    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkCustomerBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div><span class="dk-customer-secure">🔒 Private</span></header><main class="dk-customer-home-main"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Welcome to <strong>My Khata</strong></h1><p>Enter the mobile number registered by your shopkeeper.</p></div><section class="dk-customer-login-card"><div class="dk-customer-card-icon">📱</div><h2>Find My Account</h2><p>Use your registered mobile number to view your Khata.</p><label class="dk-customer-label">Registered mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata with SMS OTP <span>→</span></button><button id="dkCustomerGoogleBtn" class="dk-login-action dk-google" type="button" style="margin-top:10px"><span class="dk-google-logo">G</span><span><b>Continue with Google</b><small>Shop owner approval required</small></span><strong>→</strong></button><button id="dkCustomerGoogleRequest" class="dk-login-action" type="button" style="display:none;margin-top:10px">Request access for this phone <span>→</span></button><button id="dkCustomerGoogleApproved" class="dk-login-action dk-login-primary" type="button" style="display:none;margin-top:10px">Open my approved shops <span>→</span></button><div id="dkCustomerStatus" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features"><span>📒 Khata</span><span>🧾 Bills</span><span>💳 Payments</span><span>🔴 Due</span></div></section><div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div></main></div>';
+    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkCustomerBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div><span class="dk-customer-secure">🔒 Private</span></header><main class="dk-customer-home-main"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Welcome to <strong>My Khata</strong></h1><p>Enter the mobile number registered by your shopkeeper.</p></div><section class="dk-customer-login-card"><div class="dk-customer-card-icon">📱</div><h2>Find My Account</h2><p>Use your registered mobile number to view your Khata.</p><label class="dk-customer-label">Registered mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">Continue securely with OTP <span>→</span></button><div id="dkCustomerStatus" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features"><span>📒 Khata</span><span>🧾 Bills</span><span>💳 Payments</span><span>🔴 Due</span></div></section><div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div></main></div>';
     document.body.appendChild(root);
     document.body.classList.add("dk-customer-mode");
     const input=root.querySelector("#customerLoginPhone"),btn=root.querySelector("#dkCustomerViewBtn"),status=root.querySelector("#dkCustomerStatus");
-    const googleBtn=root.querySelector("#dkCustomerGoogleBtn"),googleRequestBtn=root.querySelector("#dkCustomerGoogleRequest"),googleApprovedBtn=root.querySelector("#dkCustomerGoogleApproved");
-    const googleSB=getCustomerSB();
-    async function refreshGoogleCustomerState(){
-      if(!googleSB)return;
-      const {data:{session}}=await googleSB.auth.getSession();
-      if(session?.user){
-        if(googleBtn)googleBtn.style.display="none";
-        if(googleRequestBtn)googleRequestBtn.style.display="flex";
-        if(googleApprovedBtn)googleApprovedBtn.style.display="flex";
-        if(status)status.textContent="Google signed in as "+String(session.user.email||"your account")+". Request owner approval or open approved shops.";
-      }
-    }
-    googleBtn?.addEventListener("click",async()=>{
-      try{
-        googleBtn.disabled=true;
-        const {error}=await googleSB.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});
-        if(error)throw error;
-      }catch(e){if(status)status.textContent=String(e?.message||"Google sign-in could not start.");if(googleBtn)googleBtn.disabled=false;}
-    });
-    googleRequestBtn?.addEventListener("click",async()=>{
-      const q=phone2(input?.value);
-      if(q.length!==10){if(status)status.textContent="Enter the 10-digit mobile number saved by your shopkeeper.";input?.focus();return;}
-      try{
-        googleRequestBtn.disabled=true;
-        const {data,error}=await googleSB.functions.invoke("customer-google-portal",{body:{action:"request_link",phone:q}});
-        if(error)throw error;
-        if(status)status.textContent=data?.message||"Request submitted if a matching record exists. Each shop owner must approve access.";
-      }catch(e){if(status)status.textContent=String(e?.message||"Could not submit access request.");}
-      finally{googleRequestBtn.disabled=false;}
-    });
-    googleApprovedBtn?.addEventListener("click",async()=>{
-      try{
-        googleApprovedBtn.disabled=true;
-        const {data,error}=await googleSB.functions.invoke("customer-google-portal",{body:{action:"accounts"}});
-        if(error)throw error;
-        const accounts=Array.isArray(data?.accounts)?data.accounts:[];
-        if(!accounts.length){if(status)status.textContent="No approved shops yet. Ask each shop owner to approve your request.";return;}
-        renderGlobalCustomerAccounts2(accounts);
-      }catch(e){if(status)status.textContent=String(e?.message||"Could not load approved shops.");}
-      finally{googleApprovedBtn.disabled=false;}
-    });
-    refreshGoogleCustomerState().catch(()=>{});
+
     if(hideBack) root.querySelector("#dkCustomerBack")?.remove(); else if(hideBack){ root.querySelector("#dkCustomerBack")?.remove(); root.querySelector(".dk-customer-home-head")?.querySelector(".dk-customer-home-back")?.remove(); } else root.querySelector("#dkCustomerBack")?.addEventListener("click",closeCustomer2);
     let otpSent=false;
     const otpInput=document.createElement("input");
