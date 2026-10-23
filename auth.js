@@ -230,7 +230,7 @@
     if(window.closeModal)window.closeModal();
     const root=document.createElement("div");
     root.id="dkChooseAccessOverlay";
-    root.style.cssText="position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,12,19,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:auto";
+    root.style.cssText="position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(3,12,19,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow-y:auto;overflow-x:hidden;box-sizing:border-box";
     root.innerHTML='<style>'+
       '#dkChooseAccessOverlay *{box-sizing:border-box}'+
       '#dkChooseAccessOverlay .dk-choice-panel{width:min(440px,100%);max-height:calc(100dvh - 28px);overflow-y:auto;background:#f8f5e9;color:#18211c;padding:18px 0 15px;box-shadow:0 28px 90px #0007;border:1px solid #e7e0cf;border-radius:5px}'+
