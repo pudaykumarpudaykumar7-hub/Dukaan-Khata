@@ -10,6 +10,18 @@
     }
     return window.dkSupabase;
   }
+  // Customer auth uses its own storage key so OTP login never replaces an owner's session.
+  function getCustomerSB(){
+    if(window.dkCustomerSupabase)return window.dkCustomerSupabase;
+    if(window.supabase&&window.supabase.createClient){
+      window.dkCustomerSupabase=window.supabase.createClient(
+        "https://nzsldzyjpxwyyrdwkphp.supabase.co",
+        "sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-",
+        {auth:{storageKey:"dk_customer_auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}}
+      );
+    }
+    return window.dkCustomerSupabase;
+  }
   function esc2(v){
     return String(v??"").replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])});
   }
@@ -32,6 +44,35 @@
       document.getElementById("dkCustomerAccessBtn")?.addEventListener("click",window.openCustomerLogin);
     }
   }
+
+  function renderGlobalCustomerAccounts2(accounts){
+    const root=document.getElementById("dkCustomerFullScreen");
+    if(!root)return;
+    const safe=Array.isArray(accounts)?accounts:[];
+    const esc=esc2;
+    const money=money2;
+    const date=t=>{const d=new Date(t?.date||t?.created_at||Date.now());return Number.isNaN(d.getTime())?"—":d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})};
+    const itemRows=t=>{
+      let raw=t?.lines??t?.items??t?.itemLines??t?.products??t?.productItems??[];
+      if(typeof raw==="string"){try{raw=JSON.parse(raw)}catch(e){raw=[]}}
+      if(!Array.isArray(raw)&&raw&&typeof raw==="object")raw=[raw];
+      if(!Array.isArray(raw)||!raw.length)return "";
+      return raw.map(i=>'<div class="dk-exec-record"><div class="dk-record-icon">🛍️</div><div class="dk-record-main"><b>'+esc(i?.name??i?.itemName??i?.productName??i?.title??"Item")+'</b><small>Qty: '+Math.max(1,Number(i?.qty??i?.quantity??1)||1)+' • '+date(t)+'</small></div><strong>'+money(Number(i?.total??i?.amount)||((Number(i?.price??i?.rate??i?.unitPrice)||0)*(Number(i?.qty??i?.quantity)||1)))+'</strong></div>').join("");
+    };
+    const accountCards=safe.map((a,index)=>{
+      const c=a.customer||{},shop=a.shop||{},tx=Array.isArray(a.transactions)?a.transactions:[];
+      const sales=tx.filter(t=>t.type==="sale"),payments=tx.filter(t=>t.type==="payment"&&Number(t.amount)>0);
+      const total=sales.reduce((n,t)=>n+(Number(t.total)||0),0),paid=payments.reduce((n,t)=>n+(Number(t.amount)||0),0),due=Math.max(0,total-paid);
+      const normalized=phone2(shop.phone),tel=normalized.length===10?"+91"+normalized:(String(shop.phone||"").trim());
+      const items=sales.slice().reverse().map(t=>itemRows(t)).join("")||'<div class="dk-empty">No item details recorded</div>';
+      const bills=sales.slice().reverse().map(t=>'<div class="dk-exec-record"><div class="dk-record-icon">🧾</div><div class="dk-record-main"><b>Bill</b><small>'+date(t)+'</small></div><strong>'+money(Number(t.total)||0)+'</strong></div>').join("")||'<div class="dk-empty">No bills found</div>';
+      const paymentRows=payments.slice().reverse().map(t=>'<div class="dk-exec-record"><div class="dk-record-icon">💳</div><div class="dk-record-main"><b>Payment received</b><small>'+date(t)+(t.mode?" • "+esc(t.mode):"")+'</small></div><strong class="dk-customer-paid">+'+money(Number(t.amount)||0)+'</strong></div>').join("")||'<div class="dk-empty">No payments recorded</div>';
+      return '<section class="dk-customer-login-card" style="max-width:900px;text-align:left;margin:0 auto 18px"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><span class="dk-login-badge">REGISTERED SHOP '+(index+1)+'</span><h2 style="margin:8px 0 3px">'+esc(shop.name||"Dukaan")+'</h2><p style="margin:0;color:#64748b">'+esc(shop.address||"")+'</p><small>Customer: '+esc(c.name||"Customer")+'</small></div>'+(tel.replace(/\D/g,"").length>=10?'<a class="dk-customer-call-owner" href="tel:'+esc(tel)+'">☎ Call Owner</a>':'<span class="dk-customer-call-owner-unavailable">Owner phone not available</span>')+'</div><div class="dk-customer-summary dk-exec-summary"><div><small>TOTAL TAKEN</small><b>'+money(total)+'</b></div><div><small>TOTAL PAID</small><b class="dk-customer-paid">'+money(paid)+'</b></div><div><small>TOTAL DUE</small><b class="dk-customer-due">'+money(due)+'</b></div></div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>🛍️</span><div><h3>Items Taken</h3></div></div>'+items+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>🧾</span><div><h3>My Bills</h3></div></div>'+bills+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>💳</span><div><h3>Payment History</h3></div></div>'+paymentRows+'</div></section>';
+    }).join("");
+    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkGlobalBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>My Customer Space</small></div></div><span class="dk-customer-secure">🔒 Read Only</span></header><main class="dk-customer-home-main" style="max-width:1000px"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>My <strong>Shops & Khata</strong></h1><p>'+safe.length+' registered shop account(s) found for your verified mobile number.</p></div>'+(safe.length?accountCards:'<section class="dk-customer-login-card"><h2>No shop records found</h2><p>No shop has registered this verified mobile number yet. Ask your shopkeeper to check the number saved in your customer record.</p></section>')+'<button type="button" class="dk-login-close" id="dkCustomerLogout2">↪ Sign out</button></main></div>';
+    root.querySelector("#dkGlobalBack")?.addEventListener("click",()=>openCustomer2(true));
+    root.querySelector("#dkCustomerLogout2")?.addEventListener("click",async()=>{try{await getCustomerSB()?.auth.signOut()}catch(e){};openCustomer2(true)});
+  }
   function openCustomer2(hideBack){
     document.getElementById("modal")?.classList.add("hidden");
     document.getElementById("dkCustomerFullScreen")?.remove();
@@ -44,33 +85,47 @@
     document.body.classList.add("dk-customer-mode");
     const input=root.querySelector("#customerLoginPhone"),btn=root.querySelector("#dkCustomerViewBtn"),status=root.querySelector("#dkCustomerStatus");
     if(hideBack) root.querySelector("#dkCustomerBack")?.remove(); else if(hideBack){ root.querySelector("#dkCustomerBack")?.remove(); root.querySelector(".dk-customer-home-head")?.querySelector(".dk-customer-home-back")?.remove(); } else root.querySelector("#dkCustomerBack")?.addEventListener("click",closeCustomer2);
-    function lookup(){
+    let otpSent=false;
+    const otpInput=document.createElement("input");
+    otpInput.id="dkCustomerOtp";
+    otpInput.className="search dk-customer-phone-input";
+    otpInput.inputMode="numeric";
+    otpInput.autocomplete="one-time-code";
+    otpInput.placeholder="Enter SMS verification code";
+    otpInput.maxLength=8;
+    otpInput.style.display="none";
+    input?.parentElement?.insertAdjacentElement("afterend",otpInput);
+    async function lookup(){
+      const q=phone2(input?.value);
+      if(!q||q.length!==10){status.textContent="Enter a valid 10-digit Indian mobile number.";input?.focus();return}
+      const sb=getCustomerSB();
+      if(!sb){status.textContent="Secure login is loading. Refresh and try again.";return}
+      btn.disabled=true;
       try{
-        const q=phone2(input?.value);
-        if(!q){status.textContent="Please enter your mobile number.";input?.focus();return}
-        const customers=Array.isArray(window.state?.customers)?window.state.customers:[];
-        const matches=customers.filter(c=>phone2(c.phone)===q);
-        if(!matches.length){
-          status.textContent=customers.length
-            ?"No customer found for this number on this device. Please check the number or use the owner's device where customer records are saved."
-            :"Customer records are not loaded on this device yet. Customer access needs the owner's records to be synced first.";
+        if(!otpSent){
+          const {error}=await sb.auth.signInWithOtp({phone:"+91"+q});
+          if(error)throw error;
+          otpSent=true;
+          otpInput.style.display="block";
+          btn.innerHTML="Verify OTP & Find My Shops <span>→</span>";
+          status.textContent="OTP sent if this mobile number can receive SMS. Enter the code to continue.";
+          otpInput.focus();
           return;
         }
-        if(matches.length>1){
-          status.textContent="Multiple accounts found. Select one.";
-          if(typeof window.modal==="function")window.modal('<div class="dk-customer-login"><div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER FOUND</span><h2>Select account</h2></div></div>'+matches.map(c=>'<button class="dk-access-card customer dk-customer-choice" data-id="'+esc2(c.id)+'" type="button"><span>👤</span><div><b>'+esc2(c.name)+'</b><small>'+esc2(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+'<button class="dk-login-close" id="dkChoiceBack">← Back</button></div>');
-          document.querySelectorAll(".dk-customer-choice").forEach(x=>x.addEventListener("click",function(){window.openCustomerPortal(this.dataset.id)}));
-          document.getElementById("dkChoiceBack")?.addEventListener("click",()=>openCustomer2(true));
-          return;
-        }
-        status.textContent="Account found. Opening your Khata…";
-        customerPortal2(matches[0].id);
+        const token=String(otpInput.value||"").trim();
+        if(!token){status.textContent="Enter the OTP sent to your mobile.";otpInput.focus();return}
+        const {data:authData,error:otpError}=await sb.auth.verifyOtp({phone:"+91"+q,token,type:"sms"});
+        if(otpError||!authData?.session)throw otpError||new Error("OTP verification did not create a session.");
+        status.textContent="Mobile verified. Finding your registered shops…";
+        const {data,error}=await sb.functions.invoke("customer-portal",{body:{}});
+        if(error)throw error;
+        renderGlobalCustomerAccounts2(data?.accounts||[]);
       }catch(err){
-        console.error("Dukaan Khata customer lookup failed:",err);
-        status.textContent="Could not open your Khata. Please refresh and try again.";
-      }
+        console.error("Customer OTP / portal lookup failed:",err);
+        status.textContent=String(err?.message||"Could not verify your mobile number. Check the OTP and try again.");
+      }finally{btn.disabled=false}
     }
-    btn?.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();status.textContent="Checking account…";lookup()});
+    btn?.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();status.textContent=otpSent?"Verifying OTP…":"Sending verification OTP…";lookup()});
     input?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();lookup()}});
 
     setTimeout(()=>input.focus(),100);
