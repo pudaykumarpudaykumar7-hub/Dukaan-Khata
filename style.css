@@ -4888,3 +4888,18 @@ body{
   .dk-login-shell.dk-login-signed .dk-login-action>strong{font-size:23px!important}
   .dk-login-shell.dk-login-signed .dk-login-close{margin-top:14px!important;font-size:15px!important}
 }
+
+/* Owner account logout must be unmistakably red and bold */
+.dk-login-shell.dk-login-signed .dk-login-action.dk-logout{
+  color:#c62828!important;
+  background:#fff5f4!important;
+  border:1px solid #efb6b3!important;
+  font-weight:800!important;
+  box-shadow:0 2px 0 #f1d5d2!important;
+}
+.dk-login-shell.dk-login-signed .dk-login-action.dk-logout,
+.dk-login-shell.dk-login-signed .dk-login-action.dk-logout span,
+.dk-login-shell.dk-login-signed .dk-login-action.dk-logout strong{
+  color:#c62828!important;
+  font-weight:800!important;
+}
