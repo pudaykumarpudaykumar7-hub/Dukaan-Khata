@@ -204,40 +204,6 @@ function modal(html){const m=document.getElementById("modal"),b=document.getElem
 function closeModal(){stopQRPaymentWatcher();document.getElementById("modal")?.classList.add("hidden");document.getElementById("modal")?.classList.remove("uvms-logo-modal");document.body.classList.remove("uvms-logo-open")}
 function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const page=document.getElementById(id);if(!page)return;page.classList.add("active");document.querySelectorAll(".bottom-nav button,.top-menu button").forEach(b=>b.classList.toggle("active",b.dataset.page===id));window.scrollTo({top:0,behavior:"smooth"});try{render()}catch(e){console.error("Dukaan Khata render error:",e);toast("Page loaded. Please try again.")}}
 
-/* Help & Support Centre — local-first guidance; never exposes customer records or secrets. */
-const DK_HELP_ARTICLES=[
- {category:"Customers & Khata",title:"Correct a customer balance",body:"Open the customer or Khata screen and review the original entries, payments and returns. Record corrections as a dated entry where possible; avoid deleting history unless you are certain.",keywords:"customer balance ledger due payment credit return"},
- {category:"Payments",title:"Smart Receive and UPI QR",body:"Check the payee name and UPI ID in your UPI app before paying. A QR payment is not automatically verified by Dukaan Khata unless a configured provider confirms it. Record receipt only after checking your bank or UPI app.",keywords:"upi qr smart receive payment verify verified gateway"},
- {category:"Data safety",title:"Back up or restore your shop data",body:"Open Backup & Restore and download a JSON backup before changing devices. Keep the file private. Restore only a backup you trust; restoring replaces the current shop data on this device.",keywords:"backup restore migrate transfer json export"},
- {category:"Data safety",title:"Use Dukaan Khata offline",body:"Device-local changes may remain on this device until cloud sync is available. Reconnect to the internet and check login/sync status before using another device. Keep a current backup before moving devices.",keywords:"offline cloud sync internet device account"},
- {category:"Shop profile & pass",title:"Fix shop details or Digital Shop Pass",body:"Open Shop Profile to review the shop name, owner, phone, address and UPI ID. The Digital Shop Pass QR should be scanned with a phone camera. Verify that it opens the expected shop/pass before sharing.",keywords:"shop profile digital pass qr shop name upi"},
- {category:"Language & access",title:"Change language or sign-in",body:"Open More → Language to choose a supported language. Use Login Access for owner sign-in and sign-out. Never share your password, one-time code, provider secret or private backup file.",keywords:"language indian language login access sign in account"},
- {category:"Reports",title:"Understand reports and totals",body:"Reports are calculated from records saved in the app. Choose the correct date range and review missing or duplicate entries if a total looks wrong. Do not treat estimates as bank-confirmed figures.",keywords:"report export sales expense totals date range"},
- {category:"Loyalty",title:"Understand Club Pass points",body:"Club Pass points and stamps are reward tracking, not cash or a bank balance. Check the displayed reward rules with the shop before promising or redeeming a reward.",keywords:"loyalty club pass points rewards stamps"}
-];
-function openHelpCentre(){
- const m=document.getElementById("modal"),b=document.getElementById("modalBody");if(!m||!b)return;
- b.innerHTML='<div class="dk-help-centre"><div class="dk-help-head"><span class="eyebrow">DUKAAN KHATA CARE</span><h2>Help & Support</h2><p>Find practical answers for your shop. Your customer and transaction records are not sent to this help screen.</p></div><label class="dk-help-search-label" for="dkHelpSearch">Search help topics</label><input id="dkHelpSearch" class="dk-help-search" type="search" placeholder="Try “backup”, “UPI”, or “language”" autocomplete="off"><div class="dk-help-chips"><button type="button" onclick="dkHelpQuick(\'Payments\')">Payments</button><button type="button" onclick="dkHelpQuick(\'Data safety\')">Backup & sync</button><button type="button" onclick="dkHelpQuick(\'Customers & Khata\')">Customer Khata</button></div><div id="dkHelpResults" class="dk-help-results" aria-live="polite"></div><div class="dk-help-contact"><b>Still need help?</b><p>Copy a safe diagnostic summary to share with support. It excludes customer names, balances, phone numbers, and credentials.</p><button type="button" class="btn secondary" onclick="dkCopySupportDiagnostics()">Copy diagnostic summary</button><button type="button" class="btn" onclick="closeModal()">Close</button><small id="dkHelpCopyStatus" role="status"></small></div></div>';
- m.classList.remove("hidden");dkRenderHelpResults("");document.getElementById("dkHelpSearch")?.addEventListener("input",e=>dkRenderHelpResults(e.target.value));
-}
-function dkRenderHelpResults(query,category){
- const box=document.getElementById("dkHelpResults");if(!box)return;
- const q=String(query||"").trim().toLowerCase();
- const matches=DK_HELP_ARTICLES.filter(a=>(!category||a.category===category)&&(!q||(a.title+" "+a.body+" "+a.category+" "+a.keywords).toLowerCase().includes(q)));
- box.innerHTML=matches.length?matches.map((a,i)=>'<details class="dk-help-article"><summary><span><small>'+esc(a.category)+'</small><b>'+esc(a.title)+'</b></span><i aria-hidden="true">＋</i></summary><p>'+esc(a.body)+'</p>'+dkHelpAction(a.title)+'</details>').join(""):'<p class="muted dk-help-empty">No matching topic. Try a shorter search term.</p>';
-}
-function dkHelpAction(title){
- const actions={"Back up or restore your shop data":'<button class="btn small" onclick="closeModal();openBackup()">Open Backup & Restore</button>',"Smart Receive and UPI QR":'<button class="btn small" onclick="closeModal();openReceive()">Open Smart Receive</button>',"Change language or sign-in":'<button class="btn small" onclick="closeModal();openLanguage()">Open Language</button>',"Fix shop details or Digital Shop Pass":'<button class="btn small" onclick="closeModal();openShopSettings()">Open Shop Profile</button>',"Understand Club Pass points":'<button class="btn small" onclick="closeModal();openDigitalPassword()">Open Club Pass</button>',"Correct a customer balance":'<button class="btn small" onclick="closeModal();showPage(\'khata\')">Open Khata</button>',"Understand reports and totals":'<button class="btn small" onclick="closeModal();showPage(\'reports\')">Open Reports</button>'};
- return actions[title]||"";
-}
-function dkHelpQuick(category){const search=document.getElementById("dkHelpSearch");if(search)search.value="";dkRenderHelpResults("",category)}
-async function dkCopySupportDiagnostics(){
- const report={app:"Dukaan Khata",capturedAt:new Date().toISOString(),online:!!navigator.onLine,language:String(state?.settings?.language||"unknown"),browser: navigator.userAgent,serviceWorker:("serviceWorker" in navigator)};
- const text=JSON.stringify(report,null,2),status=document.getElementById("dkHelpCopyStatus");
- try{if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(text);else{const ta=document.createElement("textarea");ta.value=text;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();const ok=document.execCommand("copy");ta.remove();if(!ok)throw new Error("Clipboard unavailable")}if(status)status.textContent="Safe diagnostic summary copied.";else toast("Diagnostic summary copied")}catch(e){if(status)status.textContent="Could not copy automatically. Please try again in a secure browser.";else toast("Could not copy diagnostic summary")}
-}
-
-
 /* CSV exports for business records. Text cells are formula-neutralized for spreadsheet safety. */
 function dkCsvCell(value){
  if(typeof value==="number"&&Number.isFinite(value))return String(value);
