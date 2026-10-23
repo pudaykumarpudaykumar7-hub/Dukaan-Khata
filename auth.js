@@ -300,9 +300,7 @@ async function openOwnerLogin(){
     if(error){toast("Could not check Google sign-in: "+error.message);return}
     if(data?.session?.user){
       saveAccount(data.session.user);
-      if(window.showPage)window.showPage("home");
-      if(window.closeModal)window.closeModal();
-      toast("Signed in with Google. Your data stays on this device.");
+      showOwnerAccountPopup(data.session.user);
       return;
     }
     modal('<div class="dk-login-shell"><div class="dk-login-top"><div class="dk-login-icon">🏪</div><div><span class="dk-login-badge">OWNER ACCESS</span><h2>Sign in with Google</h2></div></div><p class="dk-login-sub">Use your Google account to verify your owner identity. Shop records are saved on this device only; cross-device syncing is disabled.</p><button class="dk-login-action dk-login-primary" onclick="startGoogleLogin()">Continue with Google <span>→</span></button><button class="dk-login-close" onclick="closeModal()">Cancel</button></div>');
