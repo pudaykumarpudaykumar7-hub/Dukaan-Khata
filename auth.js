@@ -374,6 +374,7 @@ async function openOwnerLogin(){
   function openCustomerPortal(customerId){
     const c=(state.customers||[]).find(x=>String(x.id)===String(customerId));
     if(!c){toast("Customer record not found");return}
+    const shop=state.shop||{};
     const tx=customerTransactions(c);
     const sales=tx.filter(t=>t.type==="sale");
     const payments=tx.filter(t=>t.type==="payment"&&Number(t.amount)>0);
@@ -381,24 +382,50 @@ async function openOwnerLogin(){
     const paid=payments.reduce((s,t)=>s+(Number(t.amount)||0),0);
     const salesTotal=sales.reduce((s,t)=>s+(Number(t.total)||0),0);
     const sorted=(arr)=>arr.slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+    const contactDigits=String(shop.phone||"").replace(/\\D/g,"");
+    const waDigits=contactDigits.length===10?"91"+contactDigits:contactDigits;
+    const itemRows=sales.flatMap(t=>(Array.isArray(t.items)?t.items:[]).map(i=>({
+      name:i.name||i.itemName||i.title||"Item",
+      qty:Number(i.qty??i.quantity)||1,
+      price:Number(i.price??i.rate??i.unitPrice)||0,
+      total:Number(i.total??i.amount)||((Number(i.qty??i.quantity)||1)*(Number(i.price??i.rate??i.unitPrice)||0)),
+      date:t.date,
+      bill:t.id
+    })));
     const billHtml=sales.length?sorted(sales).map(t=>{
-      const items=Array.isArray(t.items)?t.items.map(i=>'<span>'+esc(i.name||"Item")+' × '+(Number(i.qty)||1)+' — '+money(Number(i.price)||0)+'</span>').join(""):"";
-      return '<article class="dk-exec-record"><div class="dk-record-icon">🧾</div><div class="dk-record-main"><b>Bill '+esc(t.id||"")+'</b><small>'+new Date(t.date||Date.now()).toLocaleString()+'</small>'+(items?'<div class="dk-record-items">'+items+'</div>':"")+'</div><strong class="dk-record-amount">'+money(Number(t.total)||0)+'</strong></article>';
-    }).join(""):'<div class="dk-empty">No bills available</div>';
-    const payHtml=payments.length?sorted(payments).map(t=>'<article class="dk-exec-record"><div class="dk-record-icon">✓</div><div class="dk-record-main"><b>Payment received</b><small>'+new Date(t.date||Date.now()).toLocaleString()+' • '+esc(t.mode||"payment")+'</small></div><strong class="dk-customer-paid">+'+money(Number(t.amount)||0)+'</strong></article>').join(""):'<div class="dk-empty">No paid payments available</div>';
+      const items=Array.isArray(t.items)&&t.items.length?t.items.map(i=>{
+        const qty=Number(i.qty??i.quantity)||1,price=Number(i.price??i.rate??i.unitPrice)||0;
+        const lineTotal=Number(i.total??i.amount)||qty*price;
+        return '<div class="dk-customer-item-row"><span>'+esc(i.name||i.itemName||i.title||"Item")+' <small>× '+qty+'</small></span><strong>'+money(lineTotal)+'</strong></div>';
+      }).join(""):"<div class=\"dk-muted-note\">Item details were not saved for this bill.</div>";
+      return '<article class="dk-exec-record dk-customer-bill"><div class="dk-record-icon">🧾</div><div class="dk-record-main"><b>Bill '+esc(t.id||"")+'</b><small>'+new Date(t.date||Date.now()).toLocaleString()+'</small><div class="dk-record-items">'+items+'</div></div><strong class="dk-record-amount">'+money(Number(t.total)||0)+'</strong></article>';
+    }).join(""):'<div class="dk-empty">No bills available for this customer yet.</div>';
+    const payHtml=payments.length?sorted(payments).map(t=>'<article class="dk-exec-record"><div class="dk-record-icon">✓</div><div class="dk-record-main"><b>Payment received</b><small>'+new Date(t.date||Date.now()).toLocaleString()+' • '+esc(t.mode||"payment")+'</small></div><strong class="dk-customer-paid">+'+money(Number(t.amount)||0)+'</strong></article>').join(""):'<div class="dk-empty">No paid payments available.</div>';
     const khataHtml=sorted(tx).map(t=>{
-      const amount=t.type==="sale"?Number(t.total)||0:Number(t.amount)||0;
-      return '<article class="dk-exec-record"><div class="dk-record-icon">'+(t.type==="payment"?"✓":"₹")+'</div><div class="dk-record-main"><b>'+esc(t.type==="sale"?"Khata Bill":"Paid Payment")+'</b><small>'+new Date(t.date||Date.now()).toLocaleString()+'</small></div><strong class="'+(t.type==="payment"?"dk-customer-paid":"dk-customer-due")+'">'+(t.type==="payment"?"+":"") +money(amount)+'</strong></article>';
-    }).join("")||'<div class="dk-empty">No khata transactions available</div>';
-    modal('<div class="dk-customer-portal dk-executive-portal">'+
-      '<div class="dk-exec-hero"><button class="dk-exec-back" onclick="openCustomerLogin()">‹</button><div class="dk-exec-avatar">👤</div><div class="dk-exec-identity"><span>PRIVATE CUSTOMER ACCOUNT</span><h2>'+esc(c.name)+'</h2><small>📱 '+esc(c.phone||"")+'</small></div><div class="dk-exec-lock">🔒</div></div>'+
-      '<div class="dk-exec-welcome"><b>Welcome back, '+esc(c.name)+'</b><small>Your personal Khata, bills and payment history</small></div>'+
-      '<div class="dk-customer-summary dk-exec-summary"><div><small>KHATA / BILLS</small><b>'+money(salesTotal)+'</b></div><div><small>TOTAL PAID</small><b class="dk-customer-paid">'+money(paid)+'</b></div><div><small>OUTSTANDING DUE</small><b class="dk-customer-due">'+money(due)+'</b></div></div>'+
-      '<div class="dk-exec-section"><div class="dk-exec-section-title"><span>📒</span><div><h3>My Khata</h3><small>Complete transaction history</small></div></div>'+khataHtml+'</div>'+
-      '<div class="dk-exec-section"><div class="dk-exec-section-title"><span>🧾</span><div><h3>My Bills</h3><small>All bills linked to your account</small></div></div>'+billHtml+'</div>'+
+      const isPayment=t.type==="payment";
+      const amount=isPayment?Number(t.amount)||0:Number(t.total)||0;
+      return '<article class="dk-exec-record"><div class="dk-record-icon">'+(isPayment?"✓":"₹")+'</div><div class="dk-record-main"><b>'+esc(isPayment?"Payment recorded":"Khata Bill")+'</b><small>'+new Date(t.date||Date.now()).toLocaleString()+(t.mode?" • "+esc(t.mode):"")+'</small></div><strong class="'+(isPayment?"dk-customer-paid":"dk-customer-due")+'">'+(isPayment?"−":"")+money(amount)+'</strong></article>';
+    }).join("")||'<div class="dk-empty">No Khata transactions available.</div>';
+    const allItemsHtml=itemRows.length?itemRows.map(i=>'<article class="dk-customer-item-card"><div><b>'+esc(i.name)+'</b><small>'+esc(i.bill?"Bill "+i.bill:"Item")+' • '+new Date(i.date||Date.now()).toLocaleDateString()+'</small><span>'+i.qty+' × '+money(i.price)+'</span></div><strong>'+money(i.total)+'</strong></article>').join(""):'<div class="dk-empty">No saved item details are available in this customer’s bills.</div>';
+    const shopRows=[
+      ["Shop name",shop.name||"Not added","🏪"],
+      ["Owner name",shop.owner||"Not added","👤"],
+      ["Shop contact",shop.phone||"Not added","📞"],
+      ["Shop address",shop.address||"Not added","📍"],
+      ["UPI ID",shop.upi||"Not added","💳"]
+    ];
+    modal('<div class="dk-customer-portal dk-executive-portal dk-customer-fullscreen">'+
+      '<div class="dk-customer-screen-top"><button class="dk-exec-back" type="button" onclick="openCustomerLogin()" aria-label="Back to customer login">‹</button><div><span>DUKAAN KHATA • CUSTOMER VIEW</span><h2>My Shop & Khata</h2></div><button class="dk-customer-screen-close" type="button" onclick="closeModal()" aria-label="Close customer view">×</button></div>'+
+      '<div class="dk-exec-hero"><div class="dk-exec-avatar">👤</div><div class="dk-exec-identity"><span>PRIVATE CUSTOMER ACCOUNT</span><h2>'+esc(c.name)+'</h2><small>📱 '+esc(c.phone||"No customer mobile saved")+'</small></div><div class="dk-exec-lock">🔒</div></div>'+
+      '<div class="dk-exec-welcome"><b>Welcome back, '+esc(c.name)+'</b><small>Your shop profile, contact, saved items, bills and payment history</small></div>'+
+      '<div class="dk-customer-summary dk-exec-summary"><div><small>TOTAL BILLS</small><b>'+money(salesTotal)+'</b></div><div><small>TOTAL PAID</small><b class="dk-customer-paid">'+money(paid)+'</b></div><div><small>OUTSTANDING DUE</small><b class="dk-customer-due">'+money(due)+'</b></div></div>'+
+      '<div class="dk-exec-section"><div class="dk-exec-section-title"><span>🏪</span><div><h3>Complete Shop Details</h3><small>Shop identity and contact information</small></div></div><div class="dk-customer-shop-grid">'+shopRows.map(r=>'<div class="dk-customer-shop-row"><span>'+r[2]+'</span><div><small>'+r[0]+'</small><b>'+esc(r[1])+'</b></div></div>').join("")+'</div>'+(contactDigits?'<div class="dk-customer-contact-actions"><a href="tel:'+esc(shop.phone||"")+'">📞 Call shop</a><a target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(waDigits)+'?text='+encodeURIComponent("Hello "+(shop.name||"shop")+", I am "+(c.name||"a customer")+".")+'">🟢 WhatsApp shop</a></div>':"")+'</div>'+
+      '<div class="dk-exec-section"><div class="dk-exec-section-title"><span>🛍️</span><div><h3>All Items Bought</h3><small>Item quantities, unit prices and bill totals from saved records</small></div></div><div class="dk-customer-items-list">'+allItemsHtml+'</div></div>'+
+      '<div class="dk-exec-section"><div class="dk-exec-section-title"><span>📒</span><div><h3>My Khata</h3><small>All transactions for this customer</small></div></div>'+khataHtml+'</div>'+
+      '<div class="dk-exec-section"><div class="dk-exec-section-title"><span>🧾</span><div><h3>My Bills</h3><small>Bill-by-bill items and amounts</small></div></div>'+billHtml+'</div>'+
       '<div class="dk-exec-section"><div class="dk-exec-section-title"><span>💚</span><div><h3>Paid Payments</h3><small>Payments recorded for this account</small></div></div>'+payHtml+'</div>'+
-      '<div class="dk-exec-private">🔐 <span>This is a read-only private customer view. Owner controls and other customers are hidden.</span></div>'+
-      '<button class="dk-login-close" onclick="closeModal()">× Close Customer View</button></div>');
+      '<div class="dk-exec-private">🔐 <span>This is a read-only customer view. Only this customer’s records and the shop’s saved public profile are shown.</span></div>'+
+      '<button class="dk-login-close dk-customer-fullscreen-close" type="button" onclick="closeModal()">× Close Customer View</button></div>');
   }
   async function startGoogleLogin(){
     const sb=client();
