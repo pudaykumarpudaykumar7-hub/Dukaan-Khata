@@ -203,8 +203,7 @@
       setTimeout(()=>openCustomerLogin(),250);
       return;
     }
-    // Owner state is synced only to the authenticated owner row protected by Supabase RLS.
-    await restoreCloudState(user);
+    // Google verifies owner identity only. All shop records remain local; never restore cloud state.
   }
 
   let initAttempts=0;
