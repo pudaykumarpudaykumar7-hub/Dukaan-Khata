@@ -359,19 +359,53 @@ async function openOwnerLogin(){
     if(window.closeModal)closeModal();
     if(window.openDukaanLogin)openDukaanLogin();
   }
-  function findCustomerPortal(){
+  async function findCustomerPortal(){
     const q=normPhone(document.getElementById("customerLoginPhone")?.value);
-    if(!q){toast("Enter the customer mobile number");return}
-    const matches=(state.customers||[]).filter(c=>normPhone(c.phone)===q);
-    if(!matches.length){
-      toast("No customer found for this number");
-      return;
-    }
-    // Open the aggregated view for all accounts registered under this mobile number.
-    openCustomerPortal(matches[0].id);return;
-    modal('<div class="dk-customer-login"><div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER FOUND</span><h2>Select account</h2></div></div>'+
-        matches.map(c=>'<button class="dk-access-card customer" type="button" data-customer-id="'+esc(c.id)+'" onclick="openCustomerPortal(this.dataset.customerId)"><span>👤</span><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+
-      '<button class="dk-login-close" onclick="openCustomerLogin()">← Back</button></div>');
+    const pin=String(document.getElementById("customerLoginPin")?.value||"").trim();
+    if(!q||q.length!==10){toast("Enter a valid 10-digit mobile number");return}
+    if(pin!=="2007"){toast("Enter the customer PIN");return}
+    const submit=document.querySelector("#modal button[type=submit],#modal .dk-login-primary");
+    if(submit){submit.disabled=true;submit.textContent="Finding your shops…"}
+    try{
+      const response=await fetch("https://nzsldzyjpxwyyrdwkphp.supabase.co/functions/v1/customer-pin-portal",{
+        method:"POST",headers:{"Content-Type":"application/json","apikey":"sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-"},
+        body:JSON.stringify({action:"login",phone:q,pin})
+      });
+      const data=await response.json();
+      if(!response.ok)throw new Error(data.error||"Customer login failed");
+      const accounts=Array.isArray(data.accounts)?data.accounts:[];
+      if(!accounts.length){toast("No registered shop records were found for this number");return}
+      openRemoteCustomerPortal(accounts);
+    }catch(e){
+      console.error("Cross-shop customer lookup failed",e);
+      toast(e.message||"Could not connect to customer records. Please try again.");
+    }finally{if(submit){submit.disabled=false;submit.textContent="Login as Customer"}}
+  }
+  function openRemoteCustomerPortal(accounts){
+    const allTx=accounts.flatMap(a=>(Array.isArray(a.transactions)?a.transactions:[]).map(t=>({...t,__customer:a.customer,__shop:a.shop})));
+    const sales=allTx.filter(t=>t.type==="sale");
+    const payments=allTx.filter(t=>t.type==="payment");
+    const totalSales=sales.reduce((s,t)=>s+(Number(t.total)||0),0);
+    const totalPaid=payments.reduce((s,t)=>s+(Number(t.amount)||0),0);
+    const totalDue=accounts.reduce((s,a)=>s+(Array.isArray(a.transactions)?a.transactions.reduce((x,t)=>x+(t.type==="sale"?(Number(t.total)||0)-(Number(t.paid)||Number(t.paidAmount)||0):t.type==="payment"?-(Number(t.amount)||0):0),0):0),0);
+    const shopCards=accounts.map(a=>{
+      const shop=a.shop||{}, customer=a.customer||{};
+      const tx=Array.isArray(a.transactions)?a.transactions:[];
+      const shopSales=tx.filter(t=>t.type==="sale");
+      const shopPaid=tx.filter(t=>t.type==="payment").reduce((s,t)=>s+(Number(t.amount)||0),0);
+      const shopTotal=shopSales.reduce((s,t)=>s+(Number(t.total)||0),0);
+      const shopDue=shopSales.reduce((s,t)=>s+Math.max(0,(Number(t.total)||0)-(Number(t.paid)||Number(t.paidAmount)||0)),0);
+      const phone=String(shop.phone||"").replace(/\\D/g,"");
+      const wa=phone.length===10?"91"+phone:phone;
+      const bills=shopSales.sort((x,y)=>new Date(y.date||y.created_at||0)-new Date(x.date||x.created_at||0)).map(t=>{
+        const lines=Array.isArray(t.lines)?t.lines:Array.isArray(t.items)?t.items:[];
+        const items=lines.length?lines.map(i=>'<div class="dk-customer-item-row"><span>'+esc(i.name||i.itemName||i.title||"Item")+' <small>× '+(Number(i.qty??i.quantity)||1)+'</small></span><strong>'+money(Number(i.total??i.amount)||((Number(i.qty??i.quantity)||1)*(Number(i.price??i.rate??i.unitPrice)||0)))+'</strong></div>').join(""):'<small>Item details not saved for this bill.</small>';
+        return '<article class="dk-exec-record dk-customer-bill"><div class="dk-record-icon">🧾</div><div class="dk-record-main"><b>Bill '+esc(t.id||t.invoiceNo||t.invoice_no||"")+'</b><small>'+new Date(t.date||t.created_at||Date.now()).toLocaleString()+'</small><div class="dk-record-items">'+items+'</div></div><strong class="dk-record-amount">'+money(Number(t.total)||0)+'</strong></article>';
+      }).join("")||'<div class="dk-empty">No bills saved.</div>';
+      const pays=tx.filter(t=>t.type==="payment").map(t=>'<article class="dk-exec-record"><div class="dk-record-icon">✓</div><div class="dk-record-main"><b>Payment recorded</b><small>'+new Date(t.date||t.created_at||Date.now()).toLocaleString()+'</small></div><strong class="dk-customer-paid">+'+money(Number(t.amount)||0)+'</strong></article>').join("")||'<div class="dk-empty">No payments recorded.</div>';
+      return '<section class="dk-exec-section"><div class="dk-exec-section-title"><span>🏪</span><div><h3>'+esc(shop.name||"Shop")+'</h3><small>'+esc(shop.owner||"Shop Owner")+' • '+esc(shop.address||"")+'</small></div></div><div class="dk-customer-summary"><div><small>BILLS</small><b>'+money(shopTotal)+'</b></div><div><small>PAID</small><b class="dk-customer-paid">'+money(shopPaid)+'</b></div><div><small>DUE</small><b class="dk-customer-due">'+money(shopDue)+'</b></div></div><p>Registered customer: <b>'+esc(customer.name||"Customer")+'</b> • '+esc(customer.phone||"")+'</p>'+(phone?'<div class="dk-customer-contact-actions"><a href="tel:'+esc(shop.phone||"")+'">📞 Call owner/shop</a><a target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(wa)+'?text='+encodeURIComponent("Hello "+(shop.name||"shop")+", I am contacting you about my Dukaan Khata.")+'">🟢 WhatsApp</a></div>':"")+'<h4>My Bills & Items</h4>'+bills+'<h4>Payments</h4>'+pays+'</section>';
+    }).join("");
+    modal('<div class="dk-customer-portal dk-executive-portal dk-customer-fullscreen"><div class="dk-customer-screen-top"><button class="dk-exec-back" type="button" onclick="openCustomerLogin()">‹</button><div><span>DUKAAN KHATA • CUSTOMER VIEW</span><h2>My Shops & Khata</h2></div><button class="dk-customer-screen-close" type="button" onclick="closeModal()">×</button></div><div class="dk-exec-hero"><div class="dk-exec-avatar">👤</div><div class="dk-exec-identity"><span>REGISTERED CUSTOMER</span><h2>'+esc(accounts[0]?.customer?.name||"Customer")+'</h2><small>📱 '+esc(accounts[0]?.customer?.phone||"")+'</small></div></div><div class="dk-customer-summary dk-exec-summary"><div><small>ALL BILLS</small><b>'+money(totalSales)+'</b></div><div><small>PAYMENTS</small><b class="dk-customer-paid">'+money(totalPaid)+'</b></div><div><small>EST. DUE</small><b class="dk-customer-due">'+money(Math.max(0,totalDue))+'</b></div></div><p class="dk-muted-note">Showing '+accounts.length+' shop account(s) registered to this mobile number.</p>'+shopCards+'<div class="dk-exec-private">🔐 Read-only customer view. Contact each shop directly for corrections to its records.</div><button class="dk-login-close dk-customer-fullscreen-close" type="button" onclick="closeModal()">× Close Customer View</button></div>');
   }
   function openCustomerPortal(customerId){
     const c=(state.customers||[]).find(x=>String(x.id)===String(customerId));
