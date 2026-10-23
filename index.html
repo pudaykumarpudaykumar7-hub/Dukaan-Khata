@@ -15,7 +15,7 @@
 <meta property="og:url" content="https://pudaykumarpudaykumar7-hub.github.io/Dukaan-Khata/">
 <meta name="google-site-verification" content="yxGmsKLNh80x8p2xAea4jExg0TK-CKe7ma8ZCLY6lmE" />
 <link rel="manifest" href="manifest.json?v=20261022-mobile-polish-v76"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="icon" type="image/svg+xml" href="icon.svg?v=20261022-mobile-polish-v76"><link rel="apple-touch-icon" href="icon.svg?v=20261022-mobile-polish-v76">
-<link rel="stylesheet" href="style.css?v=20261023-customer-pin-v105">
+<link rel="stylesheet" href="style.css?v=20261023-local-only-v109">
 <title>Dukaan Khata (Dukaan Kotha) - Digital Khata &amp; Shop Management</title>
 </head>
 <body>
@@ -104,7 +104,7 @@ html body #uvmsLaunchSplash .uvms-launch-frame{z-index:3!important;}
 <button class="luxury-tool" data-more-feature="language" onclick="openLanguage()">🌐<b>Language</b><small>Choose and save your language</small></button>
 <button class="luxury-tool" data-more-feature="customer-contact" onclick="openCustomerHub()">👥<b>Customer Contact</b><small>WhatsApp • Call • SMS • Due reminders</small></button>
 <button class="luxury-tool" data-more-feature="subscription-plans" onclick="openSubscriptionPlans()">₹<b>Subscriptions</b><small>Free • ₹50 Standard • ₹100 Unlimited / month</small></button>
-<button class="luxury-tool" data-more-feature="login-access" onclick="openDukaanLogin()">🔐<b>Login Access</b><small>Owner Google login • Logout</small></button>
+<button class="luxury-tool" data-more-feature="login-access" onclick="openDukaanLogin()">🔐<b>Login Access</b><small>Local owner access • Device-only data</small></button>
 <button class="luxury-tool" data-more-feature="club-pass" onclick="openDigitalPass()">🎫<b>Dukaan Club Pass</b><small>Shop identity • Owner details • Shareable pass</small></button>
 
 
@@ -114,15 +114,15 @@ html body #uvmsLaunchSplash .uvms-launch-frame{z-index:3!important;}
 <nav class="bottom-nav"><button class="active" onclick="showPage('home')" data-page="home">⌂<span>Home</span></button><button onclick="showPage('khata')" data-page="khata">₹<span>Khata</span></button><button onclick="showPage('customers')" data-page="customers">♙<span>Customers</span></button><button onclick="showPage('bills')" data-page="bills">▤<span>Bills</span></button><button onclick="showPage('tools')" data-page="tools">•••<span>More</span></button></nav>
 <div id="toast" class="toast"></div><div id="modal" class="modal hidden"><div class="sheet"><div id="modalBody"></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<!-- Supabase removed: Dukaan Khata now stores data locally on this device. -->
 <script>(()=>{const h=new Date().getHours();const e=document.getElementById("greeting");if(e)e.textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+" 👋";const d=document.getElementById("todayLabel");if(d)d.textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});})();</script>
 <script src="app.js?v=20261023-subscriptions-v107" defer></script>
-<script src="auth.js?v=20261023-cloud-restore-v108" defer></script>
-<script src="login-access.js?v=20261023-customer-pin-v106" defer></script>
+<script src="auth.js?v=20261023-local-only-v109" defer></script>
+
 <script src="i18n.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 <script src="more-routing.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 </div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=20261023-cloud-restore-v108",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=20261023-local-only-v109",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
 <script>
 (()=>{let deferredPrompt=null;const btn=()=>document.getElementById("pwaInstallBtn");
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=btn();if(b)b.hidden=false;});
