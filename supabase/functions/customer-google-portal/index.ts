@@ -24,7 +24,8 @@ Deno.serve(async(req)=>{
   const {data:{user},error:authError}=await auth.auth.getUser(token);
   if(authError||!user)return json(req,{error:"Your session expired. Sign in again."},401);
   const email=String(user.email??"").trim().toLowerCase();
-  if(!email||user.email_confirmed_at==null)return json(req,{error:"A verified Google email is required."},403);
+  const hasGoogleIdentity=Array.isArray(user.identities)&&user.identities.some((identity:any)=>identity?.provider==="google");
+  if(!hasGoogleIdentity||!email||user.email_confirmed_at==null)return json(req,{error:"Sign in with a verified Google account to use this customer portal."},403);
   const admin=createClient(url,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}});
   const body=await req.json().catch(()=>({}));
   const action=String(body?.action??"");
