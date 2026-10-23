@@ -60,16 +60,17 @@
   function openCustomer2(hideBack){
     document.getElementById("modal")?.classList.add("hidden");
     document.getElementById("dkCustomerFullScreen")?.remove();
-    
+    document.getElementById("dkLoginAccessStandalone")?.remove();
+
     const root=document.createElement("div");
     root.id="dkCustomerFullScreen";
     root.className="dk-customer-fullscreen";
-    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkCustomerBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div><span class="dk-customer-secure">🔒 Private</span></header><main class="dk-customer-home-main"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Customer <strong>Login</strong></h1><p>No owner account or individual shop PIN is needed. Enter your mobile number and the common customer PIN to view linked shop records.</p></div><section class="dk-customer-login-card"><div class="dk-customer-card-icon">📱</div><h2>View Your Khata</h2><p>View items, bills, payments, totals and call links for shops where your number is registered.</p><label class="dk-customer-label">Mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label><label class="dk-customer-label" style="margin-top:12px">Common customer PIN<input id="customerLoginPin" class="search dk-customer-phone-input" inputmode="numeric" autocomplete="current-password" type="password" maxlength="4" placeholder="Enter customer PIN"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata <span>→</span></button><div id="dkCustomerStatus" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features"><span>🛍️ Items Taken</span><span>🧾 Bills</span><span>₹ Total Taken / Paid / Due</span><span>☎ Call All Linked Shop Owners</span></div></section><div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div></main></div>';
+    root.style.cssText="position:fixed;inset:0;z-index:2147483001;background:rgba(7,12,24,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto";
+    root.innerHTML='<div class="dk-access-shell" style="width:min(520px,100%);max-height:calc(100vh - 40px);overflow:auto;position:relative"><div class="dk-access-head"><div class="dk-access-icon">👤</div><div><span class="dk-login-badge">DUKAAN KHATA</span><h2>Customer Login</h2><p>View your items, bills, payments and outstanding balance.</p></div></div><section style="padding:4px 0 0"><label class="dk-customer-label">Mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter registered mobile number" style="width:100%;box-sizing:border-box"></label><label class="dk-customer-label" style="display:block;margin-top:12px">Common customer PIN<input id="customerLoginPin" class="search dk-customer-phone-input" inputmode="numeric" autocomplete="current-password" type="password" maxlength="4" placeholder="Enter 4-digit PIN" style="width:100%;box-sizing:border-box"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button" style="width:100%;margin-top:16px">View My Khata <span>→</span></button><div id="dkCustomerStatus" role="status" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px"><span>🛍️ Items Taken</span><span>🧾 Bills</span><span>₹ Taken / Paid / Due</span><span>☎ Call Shop Owners</span></div></section><button type="button" class="dk-login-close" id="dkCustomerBack" style="margin-top:14px">← Back</button></div>';
     document.body.appendChild(root);
-    document.body.classList.add("dk-customer-mode");
     const input=root.querySelector("#customerLoginPhone"),pinInput=root.querySelector("#customerLoginPin"),btn=root.querySelector("#dkCustomerViewBtn"),status=root.querySelector("#dkCustomerStatus");
+    root.querySelector("#dkCustomerBack")?.addEventListener("click",()=>{root.remove();loginAccess2()});
 
-    if(hideBack) root.querySelector("#dkCustomerBack")?.remove(); else if(hideBack){ root.querySelector("#dkCustomerBack")?.remove(); root.querySelector(".dk-customer-home-head")?.querySelector(".dk-customer-home-back")?.remove(); } else root.querySelector("#dkCustomerBack")?.addEventListener("click",closeCustomer2);
     async function lookup(){
       const q=phone2(input?.value),pin=String(pinInput?.value||"").trim();
       if(!q||q.length!==10){status.textContent="Enter a valid 10-digit Indian mobile number.";input?.focus();return}
@@ -85,15 +86,10 @@
       }catch(e){status.textContent=e?.message||"Could not connect. Please try again."}
       finally{btn.disabled=false}
     }
-    btn?.addEventListener("click",function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      lookup();
-    });
+    btn?.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();lookup()});
     input?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();lookup()}});
     pinInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();lookup()}});
-
-    setTimeout(()=>input.focus(),100);
+    setTimeout(()=>input?.focus(),100);
   }
 
   async function customerPinManager2(){
