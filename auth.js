@@ -1,8 +1,8 @@
-// Dukaan Khata — device-local mode; records stay in this browser/device
+// Dukaan Khata — owner data syncs to the shared database for customer portal access
 (function(){
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
-  window.DukaanKhataMode="local";
+  window.DukaanKhataMode="cloud";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
   let syncTimer=null, syncing=false, cloudPollTimer=null;
@@ -232,12 +232,13 @@
       sessionStorage.removeItem("dk_owner_login_pending");
       setTimeout(()=>showOwnerAccountPopup(user),300);
     }
-    // Google verifies owner identity only. Shop records remain local.
+    // Restore this owner’s cloud snapshot and publish existing local records so customers can access their own shop accounts from any device.
+    await restoreCloudState(user);
   }
 
   let initAttempts=0;
   async function init(){
-    // Local-only data mode: allow Google identity login but never restore or sync cloud data.
+    // Owner Google sign-in enables per-owner cloud restore/sync; customer login remains independent of owner sign-in.
     const sb=client();
     if(!sb){
       if(initAttempts++<20){setTimeout(init,500);return;}
