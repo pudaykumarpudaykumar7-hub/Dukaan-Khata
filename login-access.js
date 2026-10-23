@@ -294,6 +294,6 @@
   }
   window.openDukaanLogin=loginAccess2;
   window.openOwnerLogin=owner2;
-  window.openCustomerPortal=customerPortal2;
+  window.openCustomerPortal=function(){if(typeof window.toast==="function")window.toast("Customer login is disabled. Please use Owner Login.");};
   window.addEventListener("DOMContentLoaded",function(){setTimeout(startupLogin2,80)});
 })();
