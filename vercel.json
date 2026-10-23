@@ -1,0 +1,6 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "echo 'Dukaan Khata static HTML app: no compilation required'",
+  "outputDirectory": "."
+}
