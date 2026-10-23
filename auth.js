@@ -163,15 +163,13 @@
         await writeCloud(sb,uid,initial);
         row=await readCloud(sb,uid);
       }else if(local){
-        const dirty=localStorage.getItem("dukaan_khata_local_dirty")==="1";
-        // Only merge local records when this device has unsynced edits. A clean but
-        // stale/empty browser cache must never repopulate deleted customers or replace
-        // a complete cloud account with an old snapshot.
-        if(dirty){
-          const merged=mergeStates(local,row.state);
-          if(!same(merged,row.state))await writeCloud(sb,uid,merged);
-          row=await readCloud(sb,uid);
-        }
+        // This app previously ran in device-local mode. Merge existing local records
+        // into the owner’s shared snapshot on first cloud sign-in, preserving unique
+        // records from both sources. mergeStates carries deletion tombstones so deleted
+        // customers are not restored from a stale device copy.
+        const merged=mergeStates(local,row.state);
+        if(!same(merged,row.state))await writeCloud(sb,uid,merged);
+        row=await readCloud(sb,uid);
       }
       if(row?.state){
         const currentLocal=localState();
