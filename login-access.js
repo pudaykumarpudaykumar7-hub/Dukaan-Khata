@@ -26,10 +26,7 @@
   function closeCustomer2(){
     document.getElementById("dkCustomerFullScreen")?.remove();
     document.body.classList.remove("dk-customer-mode");
-    if(typeof window.modal==="function"){
-      window.modal('<div class="dk-access-shell"><div class="dk-access-head"><div class="dk-access-icon">🏪</div><div><span class="dk-login-badge">DUKAAN KHATA</span><h2>Owner Login</h2></div></div><button type="button" class="dk-access-card owner" id="dkOwnerAccessBtn"><span>🏪</span><div><b>Continue with Owner Login</b><small>Secure Google sign-in</small></div><strong>→</strong></button><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
-      document.getElementById("dkOwnerAccessBtn")?.addEventListener("click",window.openOwnerLogin);
-    }
+    loginAccess2();
   }
 
   function renderGlobalCustomerAccounts2(accounts){
@@ -259,8 +256,9 @@
     }
     loginAccess2();
   }
+  // All entry points open the same Owner / Customer choice popup.
   window.openDukaanLogin=loginAccess2;
-  window.openOwnerLogin=owner2;
+  window.openOwnerLogin=loginAccess2;
   window.openCustomerPortal=openCustomer2;
   window.addEventListener("DOMContentLoaded",function(){setTimeout(startupLogin2,80)});
 })();
