@@ -240,8 +240,9 @@ async function dkCopySupportDiagnostics(){
 
 /* CSV exports for business records. Text cells are formula-neutralized for spreadsheet safety. */
 function dkCsvCell(value){
+ if(typeof value==="number"&&Number.isFinite(value))return String(value);
  let s=String(value??"");
- if(/^[\\s]*[=+@\\-\\t\\r]/.test(s))s="'"+s;
+ if(/^[\s]*[=+@\-\t\r]/.test(s))s="'"+s;
  return '"'+s.replace(/"/g,'""')+'"';
 }
 function dkDownloadCsv(filename,rows){
