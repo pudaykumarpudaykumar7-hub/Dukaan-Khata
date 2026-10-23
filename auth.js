@@ -122,22 +122,15 @@
       const last=localStorage.getItem("dukaan_khata_cloud_updated_at")||"";
       if(row.updated_at&&row.updated_at!==last){
         const local=localState()||{};
-        // The cloud copy wins conflicts on a clean device, while unique local records
-        // are retained so a device with older data does not lose those records.
-        const merged=mergeStates(row.state,local);
+        // Polling runs only on a clean device. Treat the durable cloud snapshot as
+        // authoritative so stale cached rows cannot resurrect a deleted customer.
+        const merged=row.state;
         localStorage.setItem(stateKey(),JSON.stringify(merged));
         localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at);
-        if(!same(merged,row.state)){
-          localStorage.setItem("dukaan_khata_local_dirty","1");
+        localStorage.removeItem("dukaan_khata_local_dirty");
+        if(!same(local,merged)){
           window.state=merged;
-          try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw merged cloud data",e)}
-          window.dkQueueSync();
-        }else{
-          localStorage.removeItem("dukaan_khata_local_dirty");
-          if(!same(local,row.state)){
-            window.state=row.state;
-            try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw cloud data",e)}
-          }
+          try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw cloud data",e)}
         }
       }
     }catch(e){console.error("Dukaan Khata cloud polling failed:",e)}
@@ -147,10 +140,8 @@
     const uid=user?.id;
     const restoredKey=uid?"dukaan_khata_restored_"+uid:"";
     if(!uid)return;
-    if(restoredKey&&sessionStorage.getItem(restoredKey)==="1"&&localStorage.getItem("dukaan_khata_cloud_user_id")===uid){
-      startCloudPolling();
-      return;
-    }
+    // Always verify the durable cloud row after a page reload. sessionStorage can
+    // outlive a reload while the local state is missing/empty on some mobile browsers.
     try{
       const sb=client();
       const previousUid=localStorage.getItem("dukaan_khata_cloud_user_id");
@@ -167,9 +158,14 @@
         row=await readCloud(sb,uid);
       }else if(local){
         const dirty=localStorage.getItem("dukaan_khata_local_dirty")==="1";
-        const merged=dirty?mergeStates(local,row.state):mergeStates(row.state,local);
-        if(!same(merged,row.state))await writeCloud(sb,uid,merged);
-        row=await readCloud(sb,uid);
+        // Only merge local records when this device has unsynced edits. A clean but
+        // stale/empty browser cache must never repopulate deleted customers or replace
+        // a complete cloud account with an old snapshot.
+        if(dirty){
+          const merged=mergeStates(local,row.state);
+          if(!same(merged,row.state))await writeCloud(sb,uid,merged);
+          row=await readCloud(sb,uid);
+        }
       }
       if(row?.state){
         const currentLocal=localState();
