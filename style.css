@@ -4955,3 +4955,9 @@ body{
 @media(max-width:600px){
   #modal:has(.dk-customer-fullscreen)>.sheet{padding:8px 10px calc(24px + env(safe-area-inset-bottom,0px))!important}
 }
+
+/* Keep customer back navigation pinned at the upper-left; bottom close action removed */
+#modal:has(.dk-customer-fullscreen) .dk-customer-screen-top{position:sticky!important;top:0!important;z-index:20!important}
+#modal:has(.dk-customer-fullscreen) .dk-exec-back{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;font-size:28px;line-height:1;border:1px solid #d7e4df;background:#e8f0ec;color:#173d30;border-radius:12px}
+#modal:has(.dk-customer-fullscreen) .dk-customer-screen-top>div{flex:1;min-width:0}
+.dk-customer-fullscreen-close{display:none!important}
