@@ -4781,3 +4781,11 @@ body{
 @media(prefers-reduced-motion:reduce){
  :where(.page.active .card,.page.active .stat-card,.page.active .summary-card,.page.active .customer-card,.page.active .transaction-card,.page.active .luxury-tool,.page.active .home-tools button){animation:none!important}
 }
+
+
+/* v85: Clear delete confirmation actions — Cancel left, Delete right. */
+.delete-confirm-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;direction:ltr!important}
+.delete-confirm-actions #deleteCancelBtn{grid-column:1!important;grid-row:1!important;background:linear-gradient(135deg,#15803d,#22a05a)!important;color:#fff!important;border:1px solid #16a34a!important;box-shadow:0 5px 14px rgba(22,163,74,.2)!important}
+.delete-confirm-actions #deleteConfirmBtn{grid-column:2!important;grid-row:1!important;background:linear-gradient(135deg,#b91c1c,#ef4444)!important;color:#fff!important;border:1px solid #dc2626!important;box-shadow:0 5px 14px rgba(220,38,38,.2)!important}
+.delete-confirm-actions #deleteCancelBtn:focus-visible,.delete-confirm-actions #deleteConfirmBtn:focus-visible{outline:3px solid #d7b879!important;outline-offset:3px!important}
+.delete-confirm-actions #deleteCancelBtn:active,.delete-confirm-actions #deleteConfirmBtn:active{transform:scale(.98)}
