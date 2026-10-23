@@ -291,7 +291,7 @@
       }
       return;
     }
-    loginAccess2();
+    openCustomer2(true);
   }
   window.openDukaanLogin=loginAccess2;
   window.openOwnerLogin=owner2;
