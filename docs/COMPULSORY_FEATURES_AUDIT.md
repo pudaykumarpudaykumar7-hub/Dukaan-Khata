@@ -1,6 +1,6 @@
 # Dukaan Khata — Compulsory Feature Implementation Audit
 
-Scope: compulsory roadmap items **1, 2, 3, 9, 12, 13, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25**.
+Scope: compulsory roadmap items **1, 2, 3, 9, 12, 13, 15, 16, 17, 18, 19, 21, 22, 23, 24**.
 
 ## Safety rules
 
@@ -42,7 +42,7 @@ The repository currently includes a static web app, Capacitor configuration, bro
 2. Add focused tests and data-safety checks before touching high-risk flows.
 3. Complete customer/ledger/reminder/receive and Digital Shop Pass/rewards behavior.
 4. Harden cloud sync, backup/migration, offline queue, security and shop/staff isolation.
-5. Finish language coverage, reporting/export, assistant and help workflows.
+5. Finish language coverage, reporting/export, and assistant workflows.
 6. Validate provider-backed payment verification and deployment separately; never simulate a provider success.
 
 ## Verification log
@@ -54,3 +54,4 @@ The repository currently includes a static web app, Capacitor configuration, bro
 - UI/device tests: not run yet.
 - Production provider credentials/approvals: not verified.
 - Deployment: not performed.
+\n\n## Product decision update\n\n- Help & Support Centre removed from the app UI and its local help code/styles removed at the user's request. Existing customer, transaction, shop-profile, Digital Shop Pass, backup/restore, and reporting data paths are untouched.\n
