@@ -80,7 +80,7 @@
         input?.focus();
         return;
       }
-      if(!/^\\d{4,6}$/.test(pin)){
+      if(!/^\d{4,6}$/.test(pin)){
         status.textContent="Enter the 4–6 digit PIN given by your shopkeeper.";
         pinInput?.focus();
         return;
@@ -128,7 +128,7 @@
       list.innerHTML=customers.map((c,i)=>'<div style="border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin:10px 0"><b>'+esc2(c.name)+'</b><div style="color:#64748b;font-size:13px;margin:3px 0 9px">+'+'91 '+esc2(c.phone)+'</div><div style="display:flex;gap:8px"><input class="search" type="password" inputmode="numeric" maxlength="6" placeholder="Set 4–6 digit PIN" id="dkPinValue'+i+'" style="min-width:0;flex:1"><button type="button" class="dk-login-action dk-login-primary" data-index="'+i+'" style="width:auto;padding:10px 14px">Save PIN</button></div><div id="dkPinStatus'+i+'" style="font-size:12px;margin-top:6px"></div></div>').join("");
       list.querySelectorAll("button[data-index]").forEach(button=>button.addEventListener("click",async()=>{
         const i=Number(button.dataset.index),c=customers[i],field=document.getElementById("dkPinValue"+i),note=document.getElementById("dkPinStatus"+i),pin=String(field?.value||"").trim();
-        if(!/^\\d{4,6}$/.test(pin)){note.textContent="Enter 4–6 digits.";return}
+        if(!/^\d{4,6}$/.test(pin)){note.textContent="Enter 4–6 digits.";return}
         button.disabled=true;note.textContent="Saving securely…";
         try{
           const {data,error}=await sb.functions.invoke("customer-pin-portal",{body:{action:"set_pin",customerId:c.id,pin}});
