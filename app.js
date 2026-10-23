@@ -4,7 +4,7 @@ try{localStorage.removeItem("dukaan_payment_api");localStorage.removeItem("dukaa
 let state=loadState(),khataFilter="all",customerStatusFilter="all",longPress=null,suppressClickUntil=0;
 Object.defineProperty(window,"state",{configurable:true,get:()=>state,set:v=>{state=v}});
 
-function defaults(){return{shop:{name:"My Dukaan",owner:"Shop Owner",phone:"",upi:"",address:""},customers:[],tx:[],expenses:[],returns:[],reminders:[],settings:{theme:"light",language:"English"}}}
+function defaults(){return{shop:{name:"My Dukaan",owner:"Shop Owner",phone:"",upi:"",address:""},customers:[],tx:[],expenses:[],returns:[],reminders:[],deletedCustomerIds:[],settings:{theme:"light",language:"English"}}}
 function loadState(){
   try{
     const raw=localStorage.getItem(KEY)||localStorage.getItem("dukaan_khata_infinity_v1");
