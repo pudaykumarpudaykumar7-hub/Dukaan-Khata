@@ -193,6 +193,29 @@
     startCloudPolling();
   }
 
+  function showOwnerAccountPopup(user){
+    const meta=user?.user_metadata||{};
+    const name=meta.full_name||meta.name||meta.preferred_username||user?.email?.split("@")[0]||"Owner";
+    const email=user?.email||"Google account";
+    if(window.closeModal)window.closeModal();
+    window.modal('<div class="dk-login-shell dk-login-signed"><div class="dk-login-top"><div class="dk-login-icon">👤</div><span class="dk-login-badge">OWNER ACCOUNT</span></div><h2>'+esc(name)+'</h2><p class="dk-login-sub">'+esc(email)+'</p><button class="dk-login-action dk-login-primary" id="dkOpenDashboard">⌂ Open Full Dashboard <span>→</span></button><button class="dk-login-action" id="dkOtherOwner">⇄ Login with another owner account <span>→</span></button><button class="dk-login-action dk-logout" id="dkOwnerLogout">↪ Logout</button><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
+    document.getElementById("dkOpenDashboard")?.addEventListener("click",()=>{window.showPage?.("home");window.closeModal?.()});
+    document.getElementById("dkOtherOwner")?.addEventListener("click",async()=>{
+      const sb=client();
+      try{if(sb)await sb.auth.signOut()}catch(e){console.warn("Could not clear previous owner session",e)}
+      sessionStorage.setItem("dk_owner_login_pending","1");
+      startGoogleLogin();
+    });
+    document.getElementById("dkOwnerLogout")?.addEventListener("click",async()=>{
+      const sb=client();
+      try{if(sb)await sb.auth.signOut()}catch(e){console.warn("Owner sign-out failed",e)}
+      saveAccount(null);
+      window.closeModal?.();
+      window.openDukaanLogin?.();
+      window.toast?.("Logged out");
+    });
+  }
+
   async function handleSession(session){
     const user=session?.user;
     const loginRole=sessionStorage.getItem("dk_login_role")||"owner";
@@ -203,7 +226,13 @@
       setTimeout(()=>openCustomerLogin(),250);
       return;
     }
-    // Google verifies owner identity only. All shop records remain local; never restore cloud state.
+    // Only show the account confirmation after a deliberate owner sign-in,
+    // including the OAuth redirect back to this page.
+    if(sessionStorage.getItem("dk_owner_login_pending")==="1"){
+      sessionStorage.removeItem("dk_owner_login_pending");
+      setTimeout(()=>showOwnerAccountPopup(user),300);
+    }
+    // Google verifies owner identity only. Shop records remain local.
   }
 
   let initAttempts=0;
@@ -376,9 +405,10 @@ async function openOwnerLogin(){
   async function startGoogleLogin(){
     const sb=client();
     if(!sb){toast("Google sign-in is unavailable. Please refresh and try again.");return}
+    sessionStorage.setItem("dk_owner_login_pending","1");
     const redirectTo=window.location.origin+window.location.pathname;
     const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{prompt:"select_account"}}});
-    if(error)toast("Google sign-in failed: "+error.message);
+    if(error){sessionStorage.removeItem("dk_owner_login_pending");toast("Google sign-in failed: "+error.message)}
   }
 
   async function logoutDukaanKhata(){
