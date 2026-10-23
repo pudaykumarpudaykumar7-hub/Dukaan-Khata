@@ -10,18 +10,6 @@
     }
     return window.dkSupabase;
   }
-  // Customer auth uses its own storage key so OTP login never replaces an owner's session.
-  function getCustomerSB(){
-    if(window.dkCustomerSupabase)return window.dkCustomerSupabase;
-    if(window.supabase&&window.supabase.createClient){
-      window.dkCustomerSupabase=window.supabase.createClient(
-        "https://nzsldzyjpxwyyrdwkphp.supabase.co",
-        "sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-",
-        {auth:{storageKey:"dk_customer_auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}
-      );
-    }
-    return window.dkCustomerSupabase;
-  }
   function esc2(v){
     return String(v??"").replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])});
   }
@@ -85,80 +73,28 @@
     const input=root.querySelector("#customerLoginPhone"),btn=root.querySelector("#dkCustomerViewBtn"),status=root.querySelector("#dkCustomerStatus");
 
     if(hideBack) root.querySelector("#dkCustomerBack")?.remove(); else if(hideBack){ root.querySelector("#dkCustomerBack")?.remove(); root.querySelector(".dk-customer-home-head")?.querySelector(".dk-customer-home-back")?.remove(); } else root.querySelector("#dkCustomerBack")?.addEventListener("click",closeCustomer2);
-    let otpSent=false;
-    const otpInput=document.createElement("input");
-    otpInput.id="dkCustomerOtp";
-    otpInput.className="search dk-customer-phone-input";
-    otpInput.inputMode="numeric";
-    otpInput.autocomplete="one-time-code";
-    otpInput.placeholder="Enter SMS verification code";
-    otpInput.maxLength=8;
-    otpInput.style.display="none";
-    input?.parentElement?.insertAdjacentElement("afterend",otpInput);
     async function lookup(){
       const q=phone2(input?.value);
-      if(!q||q.length!==10){status.textContent="Enter a valid 10-digit Indian mobile number.";input?.focus();return}
-      const sb=getCustomerSB();
-      if(!sb){status.textContent="Secure login is loading. Refresh and try again.";return}
-      btn.disabled=true;
-      try{
-        if(!otpSent){
-          const {error}=await sb.auth.signInWithOtp({phone:"+91"+q});
-          if(error)throw error;
-          otpSent=true;
-          otpInput.style.display="block";
-          btn.innerHTML="Verify OTP & Find My Shops <span>→</span>";
-          status.textContent="OTP sent if this mobile number can receive SMS. Enter the code to continue.";
-          otpInput.focus();
-          return;
-        }
-        const token=String(otpInput.value||"").trim();
-        if(!token){status.textContent="Enter the OTP sent to your mobile.";otpInput.focus();return}
-        const {data:authData,error:otpError}=await sb.auth.verifyOtp({phone:"+91"+q,token,type:"sms"});
-        if(otpError||!authData?.session)throw otpError||new Error("OTP verification did not create a session.");
-        status.textContent="Mobile verified. Finding your registered shops…";
-        const {data,error}=await sb.functions.invoke("customer-portal",{body:{}});
-        if(error)throw error;
-        renderGlobalCustomerAccounts2(data?.accounts||[]);
-      }catch(err){
-        console.error("Customer OTP / portal lookup failed:",err);
-        status.textContent=String(err?.message||"Could not verify your mobile number. Check the OTP and try again.");
-      }finally{btn.disabled=false}
+      if(!q||q.length!==10){
+        status.textContent="Enter a valid 10-digit Indian mobile number.";
+        input?.focus();
+        return;
+      }
+      status.textContent="SMS verification has been removed. Secure customer PIN access is not configured yet, so private Khata records remain protected. Please ask your shopkeeper for access.";
     }
-    btn?.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();status.textContent=otpSent?"Verifying OTP…":"Sending verification OTP…";lookup()});
-    input?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();lookup()}});
+    btn?.addEventListener("click",function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      lookup();
+    });
+    input?.addEventListener("keydown",e=>{
+      if(e.key==="Enter"){
+        e.preventDefault();
+        lookup();
+      }
+    });
 
     setTimeout(()=>input.focus(),100);
-  }
-  async function openOwnerCustomerApprovals2(){
-    const sb=getSB();
-    if(!sb){alert("Owner login is still loading.");return;}
-    const {data:{session}}=await sb.auth.getSession();
-    if(!session?.user){alert("Sign in as the shop owner first.");return;}
-    window.modal('<div class="dk-login-shell" style="max-width:760px"><div class="dk-login-top"><div class="dk-login-icon">👥</div><div><span class="dk-login-badge">CUSTOMER ACCESS</span><h2>Approval Requests</h2></div></div><p class="dk-login-sub">Approve only customers you recognize. Each approval grants access to that customer record in your shop.</p><div id="dkOwnerApprovalList">Loading requests…</div><button class="dk-login-close" id="dkOwnerApprovalBack">← Back</button></div>');
-    document.getElementById("dkOwnerApprovalBack")?.addEventListener("click",owner2);
-    const list=document.getElementById("dkOwnerApprovalList");
-    async function load(){
-      if(!list)return;
-      list.textContent="Loading requests…";
-      try{
-        const {data,error}=await sb.functions.invoke("customer-google-portal",{body:{action:"list_pending"}});
-        if(error)throw error;
-        const rows=Array.isArray(data?.requests)?data.requests:[];
-        if(!rows.length){list.innerHTML='<p>No pending customer access requests.</p>';return;}
-        list.innerHTML=rows.map((r,i)=>'<section style="border:1px solid #dbe3ee;border-radius:14px;padding:14px;margin:10px 0"><b>'+esc2(r.customerName||"Customer")+'</b><p style="margin:4px 0;color:#64748b">'+esc2(r.customerPhone||"")+' • '+esc2(r.customerEmail||"")+'</p><small>'+esc2(r.shopName||"Your shop")+'</small><div style="display:flex;gap:8px;margin-top:12px"><button type="button" class="dk-login-action dk-login-primary" data-approve="'+esc2(r.id)+'">Approve</button><button type="button" class="dk-login-action" data-revoke="'+esc2(r.id)+'">Reject</button></div></section>').join("");
-        list.querySelectorAll("[data-approve]").forEach(b=>b.addEventListener("click",()=>change(b.getAttribute("data-approve"),"approve")));
-        list.querySelectorAll("[data-revoke]").forEach(b=>b.addEventListener("click",()=>change(b.getAttribute("data-revoke"),"revoke")));
-      }catch(e){list.textContent=String(e?.message||"Could not load requests. Deploy the reviewed customer-google-portal function before enabling this screen.");}
-    }
-    async function change(id,action){
-      try{
-        const {error}=await sb.functions.invoke("customer-google-portal",{body:{action,link_id:id}});
-        if(error)throw error;
-        await load();
-      }catch(e){if(list)list.textContent=String(e?.message||"Could not update this request.");}
-    }
-    await load();
   }
 
   async function owner2(){
@@ -167,9 +103,8 @@
     const {data:{session}}=await sb.auth.getSession();
     if(session?.user){
       const u=session.user, name=u.user_metadata?.full_name||u.user_metadata?.name||u.email?.split("@")[0]||"Owner";
-      window.modal('<div class="dk-login-shell dk-login-signed"><div class="dk-login-top"><div class="dk-login-icon">👤</div><span class="dk-login-badge">OWNER ACCOUNT</span></div><h2>'+esc2(name)+'</h2><p class="dk-login-sub">'+esc2(u.email||"Google account")+'</p><button class="dk-login-action dk-login-primary" id="dkOpenDashboard">⌂ Open Full Dashboard <span>→</span></button><button class="dk-login-action" id="dkOwnerCustomerApprovals">👥 Customer access requests <span>→</span></button><button class="dk-login-action" id="dkOtherOwner">⇄ Login with another owner account <span>→</span></button><button class="dk-login-action dk-logout" id="dkOwnerLogout">↪ Logout</button><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
+      window.modal('<div class="dk-login-shell dk-login-signed"><div class="dk-login-top"><div class="dk-login-icon">👤</div><span class="dk-login-badge">OWNER ACCOUNT</span></div><h2>'+esc2(name)+'</h2><p class="dk-login-sub">'+esc2(u.email||"Google account")+'</p><button class="dk-login-action dk-login-primary" id="dkOpenDashboard">⌂ Open Full Dashboard <span>→</span></button><button class="dk-login-action" id="dkOtherOwner">⇄ Login with another owner account <span>→</span></button><button class="dk-login-action dk-logout" id="dkOwnerLogout">↪ Logout</button><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
       document.getElementById("dkOpenDashboard")?.addEventListener("click",()=>{window.showPage?.("home");window.closeModal?.()});
-      document.getElementById("dkOwnerCustomerApprovals")?.addEventListener("click",openOwnerCustomerApprovals2);
       document.getElementById("dkOtherOwner")?.addEventListener("click",()=>startOwnerGoogle2());
       document.getElementById("dkOwnerLogout")?.addEventListener("click",async()=>{await sb.auth.signOut();window.closeModal?.();window.toast?.("Logged out")});
       return;
