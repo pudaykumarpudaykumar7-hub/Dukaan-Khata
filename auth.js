@@ -233,25 +233,25 @@
     root.style.cssText="position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,12,19,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:auto";
     root.innerHTML='<style>'+
       '#dkChooseAccessOverlay *{box-sizing:border-box}'+
-      '#dkChooseAccessOverlay .dk-choice-panel{width:min(626px,100%);background:#f8f5e9;color:#18211c;padding:25px 0 22px;box-shadow:0 28px 90px #0007;border:1px solid #e7e0cf}'+
-      '#dkChooseAccessOverlay .dk-choice-heading{display:flex;align-items:center;gap:20px;padding:0 24px 25px}'+
-      '#dkChooseAccessOverlay .dk-choice-lock{width:86px;height:86px;flex:0 0 86px;display:grid;place-items:center;border-radius:27px;background:linear-gradient(145deg,#1c9b70,#087b59);font-size:42px;box-shadow:inset 0 1px 0 #ffffff55}'+
-      '#dkChooseAccessOverlay .dk-choice-eyebrow{font:800 13px/1.3 Georgia,serif;letter-spacing:3px;color:#39443b;margin:0 0 12px}'+
-      '#dkChooseAccessOverlay .dk-choice-title{font:700 clamp(28px,5vw,40px)/1.08 Georgia,serif;letter-spacing:-.8px;margin:0;color:#1c2921}'+
-      '#dkChooseAccessOverlay .dk-choice-subtitle{font:17px/1.45 Georgia,serif;color:#51584e;margin:14px 0 0}'+
-      '#dkChooseAccessOverlay .dk-choice-card{display:flex;align-items:center;gap:18px;width:calc(100% - 48px);min-height:145px;margin:0 24px;padding:20px 24px;text-align:left;border:1px solid #e5dece;border-radius:27px;background:linear-gradient(120deg,#fffefa,#f8f4e9);box-shadow:0 3px 0 #e9e2d4,0 7px 18px #51462a0a;color:#17211b;cursor:pointer;font-family:Georgia,serif;transition:transform .16s ease,box-shadow .16s ease}'+
-      '#dkChooseAccessOverlay .dk-choice-card+.dk-choice-card{margin-top:28px}'+
+      '#dkChooseAccessOverlay .dk-choice-panel{width:min(440px,100%);max-height:calc(100dvh - 28px);overflow-y:auto;background:#f8f5e9;color:#18211c;padding:18px 0 15px;box-shadow:0 28px 90px #0007;border:1px solid #e7e0cf;border-radius:5px}'+
+      '#dkChooseAccessOverlay .dk-choice-heading{display:flex;align-items:center;gap:14px;padding:0 18px 18px}'+
+      '#dkChooseAccessOverlay .dk-choice-lock{width:60px;height:60px;flex:0 0 60px;display:grid;place-items:center;border-radius:19px;background:linear-gradient(145deg,#1c9b70,#087b59);font-size:30px;box-shadow:inset 0 1px 0 #ffffff55}'+
+      '#dkChooseAccessOverlay .dk-choice-eyebrow{font:800 10px/1.3 Georgia,serif;letter-spacing:2px;color:#39443b;margin:0 0 7px}'+
+      '#dkChooseAccessOverlay .dk-choice-title{font:700 clamp(25px,5vw,30px)/1.08 Georgia,serif;letter-spacing:-.5px;margin:0;color:#1c2921}'+
+      '#dkChooseAccessOverlay .dk-choice-subtitle{font:14px/1.4 Georgia,serif;color:#51584e;margin:8px 0 0}'+
+      '#dkChooseAccessOverlay .dk-choice-card{display:flex;align-items:center;gap:12px;width:calc(100% - 32px);min-height:92px;margin:0 16px;padding:14px 15px;text-align:left;border:1px solid #e5dece;border-radius:19px;background:linear-gradient(120deg,#fffefa,#f8f4e9);box-shadow:0 2px 0 #e9e2d4,0 5px 13px #51462a0a;color:#17211b;cursor:pointer;font-family:Georgia,serif;transition:transform .16s ease,box-shadow .16s ease}'+
+      '#dkChooseAccessOverlay .dk-choice-card+.dk-choice-card{margin-top:14px}'+
       '#dkChooseAccessOverlay .dk-choice-card:active{transform:scale(.99)}'+
       '#dkChooseAccessOverlay .dk-choice-card.owner{border-left:6px solid #159875}'+
       '#dkChooseAccessOverlay .dk-choice-card.customer{border-left:6px solid #1685c3}'+
-      '#dkChooseAccessOverlay .dk-choice-icon{width:54px;flex:0 0 54px;text-align:center;font-family:Arial,sans-serif;font-size:37px}'+
+      '#dkChooseAccessOverlay .dk-choice-icon{width:40px;flex:0 0 40px;text-align:center;font-family:Arial,sans-serif;font-size:29px}'+
       '#dkChooseAccessOverlay .dk-choice-copy{min-width:0;flex:1}'+
-      '#dkChooseAccessOverlay .dk-choice-copy b{display:block;font-size:27px;line-height:1.15;font-weight:700;letter-spacing:-.5px;margin-bottom:9px}'+
-      '#dkChooseAccessOverlay .dk-choice-copy small{display:block;font-size:17px;line-height:1.45;color:#55574f}'+
-      '#dkChooseAccessOverlay .dk-choice-arrow{font:36px/1 Arial,sans-serif;color:#148d68;flex:0 0 auto}'+
+      '#dkChooseAccessOverlay .dk-choice-copy b{display:block;font-size:21px;line-height:1.15;font-weight:700;letter-spacing:-.3px;margin-bottom:5px}'+
+      '#dkChooseAccessOverlay .dk-choice-copy small{display:block;font-size:13px;line-height:1.35;color:#55574f}'+
+      '#dkChooseAccessOverlay .dk-choice-arrow{font:29px/1 Arial,sans-serif;color:#148d68;flex:0 0 auto}'+
       '#dkChooseAccessOverlay .dk-choice-card.customer .dk-choice-arrow{color:#151b19}'+
-      '#dkChooseAccessOverlay .dk-choice-note{margin:36px 24px 0;padding:18px 20px;background:#edf5ef;color:#6d756d;border-radius:15px;font:16px/1.45 Georgia,serif}'+
-      '@media(max-width:420px){#dkChooseAccessOverlay .dk-choice-panel{padding-top:19px;padding-bottom:17px}#dkChooseAccessOverlay .dk-choice-heading{gap:14px;padding:0 17px 20px}#dkChooseAccessOverlay .dk-choice-lock{width:66px;height:66px;flex-basis:66px;border-radius:22px;font-size:32px}#dkChooseAccessOverlay .dk-choice-eyebrow{font-size:10px;letter-spacing:2px;margin-bottom:8px}#dkChooseAccessOverlay .dk-choice-subtitle{font-size:14px;margin-top:9px}#dkChooseAccessOverlay .dk-choice-card{width:calc(100% - 34px);margin-left:17px;margin-right:17px;min-height:118px;padding:16px 14px;gap:11px;border-radius:22px}#dkChooseAccessOverlay .dk-choice-card+.dk-choice-card{margin-top:18px}#dkChooseAccessOverlay .dk-choice-icon{width:40px;flex-basis:40px;font-size:30px}#dkChooseAccessOverlay .dk-choice-copy b{font-size:22px;margin-bottom:6px}#dkChooseAccessOverlay .dk-choice-copy small{font-size:14px}#dkChooseAccessOverlay .dk-choice-arrow{font-size:29px}#dkChooseAccessOverlay .dk-choice-note{margin:25px 17px 0;padding:14px 15px;font-size:13px}}'+
+      '#dkChooseAccessOverlay .dk-choice-note{margin:20px 16px 0;padding:12px 13px;background:#edf5ef;color:#6d756d;border-radius:12px;font:12px/1.4 Georgia,serif}'+
+      '@media(max-width:420px){#dkChooseAccessOverlay .dk-choice-panel{width:min(360px,100%);padding-top:15px;padding-bottom:13px}#dkChooseAccessOverlay .dk-choice-heading{gap:11px;padding:0 14px 15px}#dkChooseAccessOverlay .dk-choice-lock{width:52px;height:52px;flex-basis:52px;border-radius:16px;font-size:26px}#dkChooseAccessOverlay .dk-choice-eyebrow{font-size:9px;letter-spacing:1.8px;margin-bottom:6px}#dkChooseAccessOverlay .dk-choice-title{font-size:26px}#dkChooseAccessOverlay .dk-choice-subtitle{font-size:12px;margin-top:6px}#dkChooseAccessOverlay .dk-choice-card{width:calc(100% - 26px);margin-left:13px;margin-right:13px;min-height:82px;padding:12px 10px;gap:8px;border-radius:16px}#dkChooseAccessOverlay .dk-choice-card+.dk-choice-card{margin-top:12px}#dkChooseAccessOverlay .dk-choice-icon{width:32px;flex-basis:32px;font-size:25px}#dkChooseAccessOverlay .dk-choice-copy b{font-size:19px;margin-bottom:4px}#dkChooseAccessOverlay .dk-choice-copy small{font-size:11px;line-height:1.3}#dkChooseAccessOverlay .dk-choice-arrow{font-size:25px}#dkChooseAccessOverlay .dk-choice-note{margin:15px 13px 0;padding:10px 11px;font-size:11px}}'+
       '</style>'+
       '<section class="dk-choice-panel" role="dialog" aria-modal="true" aria-labelledby="dkChoiceTitle">'+
         '<header class="dk-choice-heading"><div class="dk-choice-lock" aria-hidden="true">🔐</div><div><p class="dk-choice-eyebrow">LOGIN ACCESS</p><h2 class="dk-choice-title" id="dkChoiceTitle">Choose Access</h2><p class="dk-choice-subtitle">Choose how you want to enter Dukaan Khata.</p></div></header>'+
