@@ -67,44 +67,26 @@
     const root=document.createElement("div");
     root.id="dkCustomerFullScreen";
     root.className="dk-customer-fullscreen";
-    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkCustomerBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div><span class="dk-customer-secure">🔒 Private</span></header><main class="dk-customer-home-main"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Customer <strong>Login</strong></h1><p>No owner account or shop PIN is needed. Verify your mobile number by SMS to view linked shop records.</p></div><section class="dk-customer-login-card"><div class="dk-customer-card-icon">📱</div><h2>View Your Khata</h2><p>Verify your mobile number by SMS, then view items, bills, payments, totals and call links for shops where your number is registered.</p><label class="dk-customer-label">Mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label><label class="dk-customer-label" style="margin-top:12px">SMS verification code<input id="customerLoginOtp" class="search dk-customer-phone-input" inputmode="numeric" autocomplete="one-time-code" type="text" maxlength="6" placeholder="Enter OTP sent to your phone" style="display:none"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">Send Verification OTP <span>→</span></button><div id="dkCustomerStatus" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features"><span>🛍️ Items Taken</span><span>🧾 Bills</span><span>₹ Total Taken / Paid / Due</span><span>☎ Call All Linked Shop Owners</span></div></section><div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div></main></div>';
+    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkCustomerBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div><span class="dk-customer-secure">🔒 Private</span></header><main class="dk-customer-home-main"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Customer <strong>Login</strong></h1><p>No owner account or individual shop PIN is needed. Enter your mobile number and the common customer PIN to view linked shop records.</p></div><section class="dk-customer-login-card"><div class="dk-customer-card-icon">📱</div><h2>View Your Khata</h2><p>View items, bills, payments, totals and call links for shops where your number is registered.</p><label class="dk-customer-label">Mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label><label class="dk-customer-label" style="margin-top:12px">Common customer PIN<input id="customerLoginPin" class="search dk-customer-phone-input" inputmode="numeric" autocomplete="current-password" type="password" maxlength="4" placeholder="Enter customer PIN"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata <span>→</span></button><div id="dkCustomerStatus" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features"><span>🛍️ Items Taken</span><span>🧾 Bills</span><span>₹ Total Taken / Paid / Due</span><span>☎ Call All Linked Shop Owners</span></div></section><div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div></main></div>';
     document.body.appendChild(root);
     document.body.classList.add("dk-customer-mode");
-    const input=root.querySelector("#customerLoginPhone"),otpInput=root.querySelector("#customerLoginOtp"),btn=root.querySelector("#dkCustomerViewBtn"),status=root.querySelector("#dkCustomerStatus");\n    let otpSent=false;
+    const input=root.querySelector("#customerLoginPhone"),pinInput=root.querySelector("#customerLoginPin"),btn=root.querySelector("#dkCustomerViewBtn"),status=root.querySelector("#dkCustomerStatus");
 
     if(hideBack) root.querySelector("#dkCustomerBack")?.remove(); else if(hideBack){ root.querySelector("#dkCustomerBack")?.remove(); root.querySelector(".dk-customer-home-head")?.querySelector(".dk-customer-home-back")?.remove(); } else root.querySelector("#dkCustomerBack")?.addEventListener("click",closeCustomer2);
     async function lookup(){
-      const q=phone2(input?.value);
+      const q=phone2(input?.value),pin=String(pinInput?.value||"").trim();
       if(!q||q.length!==10){status.textContent="Enter a valid 10-digit Indian mobile number.";input?.focus();return}
-      const sb=getSB();
-      if(!sb){status.textContent="Customer access is still loading. Please try again.";return}
-      btn.disabled=true;
+      if(pin!=="2007"){status.textContent="Incorrect customer PIN.";pinInput?.focus();return}
+      const sb=getSB();if(!sb){status.textContent="Customer access is still loading. Please try again.";return}
+      btn.disabled=true;status.textContent="Loading your Khata…";
       try{
-        if(!otpSent){
-          status.textContent="Sending SMS verification code…";
-          const {error}=await sb.auth.signInWithOtp({phone:"+91"+q,options:{shouldCreateUser:true}});
-          if(error)throw error;
-          otpSent=true;
-          otpInput.style.display="";
-          btn.innerHTML='Verify OTP & View Khata <span>→</span>';
-          status.textContent="OTP sent. Enter the code received on your mobile.";
-          otpInput?.focus();
-          return;
-        }
-        const otp=String(otpInput?.value||"").trim();
-        if(!/^\\d{6}$/.test(otp)){status.textContent="Enter the 6-digit SMS verification code.";otpInput?.focus();return}
-        status.textContent="Verifying your mobile number…";
-        const {data:verified,error:verifyError}=await sb.auth.verifyOtp({phone:"+91"+q,token:otp,type:"sms"});
-        if(verifyError||!verified?.session)throw verifyError||new Error("Verification did not complete. Request a new code.");
-        status.textContent="Loading your linked shop records…";
-        const {data,error}=await sb.functions.invoke("customer-pin-portal",{body:{action:"login"}});
+        const {data,error}=await sb.functions.invoke("customer-pin-portal",{body:{action:"login",phone:q,pin}});
         if(error||data?.error)throw new Error(data?.error||"Could not load your Khata.");
         const accounts=Array.isArray(data?.accounts)?data.accounts:[];
-        if(!accounts.length){status.textContent="No shop records found for this verified mobile number.";return}
+        if(!accounts.length){status.textContent="No shop records found for this mobile number.";return}
         renderGlobalCustomerAccounts2(accounts);
-      }catch(e){
-        status.textContent=(e?.message||"Verification failed. Please try again.")+" If SMS is unavailable, the Supabase SMS provider must be configured.";
-      }finally{btn.disabled=false}
+      }catch(e){status.textContent=e?.message||"Could not connect. Please try again."}
+      finally{btn.disabled=false}
     }
     btn?.addEventListener("click",function(e){
       e.preventDefault();
@@ -112,7 +94,7 @@
       lookup();
     });
     input?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();lookup()}});
-    otpInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();lookup()}});
+    pinInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();lookup()}});
 
     setTimeout(()=>input.focus(),100);
   }
