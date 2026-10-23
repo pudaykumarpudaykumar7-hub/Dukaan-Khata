@@ -4816,3 +4816,9 @@ body{
 .dk-help-contact p{margin:0}
 .dk-help-contact .btn{width:100%}
 .dk-help-contact small{font-size:12px;color:var(--primary);min-height:1em}
+
+
+/* v87: clear report export actions */
+.dk-report-export-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;max-width:100%}
+.dk-report-export-actions .text-link{border:1px solid var(--line);border-radius:11px;background:var(--surface);padding:8px 10px;font-size:12px;font-weight:800;color:var(--primary);white-space:normal}
+@media(max-width:560px){.dk-report-export-actions{justify-content:flex-start;width:100%}.page-title:has(.dk-report-export-actions){align-items:flex-start;flex-direction:column;gap:10px}.dk-report-export-actions .text-link{flex:1 1 auto}}

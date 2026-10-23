@@ -237,6 +237,40 @@ async function dkCopySupportDiagnostics(){
  try{if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(text);else{const ta=document.createElement("textarea");ta.value=text;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();const ok=document.execCommand("copy");ta.remove();if(!ok)throw new Error("Clipboard unavailable")}if(status)status.textContent="Safe diagnostic summary copied.";else toast("Diagnostic summary copied")}catch(e){if(status)status.textContent="Could not copy automatically. Please try again in a secure browser.";else toast("Could not copy diagnostic summary")}
 }
 
+
+/* CSV exports for business records. Text cells are formula-neutralized for spreadsheet safety. */
+function dkCsvCell(value){
+ if(typeof value==="number"&&Number.isFinite(value))return String(value);
+ let s=String(value??"");
+ if(/^[\s]*[=+@\-\t\r]/.test(s))s="'"+s;
+ return '"'+s.replace(/"/g,'""')+'"';
+}
+function dkDownloadCsv(filename,rows){
+ if(!Array.isArray(rows)||!rows.length)return toast("No records to export");
+ const csv="\\uFEFF"+rows.map(row=>row.map(dkCsvCell).join(",")).join("\\r\\n");
+ const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+ const a=document.createElement("a");a.href=url;a.download=filename;a.style.display="none";document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1500);toast("CSV export downloaded");
+}
+function exportTransactionsCsv(){
+ const rows=[["Transaction ID","Date","Type","Customer","Phone","Amount / Sale Total (INR)","Payment Mode","Items"]];
+ for(const t of state.tx){
+  const c=state.customers.find(x=>String(x.id)===String(t.customerId));
+  const items=Array.isArray(t.lines)?t.lines.map(l=>(l.name||"Item")+" x"+(Number(l.qty)||1)).join("; "):"";
+  rows.push([t.id||"",t.date?new Date(t.date).toISOString():"",t.type||"",c?.name||"Walk-in / unassigned",c?.phone||"",Number(t.type==="sale"?t.total:t.amount)||0,t.mode||"",items]);
+ }
+ dkDownloadCsv("dukaan-khata-transactions.csv",rows);
+}
+function exportCustomerBalancesCsv(){
+ const rows=[["Customer ID","Customer Name","Phone","Current Balance (INR)","Sales Count","Payments Count","Last Activity"]];
+ for(const c of state.customers){
+  const tx=state.tx.filter(t=>String(t.customerId)===String(c.id));
+  const dates=tx.map(t=>t.date).filter(Boolean).sort((a,b)=>new Date(b)-new Date(a));
+  rows.push([c.id||"",c.name||"",c.phone||"",Number(balance(c.id))||0,tx.filter(t=>t.type==="sale").length,tx.filter(t=>t.type==="payment").length,dates[0]?new Date(dates[0]).toISOString():""]);
+ }
+ dkDownloadCsv("dukaan-khata-customer-balances.csv",rows);
+}
+
 function openSearch(){modal('<h2>Search</h2><input id="globalSearch" placeholder="Customer or phone..." autocomplete="off"><div id="globalResults"></div>');document.getElementById("globalSearch")?.addEventListener("input",globalResults);globalResults();document.getElementById("globalSearch")?.focus()}
 function globalResults(){const q=(document.getElementById("globalSearch")?.value||"").toLowerCase();const box=document.getElementById("globalResults");if(!box)return;const a=state.customers.filter(c=>(c.name+" "+c.phone).toLowerCase().includes(q)).slice(0,10);box.innerHTML=a.map(c=>'<div class="customer" onclick="closeModal();customerView(\''+esc(c.id)+'\')"><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><b>'+money(balance(c.id))+'</b></div>').join("")||'<p class="muted">No customers found.</p>'}
 
