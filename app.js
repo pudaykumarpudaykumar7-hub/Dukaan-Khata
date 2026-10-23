@@ -248,10 +248,10 @@ function dkSubscriptionUsage(){
   const customers=(Array.isArray(state.customers)?state.customers:[]).length;
   const plan=String(state.settings?.subscriptionPlan||"free");
   const limits=plan==="standard"?{customers:100,bills:1500,price:50,label:"Standard"}:plan==="unlimited"?{customers:Infinity,bills:Infinity,price:100,label:"Unlimited"}:{customers:50,bills:500,price:0,label:"Free"};
-  return {customers,bills,plan,...limits};
+  return {customerCount:customers,billCount:bills,plan,customerLimit:limits.customers,billLimit:limits.bills,price:limits.price,label:limits.label};
 }
 function dkCheckSubscription(kind){
-  const u=dkSubscriptionUsage(),limit=kind==="customer"?u.customers:u.bills,used=kind==="customer"?u.customers:u.bills;
+  const u=dkSubscriptionUsage(),limit=kind==="customer"?u.customerLimit:u.billLimit,used=kind==="customer"?u.customerCount:u.billCount;
   if(used<limit)return true;
   toast(kind==="customer"?"Free customer limit reached. Open Subscriptions to view plans.":"Monthly bill limit reached. Open Subscriptions to view plans.");
   openSubscriptionPlans();return false;
