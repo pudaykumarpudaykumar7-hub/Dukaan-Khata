@@ -67,20 +67,35 @@
     const root=document.createElement("div");
     root.id="dkCustomerFullScreen";
     root.className="dk-customer-fullscreen";
-    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkCustomerBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div><span class="dk-customer-secure">🔒 Private</span></header><main class="dk-customer-home-main"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Customer <strong>Login</strong></h1><p>Enter your registered mobile number to find your Khata.</p></div><section class="dk-customer-login-card"><div class="dk-customer-card-icon">📱</div><h2>View Your Khata</h2><p>See your bills, payments and outstanding balance.</p><label class="dk-customer-label">Mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata <span>→</span></button><div id="dkCustomerStatus" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features"><span>🧾 Bills</span><span>💳 Payments</span><span>₹ Outstanding balance</span></div></section><div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div></main></div>';
+    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkCustomerBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div><span class="dk-customer-secure">🔒 Private</span></header><main class="dk-customer-home-main"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Customer <strong>Login</strong></h1><p>Enter your registered mobile number to find your Khata.</p></div><section class="dk-customer-login-card"><div class="dk-customer-card-icon">📱</div><h2>View Your Khata</h2><p>See your bills, payments and outstanding balance.</p><label class="dk-customer-label">Mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label><label class="dk-customer-label" style="margin-top:12px">Customer PIN<input id="customerLoginPin" class="search dk-customer-phone-input" inputmode="numeric" autocomplete="current-password" type="password" maxlength="6" placeholder="Enter 4–6 digit PIN"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata <span>→</span></button><div id="dkCustomerStatus" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features"><span>🧾 Bills</span><span>💳 Payments</span><span>₹ Outstanding balance</span></div></section><div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div></main></div>';
     document.body.appendChild(root);
     document.body.classList.add("dk-customer-mode");
-    const input=root.querySelector("#customerLoginPhone"),btn=root.querySelector("#dkCustomerViewBtn"),status=root.querySelector("#dkCustomerStatus");
+    const input=root.querySelector("#customerLoginPhone"),pinInput=root.querySelector("#customerLoginPin"),btn=root.querySelector("#dkCustomerViewBtn"),status=root.querySelector("#dkCustomerStatus");
 
     if(hideBack) root.querySelector("#dkCustomerBack")?.remove(); else if(hideBack){ root.querySelector("#dkCustomerBack")?.remove(); root.querySelector(".dk-customer-home-head")?.querySelector(".dk-customer-home-back")?.remove(); } else root.querySelector("#dkCustomerBack")?.addEventListener("click",closeCustomer2);
     async function lookup(){
-      const q=phone2(input?.value);
+      const q=phone2(input?.value), pin=String(pinInput?.value||"").trim();
       if(!q||q.length!==10){
         status.textContent="Enter a valid 10-digit Indian mobile number.";
         input?.focus();
         return;
       }
-      status.textContent="SMS verification has been removed. Secure customer PIN access is not configured yet, so private Khata records remain protected. Please ask your shopkeeper for access.";
+      if(!/^\\d{4,6}$/.test(pin)){
+        status.textContent="Enter the 4–6 digit PIN given by your shopkeeper.";
+        pinInput?.focus();
+        return;
+      }
+      const sb=getSB();
+      if(!sb){status.textContent="Customer access is still loading. Please try again.";return}
+      btn.disabled=true; status.textContent="Checking your Khata securely…";
+      try{
+        const {data,error}=await sb.functions.invoke("customer-pin-portal",{body:{action:"login",phone:q,pin}});
+        if(error||data?.error){status.textContent=data?.error||"Could not verify your details. Please try again.";return}
+        const accounts=Array.isArray(data?.accounts)?data.accounts:[];
+        if(!accounts.length){status.textContent="No Khata accounts were found for this mobile number.";return}
+        renderGlobalCustomerAccounts2(accounts);
+      }catch(e){status.textContent="Could not connect. Check your internet and try again."}
+      finally{btn.disabled=false}
     }
     btn?.addEventListener("click",function(e){
       e.preventDefault();
@@ -97,15 +112,43 @@
     setTimeout(()=>input.focus(),100);
   }
 
+  async function customerPinManager2(){
+    const sb=getSB();
+    if(!sb){alert("Owner login is still loading.");return}
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){alert("Please sign in as the shop owner first.");return}
+    window.modal('<div class="dk-login-shell"><div class="dk-login-top"><div class="dk-login-icon">🔐</div><div><span class="dk-login-badge">OWNER TOOLS</span><h2>Customer PINs</h2></div></div><p class="dk-login-sub">Set a 4–6 digit PIN for each customer. Customers use their registered mobile number and this PIN to view only matching Khata records.</p><div id="dkPinManagerStatus">Loading customer list…</div><div id="dkPinManagerList"></div><button class="dk-login-close" onclick="openOwnerLogin()">← Back</button></div>');
+    const status=document.getElementById("dkPinManagerStatus"),list=document.getElementById("dkPinManagerList");
+    try{
+      const {data,error}=await sb.functions.invoke("customer-pin-portal",{body:{action:"list_customers"}});
+      if(error||data?.error)throw new Error(data?.error||"Could not load customers.");
+      const customers=Array.isArray(data?.customers)?data.customers:[];
+      if(!customers.length){status.textContent="No synced customers with valid 10-digit mobile numbers were found. Open the owner dashboard online and sync your data first.";return}
+      status.textContent="Choose a customer and save a PIN.";
+      list.innerHTML=customers.map((c,i)=>'<div style="border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin:10px 0"><b>'+esc2(c.name)+'</b><div style="color:#64748b;font-size:13px;margin:3px 0 9px">+'+'91 '+esc2(c.phone)+'</div><div style="display:flex;gap:8px"><input class="search" type="password" inputmode="numeric" maxlength="6" placeholder="Set 4–6 digit PIN" id="dkPinValue'+i+'" style="min-width:0;flex:1"><button type="button" class="dk-login-action dk-login-primary" data-index="'+i+'" style="width:auto;padding:10px 14px">Save PIN</button></div><div id="dkPinStatus'+i+'" style="font-size:12px;margin-top:6px"></div></div>').join("");
+      list.querySelectorAll("button[data-index]").forEach(button=>button.addEventListener("click",async()=>{
+        const i=Number(button.dataset.index),c=customers[i],field=document.getElementById("dkPinValue"+i),note=document.getElementById("dkPinStatus"+i),pin=String(field?.value||"").trim();
+        if(!/^\\d{4,6}$/.test(pin)){note.textContent="Enter 4–6 digits.";return}
+        button.disabled=true;note.textContent="Saving securely…";
+        try{
+          const {data,error}=await sb.functions.invoke("customer-pin-portal",{body:{action:"set_pin",customerId:c.id,pin}});
+          if(error||data?.error)throw new Error(data?.error||"Could not save PIN.");
+          field.value="";note.textContent="PIN saved. Share it privately with the customer.";
+        }catch(e){note.textContent=e.message||"Could not save PIN."}
+        finally{button.disabled=false}
+      }));
+    }catch(e){status.textContent=e.message||"Could not load customer list."}
+  }
+
   async function owner2(){
     const sb=getSB();
     if(!sb){alert("Owner login is still loading. Please try again.");return}
     const {data:{session}}=await sb.auth.getSession();
     if(session?.user){
       const u=session.user, name=u.user_metadata?.full_name||u.user_metadata?.name||u.email?.split("@")[0]||"Owner";
-      window.modal('<div class="dk-login-shell dk-login-signed"><div class="dk-login-top"><div class="dk-login-icon">👤</div><span class="dk-login-badge">OWNER ACCOUNT</span></div><h2>'+esc2(name)+'</h2><p class="dk-login-sub">'+esc2(u.email||"Google account")+'</p><button class="dk-login-action dk-login-primary" id="dkOpenDashboard">⌂ Open Full Dashboard <span>→</span></button><button class="dk-login-action" id="dkOtherOwner">⇄ Login with another owner account <span>→</span></button><button class="dk-login-action dk-logout" id="dkOwnerLogout">↪ Logout</button><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
+      window.modal('<div class="dk-login-shell dk-login-signed"><div class="dk-login-top"><div class="dk-login-icon">👤</div><span class="dk-login-badge">OWNER ACCOUNT</span></div><h2>'+esc2(name)+'</h2><p class="dk-login-sub">'+esc2(u.email||"Google account")+'</p><button class="dk-login-action dk-login-primary" id="dkOpenDashboard">⌂ Open Full Dashboard <span>→</span></button><button class="dk-login-action" id="dkOtherOwner">⇄ Login with another owner account <span>→</span></button><button class="dk-login-action" id="dkManageCustomerPins">🔐 Manage Customer PINs <span>→</span></button><button class="dk-login-action dk-logout" id="dkOwnerLogout">↪ Logout</button><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
       document.getElementById("dkOpenDashboard")?.addEventListener("click",()=>{window.showPage?.("home");window.closeModal?.()});
-      document.getElementById("dkOtherOwner")?.addEventListener("click",()=>startOwnerGoogle2());
+      document.getElementById("dkOtherOwner")?.addEventListener("click",()=>startOwnerGoogle2());\n      document.getElementById("dkManageCustomerPins")?.addEventListener("click",customerPinManager2);
       document.getElementById("dkOwnerLogout")?.addEventListener("click",async()=>{await sb.auth.signOut();window.closeModal?.();window.toast?.("Logged out")});
       return;
     }
