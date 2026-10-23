@@ -275,9 +275,10 @@
     const root=document.createElement("div");
     root.id="dkLoginAccessStandalone";
     root.style.cssText="position:fixed;inset:0;z-index:2147483000;background:rgba(7,12,24,.78);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto";
-    root.innerHTML='<div class="dk-access-shell" style="width:min(520px,100%);max-height:calc(100vh - 40px);overflow:auto;position:relative"><div class="dk-access-head"><div class="dk-access-icon">🏪</div><div><span class="dk-login-badge">DUKAAN KHATA</span><h2>Owner Login</h2><p>Sign in to manage your shop, customers, bills and payments.</p></div></div><button type="button" class="dk-access-card owner" id="dkOwnerAccessBtn" style="width:100%"><span>🏪</span><div><b>Continue with Owner Login</b><small>Secure Google sign-in</small></div><strong>→</strong></button></div>';
+    root.innerHTML='<div class="dk-access-shell" style="width:min(520px,100%);max-height:calc(100vh - 40px);overflow:auto;position:relative"><div class="dk-access-head"><div class="dk-access-icon">🏪</div><div><span class="dk-login-badge">DUKAAN KHATA</span><h2>Owner Login</h2><p>Sign in to manage your shop, customers, bills and payments.</p></div></div><button type="button" class="dk-access-card owner" id="dkOwnerAccessBtn" style="width:100%"><span>🏪</span><div><b>Continue with Owner Login</b><small>Secure Google sign-in</small></div><strong>→</strong></button><button type="button" class="dk-access-card" id="dkCustomerAccessBtn" style="width:100%;margin-top:12px"><span>👤</span><div><b>Customer Login</b><small>Mobile number + SMS verification</small></div><strong>→</strong></button></div>';
     document.body.appendChild(root);
     root.querySelector("#dkOwnerAccessBtn")?.addEventListener("click",()=>{root.remove();owner2()});
+    root.querySelector("#dkCustomerAccessBtn")?.addEventListener("click",()=>{root.remove();openCustomer2()});
   }
 
   function startupLogin2(){
@@ -294,6 +295,6 @@
   }
   window.openDukaanLogin=loginAccess2;
   window.openOwnerLogin=owner2;
-  window.openCustomerPortal=function(){if(typeof window.toast==="function")window.toast("Customer login is disabled. Please use Owner Login.");};
+  window.openCustomerPortal=openCustomer2;
   window.addEventListener("DOMContentLoaded",function(){setTimeout(startupLogin2,80)});
 })();
