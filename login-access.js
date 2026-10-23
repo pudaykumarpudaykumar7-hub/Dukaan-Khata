@@ -148,7 +148,8 @@
       const u=session.user, name=u.user_metadata?.full_name||u.user_metadata?.name||u.email?.split("@")[0]||"Owner";
       window.modal('<div class="dk-login-shell dk-login-signed"><div class="dk-login-top"><div class="dk-login-icon">👤</div><span class="dk-login-badge">OWNER ACCOUNT</span></div><h2>'+esc2(name)+'</h2><p class="dk-login-sub">'+esc2(u.email||"Google account")+'</p><button class="dk-login-action dk-login-primary" id="dkOpenDashboard">⌂ Open Full Dashboard <span>→</span></button><button class="dk-login-action" id="dkOtherOwner">⇄ Login with another owner account <span>→</span></button><button class="dk-login-action" id="dkManageCustomerPins">🔐 Manage Customer PINs <span>→</span></button><button class="dk-login-action dk-logout" id="dkOwnerLogout">↪ Logout</button><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
       document.getElementById("dkOpenDashboard")?.addEventListener("click",()=>{window.showPage?.("home");window.closeModal?.()});
-      document.getElementById("dkOtherOwner")?.addEventListener("click",()=>startOwnerGoogle2());\n      document.getElementById("dkManageCustomerPins")?.addEventListener("click",customerPinManager2);
+      document.getElementById("dkOtherOwner")?.addEventListener("click",()=>startOwnerGoogle2());;
+      document.getElementById("dkManageCustomerPins")?.addEventListener("click",customerPinManager2);
       document.getElementById("dkOwnerLogout")?.addEventListener("click",async()=>{await sb.auth.signOut();window.closeModal?.();window.toast?.("Logged out")});
       return;
     }
