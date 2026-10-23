@@ -10,6 +10,18 @@
     }
     return window.dkSupabase;
   }
+  // Customer auth uses its own storage key so OTP login never replaces an owner's session.
+  function getCustomerSB(){
+    if(window.dkCustomerSupabase)return window.dkCustomerSupabase;
+    if(window.supabase&&window.supabase.createClient){
+      window.dkCustomerSupabase=window.supabase.createClient(
+        "https://nzsldzyjpxwyyrdwkphp.supabase.co",
+        "sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-",
+        {auth:{storageKey:"dk_customer_auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}}
+      );
+    }
+    return window.dkCustomerSupabase;
+  }
   function esc2(v){
     return String(v??"").replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])});
   }
@@ -59,7 +71,7 @@
     }).join("");
     root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkGlobalBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>My Customer Space</small></div></div><span class="dk-customer-secure">🔒 Read Only</span></header><main class="dk-customer-home-main" style="max-width:1000px"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>My <strong>Shops & Khata</strong></h1><p>'+safe.length+' registered shop account(s) found for your verified mobile number.</p></div>'+(safe.length?accountCards:'<section class="dk-customer-login-card"><h2>No shop records found</h2><p>No shop has registered this verified mobile number yet. Ask your shopkeeper to check the number saved in your customer record.</p></section>')+'<button type="button" class="dk-login-close" id="dkCustomerLogout2">↪ Sign out</button></main></div>';
     root.querySelector("#dkGlobalBack")?.addEventListener("click",()=>openCustomer2(true));
-    root.querySelector("#dkCustomerLogout2")?.addEventListener("click",async()=>{sessionStorage.removeItem("dk_login_role");try{await getSB()?.auth.signOut()}catch(e){};openCustomer2(true)});
+    root.querySelector("#dkCustomerLogout2")?.addEventListener("click",async()=>{try{await getCustomerSB()?.auth.signOut()}catch(e){};openCustomer2(true)});
   }
   function openCustomer2(hideBack){
     document.getElementById("modal")?.classList.add("hidden");
@@ -86,12 +98,11 @@
     async function lookup(){
       const q=phone2(input?.value);
       if(!q||q.length!==10){status.textContent="Enter a valid 10-digit Indian mobile number.";input?.focus();return}
-      const sb=getSB();
+      const sb=getCustomerSB();
       if(!sb){status.textContent="Secure login is loading. Refresh and try again.";return}
       btn.disabled=true;
       try{
         if(!otpSent){
-          sessionStorage.setItem("dk_login_role","customer");
           const {error}=await sb.auth.signInWithOtp({phone:"+91"+q});
           if(error)throw error;
           otpSent=true;
