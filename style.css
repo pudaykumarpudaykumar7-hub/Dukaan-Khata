@@ -4925,3 +4925,33 @@ body{
 .dk-customer-bill .dk-record-main{min-width:0;flex:1}.dk-customer-bill .dk-record-items{font-size:12px;gap:6px}.dk-customer-item-row{display:flex;justify-content:space-between;gap:12px;padding:7px 9px;border-radius:9px;background:#f4f8f6;color:#43584e}.dk-customer-item-row span{overflow-wrap:anywhere}.dk-customer-item-row strong{white-space:nowrap;color:#183b31}.dk-customer-item-row small{font-size:11px;color:#71847c}.dk-muted-note{font-size:11px;color:#77867f;padding:5px 0}
 .dk-customer-fullscreen-close{margin:16px 0 0;width:100%;min-height:48px;border-radius:14px;background:#173d30!important;color:#fff!important}
 @media(max-width:560px){#modal:has(.dk-customer-fullscreen)>.sheet{padding-left:10px!important;padding-right:10px!important}.dk-customer-screen-top{margin-left:-10px;margin-right:-10px;padding-left:11px;padding-right:11px}.dk-customer-shop-grid,.dk-customer-items-list{grid-template-columns:minmax(0,1fr)}.dk-customer-fullscreen .dk-exec-hero{gap:9px;padding:14px}.dk-customer-fullscreen .dk-exec-identity h2{font-size:18px}.dk-customer-fullscreen .dk-exec-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.dk-customer-fullscreen .dk-exec-summary>div:last-child{grid-column:1/-1}.dk-customer-fullscreen .dk-exec-record{align-items:flex-start}.dk-customer-bill .dk-record-amount{font-size:13px;white-space:nowrap}}
+
+/* Customer portal scroll fix v123: allow touch scrolling through every shop and bill */
+#modal:has(.dk-customer-fullscreen){
+  position:fixed!important;inset:0!important;display:flex!important;
+  align-items:flex-start!important;justify-content:center!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  padding:0!important;overscroll-behavior-y:contain!important;
+  -webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;
+}
+#modal:has(.dk-customer-fullscreen)>.sheet{
+  width:100%!important;max-width:760px!important;height:auto!important;
+  max-height:none!important;min-height:100%!important;margin:0 auto!important;
+  padding:12px 14px 28px!important;border-radius:0!important;
+  overflow:visible!important;overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;
+}
+#modal:has(.dk-customer-fullscreen) #modalBody,
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen{
+  height:auto!important;min-height:100%!important;max-height:none!important;
+  overflow:visible!important;touch-action:pan-y!important;
+}
+#modal:has(.dk-customer-fullscreen) .dk-executive-portal{
+  max-height:none!important;overflow:visible!important;padding-bottom:env(safe-area-inset-bottom,16px)!important;
+}
+#modal:has(.dk-customer-fullscreen) .dk-exec-section,
+#modal:has(.dk-customer-fullscreen) .dk-customer-bill,
+#modal:has(.dk-customer-fullscreen) .dk-exec-record{touch-action:pan-y!important}
+@media(max-width:600px){
+  #modal:has(.dk-customer-fullscreen)>.sheet{padding:8px 10px calc(24px + env(safe-area-inset-bottom,0px))!important}
+}
