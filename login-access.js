@@ -67,7 +67,7 @@
     const root=document.createElement("div");
     root.id="dkCustomerFullScreen";
     root.className="dk-customer-fullscreen";
-    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkCustomerBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div><span class="dk-customer-secure">🔒 Private</span></header><main class="dk-customer-home-main"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Customer <strong>Login</strong></h1><p>Enter your registered mobile number to find your Khata.</p></div><section class="dk-customer-login-card"><div class="dk-customer-card-icon">📱</div><h2>View Your Khata</h2><p>See your bills, payments and outstanding balance.</p><label class="dk-customer-label">Mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label><label class="dk-customer-label" style="margin-top:12px">Customer PIN<input id="customerLoginPin" class="search dk-customer-phone-input" inputmode="numeric" autocomplete="current-password" type="password" maxlength="6" placeholder="Enter 4–6 digit PIN"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata <span>→</span></button><div id="dkCustomerStatus" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features"><span>🧾 Bills</span><span>💳 Payments</span><span>₹ Outstanding balance</span></div></section><div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div></main></div>';
+    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkCustomerBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div><span class="dk-customer-secure">🔒 Private</span></header><main class="dk-customer-home-main"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Customer <strong>Login</strong></h1><p>No owner account is needed. Enter your registered mobile number and customer PIN to see every linked shop that has enabled your access.</p></div><section class="dk-customer-login-card"><div class="dk-customer-card-icon">📱</div><h2>View Your Khata</h2><p>View items, bills, payments and totals from your registered shops, and call each shop owner directly.</p><label class="dk-customer-label">Mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label><label class="dk-customer-label" style="margin-top:12px">Customer PIN<input id="customerLoginPin" class="search dk-customer-phone-input" inputmode="numeric" autocomplete="current-password" type="password" maxlength="6" placeholder="Enter 4–6 digit PIN"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata <span>→</span></button><div id="dkCustomerStatus" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features"><span>🧾 Bills</span><span>💳 Payments</span><span>₹ Outstanding balance</span></div></section><div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div></main></div>';
     document.body.appendChild(root);
     document.body.classList.add("dk-customer-mode");
     const input=root.querySelector("#customerLoginPhone"),pinInput=root.querySelector("#customerLoginPin"),btn=root.querySelector("#dkCustomerViewBtn"),status=root.querySelector("#dkCustomerStatus");
@@ -102,12 +102,8 @@
       e.stopPropagation();
       lookup();
     });
-    input?.addEventListener("keydown",e=>{
-      if(e.key==="Enter"){
-        e.preventDefault();
-        lookup();
-      }
-    });
+    input?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();lookup()}});
+    pinInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();lookup()}});
 
     setTimeout(()=>input.focus(),100);
   }
