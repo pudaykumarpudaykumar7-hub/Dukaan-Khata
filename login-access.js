@@ -39,9 +39,8 @@
     document.getElementById("dkCustomerFullScreen")?.remove();
     document.body.classList.remove("dk-customer-mode");
     if(typeof window.modal==="function"){
-      window.modal('<div class="dk-access-shell"><div class="dk-access-head"><div class="dk-access-icon">🔐</div><div><span class="dk-login-badge">LOGIN ACCESS</span><h2>Choose Access</h2></div></div><div class="dk-access-grid"><button type="button" class="dk-access-card owner" id="dkOwnerAccessBtn"><span>🏪</span><div><b>Owner Login</b><small>Full Dukaan Khata access</small></div><strong>→</strong></button><button type="button" class="dk-access-card customer" id="dkCustomerAccessBtn"><span>👤</span><div><b>Customer Login</b><small>View your own Khata by mobile number</small></div><strong>→</strong></button></div><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
+      window.modal('<div class="dk-access-shell"><div class="dk-access-head"><div class="dk-access-icon">🏪</div><div><span class="dk-login-badge">DUKAAN KHATA</span><h2>Owner Login</h2></div></div><button type="button" class="dk-access-card owner" id="dkOwnerAccessBtn"><span>🏪</span><div><b>Continue with Owner Login</b><small>Secure Google sign-in</small></div><strong>→</strong></button><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
       document.getElementById("dkOwnerAccessBtn")?.addEventListener("click",window.openOwnerLogin);
-      document.getElementById("dkCustomerAccessBtn")?.addEventListener("click",window.openCustomerLogin);
     }
   }
 
