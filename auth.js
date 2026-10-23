@@ -226,15 +226,42 @@
   }
 
   function openDukaanLogin(){
-    if(!window.modal)return;
-    modal('<div class="dk-access-shell">'+
-      '<div class="dk-access-head"><div class="dk-access-icon">🔐</div><div><span class="dk-login-badge">LOGIN ACCESS</span><h2>Choose Access</h2><p>Choose how you want to enter Dukaan Khata.</p></div></div>'+
-      '<div class="dk-access-grid">'+
-      '<button type="button" class="dk-access-card owner" onclick="openOwnerLogin()"><span>🏪</span><div><b>Owner Login</b><small>Full Dukaan Khata • Customers • Bills • Payments • Reports • More</small></div><strong>→</strong></button>'+
-      '<button type="button" class="dk-access-card customer" onclick="openCustomerLogin()"><span>👤</span><div><b>Customer Login</b><small>View your own Khata, Bills and Paid Payments by phone number</small></div><strong>→</strong></button>'+
-      '</div>'+
-      '<div class="dk-access-note">Owner access keeps the complete existing website. Customer access is read-only and shows only the customer selected by phone number.</div>'+
-      '<button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
+    document.getElementById("dkChooseAccessOverlay")?.remove();
+    if(window.closeModal)window.closeModal();
+    const root=document.createElement("div");
+    root.id="dkChooseAccessOverlay";
+    root.style.cssText="position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(3,12,19,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:auto";
+    root.innerHTML='<style>'+
+      '#dkChooseAccessOverlay *{box-sizing:border-box}'+
+      '#dkChooseAccessOverlay .dk-choice-panel{width:min(626px,100%);background:#f8f5e9;color:#18211c;padding:25px 0 22px;box-shadow:0 28px 90px #0007;border:1px solid #e7e0cf}'+
+      '#dkChooseAccessOverlay .dk-choice-heading{display:flex;align-items:center;gap:20px;padding:0 24px 25px}'+
+      '#dkChooseAccessOverlay .dk-choice-lock{width:86px;height:86px;flex:0 0 86px;display:grid;place-items:center;border-radius:27px;background:linear-gradient(145deg,#1c9b70,#087b59);font-size:42px;box-shadow:inset 0 1px 0 #ffffff55}'+
+      '#dkChooseAccessOverlay .dk-choice-eyebrow{font:800 13px/1.3 Georgia,serif;letter-spacing:3px;color:#39443b;margin:0 0 12px}'+
+      '#dkChooseAccessOverlay .dk-choice-title{font:700 clamp(28px,5vw,40px)/1.08 Georgia,serif;letter-spacing:-.8px;margin:0;color:#1c2921}'+
+      '#dkChooseAccessOverlay .dk-choice-subtitle{font:17px/1.45 Georgia,serif;color:#51584e;margin:14px 0 0}'+
+      '#dkChooseAccessOverlay .dk-choice-card{display:flex;align-items:center;gap:18px;width:calc(100% - 48px);min-height:145px;margin:0 24px;padding:20px 24px;text-align:left;border:1px solid #e5dece;border-radius:27px;background:linear-gradient(120deg,#fffefa,#f8f4e9);box-shadow:0 3px 0 #e9e2d4,0 7px 18px #51462a0a;color:#17211b;cursor:pointer;font-family:Georgia,serif;transition:transform .16s ease,box-shadow .16s ease}'+
+      '#dkChooseAccessOverlay .dk-choice-card+.dk-choice-card{margin-top:28px}'+
+      '#dkChooseAccessOverlay .dk-choice-card:active{transform:scale(.99)}'+
+      '#dkChooseAccessOverlay .dk-choice-card.owner{border-left:6px solid #159875}'+
+      '#dkChooseAccessOverlay .dk-choice-card.customer{border-left:6px solid #1685c3}'+
+      '#dkChooseAccessOverlay .dk-choice-icon{width:54px;flex:0 0 54px;text-align:center;font-family:Arial,sans-serif;font-size:37px}'+
+      '#dkChooseAccessOverlay .dk-choice-copy{min-width:0;flex:1}'+
+      '#dkChooseAccessOverlay .dk-choice-copy b{display:block;font-size:27px;line-height:1.15;font-weight:700;letter-spacing:-.5px;margin-bottom:9px}'+
+      '#dkChooseAccessOverlay .dk-choice-copy small{display:block;font-size:17px;line-height:1.45;color:#55574f}'+
+      '#dkChooseAccessOverlay .dk-choice-arrow{font:36px/1 Arial,sans-serif;color:#148d68;flex:0 0 auto}'+
+      '#dkChooseAccessOverlay .dk-choice-card.customer .dk-choice-arrow{color:#151b19}'+
+      '#dkChooseAccessOverlay .dk-choice-note{margin:36px 24px 0;padding:18px 20px;background:#edf5ef;color:#6d756d;border-radius:15px;font:16px/1.45 Georgia,serif}'+
+      '@media(max-width:420px){#dkChooseAccessOverlay .dk-choice-panel{padding-top:19px;padding-bottom:17px}#dkChooseAccessOverlay .dk-choice-heading{gap:14px;padding:0 17px 20px}#dkChooseAccessOverlay .dk-choice-lock{width:66px;height:66px;flex-basis:66px;border-radius:22px;font-size:32px}#dkChooseAccessOverlay .dk-choice-eyebrow{font-size:10px;letter-spacing:2px;margin-bottom:8px}#dkChooseAccessOverlay .dk-choice-subtitle{font-size:14px;margin-top:9px}#dkChooseAccessOverlay .dk-choice-card{width:calc(100% - 34px);margin-left:17px;margin-right:17px;min-height:118px;padding:16px 14px;gap:11px;border-radius:22px}#dkChooseAccessOverlay .dk-choice-card+.dk-choice-card{margin-top:18px}#dkChooseAccessOverlay .dk-choice-icon{width:40px;flex-basis:40px;font-size:30px}#dkChooseAccessOverlay .dk-choice-copy b{font-size:22px;margin-bottom:6px}#dkChooseAccessOverlay .dk-choice-copy small{font-size:14px}#dkChooseAccessOverlay .dk-choice-arrow{font-size:29px}#dkChooseAccessOverlay .dk-choice-note{margin:25px 17px 0;padding:14px 15px;font-size:13px}}'+
+      '</style>'+
+      '<section class="dk-choice-panel" role="dialog" aria-modal="true" aria-labelledby="dkChoiceTitle">'+
+        '<header class="dk-choice-heading"><div class="dk-choice-lock" aria-hidden="true">🔐</div><div><p class="dk-choice-eyebrow">LOGIN ACCESS</p><h2 class="dk-choice-title" id="dkChoiceTitle">Choose Access</h2><p class="dk-choice-subtitle">Choose how you want to enter Dukaan Khata.</p></div></header>'+
+        '<button type="button" class="dk-choice-card owner" id="dkChooseOwner"><span class="dk-choice-icon" aria-hidden="true">🏪</span><span class="dk-choice-copy"><b>Owner Login</b><small>Full Dukaan Khata • Customers • Bills • Payments • Reports • More</small></span><span class="dk-choice-arrow" aria-hidden="true">→</span></button>'+
+        '<button type="button" class="dk-choice-card customer" id="dkChooseCustomer"><span class="dk-choice-icon" aria-hidden="true">👤</span><span class="dk-choice-copy"><b>Customer Login</b><small>View your own Khata, Bills and Paid Payments by phone number</small></span><span class="dk-choice-arrow" aria-hidden="true">→</span></button>'+
+        '<div class="dk-choice-note">Owner uses Google. Customer uses mobile number.</div>'+
+      '</section>';
+    document.body.appendChild(root);
+    root.querySelector("#dkChooseOwner")?.addEventListener("click",()=>{root.remove();openOwnerLogin()});
+    root.querySelector("#dkChooseCustomer")?.addEventListener("click",()=>{root.remove();openCustomerLogin()});
   }
   async function popupOwnerGooglePhoto(){let u=window.DukaanKhataUser||{};try{u={...JSON.parse(localStorage.getItem("dukaan_khata_account")||"{}"),...u}}catch(e){}const src=u.picture||u.avatar_url||u.photo_url||"";if(!src){toast("Google profile photo is not available for this account");return}modal('<div class="dk-google-photo-view" onclick="closeModal()"><img src="'+esc(src)+'" alt="Google account profile photo" referrerpolicy="no-referrer"><p>Touch anywhere to go back</p></div>')}
 async function openOwnerLogin(){
