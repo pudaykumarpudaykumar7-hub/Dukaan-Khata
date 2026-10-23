@@ -1,8 +1,8 @@
-// Dukaan Khata — secure Google login + cross-device cloud sync via Supabase
+// Dukaan Khata — device-local mode; records stay in this browser/device
 (function(){
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
-  window.DukaanKhataMode="cloud";
+  window.DukaanKhataMode="local";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
   let syncTimer=null, syncing=false, cloudPollTimer=null;
@@ -209,6 +209,8 @@
 
   let initAttempts=0;
   async function init(){
+    // Local-only mode: never initialise auth, restore cloud snapshots, or start polling.
+    if(window.DukaanKhataMode==="local")return;
     const sb=client();
     if(!sb){
       if(initAttempts++<20){setTimeout(init,500);return;}
@@ -238,30 +240,8 @@
   }
   async function popupOwnerGooglePhoto(){let u=window.DukaanKhataUser||{};try{u={...JSON.parse(localStorage.getItem("dukaan_khata_account")||"{}"),...u}}catch(e){}const src=u.picture||u.avatar_url||u.photo_url||"";if(!src){toast("Google profile photo is not available for this account");return}modal('<div class="dk-google-photo-view" onclick="closeModal()"><img src="'+esc(src)+'" alt="Google account profile photo" referrerpolicy="no-referrer"><p>Touch anywhere to go back</p></div>')}
 async function openOwnerLogin(){
-    const sb=client();
-    if(!sb){toast("Cloud login is still loading. Try again.");return}
-    const {data:{session}}=await sb.auth.getSession();
-    if(session?.user){
-      const u=accountFromUser(session.user);
-      window.DukaanKhataUser=u;
-      modal('<div class="dk-login-shell dk-login-signed">'+
-        '<div class="dk-login-top"><button type="button" class="dk-login-icon dk-owner-profile-box" onclick="popupOwnerGooglePhoto()" aria-label="View Google profile photo">'+(u.picture?'<img src="'+esc(u.picture)+'" alt="Owner Google profile photo" referrerpolicy="no-referrer">':'👤')+'</button><span class="dk-login-badge">OWNER ACCOUNT</span></div>'+
-        '<h2>Owner Account</h2><p class="dk-login-sub">Full Dukaan Khata access</p>'+
-        '<div class="dk-account-card"><div class="dk-avatar">'+(u.picture?'<img src="'+esc(u.picture)+'" alt="">':'👤')+'</div><div><b>'+esc(u.name)+'</b><small>'+esc(u.email)+'</small></div><span class="dk-cloud">☁</span></div>'+
-        '<button class="dk-login-action dk-login-primary" onclick="showPage(\'home\');closeModal()">⌂ Open Full Dashboard <span>→</span></button>'+
-        '<button class="dk-login-action" onclick="startGoogleLogin()">⇄ Login with another owner account <span>→</span></button>'+
-        '<button class="dk-login-action dk-logout" onclick="logoutDukaanKhata()">↪ Logout</button>'+
-        '<button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
-      return;
-    }
-    modal('<div class="dk-login-shell">'+
-      '<div class="dk-login-top"><div class="dk-login-icon">🏪</div><div><span class="dk-login-badge">OWNER LOGIN</span><h2>Full Access</h2></div></div>'+
-      '<p class="dk-login-sub">Owner login opens the complete Dukaan Khata dashboard exactly as it works now.</p>'+
-      '<button class="dk-login-action dk-google" id="googleLoginBtn"><span class="dk-google-logo">G</span><span><b>Continue with Google</b><small>Fast • Secure • No password</small></span><strong>→</strong></button>'+
-      '<div class="dk-feature-row"><span>🏪</span><div><b>Full Owner Dashboard</b><small>Khata • Customers • Bills • Payments • Reports • More</small></div></div>'+
-      '<p id="googleLoginMsg" class="dk-login-note">Use the owner Google account connected to this shop.</p>'+
-      '<button class="dk-login-close" onclick="openDukaanLogin()">← Back</button></div>');
-    document.getElementById("googleLoginBtn")?.addEventListener("click",startGoogleLogin);
+    // Owner access is local-only; no Google account or cloud connection is needed.
+    modal('<div class="dk-login-shell"><div class="dk-login-top"><div class="dk-login-icon">🏪</div><div><span class="dk-login-badge">LOCAL OWNER ACCESS</span><h2>Owner Dashboard</h2></div></div><p class="dk-login-sub">Your shop, customer, bill and payment data is saved on this device only. It is not synced to other devices.</p><button class="dk-login-action dk-login-primary" onclick="showPage(\\'home\\');closeModal()">⌂ Open Full Dashboard <span>→</span></button><button class="dk-login-close" onclick="openDukaanLogin()">← Back</button></div>');
   }
   function normPhone(v){
     let d=String(v??"").replace(/\D/g,"");
@@ -292,6 +272,7 @@ async function openOwnerLogin(){
           '<h2>Find My Account</h2>'+
           '<p>Use the mobile number that your shopkeeper saved in Dukaan Khata.</p>'+
           '<label class="dk-customer-label">Registered mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label>'+
+          '<label class="dk-customer-label">Customer PIN<input id="customerLoginPin" class="search dk-customer-phone-input" inputmode="numeric" type="password" maxlength="4" autocomplete="off" placeholder="Enter PIN"></label>'+
           '<button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata <span>→</span></button>'+
           '<div class="dk-customer-home-features"><span>📒 Khata</span><span>🧾 Bills</span><span>💳 Payments</span><span>🔴 Due</span></div>'+
         '</section>'+
@@ -302,11 +283,16 @@ async function openOwnerLogin(){
     document.body.classList.add("dk-customer-mode");
     const viewBtn=document.getElementById("dkCustomerViewBtn");
     const phoneInput=document.getElementById("customerLoginPhone");
+    const pinInput=document.getElementById("customerLoginPin");
     viewBtn?.addEventListener("click",function(e){
       e.preventDefault();
       e.stopPropagation();
       const input=document.getElementById("customerLoginPhone");
       const q=normPhone(input?.value);
+      if(String(pinInput?.value||"").trim()!=="2007"){
+        if(window.toast)toast("Incorrect customer PIN");else alert("Incorrect customer PIN");
+        pinInput?.focus();return;
+      }
       if(!q){
         if(window.toast)toast("Please enter the customer mobile number");
         else alert("Please enter the customer mobile number");
@@ -329,8 +315,9 @@ async function openOwnerLogin(){
         '<button class="dk-login-close" onclick="closeModal()">← Back</button></div>');
     });
     phoneInput?.addEventListener("keydown",function(e){
-      if(e.key==="Enter"){e.preventDefault();findCustomerPortal();}
+      if(e.key==="Enter"){e.preventDefault();document.getElementById("dkCustomerViewBtn")?.click();}
     });
+    pinInput?.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();document.getElementById("dkCustomerViewBtn")?.click();}});
     setTimeout(()=>phoneInput?.focus(),100);
   }
   function closeCustomerFullScreen(){
@@ -381,18 +368,14 @@ async function openOwnerLogin(){
       '<button class="dk-login-close" onclick="closeModal()">× Close Customer View</button></div>');
   }
   async function startGoogleLogin(){
-    const sb=client();
-    if(!sb){toast("Cloud login is still loading. Try again.");return}
-    const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.href,queryParams:{prompt:"select_account"},scopes:"openid email profile"}});
-    if(error){console.error(error);toast("Google login could not start. Check Supabase Google provider settings.");}
+    if(window.showPage)window.showPage("home");
+    if(window.closeModal)window.closeModal();
+    if(window.toast)window.toast("Local-only mode: no account sign-in or cross-device sync.");
   }
 
   async function logoutDukaanKhata(){
-    const sb=client();
-    if(sb)await sb.auth.signOut();
-    saveAccount(null);
-    closeModal();
-    toast("Logged out");
+    if(window.closeModal)window.closeModal();
+    if(window.toast)window.toast("This app is using local-only access.");
   }
 
   window.openDukaanLogin=openDukaanLogin;
