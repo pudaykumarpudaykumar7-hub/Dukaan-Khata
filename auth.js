@@ -40,6 +40,14 @@
     const a=primary&&typeof primary==="object"?primary:{};
     const b=secondary&&typeof secondary==="object"?secondary:{};
     const out={...b,...a};
+    // A deletion tombstone must win over stale copies on every device. Never use
+    // a union-only merge for customers without carrying explicit deletion IDs.
+    const deletedCustomerIds=Array.from(new Set([
+      ...(Array.isArray(a.deletedCustomerIds)?a.deletedCustomerIds:[]),
+      ...(Array.isArray(b.deletedCustomerIds)?b.deletedCustomerIds:[])
+    ].map(String)));
+    const deleted=new Set(deletedCustomerIds);
+    out.deletedCustomerIds=deletedCustomerIds;
     for(const key of ["customers","tx","expenses","returns","reminders"]){
       const first=Array.isArray(a[key])?a[key]:[];
       const second=Array.isArray(b[key])?b[key]:[];
@@ -49,6 +57,9 @@
       for(const item of first)map.set(String(item?.id??JSON.stringify(item)),item);
       out[key]=Array.from(map.values());
     }
+    out.customers=out.customers.filter(c=>!deleted.has(String(c?.id)));
+    out.tx=out.tx.filter(t=>!deleted.has(String(t?.customerId)));
+    out.reminders=out.reminders.filter(r=>!deleted.has(String(r?.customerId)));
     out.shop={...(b.shop||{}),...(a.shop||{})};
     out.settings={...(b.settings||{}),...(a.settings||{})};
     return out;
