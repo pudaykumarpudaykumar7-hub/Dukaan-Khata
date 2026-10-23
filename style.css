@@ -4798,3 +4798,93 @@ body{
 
 /* v92: customer portal owner call action */
 .dk-customer-owner-contact{display:flex;justify-content:center;margin:0 auto 14px;width:100%;max-width:900px}.dk-customer-call-owner{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:420px;min-height:50px;padding:12px 18px;border-radius:16px;background:linear-gradient(135deg,#176b4d,#123e2d);border:1px solid #d7b879;color:#fff9e9;font-weight:800;font-size:15px;text-decoration:none;box-shadow:0 8px 22px #123e2d20}.dk-customer-call-owner:active{transform:scale(.99)}.dk-customer-call-owner-unavailable{display:flex;flex-direction:column;align-items:center;gap:5px;width:100%;max-width:420px;padding:12px 16px;border-radius:16px;background:#f5f5f0;border:1px solid #d8ded6;color:#536458;font-weight:800;text-align:center}.dk-customer-call-owner-unavailable small{font-size:12px;font-weight:500;line-height:1.4}
+
+
+/* Owner account success popup: centered ivory card matching the supplied reference */
+.modal:has(.dk-login-shell.dk-login-signed){
+  align-items:center!important;
+  justify-content:center!important;
+  padding:18px!important;
+  background:rgba(2,17,20,.48)!important;
+  backdrop-filter:blur(13px)!important;
+  -webkit-backdrop-filter:blur(13px)!important;
+  box-sizing:border-box!important;
+}
+.modal:has(.dk-login-shell.dk-login-signed)>.sheet{
+  width:min(650px,100%)!important;
+  max-width:650px!important;
+  max-height:calc(100dvh - 36px)!important;
+  padding:0!important;
+  margin:auto!important;
+  overflow:auto!important;
+  border-radius:30px!important;
+  background:transparent!important;
+  box-shadow:0 25px 80px #001b1640!important;
+}
+.modal:has(.dk-login-shell.dk-login-signed)>.sheet>.close{display:none!important}
+.dk-login-shell.dk-login-signed{
+  width:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+  padding:28px 30px 25px!important;
+  border:1px solid #e6dfcf!important;
+  border-radius:30px!important;
+  color:#1b2922!important;
+  background:linear-gradient(145deg,#fffdf5 0%,#f5f0e2 100%)!important;
+  box-shadow:0 16px 50px #0002!important;
+}
+.dk-login-shell.dk-login-signed .dk-login-top{gap:16px!important;margin-bottom:12px!important}
+.dk-login-shell.dk-login-signed .dk-login-icon{
+  width:66px!important;height:66px!important;flex:0 0 66px!important;
+  border-radius:22px!important;font-size:31px!important;
+  color:#1689d0!important;background:linear-gradient(145deg,#20c997,#079875)!important;
+  box-shadow:0 7px 22px #12a98230!important;
+}
+.dk-login-shell.dk-login-signed .dk-login-badge{color:#34433a!important;font-size:12px!important;letter-spacing:3px!important}
+.dk-login-shell.dk-login-signed h2{
+  margin:12px 0 14px!important;color:#17231c!important;
+  font:700 clamp(28px,5vw,38px)/1.15 Georgia,serif!important;
+  letter-spacing:-.7px!important;overflow-wrap:anywhere!important;
+}
+.dk-login-shell.dk-login-signed .dk-login-sub{
+  margin:0 0 20px!important;color:#4d554d!important;
+  font:17px/1.45 Georgia,serif!important;overflow-wrap:anywhere!important;
+}
+.dk-login-shell.dk-login-signed .dk-login-action{
+  min-height:70px!important;margin-top:12px!important;padding:15px 20px!important;
+  gap:12px!important;border:1px solid #e5dece!important;border-radius:22px!important;
+  background:#faf7ee!important;color:#18231d!important;
+  font:700 19px/1.3 Georgia,serif!important;
+  box-shadow:0 2px 0 #e9e2d4!important;
+}
+.dk-login-shell.dk-login-signed .dk-login-primary{
+  color:#fff!important;background:linear-gradient(100deg,#119a78,#20aa82)!important;
+  border-color:#23ad85!important;
+}
+.dk-login-shell.dk-login-signed .dk-login-action>span:last-child,
+.dk-login-shell.dk-login-signed .dk-login-action>strong{font-size:27px!important;color:inherit!important}
+.dk-login-shell.dk-login-signed .dk-logout{background:#faf7ee!important;color:#18231d!important}
+.dk-login-shell.dk-login-signed .dk-login-close{
+  display:block!important;width:100%!important;margin-top:20px!important;padding:12px!important;
+  border:0!important;background:transparent!important;color:#83b9ad!important;
+  font:700 17px/1.4 Georgia,serif!important;text-align:center!important;
+}
+@media(max-width:600px){
+  .modal:has(.dk-login-shell.dk-login-signed){padding:14px!important}
+  .modal:has(.dk-login-shell.dk-login-signed)>.sheet{
+    width:100%!important;max-width:100%!important;max-height:calc(100dvh - 28px)!important;
+    border-radius:26px!important;
+  }
+  .dk-login-shell.dk-login-signed{padding:22px 19px 18px!important;border-radius:26px!important}
+  .dk-login-shell.dk-login-signed .dk-login-top{gap:13px!important;margin-bottom:10px!important}
+  .dk-login-shell.dk-login-signed .dk-login-icon{width:58px!important;height:58px!important;flex-basis:58px!important;border-radius:19px!important;font-size:27px!important}
+  .dk-login-shell.dk-login-signed .dk-login-badge{font-size:10px!important;letter-spacing:2px!important}
+  .dk-login-shell.dk-login-signed h2{font-size:clamp(26px,7vw,33px)!important;margin:10px 0 12px!important}
+  .dk-login-shell.dk-login-signed .dk-login-sub{font-size:15px!important;margin-bottom:16px!important}
+  .dk-login-shell.dk-login-signed .dk-login-action{min-height:58px!important;margin-top:9px!important;padding:12px 14px!important;border-radius:18px!important;font-size:16px!important}
+  .dk-login-shell.dk-login-signed .dk-login-action>span:last-child,
+  .dk-login-shell.dk-login-signed .dk-login-action>strong{font-size:23px!important}
+  .dk-login-shell.dk-login-signed .dk-login-close{margin-top:14px!important;font-size:15px!important}
+}
