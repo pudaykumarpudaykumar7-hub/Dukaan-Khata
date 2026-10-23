@@ -345,7 +345,8 @@ async function openOwnerLogin(){
         if(window.toast)toast("No customer found for this number");else alert("No customer found for this number");
         return;
       }
-      if(matches.length===1){openCustomerPortal(matches[0].id);return}
+      // The mobile number is the customer lookup key: show the combined portal instead of asking the customer to choose a single shop record.
+      openCustomerPortal(matches[0].id);return;
       modal('<div class="dk-customer-login"><div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER FOUND</span><h2>Select account</h2></div></div>'+
         matches.map(c=>'<button class="dk-access-card customer" type="button" data-customer-id="'+esc(c.id)+'" onclick="openCustomerPortal(this.dataset.customerId)"><span>👤</span><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+
         '<button class="dk-login-close" onclick="openCustomerLogin()">← Back</button></div>');
@@ -366,7 +367,8 @@ async function openOwnerLogin(){
       toast("No customer found for this number");
       return;
     }
-    if(matches.length===1){openCustomerPortal(matches[0].id);return}
+    // Open the aggregated view for all accounts registered under this mobile number.
+    openCustomerPortal(matches[0].id);return;
     modal('<div class="dk-customer-login"><div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER FOUND</span><h2>Select account</h2></div></div>'+
         matches.map(c=>'<button class="dk-access-card customer" type="button" data-customer-id="'+esc(c.id)+'" onclick="openCustomerPortal(this.dataset.customerId)"><span>👤</span><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+
       '<button class="dk-login-close" onclick="openCustomerLogin()">← Back</button></div>');
