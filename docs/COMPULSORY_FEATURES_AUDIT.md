@@ -49,7 +49,8 @@ The repository currently includes a static web app, Capacitor configuration, bro
 
 - Branch created from `main`: `feature/compulsory-16-features`.
 - Initial repository source inspection performed.
-- Automated tests: not run yet.
+- Backup code verification: JavaScript syntax parse passed; confirmed new versioned backup format includes Digital Shop Pass profile, legacy state-only backups remain importable, and restore rollback is present in the error path.
+- Automated behavior tests: not run yet.
 - UI/device tests: not run yet.
 - Production provider credentials/approvals: not verified.
 - Deployment: not performed.
