@@ -859,54 +859,72 @@ setInterval(dkRefreshHomeGreeting,60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)dkRefreshHomeGreeting()});
 
 
-/* Home-screen AI assistant with a direct owner escalation path. */
-let dkHomeAiHistory=[];
-function dkHomeAiBubble(role,text,extraClass){
- const box=document.getElementById("dkHomeAiMessages");if(!box)return null;
- const el=document.createElement("div");el.className="dk-home-ai-bubble "+role+(extraClass?" "+extraClass:"");
+/* Customer-only floating Dukaan AI chat. Mounted only inside the authenticated customer portal. */
+let dkCustomerAiHistory=[];
+let dkCustomerAiBusy=false;
+function dkCustomerAiBubble(role,text,extraClass){
+ const box=document.getElementById("dkCustomerAiMessages");if(!box)return null;
+ const el=document.createElement("div");el.className="dk-customer-ai-bubble "+role+(extraClass?" "+extraClass:"");
  el.textContent=String(text||"");box.appendChild(el);box.scrollTop=box.scrollHeight;return el;
 }
-async function dkHomeAiSend(event){
- if(event)event.preventDefault();
- const input=document.getElementById("dkHomeAiInput"),send=document.querySelector(".dk-home-ai-form button[type=submit]");
- const status=document.getElementById("dkHomeAiStatus");
- const message=String(input?.value||"").trim();if(!message)return;
- if(message.length>1200){if(status)status.textContent="Please keep your question under 1,200 characters.";return}
- if(dkHomeAiHistory.length>8)dkHomeAiHistory=dkHomeAiHistory.slice(-8);
- dkHomeAiBubble("user",message);dkHomeAiHistory.push({role:"user",content:message});
- if(input){input.value="";input.style.height="auto";input.focus()}
- if(send)send.disabled=true;
- if(status)status.textContent="Dukaan AI is thinking…";
- const typing=dkHomeAiBubble("assistant","Thinking…","typing");
- try{
-  const response=await fetch("/api/dukaan-assistant",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:dkHomeAiHistory.slice(-10)})});
-  const data=await response.json().catch(()=>({}));
-  if(!response.ok)throw new Error(data.error||"AI service is not available right now.");
-  const answer=String(data.reply||"I couldn't prepare an answer just now. You can ask the owner for help.");
-  if(typing)typing.remove();dkHomeAiBubble("assistant",answer);dkHomeAiHistory.push({role:"assistant",content:answer});
-  if(status)status.textContent="Need shop-specific details? You can ask the owner below.";
- }catch(error){
-  if(typing)typing.remove();
-  dkHomeAiBubble("assistant","I can’t connect to the AI service right now. Your question wasn’t sent successfully. You can still contact the shop owner for help.");
-  if(status)status.textContent="AI service needs setup or is temporarily unavailable.";
- }finally{if(send)send.disabled=false}
+function dkCustomerChatUnmount(){
+ document.getElementById("dkCustomerAiLauncher")?.remove();
+ document.getElementById("dkCustomerAiPanel")?.remove();
+ dkCustomerAiHistory=[];dkCustomerAiBusy=false;
 }
-function dkHomeAiAskOwner(){
- const phone=String(state?.shop?.phone||"").trim();
- const digits=phone.replace(/\\D/g,"");
+function dkCustomerChatMount(customer){
+ if(!document.body.classList.contains("dk-customer-portal-mode")||!document.getElementById("dkCustomerFullScreen"))return;
+ dkCustomerChatUnmount();
+ const launcher=document.createElement("button");
+ launcher.type="button";launcher.id="dkCustomerAiLauncher";launcher.className="dk-customer-ai-launcher";
+ launcher.setAttribute("aria-label","Open Dukaan AI chat");launcher.setAttribute("aria-expanded","false");
+ launcher.innerHTML='<span aria-hidden="true">✦</span><i aria-hidden="true"></i>';
+ const panel=document.createElement("section");panel.id="dkCustomerAiPanel";panel.className="dk-customer-ai-panel";panel.hidden=true;
+ panel.setAttribute("aria-label","Dukaan AI chat");
+ panel.innerHTML='<header class="dk-customer-ai-top"><span class="dk-customer-ai-avatar" aria-hidden="true">✦</span><div><b>Dukaan AI</b><small>Ask a question • Get a quick reply</small></div><button type="button" class="dk-customer-ai-close" aria-label="Close chat">×</button></header><div id="dkCustomerAiMessages" class="dk-customer-ai-messages" aria-live="polite"><div class="dk-customer-ai-bubble assistant">Hi! 👋 How can I help you with your shop or Khata today?</div></div><div id="dkCustomerAiOwnerActions" class="dk-customer-ai-owner-actions" hidden></div><form id="dkCustomerAiForm" class="dk-customer-ai-form"><label class="dk-sr-only" for="dkCustomerAiInput">Message Dukaan AI</label><textarea id="dkCustomerAiInput" rows="1" maxlength="1200" placeholder="Type your message…" required></textarea><button type="submit" aria-label="Send message">➤</button></form><footer class="dk-customer-ai-footer"><span id="dkCustomerAiStatus" role="status">Dukaan AI is ready</span><button type="button" id="dkCustomerAiContact">Contact owner</button></footer>';
+ document.body.append(launcher,panel);
+ const toggle=()=>{const open=panel.hidden;panel.hidden=!open;launcher.setAttribute("aria-expanded",String(open));launcher.classList.toggle("is-open",open);if(open)document.getElementById("dkCustomerAiInput")?.focus()};
+ launcher.addEventListener("click",toggle);
+ panel.querySelector(".dk-customer-ai-close")?.addEventListener("click",()=>{panel.hidden=true;launcher.setAttribute("aria-expanded","false");launcher.classList.remove("is-open")});
+ panel.querySelector("#dkCustomerAiForm")?.addEventListener("submit",dkCustomerAiSend);
+ panel.querySelector("#dkCustomerAiContact")?.addEventListener("click",()=>dkCustomerAiAskOwner(customer));
+ window.dkCustomerChatUnmount=dkCustomerChatUnmount;
+}
+async function dkCustomerAiSend(event){
+ if(event)event.preventDefault();
+ if(dkCustomerAiBusy)return;
+ const input=document.getElementById("dkCustomerAiInput"),send=document.querySelector("#dkCustomerAiForm button[type=submit]");
+ const status=document.getElementById("dkCustomerAiStatus"),message=String(input?.value||"").trim();
+ if(!message)return;
+ if(message.length>1200){if(status)status.textContent="Please keep your message under 1,200 characters.";return}
+ dkCustomerAiHistory.push({role:"user",content:message});if(dkCustomerAiHistory.length>10)dkCustomerAiHistory=dkCustomerAiHistory.slice(-10);
+ dkCustomerAiBubble("user",message);if(input){input.value="";input.style.height="auto"}
+ dkCustomerAiBusy=true;if(send)send.disabled=true;if(status)status.textContent="Thinking…";
+ const typing=dkCustomerAiBubble("assistant","Thinking…","typing");
+ try{
+  const response=await fetch("/api/dukaan-assistant",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:dkCustomerAiHistory.slice(-10)})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"AI service unavailable");
+  const answer=String(data.reply||"I couldn't prepare a reply just now. You can contact the owner if you need help.");
+  if(typing)typing.remove();dkCustomerAiBubble("assistant",answer);dkCustomerAiHistory.push({role:"assistant",content:answer});
+  if(status)status.textContent="Reply received";
+ }catch(error){
+  if(typing)typing.remove();dkCustomerAiBubble("assistant","I can’t reach the AI service right now. Your message may not have been answered. You can contact the owner below.");
+  if(status)status.textContent="AI service unavailable";
+ }finally{dkCustomerAiBusy=false;if(send)send.disabled=false}
+}
+function dkCustomerAiAskOwner(customer){
+ const phone=String(state?.shop?.phone||"").trim(),digits=phone.replace(/\D/g,"");
+ const actions=document.getElementById("dkCustomerAiOwnerActions");if(!actions)return;
+ actions.replaceChildren();actions.hidden=false;
  if(digits.length<7){
-  if(typeof toast==="function")toast("Add the owner's phone number in Shop Profile to enable contact.");
-  if(typeof openShopSettings==="function")openShopSettings();
-  return;
+  const note=document.createElement("p");note.className="dk-customer-ai-owner-note";note.textContent="The shop owner’s contact number has not been added to this shop profile yet. Please ask the shop to update it.";actions.append(note);return;
  }
- const normalized=phone.startsWith("+")?"+"+digits:(digits.length===10?" +91".trim()+digits:digits);
- const ask="Hi, I need more information about "+String(state?.shop?.name||"your shop")+". Could you please help me?";
- dkHomeAiBubble("assistant","I’ll help you reach the shop owner for details that need a personal answer.");
- const actions=document.getElementById("dkHomeAiMessages");
- if(actions&&!document.getElementById("dkHomeAiOwnerLink")){
-  const wrap=document.createElement("div");wrap.className="dk-home-ai-owner-actions";wrap.id="dkHomeAiOwnerLink";
-  const call=document.createElement("a");call.className="dk-home-ai-owner-link";call.href="tel:"+normalized;call.textContent="Call owner";
-  const wa=document.createElement("a");wa.className="dk-home-ai-owner-link";wa.href="https://wa.me/"+digits+"?text="+encodeURIComponent(ask);wa.target="_blank";wa.rel="noopener noreferrer";wa.textContent="Message on WhatsApp";
-  wrap.append(call,wa);actions.appendChild(wrap);actions.scrollTop=actions.scrollHeight;
- }
+ const normalized=phone.startsWith("+")?"+"+digits:(digits.length===10?"+91"+digits:"+"+digits);
+ const name=String(customer?.name||"customer").slice(0,80),shop=String(state?.shop?.name||"the shop").slice(0,100);
+ const message="Hi, I am "+name+". I need more information about "+shop+". Could you please help me?";
+ dkCustomerAiBubble("assistant","Choose how you’d like to contact the shop owner. I won’t contact them until you choose an option.");
+ const call=document.createElement("a");call.className="dk-customer-ai-owner-link";call.href="tel:"+normalized;call.textContent="Call owner";
+ const wa=document.createElement("a");wa.className="dk-customer-ai-owner-link";wa.href="https://wa.me/"+(digits.length===10?"91"+digits:digits)+"?text="+encodeURIComponent(message);wa.target="_blank";wa.rel="noopener noreferrer";wa.textContent="Message on WhatsApp";
+ actions.append(call,wa);
 }
