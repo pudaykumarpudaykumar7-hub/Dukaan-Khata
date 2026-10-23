@@ -262,75 +262,46 @@ async function openOwnerLogin(){
     return (state.tx||[]).filter(t=>String(t.customerId)===String(c.id));
   }
   function openCustomerLogin(){
-    // Customer access is intentionally separate from Owner Google login.
-    // It opens as a full-screen home-style customer area.
-    const root=document.createElement("div");
-    root.id="dkCustomerFullScreen";
-    root.className="dk-customer-fullscreen";
-    root.innerHTML='<div class="dk-customer-home">'+
-      '<header class="dk-customer-home-head">'+
-        '<button class="dk-customer-home-back" type="button" onclick="closeCustomerFullScreen()">←</button>'+
-        '<div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div>'+
-        '<span class="dk-customer-secure">🔒 Private</span>'+
-      '</header>'+
-      '<main class="dk-customer-home-main">'+
-        '<div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Welcome to <strong>My Khata</strong></h1><p>Enter your registered mobile number to securely view your Khata, Bills, Payments and Due.</p></div>'+
-        '<section class="dk-customer-login-card">'+
-          '<div class="dk-customer-card-icon">📱</div>'+
-          '<h2>Find My Account</h2>'+
-          '<p>Use the mobile number that your shopkeeper saved in Dukaan Khata.</p>'+
-          '<label class="dk-customer-label">Registered mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label>'+
-          '<label class="dk-customer-label">Customer PIN<input id="customerLoginPin" class="search dk-customer-phone-input" inputmode="numeric" type="password" maxlength="4" autocomplete="off" placeholder="Enter PIN"></label>'+
-          '<button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata <span>→</span></button>'+
-          '<div class="dk-customer-home-features"><span>📒 Khata</span><span>🧾 Bills</span><span>💳 Payments</span><span>🔴 Due</span></div>'+
-        '</section>'+
-        '<div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div>'+
-      '</main>'+
-    '</div>';
-    document.body.appendChild(root);
-    document.body.classList.add("dk-customer-mode");
+    // Match the previous compact popup style used by Owner Login.
+    modal('<div class="dk-login-shell dk-customer-login">'+
+      '<div class="dk-login-top"><div class="dk-login-icon">👤</div><div><span class="dk-login-badge">CUSTOMER ACCESS</span><h2>My Khata Login</h2></div></div>'+
+      '<p class="dk-login-sub">Enter the mobile number saved by your shopkeeper and the common customer PIN to view your own Khata, bills and payments.</p>'+
+      '<label class="dk-customer-label" for="customerLoginPhone">Registered mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label>'+
+      '<label class="dk-customer-label" for="customerLoginPin">Customer PIN<input id="customerLoginPin" class="search dk-customer-phone-input" inputmode="numeric" type="password" maxlength="4" autocomplete="off" placeholder="Enter PIN"></label>'+
+      '<button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata <span>→</span></button>'+
+      '<div class="dk-customer-home-features"><span>📒 Khata</span><span>🧾 Bills</span><span>💳 Payments</span><span>🔴 Due</span></div>'+
+      '<button class="dk-login-close" type="button" onclick="openDukaanLogin()">← Back</button></div>');
     const viewBtn=document.getElementById("dkCustomerViewBtn");
     const phoneInput=document.getElementById("customerLoginPhone");
     const pinInput=document.getElementById("customerLoginPin");
     viewBtn?.addEventListener("click",function(e){
       e.preventDefault();
-      e.stopPropagation();
-      const input=document.getElementById("customerLoginPhone");
-      const q=normPhone(input?.value);
+      const q=normPhone(phoneInput?.value);
       if(String(pinInput?.value||"").trim()!=="2007"){
         if(window.toast)toast("Incorrect customer PIN");else alert("Incorrect customer PIN");
         pinInput?.focus();return;
       }
       if(!q){
-        if(window.toast)toast("Please enter the customer mobile number");
-        else alert("Please enter the customer mobile number");
-        input?.focus();
-        return;
+        if(window.toast)toast("Please enter the customer mobile number");else alert("Please enter the customer mobile number");
+        phoneInput?.focus();return;
       }
       const customers=Array.isArray(window.state?.customers)?window.state.customers:[];
       const matches=customers.filter(c=>normPhone(c.phone)===q);
       if(!matches.length){
-        if(window.toast)toast("No customer found for this number");
-        else alert("No customer found for this number");
+        if(window.toast)toast("No customer found for this number");else alert("No customer found for this number");
         return;
       }
-      if(matches.length===1){
-        openCustomerPortal(matches[0].id);
-        return;
-      }
+      if(matches.length===1){openCustomerPortal(matches[0].id);return}
       modal('<div class="dk-customer-login"><div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER FOUND</span><h2>Select account</h2></div></div>'+
         matches.map(c=>'<button class="dk-access-card customer" type="button" data-customer-id="'+esc(c.id)+'" onclick="openCustomerPortal(this.dataset.customerId)"><span>👤</span><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+
-        '<button class="dk-login-close" onclick="closeModal()">← Back</button></div>');
+        '<button class="dk-login-close" onclick="openCustomerLogin()">← Back</button></div>');
     });
-    phoneInput?.addEventListener("keydown",function(e){
-      if(e.key==="Enter"){e.preventDefault();document.getElementById("dkCustomerViewBtn")?.click();}
-    });
-    pinInput?.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();document.getElementById("dkCustomerViewBtn")?.click();}});
-    setTimeout(()=>phoneInput?.focus(),100);
+    phoneInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();viewBtn?.click()}});
+    pinInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();viewBtn?.click()}});
+    setTimeout(()=>phoneInput?.focus(),120);
   }
   function closeCustomerFullScreen(){
-    document.getElementById("dkCustomerFullScreen")?.remove();
-    document.body.classList.remove("dk-customer-mode");
+    if(window.closeModal)closeModal();
     if(window.openDukaanLogin)openDukaanLogin();
   }
   function findCustomerPortal(){
@@ -398,39 +369,24 @@ async function openOwnerLogin(){
   window.logoutDukaanKhata=logoutDukaanKhata;
   window.startGoogleLogin=startGoogleLogin;
 
-  function installCustomerClickFallback(){
-    if(window.__dkCustomerClickFallback)return;
-    window.__dkCustomerClickFallback=true;
-    document.addEventListener("click",function(e){
-      const btn=e.target?.closest?.("#dkCustomerViewBtn");
-      if(!btn)return;
-      // login-access.js owns the current full-screen customer flow and its status message.
-      // Do not let this legacy capture-phase listener swallow its button click.
-      if(document.getElementById("dkLoginAccessStandalone") || document.getElementById("dkCustomerStatus"))return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      const input=document.getElementById("customerLoginPhone");
-      const q=normPhone(input?.value);
-      if(!q){
-        if(window.toast)toast("Please enter the customer mobile number");
-        else alert("Please enter the customer mobile number");
-        input?.focus();
-        return;
-      }
-      const customers=Array.isArray(window.state?.customers)?window.state.customers:[];
-      const matches=customers.filter(c=>normPhone(c.phone)===q);
-      if(matches.length===1){openCustomerPortal(matches[0].id);return}
-      if(!matches.length){
-        if(window.toast)toast("No customer found for this number");
-        else alert("No customer found for this number");
-        return;
-      }
-      modal('<div class="dk-customer-login"><div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER FOUND</span><h2>Select account</h2></div></div>'+
-        matches.map(c=>'<button class="dk-access-card customer" type="button" data-customer-id="'+esc(c.id)+'" onclick="openCustomerPortal(this.dataset.customerId)"><span>👤</span><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+
-        '<button class="dk-login-close" onclick="closeModal()">← Back</button></div>');
-    },true);
+  let launchLoginShown=false;
+  function showLoginAfterLaunch(){
+    if(launchLoginShown)return;
+    launchLoginShown=true;
+    // If Google has already authenticated the owner, keep the normal app open.
+    const sb=client();
+    if(sb){
+      sb.auth.getSession().then(({data})=>{
+        if(data?.session?.user){handleSession(data.session);return}
+        if(window.openDukaanLogin)window.openDukaanLogin();
+      }).catch(()=>{if(window.openDukaanLogin)window.openDukaanLogin()});
+    }else if(window.openDukaanLogin)window.openDukaanLogin();
   }
-
-  function boot(){installCustomerClickFallback();init()}
+  function boot(){
+    init();
+    window.addEventListener("uvms-launch-complete",showLoginAfterLaunch,{once:true});
+    // Covers browsers where the splash finished before this script attached.
+    if(!document.getElementById("uvmsLaunchSplash"))setTimeout(showLoginAfterLaunch,80);
+  }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();
