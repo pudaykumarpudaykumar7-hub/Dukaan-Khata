@@ -4643,3 +4643,12 @@ header.topbar,.topbar{
  .page.active :where(.card,.stat-card,.summary-card,.customer-card,.transaction-card,.luxury-tool,.home-tools button){animation:none!important}
  #uvmsLaunchSplash .uvms-launch-letters span{animation:none!important}
 }
+
+
+/* v81: Customer Contact actions share one full-width horizontal row. */
+#dkCustomerContactFullscreen .dk-contact-person{display:flex!important;flex-wrap:wrap!important;align-items:center!important;}
+#dkCustomerContactFullscreen .dk-contact-person-main{flex:1 1 calc(100% - 52px)!important;min-width:0!important;}
+#dkCustomerContactFullscreen .dk-contact-person-actions{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important;flex:0 0 100%!important;width:100%!important;max-width:none!important;margin-top:4px!important;}
+#dkCustomerContactFullscreen .dk-contact-person-actions button{width:100%!important;min-width:0!important;height:42px!important;flex:initial!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;border-radius:10px!important;padding:4px 2px!important;white-space:nowrap!important;font-size:13px!important;}
+#dkCustomerContactFullscreen .dk-contact-person-actions button small{font-size:11px!important;font-weight:700!important;}
+@media(max-width:360px){#dkCustomerContactFullscreen .dk-contact-person-actions{gap:4px!important}#dkCustomerContactFullscreen .dk-contact-person-actions button{gap:2px!important;font-size:12px!important}#dkCustomerContactFullscreen .dk-contact-person-actions button small{font-size:10px!important}}
