@@ -114,7 +114,7 @@ html body #uvmsLaunchSplash .uvms-launch-frame{z-index:3!important;}
 <nav class="bottom-nav"><button class="active" onclick="showPage('home')" data-page="home">⌂<span>Home</span></button><button onclick="showPage('khata')" data-page="khata">₹<span>Khata</span></button><button onclick="showPage('customers')" data-page="customers">♙<span>Customers</span></button><button onclick="showPage('bills')" data-page="bills">▤<span>Bills</span></button><button onclick="showPage('tools')" data-page="tools">•••<span>More</span></button></nav>
 <div id="toast" class="toast"></div><div id="modal" class="modal hidden"><div class="sheet"><div id="modalBody"></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" defer></script>
-<!-- Supabase removed: Dukaan Khata now stores data locally on this device. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script>(()=>{const h=new Date().getHours();const e=document.getElementById("greeting");if(e)e.textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+" 👋";const d=document.getElementById("todayLabel");if(d)d.textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});})();</script>
 <script src="app.js?v=20261023-subscriptions-v107" defer></script>
 <script src="auth.js?v=20261023-local-only-v109" defer></script>
