@@ -4797,6 +4797,7 @@ body{
 @media(max-width:560px){.dk-report-export-actions{justify-content:flex-start;width:100%}.page-title:has(.dk-report-export-actions){align-items:flex-start;flex-direction:column;gap:10px}.dk-report-export-actions .text-link{flex:1 1 auto}}
 
 /* v90: floating round Dukaan AI chat, visible only in customer portal */
+.dk-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 .dk-customer-ai-launcher{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:calc(20px + env(safe-area-inset-bottom));z-index:2147482500;width:66px;height:66px;border-radius:50%;display:grid;place-items:center;border:2px solid #f2dfae;background:radial-gradient(circle at 30% 22%,#f8e8bd 0%,#d9b875 35%,#9e7736 100%);color:#173729;box-shadow:0 8px 28px #102d2470,0 0 0 5px #d7b87920;font-size:30px;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}
 .dk-customer-ai-launcher:hover{transform:translateY(-3px) scale(1.035);box-shadow:0 12px 32px #102d247d,0 0 0 7px #d7b87925}
 .dk-customer-ai-launcher:active{transform:scale(.96)}
