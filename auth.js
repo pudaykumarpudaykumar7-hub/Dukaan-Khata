@@ -194,11 +194,13 @@
   async function handleSession(session){
     const user=session?.user;
     const loginRole=sessionStorage.getItem("dk_login_role")||"owner";
-    if(!user)return;
-    // Customer OTP sessions must never restore or sync the owner's local ledger.
-    // Keep this role for the lifetime of the customer session so reloads stay isolated.
-    if(loginRole==="customer")return;
     saveAccount(user);
+    if(!user)return;
+    if(loginRole==="customer"){
+      sessionStorage.removeItem("dk_login_role");
+      setTimeout(()=>openCustomerLogin(),250);
+      return;
+    }
     // Owner state is synced only to the authenticated owner row protected by Supabase RLS.
     await restoreCloudState(user);
   }
@@ -217,10 +219,7 @@
     // again because that caused duplicate restore/reload cycles.
     sb.auth.onAuthStateChange((event,session)=>{
       if(event==="SIGNED_IN")setTimeout(()=>handleSession(session),0);
-      if(event==="SIGNED_OUT"){
-        if(sessionStorage.getItem("dk_login_role")==="customer"){sessionStorage.removeItem("dk_login_role");return;}
-        saveAccount(null);
-      }
+      if(event==="SIGNED_OUT")saveAccount(null);
     });
   }
 
