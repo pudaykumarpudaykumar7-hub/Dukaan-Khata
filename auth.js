@@ -86,6 +86,10 @@
     if(window.DukaanKhataMode==="local")return;
     const sb=client(),userId=window.DukaanKhataUser?.id;
     if(!sb||!userId||syncing)return;
+    // Do not let startup/default local state upload before this exact account's
+    // cloud snapshot has been restored. Queue remains dirty and restore merges it.
+    if(localStorage.getItem("dukaan_khata_cloud_user_id")!==userId ||
+       localStorage.getItem("dukaan_khata_local_cloud_ready")!=="1")return;
     syncing=true;
     try{
       const local=localState()||window.state;
@@ -116,6 +120,8 @@
   async function pollCloud(){
     const sb=client(),userId=window.DukaanKhataUser?.id;
     if(!sb||!userId||syncing||localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
+    if(localStorage.getItem("dukaan_khata_cloud_user_id")!==userId ||
+       localStorage.getItem("dukaan_khata_local_cloud_ready")!=="1")return;
     try{
       const row=await readCloud(sb,userId);
       if(!row?.state)return;
