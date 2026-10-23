@@ -4659,3 +4659,125 @@ header.topbar,.topbar{
 #dkCustomerContactFullscreen [data-contact-action="whatsapp"]{background:linear-gradient(145deg,#1d3b30,#172b25)!important;border-color:#25a85a!important;color:#f6fff8!important}
 #dkCustomerContactFullscreen [data-contact-action="whatsapp"] small{color:#e8f7eb!important}
 @media(max-width:360px){#dkCustomerContactFullscreen .dk-whatsapp-icon{width:19px!important;height:19px!important;flex-basis:19px!important}}
+
+
+/* v83 — Fresh Premium Green + Champagne Gold visual foundation.
+   Presentation-only overrides: keep app logic, storage keys, and feature markup intact. */
+:root{
+ --bg:#f2f8f3;
+ --surface:#ffffff;
+ --text:#153328;
+ --muted:#60756b;
+ --line:#dce9df;
+ --primary:#176b4d;
+ --primary2:#24966a;
+ --blue:#176b4d;
+ --orange:#b8893d;
+ --purple:#587a65;
+ --danger:#c2413a;
+ --shadow:0 10px 30px rgba(20,67,46,.075);
+ --dk-champagne:#d7b879;
+ --dk-champagne-soft:#f6edda;
+ --dk-forest:#123e2d;
+}
+html{background:var(--bg)}
+body{
+ background:
+  radial-gradient(ellipse at 100% 0%,rgba(215,184,121,.16),transparent 27rem),
+  radial-gradient(ellipse at 0% 14%,rgba(36,150,106,.10),transparent 30rem),
+  var(--bg)!important;
+ color:var(--text)!important;
+}
+.topbar{
+ background:rgba(255,255,255,.92)!important;
+ border-bottom:1px solid rgba(215,184,121,.34)!important;
+ box-shadow:0 4px 20px rgba(18,62,45,.045)!important;
+ backdrop-filter:blur(18px);
+}
+.topbar :where(h1,h2,.brand-name){color:var(--dk-forest)}
+.topbar .top-actions .round{
+ border-color:#dce8de!important;
+ background:#fff!important;
+ box-shadow:0 3px 12px rgba(18,62,45,.06)!important;
+}
+:where(.card,.stat,.customer,.item,.luxury-tool,.summary-card,.stat-card,.customer-card,.transaction-card,.home-tools button){
+ border-color:var(--line)!important;
+ box-shadow:var(--shadow)!important;
+}
+:where(.card,.stat,.customer,.item,.summary-card,.stat-card,.customer-card,.transaction-card){
+ background:rgba(255,255,255,.96)!important;
+}
+:where(.section-head h3,.page-title){color:var(--dk-forest)}
+:where(.btn.primary,button.primary,.smart-receive-shell .btn.primary){
+ background:linear-gradient(135deg,#176b4d,#21865e)!important;
+ color:#fff!important;
+ border:1px solid rgba(215,184,121,.8)!important;
+ box-shadow:0 5px 15px rgba(23,107,77,.18)!important;
+}
+:where(.btn:not(.primary),.segmented button,.receive-tabs button){
+ border-color:#d8e6db;
+}
+:where(.segmented button.active,.receive-tabs button.active){
+ background:linear-gradient(135deg,#176b4d,#23865e)!important;
+ color:#fff!important;
+ border-color:var(--dk-champagne)!important;
+ box-shadow:0 4px 12px rgba(23,107,77,.16)!important;
+}
+.bottom-nav{
+ background:rgba(255,255,255,.96)!important;
+ border:1px solid rgba(215,184,121,.45)!important;
+ box-shadow:0 10px 32px rgba(18,62,45,.14)!important;
+ backdrop-filter:blur(18px);
+}
+.bottom-nav button.active{color:#176b4d!important}
+.bottom-nav button.active span{font-weight:800}
+.bottom-nav button.active svg{filter:drop-shadow(0 2px 3px rgba(215,184,121,.32))}
+:where(.luxury-tool,.tools-grid .luxury-tool){
+ background:linear-gradient(145deg,#fff 0%,#f6faf6 100%)!important;
+ border-color:#dce8de!important;
+}
+.tools-grid .luxury-tool:after{
+ background:linear-gradient(90deg,transparent,var(--dk-champagne),transparent)!important;
+ opacity:.7!important;
+}
+:where(.luxury-tool b,.tools-grid .luxury-tool b){color:#183d2e!important}
+:where(.luxury-tool small,.tools-grid .luxury-tool small){color:#667b70!important}
+:where(input,select,textarea){
+ background:#fff;
+ border-color:#d7e5da;
+ color:#17382b;
+}
+:where(input,select,textarea):focus{
+ border-color:#c9a45e!important;
+ box-shadow:0 0 0 3px rgba(215,184,121,.20)!important;
+ outline:none;
+}
+:where(.balance-hero,.summary-hero){
+ background:linear-gradient(125deg,#123e2d 0%,#176b4d 58%,#23865e 100%)!important;
+ border:1px solid rgba(215,184,121,.9)!important;
+ box-shadow:0 14px 32px rgba(18,62,45,.20)!important;
+ color:#fff!important;
+}
+:where(.balance-hero,.summary-hero) :where(h1,h2,h3,b,strong,small,span,p){color:inherit}
+:where(.balance-hero,.summary-hero) :where(.muted,small){opacity:.88}
+:where(.modal .sheet,.dk-modal,.dk-access-shell){
+ border-color:rgba(215,184,121,.55)!important;
+}
+:where(.page.active .card,.page.active .stat-card,.page.active .summary-card,.page.active .customer-card,.page.active .transaction-card,.page.active .luxury-tool,.page.active .home-tools button){
+ animation:dkCardArrive .32s ease both;
+}
+@media(max-width:520px){
+ body{
+  background:
+   radial-gradient(ellipse at 100% 0%,rgba(215,184,121,.15),transparent 18rem),
+   radial-gradient(ellipse at 0% 10%,rgba(36,150,106,.09),transparent 20rem),
+   #f2f8f3!important;
+ }
+ .topbar{border-radius:0 0 18px 18px}
+ :where(.card,.stat-card,.summary-card,.customer-card,.transaction-card,.luxury-tool,.home-tools button){
+  border-radius:19px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ :where(.page.active .card,.page.active .stat-card,.page.active .summary-card,.page.active .customer-card,.page.active .transaction-card,.page.active .luxury-tool,.page.active .home-tools button){animation:none!important}
+}
