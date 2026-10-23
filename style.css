@@ -4480,3 +4480,86 @@ body{ -webkit-tap-highlight-color:transparent; text-rendering:optimizeLegibility
 :focus-visible{outline:3px solid rgba(217,153,42,.72)!important;outline-offset:2px}
 @media(max-width:520px){main,.main-content,.app-content{padding-left:14px!important;padding-right:14px!important} .balance-hero{box-shadow:0 16px 36px rgba(23,107,77,.2)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* Customer Contact refresh v79 — midnight navy + champagne gold.
+   Scoped to this screen only; no customer data or contact actions changed. */
+#dkCustomerContactFullscreen.dk-contact-fullscreen{
+ background:radial-gradient(ellipse at 15% 0%,#26364b 0%,#101722 48%,#090d13 100%)!important;
+ color:#f7f0df!important;
+}
+#dkCustomerContactFullscreen .dk-contact-appbar{
+ background:linear-gradient(135deg,#202a38 0%,#151d28 72%,#29251d 100%)!important;
+ border:1px solid #bfa56a!important;
+ box-shadow:0 12px 30px #0005,inset 0 1px #ffffff12!important;
+}
+#dkCustomerContactFullscreen .dk-contact-back{
+ background:linear-gradient(145deg,#f3dfaa,#b9934f)!important;color:#171a20!important;
+ box-shadow:0 5px 14px #0004!important;
+}
+#dkCustomerContactFullscreen .dk-contact-appbar span{color:#e7c985!important}
+#dkCustomerContactFullscreen .dk-contact-appbar h1{color:#fff8e8!important;font-weight:850!important;letter-spacing:-.45px!important}
+#dkCustomerContactFullscreen .dk-contact-appbar small{color:#c4c0b6!important}
+#dkCustomerContactFullscreen .dk-contact-appbar>b{
+ background:linear-gradient(145deg,#f4dfa7,#b88d43)!important;color:#171a20!important;
+ border:1px solid #f8e8bd!important;box-shadow:0 4px 12px #0003!important;
+}
+#dkCustomerContactFullscreen .dk-contact-search-wrap{
+ background:#171f2a!important;border:1px solid #6b5a39!important;color:#e7c985!important;
+ box-shadow:inset 0 1px #ffffff08!important;
+}
+#dkCustomerContactFullscreen .dk-contact-search-wrap input{
+ color:#fff8e8!important;caret-color:#e7c985!important;
+}
+#dkCustomerContactFullscreen .dk-contact-search-wrap input::placeholder{color:#a7a9ad!important;opacity:1!important}
+#dkCustomerContactFullscreen .dk-contact-stats span{
+ background:linear-gradient(145deg,#202936,#151c26)!important;border:1px solid #51452f!important;
+ color:#e9d49e!important;box-shadow:0 5px 14px #0002!important;
+}
+#dkCustomerContactFullscreen .dk-contact-stats b{color:#fff7e4!important}
+#dkCustomerContactFullscreen .dk-contact-person{
+ background:linear-gradient(115deg,#202936 0%,#171f2a 70%,#27251f 100%)!important;
+ border:1px solid #554a35!important;border-radius:18px!important;
+ box-shadow:0 7px 18px #0003,inset 0 1px #ffffff08!important;
+}
+#dkCustomerContactFullscreen .dk-contact-avatar{
+ background:linear-gradient(145deg,#f1d99b,#ad843e)!important;color:#171a20!important;
+ border:1px solid #f5e4b6!important;box-shadow:0 3px 10px #0003!important;
+}
+#dkCustomerContactFullscreen .dk-contact-person-main b{color:#fff8e8!important;font-size:14px!important}
+#dkCustomerContactFullscreen .dk-contact-person-main small{color:#b7bdc5!important}
+#dkCustomerContactFullscreen .dk-contact-due{color:#e8ca80!important}
+#dkCustomerContactFullscreen .dk-contact-person-actions button{
+ background:#242e3b!important;border:1px solid #66563a!important;color:#f0d28a!important;
+ border-radius:10px!important;box-shadow:inset 0 1px #ffffff0a!important;
+}
+#dkCustomerContactFullscreen .dk-contact-person-actions button:active{
+ background:#443a28!important;transform:scale(.96)!important;
+}
+#dkCustomerContactFullscreen .dk-contact-empty{
+ background:#171f2a!important;border:1px dashed #9d824b!important;color:#f0e3c2!important;
+}
+#dkCustomerContactFullscreen .dk-contact-empty b{color:#fff8e8!important}
+#dkCustomerContactFullscreen .dk-contact-empty p{color:#c0c2c4!important}
+#dkCustomerContactFullscreen .dk-contact-empty .btn.primary{
+ background:linear-gradient(145deg,#f1d99b,#b18a45)!important;color:#15191f!important;border:0!important;
+}
+#dkCustomerContactFullscreen .dk-contact-bottom-actions{
+ background:linear-gradient(0deg,#0b1018 68%,#0b101800)!important;
+}
+#dkCustomerContactFullscreen .dk-contact-receive{
+ background:linear-gradient(110deg,#f2dfad,#d3b16b 58%,#b58b43)!important;
+ border:1px solid #f6e7bd!important;border-radius:17px!important;
+ color:#171a20!important;box-shadow:0 10px 24px #0005!important;
+}
+#dkCustomerContactFullscreen .dk-contact-receive small{color:#4f4129!important}
+@media(max-width:390px){
+ #dkCustomerContactFullscreen.dk-contact-fullscreen{gap:9px!important;padding-left:9px!important;padding-right:9px!important}
+ #dkCustomerContactFullscreen .dk-contact-appbar{gap:9px!important;padding:9px!important}
+ #dkCustomerContactFullscreen .dk-contact-person{gap:7px!important;padding:8px!important}
+ #dkCustomerContactFullscreen .dk-contact-person-actions{max-width:88px!important;gap:3px!important}
+ #dkCustomerContactFullscreen .dk-contact-person-actions button{width:28px!important;height:28px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #dkCustomerContactFullscreen *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
