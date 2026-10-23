@@ -17,7 +17,7 @@
       window.dkCustomerSupabase=window.supabase.createClient(
         "https://nzsldzyjpxwyyrdwkphp.supabase.co",
         "sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-",
-        {auth:{storageKey:"dk_customer_auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}}
+        {auth:{storageKey:"dk_customer_auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}
       );
     }
     return window.dkCustomerSupabase;
@@ -80,10 +80,52 @@
     const root=document.createElement("div");
     root.id="dkCustomerFullScreen";
     root.className="dk-customer-fullscreen";
-    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkCustomerBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div><span class="dk-customer-secure">🔒 Private</span></header><main class="dk-customer-home-main"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Welcome to <strong>My Khata</strong></h1><p>Enter the mobile number registered by your shopkeeper.</p></div><section class="dk-customer-login-card"><div class="dk-customer-card-icon">📱</div><h2>Find My Account</h2><p>Use your registered mobile number to view your Khata.</p><label class="dk-customer-label">Registered mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata <span>→</span></button><div id="dkCustomerStatus" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features"><span>📒 Khata</span><span>🧾 Bills</span><span>💳 Payments</span><span>🔴 Due</span></div></section><div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div></main></div>';
+    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkCustomerBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>Customer Space</small></div></div><span class="dk-customer-secure">🔒 Private</span></header><main class="dk-customer-home-main"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>Welcome to <strong>My Khata</strong></h1><p>Enter the mobile number registered by your shopkeeper.</p></div><section class="dk-customer-login-card"><div class="dk-customer-card-icon">📱</div><h2>Find My Account</h2><p>Use your registered mobile number to view your Khata.</p><label class="dk-customer-label">Registered mobile number<input id="customerLoginPhone" class="search dk-customer-phone-input" inputmode="tel" autocomplete="tel" placeholder="Enter mobile number"></label><button id="dkCustomerViewBtn" class="dk-login-action dk-login-primary dk-customer-view-btn" type="button">View My Khata with SMS OTP <span>→</span></button><button id="dkCustomerGoogleBtn" class="dk-login-action dk-google" type="button" style="margin-top:10px"><span class="dk-google-logo">G</span><span><b>Continue with Google</b><small>Shop owner approval required</small></span><strong>→</strong></button><button id="dkCustomerGoogleRequest" class="dk-login-action" type="button" style="display:none;margin-top:10px">Request access for this phone <span>→</span></button><button id="dkCustomerGoogleApproved" class="dk-login-action dk-login-primary" type="button" style="display:none;margin-top:10px">Open my approved shops <span>→</span></button><div id="dkCustomerStatus" style="margin-top:12px;min-height:20px;font-weight:700;font-size:13px"></div><div class="dk-customer-home-features"><span>📒 Khata</span><span>🧾 Bills</span><span>💳 Payments</span><span>🔴 Due</span></div></section><div class="dk-customer-home-note">Read-only customer view • Your shopkeeper controls the account records</div></main></div>';
     document.body.appendChild(root);
     document.body.classList.add("dk-customer-mode");
     const input=root.querySelector("#customerLoginPhone"),btn=root.querySelector("#dkCustomerViewBtn"),status=root.querySelector("#dkCustomerStatus");
+    const googleBtn=root.querySelector("#dkCustomerGoogleBtn"),googleRequestBtn=root.querySelector("#dkCustomerGoogleRequest"),googleApprovedBtn=root.querySelector("#dkCustomerGoogleApproved");
+    const googleSB=getCustomerSB();
+    async function refreshGoogleCustomerState(){
+      if(!googleSB)return;
+      const {data:{session}}=await googleSB.auth.getSession();
+      if(session?.user){
+        if(googleBtn)googleBtn.style.display="none";
+        if(googleRequestBtn)googleRequestBtn.style.display="flex";
+        if(googleApprovedBtn)googleApprovedBtn.style.display="flex";
+        if(status)status.textContent="Google signed in as "+String(session.user.email||"your account")+". Request owner approval or open approved shops.";
+      }
+    }
+    googleBtn?.addEventListener("click",async()=>{
+      try{
+        googleBtn.disabled=true;
+        const {error}=await googleSB.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});
+        if(error)throw error;
+      }catch(e){if(status)status.textContent=String(e?.message||"Google sign-in could not start.");if(googleBtn)googleBtn.disabled=false;}
+    });
+    googleRequestBtn?.addEventListener("click",async()=>{
+      const q=phone2(input?.value);
+      if(q.length!==10){if(status)status.textContent="Enter the 10-digit mobile number saved by your shopkeeper.";input?.focus();return;}
+      try{
+        googleRequestBtn.disabled=true;
+        const {data,error}=await googleSB.functions.invoke("customer-google-portal",{body:{action:"request_link",phone:q}});
+        if(error)throw error;
+        if(status)status.textContent=data?.message||"Request submitted if a matching record exists. Each shop owner must approve access.";
+      }catch(e){if(status)status.textContent=String(e?.message||"Could not submit access request.");}
+      finally{googleRequestBtn.disabled=false;}
+    });
+    googleApprovedBtn?.addEventListener("click",async()=>{
+      try{
+        googleApprovedBtn.disabled=true;
+        const {data,error}=await googleSB.functions.invoke("customer-google-portal",{body:{action:"accounts"}});
+        if(error)throw error;
+        const accounts=Array.isArray(data?.accounts)?data.accounts:[];
+        if(!accounts.length){if(status)status.textContent="No approved shops yet. Ask each shop owner to approve your request.";return;}
+        renderGlobalCustomerAccounts2(accounts);
+      }catch(e){if(status)status.textContent=String(e?.message||"Could not load approved shops.");}
+      finally{googleApprovedBtn.disabled=false;}
+    });
+    refreshGoogleCustomerState().catch(()=>{});
     if(hideBack) root.querySelector("#dkCustomerBack")?.remove(); else if(hideBack){ root.querySelector("#dkCustomerBack")?.remove(); root.querySelector(".dk-customer-home-head")?.querySelector(".dk-customer-home-back")?.remove(); } else root.querySelector("#dkCustomerBack")?.addEventListener("click",closeCustomer2);
     let otpSent=false;
     const otpInput=document.createElement("input");
@@ -130,14 +172,46 @@
 
     setTimeout(()=>input.focus(),100);
   }
+  async function openOwnerCustomerApprovals2(){
+    const sb=getSB();
+    if(!sb){alert("Owner login is still loading.");return;}
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session?.user){alert("Sign in as the shop owner first.");return;}
+    window.modal('<div class="dk-login-shell" style="max-width:760px"><div class="dk-login-top"><div class="dk-login-icon">👥</div><div><span class="dk-login-badge">CUSTOMER ACCESS</span><h2>Approval Requests</h2></div></div><p class="dk-login-sub">Approve only customers you recognize. Each approval grants access to that customer record in your shop.</p><div id="dkOwnerApprovalList">Loading requests…</div><button class="dk-login-close" id="dkOwnerApprovalBack">← Back</button></div>');
+    document.getElementById("dkOwnerApprovalBack")?.addEventListener("click",owner2);
+    const list=document.getElementById("dkOwnerApprovalList");
+    async function load(){
+      if(!list)return;
+      list.textContent="Loading requests…";
+      try{
+        const {data,error}=await sb.functions.invoke("customer-google-portal",{body:{action:"list_pending"}});
+        if(error)throw error;
+        const rows=Array.isArray(data?.requests)?data.requests:[];
+        if(!rows.length){list.innerHTML='<p>No pending customer access requests.</p>';return;}
+        list.innerHTML=rows.map((r,i)=>'<section style="border:1px solid #dbe3ee;border-radius:14px;padding:14px;margin:10px 0"><b>'+esc2(r.customerName||"Customer")+'</b><p style="margin:4px 0;color:#64748b">'+esc2(r.customerPhone||"")+' • '+esc2(r.customerEmail||"")+'</p><small>'+esc2(r.shopName||"Your shop")+'</small><div style="display:flex;gap:8px;margin-top:12px"><button type="button" class="dk-login-action dk-login-primary" data-approve="'+esc2(r.id)+'">Approve</button><button type="button" class="dk-login-action" data-revoke="'+esc2(r.id)+'">Reject</button></div></section>').join("");
+        list.querySelectorAll("[data-approve]").forEach(b=>b.addEventListener("click",()=>change(b.getAttribute("data-approve"),"approve")));
+        list.querySelectorAll("[data-revoke]").forEach(b=>b.addEventListener("click",()=>change(b.getAttribute("data-revoke"),"revoke")));
+      }catch(e){list.textContent=String(e?.message||"Could not load requests. Deploy the reviewed customer-google-portal function before enabling this screen.");}
+    }
+    async function change(id,action){
+      try{
+        const {error}=await sb.functions.invoke("customer-google-portal",{body:{action,link_id:id}});
+        if(error)throw error;
+        await load();
+      }catch(e){if(list)list.textContent=String(e?.message||"Could not update this request.");}
+    }
+    await load();
+  }
+
   async function owner2(){
     const sb=getSB();
     if(!sb){alert("Owner login is still loading. Please try again.");return}
     const {data:{session}}=await sb.auth.getSession();
     if(session?.user){
       const u=session.user, name=u.user_metadata?.full_name||u.user_metadata?.name||u.email?.split("@")[0]||"Owner";
-      window.modal('<div class="dk-login-shell dk-login-signed"><div class="dk-login-top"><div class="dk-login-icon">👤</div><span class="dk-login-badge">OWNER ACCOUNT</span></div><h2>'+esc2(name)+'</h2><p class="dk-login-sub">'+esc2(u.email||"Google account")+'</p><button class="dk-login-action dk-login-primary" id="dkOpenDashboard">⌂ Open Full Dashboard <span>→</span></button><button class="dk-login-action" id="dkOtherOwner">⇄ Login with another owner account <span>→</span></button><button class="dk-login-action dk-logout" id="dkOwnerLogout">↪ Logout</button><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
+      window.modal('<div class="dk-login-shell dk-login-signed"><div class="dk-login-top"><div class="dk-login-icon">👤</div><span class="dk-login-badge">OWNER ACCOUNT</span></div><h2>'+esc2(name)+'</h2><p class="dk-login-sub">'+esc2(u.email||"Google account")+'</p><button class="dk-login-action dk-login-primary" id="dkOpenDashboard">⌂ Open Full Dashboard <span>→</span></button><button class="dk-login-action" id="dkOwnerCustomerApprovals">👥 Customer access requests <span>→</span></button><button class="dk-login-action" id="dkOtherOwner">⇄ Login with another owner account <span>→</span></button><button class="dk-login-action dk-logout" id="dkOwnerLogout">↪ Logout</button><button class="dk-login-close" onclick="closeModal()">× Close</button></div>');
       document.getElementById("dkOpenDashboard")?.addEventListener("click",()=>{window.showPage?.("home");window.closeModal?.()});
+      document.getElementById("dkOwnerCustomerApprovals")?.addEventListener("click",openOwnerCustomerApprovals2);
       document.getElementById("dkOtherOwner")?.addEventListener("click",()=>startOwnerGoogle2());
       document.getElementById("dkOwnerLogout")?.addEventListener("click",async()=>{await sb.auth.signOut();window.closeModal?.();window.toast?.("Logged out")});
       return;
