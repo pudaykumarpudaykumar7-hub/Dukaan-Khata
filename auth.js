@@ -330,26 +330,7 @@ async function openOwnerLogin(){
     const pinInput=document.getElementById("customerLoginPin");
     viewBtn?.addEventListener("click",function(e){
       e.preventDefault();
-      const q=normPhone(phoneInput?.value);
-      if(String(pinInput?.value||"").trim()!=="2007"){
-        if(window.toast)toast("Incorrect customer PIN");else alert("Incorrect customer PIN");
-        pinInput?.focus();return;
-      }
-      if(!q){
-        if(window.toast)toast("Please enter the customer mobile number");else alert("Please enter the customer mobile number");
-        phoneInput?.focus();return;
-      }
-      const customers=Array.isArray(window.state?.customers)?window.state.customers:[];
-      const matches=customers.filter(c=>normPhone(c.phone)===q);
-      if(!matches.length){
-        if(window.toast)toast("No customer found for this number");else alert("No customer found for this number");
-        return;
-      }
-      // The mobile number is the customer lookup key: show the combined portal instead of asking the customer to choose a single shop record.
-      openCustomerPortal(matches[0].id);return;
-      modal('<div class="dk-customer-login"><div class="dk-customer-head"><div class="dk-customer-icon">👤</div><div><span class="dk-login-badge">CUSTOMER FOUND</span><h2>Select account</h2></div></div>'+
-        matches.map(c=>'<button class="dk-access-card customer" type="button" data-customer-id="'+esc(c.id)+'" onclick="openCustomerPortal(this.dataset.customerId)"><span>👤</span><div><b>'+esc(c.name)+'</b><small>'+esc(c.phone||"")+'</small></div><strong>→</strong></button>').join("")+
-        '<button class="dk-login-close" onclick="openCustomerLogin()">← Back</button></div>');
+      findCustomerPortal();
     });
     phoneInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();viewBtn?.click()}});
     pinInput?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();viewBtn?.click()}});
