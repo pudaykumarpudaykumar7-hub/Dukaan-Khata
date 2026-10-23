@@ -217,8 +217,46 @@ const DK_HELP_ARTICLES=[
 ];
 function openHelpCentre(){
  const m=document.getElementById("modal"),b=document.getElementById("modalBody");if(!m||!b)return;
- b.innerHTML='<div class="dk-help-centre"><div class="dk-help-head"><span class="eyebrow">DUKAAN KHATA CARE</span><h2>Help & Support</h2><p>Find practical answers for your shop. Your customer and transaction records are not sent to this help screen.</p></div><label class="dk-help-search-label" for="dkHelpSearch">Search help topics</label><input id="dkHelpSearch" class="dk-help-search" type="search" placeholder="Try “backup”, “UPI”, or “language”" autocomplete="off"><div class="dk-help-chips"><button type="button" onclick="dkHelpQuick(\'Payments\')">Payments</button><button type="button" onclick="dkHelpQuick(\'Data safety\')">Backup & sync</button><button type="button" onclick="dkHelpQuick(\'Customers & Khata\')">Customer Khata</button></div><div id="dkHelpResults" class="dk-help-results" aria-live="polite"></div><div class="dk-help-contact"><b>Still need help?</b><p>Copy a safe diagnostic summary to share with support. It excludes customer names, balances, phone numbers, and credentials.</p><button type="button" class="btn secondary" onclick="dkCopySupportDiagnostics()">Copy diagnostic summary</button><button type="button" class="btn" onclick="closeModal()">Close</button><small id="dkHelpCopyStatus" role="status"></small></div></div>';
- m.classList.remove("hidden");dkRenderHelpResults("");document.getElementById("dkHelpSearch")?.addEventListener("input",e=>dkRenderHelpResults(e.target.value));
+ b.innerHTML='<div class="dk-help-centre"><div class="dk-help-head"><span class="eyebrow">DUKAAN KHATA CARE</span><h2>Help & Support</h2><p>Find practical answers or chat with the AI support assistant. Do not share passwords, OTPs, bank details, or private customer records.</p></div><section class="dk-ai-support" aria-labelledby="dkAiSupportTitle"><div class="dk-ai-support-heading"><span class="dk-ai-avatar" aria-hidden="true">✦</span><div><b id="dkAiSupportTitle">Dukaan AI Assistant</b><small>Ask about app features and troubleshooting</small></div><span class="dk-ai-status">AI chat</span></div><div id="dkSupportMessages" class="dk-support-messages" aria-live="polite"><div class="dk-support-bubble assistant">Hi! I can help you understand Dukaan Khata, backups, reports, and app features. What would you like help with?</div></div><form id="dkSupportForm" class="dk-support-form"><label class="sr-only" for="dkSupportInput">Message the AI assistant</label><textarea id="dkSupportInput" rows="2" maxlength="1200" placeholder="Ask a question…" required></textarea><button id="dkSupportSend" type="submit" aria-label="Send message">Send ↗</button></form><small class="dk-ai-disclaimer">AI answers can be mistaken. Confirm important payment or account details in the app or with the owner.</small><small id="dkSupportStatus" class="dk-support-status" role="status"></small></section><section class="dk-owner-call"><div><span class="dk-owner-call-icon" aria-hidden="true">☎</span><div><b>Need more information?</b><p>Call the shop owner for personal assistance.</p></div></div><button type="button" class="dk-owner-call-button" onclick="dkCallOwner()">Call the Owner</button><small id="dkOwnerCallStatus" role="status"></small></section><label class="dk-help-search-label" for="dkHelpSearch">Search help topics</label><input id="dkHelpSearch" class="dk-help-search" type="search" placeholder="Try “backup”, “UPI”, or “language”" autocomplete="off"><div class="dk-help-chips"><button type="button" onclick="dkHelpQuick(\'Payments\')">Payments</button><button type="button" onclick="dkHelpQuick(\'Data safety\')">Backup & sync</button><button type="button" onclick="dkHelpQuick(\'Customers & Khata\')">Customer Khata</button></div><div id="dkHelpResults" class="dk-help-results" aria-live="polite"></div><div class="dk-help-contact"><b>Still need help?</b><p>Copy a safe diagnostic summary to share with support. It excludes customer names, balances, phone numbers, and credentials.</p><button type="button" class="btn secondary" onclick="dkCopySupportDiagnostics()">Copy diagnostic summary</button><button type="button" class="btn" onclick="closeModal()">Close</button><small id="dkHelpCopyStatus" role="status"></small></div></div>';
+ m.classList.remove("hidden");dkRenderHelpResults("");
+ document.getElementById("dkHelpSearch")?.addEventListener("input",e=>dkRenderHelpResults(e.target.value));
+ const form=document.getElementById("dkSupportForm"),input=document.getElementById("dkSupportInput");
+ form?.addEventListener("submit",dkSendSupportMessage);
+ input?.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();form?.requestSubmit()}});
+}
+const DK_OWNER_SUPPORT_PHONE="";
+let dkSupportMessages=[];
+function dkSupportRenderMessages(){
+ const box=document.getElementById("dkSupportMessages");if(!box)return;
+ box.replaceChildren();
+ for(const msg of dkSupportMessages){const bubble=document.createElement("div");bubble.className="dk-support-bubble "+(msg.role==="assistant"?"assistant":"user");bubble.textContent=msg.content;box.appendChild(bubble)}
+ box.scrollTop=box.scrollHeight;
+}
+async function dkSendSupportMessage(event){
+ event?.preventDefault();
+ const input=document.getElementById("dkSupportInput"),send=document.getElementById("dkSupportSend"),status=document.getElementById("dkSupportStatus");
+ const message=String(input?.value||"").trim();if(!message||!input||!send)return;
+ if(message.length>1200){if(status)status.textContent="Please keep each message under 1,200 characters.";return}
+ dkSupportMessages.push({role:"user",content:message});input.value="";send.disabled=true;send.textContent="…";
+ dkSupportRenderMessages();if(status)status.textContent="Connecting to AI support…";
+ try{
+  const response=await fetch("/api/support-chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:dkSupportMessages.slice(-10)})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"AI support is not available right now.");
+  const answer=String(data.reply||"").trim();if(!answer)throw new Error("The assistant returned an empty reply.");
+  dkSupportMessages.push({role:"assistant",content:answer});if(status)status.textContent="";
+ }catch(error){
+  dkSupportMessages.push({role:"assistant",content:"I can’t connect to the AI support service right now. The chat backend may not be deployed or configured yet. Please use the help articles below or call the shop owner."});
+  if(status)status.textContent="AI service unavailable. No message was sent to a live AI service.";
+ }finally{send.disabled=false;send.textContent="Send ↗";dkSupportRenderMessages();input.focus()}
+}
+function dkCallOwner(){
+ const configured=String(DK_OWNER_SUPPORT_PHONE||state?.shop?.phone||"").trim();
+ const status=document.getElementById("dkOwnerCallStatus");
+ const digits=configured.replace(/[^0-9+]/g,"");
+ if(digits.replace(/\D/g,"").length<7){if(status)status.textContent="Owner phone number is not set yet. Add the number in Shop Profile or provide it to the app administrator.";return}
+ const link=document.createElement("a");link.href="tel:"+digits;link.style.display="none";document.body.appendChild(link);link.click();link.remove();
+ if(status)status.textContent="Opening your phone app…";
 }
 function dkRenderHelpResults(query,category){
  const box=document.getElementById("dkHelpResults");if(!box)return;
