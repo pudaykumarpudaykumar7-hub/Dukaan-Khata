@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
     // The existing app stores each owner's records in a private JSON state row.
     // Scan in bounded pages server-side; never return a full owner state to the browser.
     const pageSize = 500;
-    for (let from = 0; from < 5000; from += pageSize) {
+    for (let from = 0; from < 100000; from += pageSize) {
       const { data, error } = await admin.from("dukaan_khata_state")
         .select("state").range(from, from + pageSize - 1);
       if (error) {
@@ -75,11 +75,11 @@ Deno.serve(async (req) => {
             transactions,
             reminders,
           });
-          if (matches.length >= 100) break;
+          if (matches.length >= 5000) break;
         }
         if (matches.length >= 100) break;
       }
-      if (rows.length < pageSize || matches.length >= 100) break;
+      if (rows.length < pageSize || matches.length >= 5000) break;
     }
     // Do not disclose whether a number is registered if no records are found.
     return json({ accounts: matches });
