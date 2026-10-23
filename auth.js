@@ -400,20 +400,34 @@ async function openOwnerLogin(){
   function showLoginAfterLaunch(){
     if(launchLoginShown)return;
     launchLoginShown=true;
-    // If Google has already authenticated the owner, keep the normal app open.
-    const sb=client();
-    if(sb){
-      sb.auth.getSession().then(({data})=>{
-        if(data?.session?.user){handleSession(data.session);return}
-        if(window.openDukaanLogin)window.openDukaanLogin();
-      }).catch(()=>{if(window.openDukaanLogin)window.openDukaanLogin()});
-    }else if(window.openDukaanLogin)window.openDukaanLogin();
+    // Always show the Choose Access popup at app launch. Each button then
+    // enters its own existing login flow.
+    try{
+      if(window.openDukaanLogin)window.openDukaanLogin();
+      else window.setTimeout(()=>{if(window.openDukaanLogin)window.openDukaanLogin()},250);
+    }catch(err){
+      console.error("Could not open Dukaan Khata access popup:",err);
+      window.setTimeout(()=>{try{if(window.openDukaanLogin)window.openDukaanLogin()}catch(e){console.error(e)}},300);
+    }
   }
   function boot(){
-    init();
-    window.addEventListener("uvms-launch-complete",showLoginAfterLaunch,{once:true});
-    // Covers browsers where the splash finished before this script attached.
-    if(!document.getElementById("uvmsLaunchSplash"))setTimeout(showLoginAfterLaunch,80);
+    // Authentication initialization must not block the launch access popup.
+    try{Promise.resolve(init()).catch(err=>console.warn("Dukaan Khata auth initialization failed:",err));}
+    catch(err){console.warn("Dukaan Khata auth initialization failed:",err);}
+    let launchFinished=false;
+    const finishLaunch=()=>{
+      if(launchFinished)return;
+      launchFinished=true;
+      showLoginAfterLaunch();
+    };
+    window.addEventListener("uvms-launch-complete",finishLaunch,{once:true});
+    // Fallback in case splash timing or a service worker prevents its event.
+    window.setTimeout(()=>{
+      const splash=document.getElementById("uvmsLaunchSplash");
+      if(splash)splash.remove();
+      finishLaunch();
+    },2800);
+    if(!document.getElementById("uvmsLaunchSplash"))window.setTimeout(finishLaunch,80);
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();
