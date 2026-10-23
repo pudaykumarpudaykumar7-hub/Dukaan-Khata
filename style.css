@@ -4652,3 +4652,10 @@ header.topbar,.topbar{
 #dkCustomerContactFullscreen .dk-contact-person-actions button{width:100%!important;min-width:0!important;height:42px!important;flex:initial!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;border-radius:10px!important;padding:4px 2px!important;white-space:nowrap!important;font-size:13px!important;}
 #dkCustomerContactFullscreen .dk-contact-person-actions button small{font-size:11px!important;font-weight:700!important;}
 @media(max-width:360px){#dkCustomerContactFullscreen .dk-contact-person-actions{gap:4px!important}#dkCustomerContactFullscreen .dk-contact-person-actions button{gap:2px!important;font-size:12px!important}#dkCustomerContactFullscreen .dk-contact-person-actions button small{font-size:10px!important}}
+
+/* v82: recognizable WhatsApp brand mark in Customer Contact. */
+#dkCustomerContactFullscreen .dk-whatsapp-icon{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:21px!important;height:21px!important;flex:0 0 21px!important;line-height:0!important}
+#dkCustomerContactFullscreen .dk-whatsapp-icon svg{display:block!important;width:100%!important;height:100%!important}
+#dkCustomerContactFullscreen [data-contact-action="whatsapp"]{background:linear-gradient(145deg,#1d3b30,#172b25)!important;border-color:#25a85a!important;color:#f6fff8!important}
+#dkCustomerContactFullscreen [data-contact-action="whatsapp"] small{color:#e8f7eb!important}
+@media(max-width:360px){#dkCustomerContactFullscreen .dk-whatsapp-icon{width:19px!important;height:19px!important;flex-basis:19px!important}}
