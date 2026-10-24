@@ -670,9 +670,17 @@ function deleteSaleItem(id,index){
 
 function deleteSale(id){if(!state.tx.some(t=>String(t.id)===String(id)))return;deleteConfirm("Delete this bill?",()=>{markRecordDeleted("tx",id);state.tx=state.tx.filter(t=>String(t.id)!==String(id));saveState();render();toast("Bill deleted");if(typeof window.dkSyncNow==="function")window.dkSyncNow().catch(e=>console.error("Bill deletion cloud sync failed:",e))})}
 function deleteTransaction(id){
-  const t=state.tx.find(x=>x.id===id);if(!t)return;
+  const recordId=String(id);
+  const t=state.tx.find(x=>String(x?.id)===recordId);if(!t)return;
   const label=t.type==="sale"?"sale/bill":"payment";
-  deleteConfirm("Delete this "+label+" transaction?",()=>{markRecordDeleted("tx",id);state.tx=state.tx.filter(x=>String(x.id)!==String(id));saveState();render();toast("Transaction deleted")})
+  deleteConfirm("Delete this "+label+" transaction?",()=>{
+    // Recent Activity uses this handler. Persist a tombstone before removing the
+    // row so a stale cloud snapshot cannot restore it after refresh.
+    markRecordDeleted("tx",recordId);
+    state.tx=state.tx.filter(x=>String(x?.id)!==recordId);
+    saveState();render();toast("Transaction deleted");
+    if(typeof window.dkSyncNow==="function")window.dkSyncNow().catch(e=>console.error("Recent Activity deletion cloud sync failed:",e));
+  })
 }
 function deleteExpense(id){const x=state.expenses.find(e=>e.id===id);if(!x)return;deleteConfirm("Delete this expense?",()=>{markRecordDeleted("expenses",id);state.expenses=state.expenses.filter(e=>String(e.id)!==String(id));saveState();render();toast("Expense deleted")})}
 function deleteReturn(id){const x=state.returns.find(e=>e.id===id);if(!x)return;deleteConfirm("Delete this return?",()=>{markRecordDeleted("returns",id);state.returns=state.returns.filter(e=>String(e.id)!==String(id));saveState();render();toast("Return deleted")})}
