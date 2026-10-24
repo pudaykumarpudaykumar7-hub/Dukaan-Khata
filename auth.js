@@ -87,7 +87,8 @@
     const sb=client(),userId=window.DukaanKhataUser?.id;
     if(!sb||!userId)return;
     // If a previous save is still running, remember this request and run another
-    // full read/merge/write after it finishes; never drop a deletion sync.\n    if(syncing){syncRequested=true;return;}
+    // full read/merge/write after it finishes; never drop a deletion sync.
+    if(syncing){syncRequested=true;return;}
     // Do not let startup/default local state upload before this exact account's
     // cloud snapshot has been restored. Queue remains dirty and restore merges it.
     if(localStorage.getItem("dukaan_khata_cloud_user_id")!==userId ||
