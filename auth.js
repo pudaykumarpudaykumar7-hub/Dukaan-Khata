@@ -69,6 +69,11 @@
       const ids=new Set(deletedRecordIds[key]);
       out[key]=out[key].filter(item=>!ids.has(String(item?.id)));
     }
+    // Deleting a customer also deletes their linked bills and reminders. Apply
+    // the customer tombstone during every merge so an older cloud copy cannot
+    // bring those linked records back after refresh or the next poll.
+    out.tx=out.tx.filter(item=>!deleted.has(String(item?.customerId??item?.customer_id??"")));
+    out.reminders=out.reminders.filter(item=>!deleted.has(String(item?.customerId??item?.customer_id??"")));
     out.shop={...(b.shop||{}),...(a.shop||{})};
     out.settings={...(b.settings||{}),...(a.settings||{})};
     return out;
