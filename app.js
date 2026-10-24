@@ -413,7 +413,7 @@ function deleteConfirm(message,onDelete){
   document.getElementById("deleteCancelBtn")?.addEventListener("click",closeModal);
   document.getElementById("deleteConfirmBtn")?.addEventListener("click",()=>{closeModal();onDelete?.()});
 }
-function deleteCustomer(id){const c=state.customers.find(x=>String(x.id)===String(id));if(!c)return;deleteConfirm("Delete "+c.name+" and its khata history?",()=>{state.deletedCustomerIds=Array.from(new Set([...(Array.isArray(state.deletedCustomerIds)?state.deletedCustomerIds.map(String):[]),String(id)]));state.customers=state.customers.filter(x=>String(x.id)!==String(id));state.tx=state.tx.filter(x=>String(x.customerId)!==String(id));state.reminders=state.reminders.filter(x=>String(x.customerId)!==String(id));saveState();render();toast("Customer deleted")})}
+function deleteCustomer(id){const customerId=String(id);const customer=state.customers.find(x=>String(x.id)===customerId);if(!customer)return;deleteConfirm("Delete "+customer.name+" and its khata history?",()=>{const deleted=new Set((Array.isArray(state.deletedCustomerIds)?state.deletedCustomerIds:[]).map(String));deleted.add(customerId);state.deletedCustomerIds=Array.from(deleted);state.customers=state.customers.filter(x=>String(x?.id)!==customerId);state.tx=state.tx.filter(x=>String(x?.customerId??x?.customer_id??"")!==customerId);state.reminders=state.reminders.filter(x=>String(x?.customerId??x?.customer_id??"")!==customerId);saveState();render();toast("Customer and linked bills deleted");if(typeof window.dkSyncNow==="function")window.dkSyncNow().catch(e=>console.error("Customer deletion cloud sync failed:",e))})}
 
 function commissionSummary(){
   const rate=Math.max(0,Math.min(100,Number(state.settings.commissionRate??10)||0));
