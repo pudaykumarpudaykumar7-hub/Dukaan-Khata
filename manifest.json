@@ -1,7 +1,7 @@
 {
-  "name": "UVMS Dukaan Khata",
-  "short_name": "UVMS Dukaan Khata",
-  "description": "A modern business companion for customer ledgers, sales, payments, reminders and shop discovery.",
+  "name": "UVMS DUKAAN KHATA",
+  "short_name": "UVMS DUKAAN KHATA",
+  "description": "UVMS Dukaan Khata digital khata and shop management app.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -21,7 +21,7 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icon.svg?v=uvms-logo-final-v44",
+      "src": "favicon.svg?v=uvms-brand-v2",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
