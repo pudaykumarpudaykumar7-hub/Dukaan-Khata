@@ -578,7 +578,18 @@ function voiceEntry(){const R=window.SpeechRecognition||window.webkitSpeechRecog
 function openAbout(){modal('<h2>✦ Dukaan Khata Infinity</h2><p>Simple digital tools for Indian shops.</p><div class="line"><span>Digital Khata</span><b>✓</b></div><div class="line"><span>Many items with individual prices</span><b>✓</b></div><div class="line"><span>UPI QR Receive</span><b>✓</b></div><div class="line"><span>Customer Connect</span><b>✓</b></div><div class="line"><span>Backup & Restore</span><b>✓</b></div>')}
 function toggleTheme(){state.settings.theme=state.settings.theme==="dark"?"light":"dark";try{localStorage.setItem("dukaan_khata_background_theme",state.settings.theme)}catch(e){}saveState();applyAppTheme();render()}
 function applyAppTheme(){let mode="light";try{const saved=localStorage.getItem("dukaan_khata_background_theme");mode=(saved==="dark"||saved==="light")?saved:(state?.settings?.theme==="dark"?"dark":"light")}catch(e){mode=state?.settings?.theme==="dark"?"dark":"light"}if(state?.settings)state.settings.theme=mode;document.documentElement.dataset.dkTheme=mode;document.body.classList.toggle("darkmode",mode==="dark");document.body.dataset.dkTheme=mode;document.body.style.colorScheme=mode;}
-function clearDemo(){if(confirm("Clear all Dukaan Khata data on this device?")){localStorage.removeItem(KEY);state=defaults();render();toast("Data reset")}}
+function clearDemo(){
+  if(!confirm("Clear all Dukaan Khata data on this device?"))return;
+  // Keep deletion tombstones so cloud restoration cannot bring cleared records back.
+  const next={...state,customers:[],tx:[],expenses:[],returns:[],reminders:[],
+    deletedCustomerIds:Array.from(new Set([...(state.deletedCustomerIds||[]),...(state.customers||[]).map(x=>String(x.id))])),
+    deletedRecordIds:{...(state.deletedRecordIds||{})}};
+  for(const key of ["tx","expenses","returns","reminders"]){
+    next.deletedRecordIds[key]=Array.from(new Set([...(next.deletedRecordIds[key]||[]),...(state[key]||[]).map(x=>String(x.id))]));
+  }
+  state=next;saveState();render();toast("Data cleared");
+  if(typeof window.dkSyncNow==="function")window.dkSyncNow().catch(e=>console.error("Data clear sync failed:",e));
+}
 
 function renderKhata(){
   const box=document.getElementById("khataList");if(!box)return;
@@ -643,12 +654,17 @@ function deleteSaleItem(id,index){
   const item=tx.lines[index];
   deleteConfirm("Delete item “"+item.name+"” from this bill?",()=>{
     tx.lines.splice(index,1);
-    if(!tx.lines.length)state.tx=state.tx.filter(x=>x.id!==id);
-    else tx.total=tx.lines.reduce((sum,line)=>sum+(Number(line.total)||((Number(line.price)||0)*(Number(line.qty)||1))),0);
+    if(!tx.lines.length){
+      markRecordDeleted("tx",id);
+      state.tx=state.tx.filter(x=>String(x.id)!==String(id));
+    }else{
+      tx.total=tx.lines.reduce((sum,line)=>sum+(Number(line.total)||((Number(line.price)||0)*(Number(line.qty)||1))),0);
+    }
     saveState();render();
     const customerId=tx.customerId;
     toast("Item deleted");
     if(customerId&&state.customers.some(x=>x.id===customerId))customerView(customerId);
+    if(typeof window.dkSyncNow==="function")window.dkSyncNow().catch(e=>console.error("Deleted bill item sync failed:",e));
   });
 }
 
