@@ -139,6 +139,9 @@
        localStorage.getItem("dukaan_khata_local_cloud_ready")!=="1")return;
     try{
       const row=await readCloud(sb,userId);
+      // A deletion may happen while this cloud read is in flight. Do not apply a
+      // stale snapshot after local changes; let the queued sync persist tombstones.
+      if(localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
       if(!row?.state)return;
       // Always enforce tombstones on cloud snapshots before displaying them. Older
       // snapshots can contain both a deletion marker and the deleted customer.
