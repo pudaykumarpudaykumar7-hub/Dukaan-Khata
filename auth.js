@@ -5,7 +5,7 @@
   window.DukaanKhataMode="cloud";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
-  let syncTimer=null, syncing=false, cloudPollTimer=null;
+  let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null;
 
   function client(){
     if(window.dkSupabase)return window.dkSupabase;
@@ -85,7 +85,9 @@
     // Device-local mode: never merge, upload, or restore customer data from cloud.
     if(window.DukaanKhataMode==="local")return;
     const sb=client(),userId=window.DukaanKhataUser?.id;
-    if(!sb||!userId||syncing)return;
+    if(!sb||!userId)return;
+    // If a previous save is still running, remember this request and run another
+    // full read/merge/write after it finishes; never drop a deletion sync.\n    if(syncing){syncRequested=true;return;}
     // Do not let startup/default local state upload before this exact account's
     // cloud snapshot has been restored. Queue remains dirty and restore merges it.
     if(localStorage.getItem("dukaan_khata_cloud_user_id")!==userId ||
@@ -108,7 +110,10 @@
       console.error("Dukaan Khata database sync failed:",e);
       localStorage.setItem("dukaan_khata_local_dirty","1");
       if(window.toast)window.toast("Cloud sync failed. Check the Supabase database setup; this device's data is still saved.");
-    }finally{syncing=false}
+    }finally{
+      syncing=false;
+      if(syncRequested){syncRequested=false;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncToCloud(),0)}
+    }
   }
   window.dkSyncNow=syncToCloud;
   window.dkQueueSync=function(){
