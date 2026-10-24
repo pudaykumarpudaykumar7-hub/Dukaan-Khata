@@ -197,6 +197,8 @@
     syncTimer=setTimeout(syncToCloud,900);
   };
   async function pollCloud(){
+    // Hard stop: local-only mode must never read or restore remote shop data.
+    if(window.DukaanKhataMode==="local")return;
     const sb=client(),userId=window.DukaanKhataUser?.id;
     if(!sb||!userId||syncing||localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
     if(localStorage.getItem("dukaan_khata_cloud_user_id")!==userId ||
@@ -233,6 +235,8 @@
   }
   function startCloudPolling(){clearInterval(cloudPollTimer);cloudPollTimer=setInterval(pollCloud,5000)}
   async function restoreCloudState(user){
+    // Hard stop: preserve device-local records; never import a cloud snapshot.
+    if(window.DukaanKhataMode==="local")return;
     const uid=user?.id;
     const restoredKey=uid?"dukaan_khata_restored_"+uid:"";
     if(!uid)return;
