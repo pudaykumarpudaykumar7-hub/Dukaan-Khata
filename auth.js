@@ -201,24 +201,27 @@
     if(!sb||!userId||syncing||localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
     if(localStorage.getItem("dukaan_khata_cloud_user_id")!==userId ||
        localStorage.getItem("dukaan_khata_local_cloud_ready")!=="1")return;
+    const pollVersion=localMutationVersion;
+    const hasLocalMutation=()=>localMutationVersion!==pollVersion||localStorage.getItem("dukaan_khata_local_dirty")==="1"||syncing;
     try{
       const row=await readCloud(sb,userId);
-      // A deletion may happen while this cloud read is in flight. Do not apply a
-      // stale snapshot after local changes; let the queued sync persist tombstones.
-      if(localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
+      // Polling is read-only with respect to the browser's current edits. If a
+      // local save or cloud sync began while the read was pending, discard it.
+      if(hasLocalMutation())return;
       if(!row?.state)return;
-      // Always enforce tombstones on cloud snapshots before displaying them. Older
-      // snapshots can contain both a deletion marker and the deleted customer.
       let merged=mergeStates(row.state,row.state);
       if(!same(merged,row.state)){
         await writeCloud(sb,userId,merged);
+        if(hasLocalMutation())return;
       }
+      if(hasLocalMutation())return;
       const last=localStorage.getItem("dukaan_khata_cloud_updated_at")||"";
-      if(row.updated_at&&row.updated_at!==last || !same(row.state,merged)){
+      if((row.updated_at&&row.updated_at!==last)||!same(row.state,merged)){
         const local=localState()||{};
+        // Never clear the dirty flag here. Only a completed syncToCloud write
+        // may acknowledge local edits; a poll must not acknowledge a deletion.
         localStorage.setItem(stateKey(),JSON.stringify(merged));
-        localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at||"");
-        localStorage.removeItem("dukaan_khata_local_dirty");
+        if(row.updated_at)localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at);
         if(!same(local,merged)){
           window.state=merged;
           try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw cloud data",e)}
