@@ -58,8 +58,8 @@
       out[key]=Array.from(map.values());
     }
     out.customers=out.customers.filter(c=>!deleted.has(String(c?.id)));
-    out.tx=out.tx.filter(t=>!deleted.has(String(t?.customerId)));
-    out.reminders=out.reminders.filter(r=>!deleted.has(String(r?.customerId)));
+    out.tx=out.tx.filter(t=>!deleted.has(String(t?.customerId??t?.customer_id??"")));
+    out.reminders=out.reminders.filter(r=>!deleted.has(String(r?.customerId??r?.customer_id??"")));
     out.shop={...(b.shop||{}),...(a.shop||{})};
     out.settings={...(b.settings||{}),...(a.settings||{})};
     return out;
