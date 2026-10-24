@@ -149,5 +149,40 @@ window.openAppInstall=async function(){
 };
 })();
 </script>
-<script>(()=>{const splash=document.getElementById("uvmsLaunchSplash");if(!splash)return;let finished=false;const dismiss=()=>{if(finished)return;finished=true;window.dispatchEvent(new Event("uvms-launch-complete"));splash.remove()};window.setTimeout(dismiss,2500);})();</script></body>
+<script>(()=>{const splash=document.getElementById("uvmsLaunchSplash");if(!splash)return;let finished=false;const dismiss=()=>{if(finished)return;finished=true;window.dispatchEvent(new Event("uvms-launch-complete"));splash.remove()};window.setTimeout(dismiss,2500);})();</script><script>
+(()=> {
+  let installPrompt = null;
+  const installButton = document.createElement("button");
+  installButton.id = "uvmsInstallAppButton";
+  installButton.type = "button";
+  installButton.textContent = "Install UVMS Dukaan Khata";
+  installButton.setAttribute("aria-label", "Install UVMS Dukaan Khata app");
+  Object.assign(installButton.style, {
+    display: "none", position: "fixed", right: "16px",
+    bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
+    zIndex: "2147483000", padding: "13px 17px", border: "1px solid #d7b879",
+    borderRadius: "999px", background: "#153e32", color: "#fff",
+    font: "600 14px system-ui, sans-serif", boxShadow: "0 6px 24px #0003",
+    cursor: "pointer"
+  });
+  document.addEventListener("DOMContentLoaded", () => document.body.appendChild(installButton));
+  window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault();
+    installPrompt = event;
+    installButton.style.display = "block";
+  });
+  installButton.addEventListener("click", async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null;
+    installButton.style.display = "none";
+  });
+  window.addEventListener("appinstalled", () => {
+    installPrompt = null;
+    installButton.style.display = "none";
+  });
+})();
+</script>
+</body>
 </html>
