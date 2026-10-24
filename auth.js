@@ -101,38 +101,48 @@
     if(window.DukaanKhataMode==="local")return;
     const sb=client(),userId=window.DukaanKhataUser?.id;
     if(!sb||!userId)return;
-    // If a previous save is still running, remember this request and run another
-    // full read/merge/write after it finishes; never drop a deletion sync.
+    // Serialize writes. A request arriving during a sync must trigger another pass.
     if(syncing){syncRequested=true;return;}
-    // Do not let startup/default local state upload before this exact account's
-    // cloud snapshot has been restored. Queue remains dirty and restore merges it.
     if(localStorage.getItem("dukaan_khata_cloud_user_id")!==userId ||
        localStorage.getItem("dukaan_khata_local_cloud_ready")!=="1")return;
     syncing=true;
     const syncVersion=localMutationVersion;
     try{
-      const local=localState()||window.state;
+      let local=localState()||window.state;
       if(!local||typeof local!=="object")return;
       const row=await readCloud(sb,userId);
-      // Preserve unique records from both devices; local edits win same-ID conflicts.
+      // Re-read after the network wait. If a deletion/edit happened while the
+      // cloud read was in flight, merge the newest local snapshot, not the stale one.
+      if(localMutationVersion!==syncVersion){
+        local=localState()||window.state||local;
+      }
       const merged=row?.state?mergeStates(local,row.state):local;
       await writeCloud(sb,userId,merged);
-      localStorage.setItem(stateKey(),JSON.stringify(merged));
-      if(!same(window.state,merged)){
-        window.state=merged;
-        try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw after cloud sync",e)}
-      }
       localStorage.setItem("dukaan_khata_local_cloud_ready","1");
-      // Keep pending local edits queued if any edit happened while the network
-      // read/write was running; otherwise the tombstones are now durable.
-      if(localMutationVersion===syncVersion)localStorage.removeItem("dukaan_khata_local_dirty");
+      if(localMutationVersion===syncVersion){
+        // Only replace local state when no user edit occurred during the whole
+        // read/merge/write. Otherwise keep the newer local state for the next pass.
+        localStorage.setItem(stateKey(),JSON.stringify(merged));
+        localStorage.removeItem("dukaan_khata_local_dirty");
+        if(!same(window.state,merged)){
+          window.state=merged;
+          try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw after cloud sync",e)}
+        }
+      }else{
+        localStorage.setItem("dukaan_khata_local_dirty","1");
+        syncRequested=true;
+      }
     }catch(e){
       console.error("Dukaan Khata database sync failed:",e);
       localStorage.setItem("dukaan_khata_local_dirty","1");
-      if(window.toast)window.toast("Cloud sync failed. Check the Supabase database setup; this device's data is still saved.");
+      if(window.toast)window.toast("Cloud sync failed. Your changes remain saved on this device and will retry when sync is available.");
     }finally{
       syncing=false;
-      if(syncRequested){syncRequested=false;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncToCloud(),0)}
+      if(syncRequested){
+        syncRequested=false;
+        clearTimeout(syncTimer);
+        syncTimer=setTimeout(()=>syncToCloud(),0);
+      }
     }
   }
   window.dkSyncNow=syncToCloud;
