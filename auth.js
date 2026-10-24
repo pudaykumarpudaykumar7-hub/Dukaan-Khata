@@ -48,18 +48,27 @@
     ].map(String)));
     const deleted=new Set(deletedCustomerIds);
     out.deletedCustomerIds=deletedCustomerIds;
+    const deletedRecordIds={...(b.deletedRecordIds||{}),...(a.deletedRecordIds||{})};
+    for(const key of ["tx","expenses","returns","reminders"]){
+      deletedRecordIds[key]=Array.from(new Set([
+        ...(Array.isArray(a.deletedRecordIds?.[key])?a.deletedRecordIds[key]:[]),
+        ...(Array.isArray(b.deletedRecordIds?.[key])?b.deletedRecordIds[key]:[])
+      ].map(String)));
+    }
+    out.deletedRecordIds=deletedRecordIds;
     for(const key of ["customers","tx","expenses","returns","reminders"]){
       const first=Array.isArray(a[key])?a[key]:[];
       const second=Array.isArray(b[key])?b[key]:[];
       const map=new Map();
-      // Secondary first, then primary: primary wins if the same record ID exists.
       for(const item of second)map.set(String(item?.id??JSON.stringify(item)),item);
       for(const item of first)map.set(String(item?.id??JSON.stringify(item)),item);
       out[key]=Array.from(map.values());
     }
-    out.customers=out.customers.filter(c=>!deleted.has(String(c?.id)));
-    out.tx=out.tx.filter(t=>!deleted.has(String(t?.customerId??t?.customer_id??"")));
-    out.reminders=out.reminders.filter(r=>!deleted.has(String(r?.customerId??r?.customer_id??"")));
+    out.customers=out.customers.filter(item=>!deleted.has(String(item?.id)));
+    for(const key of ["tx","expenses","returns","reminders"]){
+      const ids=new Set(deletedRecordIds[key]);
+      out[key]=out[key].filter(item=>!ids.has(String(item?.id)));
+    }
     out.shop={...(b.shop||{}),...(a.shop||{})};
     out.settings={...(b.settings||{}),...(a.settings||{})};
     return out;
