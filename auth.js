@@ -131,14 +131,17 @@
     try{
       const row=await readCloud(sb,userId);
       if(!row?.state)return;
+      // Always enforce tombstones on cloud snapshots before displaying them. Older
+      // snapshots can contain both a deletion marker and the deleted customer.
+      let merged=mergeStates(row.state,row.state);
+      if(!same(merged,row.state)){
+        await writeCloud(sb,userId,merged);
+      }
       const last=localStorage.getItem("dukaan_khata_cloud_updated_at")||"";
-      if(row.updated_at&&row.updated_at!==last){
+      if(row.updated_at&&row.updated_at!==last || !same(row.state,merged)){
         const local=localState()||{};
-        // Polling runs only on a clean device. Treat the durable cloud snapshot as
-        // authoritative so stale cached rows cannot resurrect a deleted customer.
-        const merged=row.state;
         localStorage.setItem(stateKey(),JSON.stringify(merged));
-        localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at);
+        localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at||"");
         localStorage.removeItem("dukaan_khata_local_dirty");
         if(!same(local,merged)){
           window.state=merged;
@@ -179,14 +182,19 @@
       }
       if(row?.state){
         const currentLocal=localState();
-        localStorage.setItem(stateKey(),JSON.stringify(row.state));
-        localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at||"");
+        // Sanitize any historical cloud snapshot before restoring it into the UI.
+        const cleanCloudState=mergeStates(row.state,row.state);
+        if(!same(cleanCloudState,row.state))await writeCloud(sb,uid,cleanCloudState);
+        row=await readCloud(sb,uid);
+        const restoredState=row?.state?mergeStates(row.state,row.state):cleanCloudState;
+        localStorage.setItem(stateKey(),JSON.stringify(restoredState));
+        localStorage.setItem("dukaan_khata_cloud_updated_at",row?.updated_at||"");
         localStorage.removeItem("dukaan_khata_local_dirty");
         localStorage.setItem("dukaan_khata_local_cloud_ready","1");
         localStorage.setItem("dukaan_khata_cloud_user_id",uid);
         if(restoredKey)sessionStorage.setItem(restoredKey,"1");
-        if(!same(currentLocal,row.state)){
-          window.state=row.state;
+        if(!same(currentLocal,restoredState)){
+          window.state=restoredState;
           try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw restored cloud data",e)}
         }
       }
