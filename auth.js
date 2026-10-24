@@ -5,7 +5,7 @@
   window.DukaanKhataMode="cloud";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
-  let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null;
+  let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null, localMutationVersion=0;
 
   function client(){
     if(window.dkSupabase)return window.dkSupabase;
@@ -93,7 +93,8 @@
     if(error)throw error;
     const row=await readCloud(sb,uid);
     if(row?.updated_at)localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at);
-    localStorage.removeItem("dukaan_khata_local_dirty");
+    // Do not clear the dirty flag here: a poll or another sync may still be in flight.
+    // Only the top-level sync that has finished writing local state may clear it.
   }
   async function syncToCloud(){
     // Device-local mode: never merge, upload, or restore customer data from cloud.
@@ -108,6 +109,7 @@
     if(localStorage.getItem("dukaan_khata_cloud_user_id")!==userId ||
        localStorage.getItem("dukaan_khata_local_cloud_ready")!=="1")return;
     syncing=true;
+    const syncVersion=localMutationVersion;
     try{
       const local=localState()||window.state;
       if(!local||typeof local!=="object")return;
@@ -121,6 +123,9 @@
         try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw after cloud sync",e)}
       }
       localStorage.setItem("dukaan_khata_local_cloud_ready","1");
+      // Keep pending local edits queued if any edit happened while the network
+      // read/write was running; otherwise the tombstones are now durable.
+      if(localMutationVersion===syncVersion)localStorage.removeItem("dukaan_khata_local_dirty");
     }catch(e){
       console.error("Dukaan Khata database sync failed:",e);
       localStorage.setItem("dukaan_khata_local_dirty","1");
@@ -133,6 +138,7 @@
   window.dkSyncNow=syncToCloud;
   window.dkQueueSync=function(){
     if(window.DukaanKhataMode==="local")return;
+    localMutationVersion++;
     localStorage.setItem("dukaan_khata_local_dirty","1");
     clearTimeout(syncTimer);
     syncTimer=setTimeout(syncToCloud,900);
