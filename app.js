@@ -10,10 +10,13 @@ function loadState(){
     const raw=localStorage.getItem(KEY)||localStorage.getItem("dukaan_khata_infinity_v1");
     const x=raw?JSON.parse(raw):{};
     const savedTheme=localStorage.getItem("dukaan_khata_background_theme");
-    return {...defaults(),...x,shop:{...defaults().shop,...(x.shop||{})},settings:{...defaults().settings,...(x.settings||{}),theme:(savedTheme==="dark"||savedTheme==="light")?savedTheme:((x.settings||{}).theme==="dark"?"dark":"light")},
-      customers:Array.isArray(x.customers)?x.customers:[],tx:Array.isArray(x.tx)?x.tx:[],
-      expenses:Array.isArray(x.expenses)?x.expenses:[],returns:Array.isArray(x.returns)?x.returns:[],
-      reminders:Array.isArray(x.reminders)?x.reminders:[],deletedCustomerIds:Array.isArray(x.deletedCustomerIds)?x.deletedCustomerIds.map(String):[]};
+    const deletedCustomerIds=Array.from(new Set((Array.isArray(x.deletedCustomerIds)?x.deletedCustomerIds:[]).map(String)));
+    const deleted=new Set(deletedCustomerIds);
+    const customers=(Array.isArray(x.customers)?x.customers:[]).filter(c=>!deleted.has(String(c?.id)));
+    const tx=(Array.isArray(x.tx)?x.tx:[]).filter(t=>!deleted.has(String(t?.customerId??t?.customer_id??"")));
+    const reminders=(Array.isArray(x.reminders)?x.reminders:[]).filter(r=>!deleted.has(String(r?.customerId??r?.customer_id??"")));
+    return {...defaults(),...x,shop:{...defaults().shop,...(x.shop||{})},settings:{...defaults().settings,...(x.settings||{}),theme:(savedTheme==="dark"||savedTheme==="light")?savedTheme:((x.settings||{}).theme==="dark"?"dark":"light")},customers,tx,
+      expenses:Array.isArray(x.expenses)?x.expenses:[],returns:Array.isArray(x.returns)?x.returns:[],reminders,deletedCustomerIds};
   }catch(e){return defaults()}
 }
 function saveState(){try{localStorage.setItem(KEY,JSON.stringify(state));if(window.dkQueueSync)window.dkQueueSync()}catch(e){toast("Could not save data")}}
