@@ -652,7 +652,7 @@ function deleteSaleItem(id,index){
   });
 }
 
-function deleteSale(id){if(!state.tx.some(t=>t.id===id))return;deleteConfirm("Delete this bill?",()=>{state.tx=state.tx.filter(t=>t.id!==id);saveState();render();toast("Bill deleted")})}
+function deleteSale(id){if(!state.tx.some(t=>String(t.id)===String(id)))return;deleteConfirm("Delete this bill?",()=>{markRecordDeleted("tx",id);state.tx=state.tx.filter(t=>String(t.id)!==String(id));saveState();render();toast("Bill deleted");if(typeof window.dkSyncNow==="function")window.dkSyncNow().catch(e=>console.error("Bill deletion cloud sync failed:",e))})}
 function deleteTransaction(id){
   const t=state.tx.find(x=>x.id===id);if(!t)return;
   const label=t.type==="sale"?"sale/bill":"payment";
