@@ -4,7 +4,7 @@ try{localStorage.removeItem("dukaan_payment_api");localStorage.removeItem("dukaa
 let state=loadState(),khataFilter="all",customerStatusFilter="all",longPress=null,suppressClickUntil=0;
 Object.defineProperty(window,"state",{configurable:true,get:()=>state,set:v=>{state=v}});
 
-function defaults(){return{shop:{name:"My Dukaan",owner:"Shop Owner",phone:"",upi:"",address:""},customers:[],tx:[],expenses:[],returns:[],reminders:[],deletedCustomerIds:[],settings:{theme:"light",language:"English"}}}
+function defaults(){return{shop:{name:"My Dukaan",owner:"Shop Owner",phone:"",upi:"",address:""},customers:[],tx:[],expenses:[],returns:[],reminders:[],deletedCustomerIds:[],deletedRecordIds:{tx:[],expenses:[],returns:[],reminders:[]},settings:{theme:"light",language:"English"}}}
 function loadState(){
   try{
     const raw=localStorage.getItem(KEY)||localStorage.getItem("dukaan_khata_infinity_v1");
@@ -12,13 +12,16 @@ function loadState(){
     const savedTheme=localStorage.getItem("dukaan_khata_background_theme");
     const deletedCustomerIds=Array.from(new Set((Array.isArray(x.deletedCustomerIds)?x.deletedCustomerIds:[]).map(String)));
     const deleted=new Set(deletedCustomerIds);
+    const deletedRecordIds={...(x.deletedRecordIds||{})};
+    for(const k of ["tx","expenses","returns","reminders"])deletedRecordIds[k]=Array.from(new Set((Array.isArray(deletedRecordIds[k])?deletedRecordIds[k]:[]).map(String)));
     const customers=(Array.isArray(x.customers)?x.customers:[]).filter(c=>!deleted.has(String(c?.id)));
     const tx=(Array.isArray(x.tx)?x.tx:[]).filter(t=>!deleted.has(String(t?.customerId??t?.customer_id??"")));
     const reminders=(Array.isArray(x.reminders)?x.reminders:[]).filter(r=>!deleted.has(String(r?.customerId??r?.customer_id??"")));
     return {...defaults(),...x,shop:{...defaults().shop,...(x.shop||{})},settings:{...defaults().settings,...(x.settings||{}),theme:(savedTheme==="dark"||savedTheme==="light")?savedTheme:((x.settings||{}).theme==="dark"?"dark":"light")},customers,tx,
-      expenses:Array.isArray(x.expenses)?x.expenses:[],returns:Array.isArray(x.returns)?x.returns:[],reminders,deletedCustomerIds};
+      expenses:(Array.isArray(x.expenses)?x.expenses:[]).filter(v=>!deletedRecordIds.expenses.includes(String(v?.id))),returns:(Array.isArray(x.returns)?x.returns:[]).filter(v=>!deletedRecordIds.returns.includes(String(v?.id))),reminders:reminders.filter(v=>!deletedRecordIds.reminders.includes(String(v?.id))),tx:tx.filter(v=>!deletedRecordIds.tx.includes(String(v?.id))),deletedRecordIds,deletedCustomerIds};
   }catch(e){return defaults()}
 }
+function markRecordDeleted(collection,id){const all=state.deletedRecordIds&&typeof state.deletedRecordIds==="object"?state.deletedRecordIds:{};const ids=new Set((Array.isArray(all[collection])?all[collection]:[]).map(String));ids.add(String(id));state.deletedRecordIds={...all,[collection]:Array.from(ids)}}
 function saveState(){try{localStorage.setItem(KEY,JSON.stringify(state));if(window.dkQueueSync)window.dkQueueSync()}catch(e){toast("Could not save data")}}
 function openUVMSLogo(){
   const m=document.getElementById("modal"),b=document.getElementById("modalBody");
@@ -653,11 +656,11 @@ function deleteSale(id){if(!state.tx.some(t=>t.id===id))return;deleteConfirm("De
 function deleteTransaction(id){
   const t=state.tx.find(x=>x.id===id);if(!t)return;
   const label=t.type==="sale"?"sale/bill":"payment";
-  deleteConfirm("Delete this "+label+" transaction?",()=>{state.tx=state.tx.filter(x=>x.id!==id);saveState();render();toast("Transaction deleted")})
+  deleteConfirm("Delete this "+label+" transaction?",()=>{markRecordDeleted("tx",id);state.tx=state.tx.filter(x=>String(x.id)!==String(id));saveState();render();toast("Transaction deleted")})
 }
-function deleteExpense(id){const x=state.expenses.find(e=>e.id===id);if(!x)return;deleteConfirm("Delete this expense?",()=>{state.expenses=state.expenses.filter(e=>e.id!==id);saveState();render();toast("Expense deleted")})}
-function deleteReturn(id){const x=state.returns.find(e=>e.id===id);if(!x)return;deleteConfirm("Delete this return?",()=>{state.returns=state.returns.filter(e=>e.id!==id);saveState();render();toast("Return deleted")})}
-function deleteReminder(id){const x=state.reminders.find(e=>e.id===id);if(!x)return;deleteConfirm("Delete this reminder?",()=>{state.reminders=state.reminders.filter(e=>e.id!==id);saveState();render();toast("Reminder deleted")})}
+function deleteExpense(id){const x=state.expenses.find(e=>e.id===id);if(!x)return;deleteConfirm("Delete this expense?",()=>{markRecordDeleted("expenses",id);state.expenses=state.expenses.filter(e=>String(e.id)!==String(id));saveState();render();toast("Expense deleted")})}
+function deleteReturn(id){const x=state.returns.find(e=>e.id===id);if(!x)return;deleteConfirm("Delete this return?",()=>{markRecordDeleted("returns",id);state.returns=state.returns.filter(e=>String(e.id)!==String(id));saveState();render();toast("Return deleted")})}
+function deleteReminder(id){const x=state.reminders.find(e=>e.id===id);if(!x)return;deleteConfirm("Delete this reminder?",()=>{markRecordDeleted("reminders",id);state.reminders=state.reminders.filter(e=>String(e.id)!==String(id));saveState();render();toast("Reminder deleted")})}
 function filterKhata(f,el){khataFilter=f;document.querySelectorAll(".khata-filter").forEach(x=>x.classList.remove("active"));el?.classList.add("active");renderKhata()}
 
 function renderReports(){const chart=document.getElementById("activityChart");if(chart){const days=[];for(let n=6;n>=0;n--){const d=new Date();d.setDate(d.getDate()-n);days.push({d,v:sales().filter(t=>new Date(t.date).toDateString()===d.toDateString()).reduce((a,t)=>a+(Number(t.total)||0),0)})}const max=Math.max(1,...days.map(x=>x.v));chart.innerHTML=days.map(x=>'<div class="bar" style="height:'+Math.max(7,x.v/max*125)+'px"><small>'+x.d.toLocaleDateString("en-IN",{weekday:"short"})+'</small></div>').join("")}const top=document.getElementById("topCustomers");if(top)top.innerHTML=state.customers.map(c=>({c,v:balance(c.id)})).sort((a,b)=>b.v-a.v).slice(0,5).map(x=>'<div class="line"><span>'+esc(x.c.name)+'</span><b class="'+(x.v>0?"due":"paid")+'">'+money(x.v)+'</b></div>').join("")||'<p class="muted">No customers yet.</p>';renderDailyCoach()}
