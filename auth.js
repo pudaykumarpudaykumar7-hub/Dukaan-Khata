@@ -96,6 +96,38 @@
     // Do not clear the dirty flag here: a poll or another sync may still be in flight.
     // Only the top-level sync that has finished writing local state may clear it.
   }
+  async function compactShopPhoto(snapshot){
+    const picture=snapshot?.shop?.profilePic;
+    if(typeof picture!=="string"||picture.length<350000||!picture.startsWith("data:image/"))return snapshot;
+    try{
+      const compressed=await new Promise(resolve=>{
+        const image=new Image();
+        image.onerror=()=>resolve(picture);
+        image.onload=()=>{
+          try{
+            const scale=Math.min(1,800/Math.max(image.naturalWidth||image.width,image.naturalHeight||image.height));
+            const canvas=document.createElement("canvas");
+            canvas.width=Math.max(1,Math.round((image.naturalWidth||image.width)*scale));
+            canvas.height=Math.max(1,Math.round((image.naturalHeight||image.height)*scale));
+            const ctx=canvas.getContext("2d");
+            if(!ctx){resolve(picture);return}
+            ctx.fillStyle="#ffffff";ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.drawImage(image,0,0,canvas.width,canvas.height);
+            canvas.toBlob(blob=>{
+              if(!blob||blob.size*1.4>=picture.length*0.85){resolve(picture);return}
+              const reader=new FileReader();
+              reader.onload=()=>resolve(typeof reader.result==="string"&&reader.result.length<picture.length*0.85?reader.result:picture);
+              reader.onerror=()=>resolve(picture);
+              reader.readAsDataURL(blob);
+            },"image/jpeg",0.76);
+          }catch(e){resolve(picture)}
+        };
+        image.src=picture;
+      });
+      if(compressed===picture)return snapshot;
+      return {...snapshot,shop:{...(snapshot.shop||{}),profilePic:compressed}};
+    }catch(e){return snapshot}
+  }
   async function syncToCloud(){
     // Device-local mode: never merge, upload, or restore customer data from cloud.
     if(window.DukaanKhataMode==="local")return;
@@ -110,6 +142,17 @@
     try{
       let local=localState()||window.state;
       if(!local||typeof local!=="object")return;
+      const originalLocal=local;
+      local=await compactShopPhoto(local);
+      if(localMutationVersion===syncVersion&&local!==originalLocal){
+        // Profile photos are display assets, not ledger data. Compress oversized
+        // data URLs before syncing so they cannot exhaust mobile storage or make
+        // every full-state upload several megabytes.
+        localStorage.setItem(stateKey(),JSON.stringify(local));
+        if(window.state===originalLocal||same(window.state,originalLocal))window.state=local;
+      }else if(localMutationVersion!==syncVersion){
+        local=localState()||window.state||local;
+      }
       const row=await readCloud(sb,userId);
       // Re-read after the network wait. If a deletion/edit happened while the
       // cloud read was in flight, merge the newest local snapshot, not the stale one.
