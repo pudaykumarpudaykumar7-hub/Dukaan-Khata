@@ -104,11 +104,11 @@ window.dkClearNotifications=function(){try{localStorage.removeItem(KEY)}catch(e)
 window.addEventListener("DOMContentLoaded",dot);window.addEventListener("storage",e=>{if(e.key===KEY)dot()});if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{if(e.data?.type==="DK_NOTIFICATION_CLICK")window.dkOpenNotifications?.()});
 
 const CUSTOMER_NOTIFICATION_API="https://nzsldzyjpxwyyrdwkphp.supabase.co/functions/v1/customer-notifications";
+const DK_SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
 async function customerNotificationApi(action,payload,ownerAuth=false){
  const headers={"Content-Type":"application/json"};
  if(ownerAuth){const token=await supabaseAccessToken();if(!token)throw new Error("Sign in with Google as the shop owner before sending customer alerts.");headers.Authorization="Bearer "+token;}
- const sbKey=window.dkSupabase?.supabaseKey||window.DK_SUPABASE_ANON_KEY||"";
- if(sbKey)headers.apikey=sbKey;
+ headers.apikey=DK_SUPABASE_PUBLISHABLE_KEY;
  let response;
  try{response=await fetch(CUSTOMER_NOTIFICATION_API,{method:"POST",headers,body:JSON.stringify({...payload,action})})}
  catch(e){throw new Error("Could not reach the free customer notification service. Check your internet connection and try again.");}
