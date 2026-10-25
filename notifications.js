@@ -103,39 +103,70 @@ window.dkOpenNotifications=function(){const list=read();list.forEach(x=>x.read=t
 window.dkClearNotifications=function(){try{localStorage.removeItem(KEY)}catch(e){}dot();window.dkOpenNotifications()};
 window.addEventListener("DOMContentLoaded",dot);window.addEventListener("storage",e=>{if(e.key===KEY)dot()});if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{if(e.data?.type==="DK_NOTIFICATION_CLICK")window.dkOpenNotifications?.()});
 
-async function customerPushCall(path,payload){
+const CUSTOMER_NOTIFICATION_API="https://nzsldzyjpxwyyrdwkphp.supabase.co/functions/v1/customer-notifications";
+async function customerNotificationApi(action,payload,ownerAuth=false){
+ const headers={"Content-Type":"application/json"};
+ if(ownerAuth){const token=await supabaseAccessToken();if(!token)throw new Error("Sign in with Google as the shop owner before sending customer alerts.");headers.Authorization="Bearer "+token;}
+ const sbKey=window.dkSupabase?.supabaseKey||window.DK_SUPABASE_ANON_KEY||"";
+ if(sbKey)headers.apikey=sbKey;
  let response;
- try{response=await fetch(PUSH_API+"/"+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})}
- catch(e){throw new Error("Cannot reach the Firebase notification server. Firebase Functions may not be deployed yet, or the network is blocking the request. Please try again later.")}
+ try{response=await fetch(CUSTOMER_NOTIFICATION_API,{method:"POST",headers,body:JSON.stringify({...payload,action})})}
+ catch(e){throw new Error("Could not reach the free customer notification service. Check your internet connection and try again.");}
  let data={};try{data=await response.json()}catch(e){}
- if(!response.ok)throw new Error(data.error||("Notification server returned HTTP "+response.status+". Firebase deployment may be incomplete."));
+ if(!response.ok)throw new Error(data.error||("Notification service returned HTTP "+response.status+"."));
  return data;
 }
-function normalizeCustomerPhoneForPush(value){let d=String(value||"").replace(/\D/g,"");if(d.length===12&&d.startsWith("91"))d=d.slice(2);if(d.length===13&&d.startsWith("0091"))d=d.slice(4);return /^\d{10}$/.test(d)?d:""}
+function normalizeCustomerPhoneForPush(value){let d=String(value||"").replace(/\\D/g,"");if(d.length===12&&d.startsWith("91"))d=d.slice(2);if(d.length===14&&d.startsWith("0091"))d=d.slice(4);return /^\\d{10}$/.test(d)?d:""}
+let customerPollTimer=null;
+let customerSeenNotificationIds=new Set();
+let customerPollReady=false;
+async function pollCustomerNotificationInbox(phone,pin,notifyNew){
+ const result=await customerNotificationApi("get",{phone,pin});
+ const items=Array.isArray(result.notifications)?result.notifications:[];
+ if(!customerPollReady){items.forEach(n=>customerSeenNotificationIds.add(String(n.id)));customerPollReady=true;return items}
+ if(notifyNew){
+  items.slice().reverse().forEach(n=>{
+   const id=String(n.id||"");
+   if(id&&!customerSeenNotificationIds.has(id)){
+    customerSeenNotificationIds.add(id);
+    const item={id,title:String(n.title||"Dukaan Khata update"),body:String(n.body||"Your shop account has been updated."),date:n.created_at||new Date().toISOString(),read:false};
+    const local=read();local.unshift(item);try{localStorage.setItem(KEY,JSON.stringify(local.slice(0,100)))}catch(e){}
+    dot();systemNotice(item);
+   }
+  });
+ }
+ items.forEach(n=>customerSeenNotificationIds.add(String(n.id)));
+ if(customerSeenNotificationIds.size>200)customerSeenNotificationIds=new Set(Array.from(customerSeenNotificationIds).slice(-100));
+ return items;
+}
+function startCustomerNotificationPolling(phone,pin){
+ if(customerPollTimer)clearInterval(customerPollTimer);
+ customerSeenNotificationIds=new Set();customerPollReady=false;
+ pollCustomerNotificationInbox(phone,pin,false).catch(e=>console.warn("Customer inbox initial load failed",e?.message||e));
+ customerPollTimer=setInterval(()=>{if(document.visibilityState==="visible")pollCustomerNotificationInbox(phone,pin,true).catch(e=>console.warn("Customer inbox refresh failed",e?.message||e))},20000);
+}
 window.dkEnableCustomerNotifications=async function(phone,pin){
  const normalized=normalizeCustomerPhoneForPush(phone);
  if(!normalized)throw new Error("Enter the registered 10-digit mobile number.");
  if(String(pin||"")!=="2007")throw new Error("Customer PIN is incorrect.");
- if(!("Notification"in window)||!("serviceWorker"in navigator)||!window.isSecureContext)throw new Error("Open Dukaan Khata over HTTPS and allow phone notifications.");
+ if(!("Notification"in window)||!("serviceWorker"in navigator)||!window.isSecureContext)throw new Error("Open Dukaan Khata over HTTPS to enable phone notifications.");
  const permission=await Notification.requestPermission();
- if(permission!=="granted")throw new Error("Please allow notifications in phone or browser settings.");
- if(!window.firebase?.messaging)throw new Error("Firebase messaging SDK did not load.");
- if(!window.firebase.apps.length)window.firebase.initializeApp(DK_FIREBASE_CONFIG);
- const reg=await navigator.serviceWorker.ready;
- const token=await window.firebase.messaging().getToken({vapidKey:DK_VAPID_KEY,serviceWorkerRegistration:reg});
- if(!token)throw new Error("Firebase did not return a device token.");
- await customerPushCall("registerCustomerPushDevice",{phone:normalized,pin:"2007",token,platform:"web"});
+ if(permission!=="granted")throw new Error("Please allow notifications in your browser and Android app settings.");
  try{sessionStorage.setItem("dk_customer_phone",normalized);sessionStorage.setItem("dk_customer_pin","2007")}catch(e){}
- return {ok:true};
+ await customerNotificationApi("get",{phone:normalized,pin:"2007"});
+ startCustomerNotificationPolling(normalized,"2007");
+ return {ok:true,mode:"while-app-open",message:"In-app inbox and phone banners are enabled while Dukaan Khata remains open. Background push is not configured."};
 };
 window.dkFetchCustomerNotifications=async function(phone,pin){
  const normalized=normalizeCustomerPhoneForPush(phone);
  if(!normalized)throw new Error("Enter the registered 10-digit mobile number.");
- return customerPushCall("getCustomerNotifications",{phone:normalized,pin:String(pin||"")});
+ const result=await customerNotificationApi("get",{phone:normalized,pin:String(pin||"")});
+ startCustomerNotificationPolling(normalized,String(pin||""));
+ return {notifications:(result.notifications||[]).map(n=>({...n,createdAt:n.created_at||n.createdAt}))};
 };
 window.dkNotifyCustomerAccount=async function(phone,title,body){
  const normalized=normalizeCustomerPhoneForPush(phone);if(!normalized)return null;
- try{return await pushApiCall("sendCustomerAccountNotification",{phone:normalized,title:String(title||"Dukaan Khata account updated"),body:String(body||"Your bill, items or outstanding balance has changed. Open Dukaan Khata to view details.")})}
+ try{return await customerNotificationApi("send",{phone:normalized,title:String(title||"Dukaan Khata account updated"),body:String(body||"Your bill, items or outstanding balance has changed. Open Dukaan Khata to view details.")},true)}
  catch(e){console.warn("Customer account notification was not sent:",e?.message||e);return null}
 };
 })();
