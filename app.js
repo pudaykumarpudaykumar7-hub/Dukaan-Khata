@@ -22,7 +22,35 @@ function loadState(){
   }catch(e){return defaults()}
 }
 function markRecordDeleted(collection,id){const all=state.deletedRecordIds&&typeof state.deletedRecordIds==="object"?state.deletedRecordIds:{};const ids=new Set((Array.isArray(all[collection])?all[collection]:[]).map(String));ids.add(String(id));state.deletedRecordIds={...all,[collection]:Array.from(ids)}}
-function saveState(){try{localStorage.setItem(KEY,JSON.stringify(state));if(window.dkQueueSync)window.dkQueueSync()}catch(e){toast("Could not save data")}}
+function saveState(){
+  let previous=null;
+  try{previous=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
+  try{
+    localStorage.setItem(KEY,JSON.stringify(state));
+    if(previous&&window.dkNotifyCustomerAccount){
+      const customers=Array.isArray(state.customers)?state.customers:[];
+      const oldCustomers=Array.isArray(previous.customers)?previous.customers:[];
+      const allCustomers=new Map([...oldCustomers,...customers].map(c=>[String(c?.id),c]));
+      const txs=x=>Array.isArray(x?.tx)?x.tx:[];
+      const customerTx=(snapshot,id)=>txs(snapshot).filter(t=>String(t?.customerId??t?.customer_id??"")===String(id));
+      const signature=items=>JSON.stringify(items.slice().sort((a,b)=>String(a?.id||"").localeCompare(String(b?.id||""))));
+      const money=v=>"₹"+Number(v||0).toLocaleString("en-IN",{maximumFractionDigits:2});
+      for(const [id,c] of allCustomers){
+        if(!c)continue;
+        const before=customerTx(previous,id),after=customerTx(state,id);
+        if(signature(before)===signature(after))continue;
+        const current=customers.find(x=>String(x?.id)===id);
+        const phone=current?.phone||c.phone;
+        if(!phone)continue;
+        const sales=after.filter(t=>t.type==="sale"),payments=after.filter(t=>t.type==="payment"&&Number(t.amount)>0);
+        const total=sales.reduce((n,t)=>n+(Number(t.total)||0),0),paid=payments.reduce((n,t)=>n+(Number(t.amount)||0),0),due=Math.max(0,total-paid);
+        const changed=after.length>before.length?"A bill, item or payment was added.":"Your bill, item, payment or outstanding details changed.";
+        Promise.resolve().then(()=>window.dkNotifyCustomerAccount(phone,"Your Dukaan Khata was updated",changed+" Total bills: "+money(total)+". Paid: "+money(paid)+". Outstanding: "+money(due)+". Open Dukaan Khata to view your account.")).catch(e=>console.warn("Customer notification failed",e));
+      }
+    }
+    if(window.dkQueueSync)window.dkQueueSync();
+  }catch(e){toast("Could not save data")}
+}
 function openUVMSLogo(){
   const m=document.getElementById("modal"),b=document.getElementById("modalBody");
   if(!m||!b)return;
