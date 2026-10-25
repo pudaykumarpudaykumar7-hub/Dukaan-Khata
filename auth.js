@@ -297,7 +297,10 @@
     portalPublishSnapshot=snapshot;
     clearTimeout(portalPublishTimer);
     portalPublishTimer=setTimeout(async()=>{
-      if(portalPublishing)return;
+      if(portalPublishing){
+        portalPublishTimer=setTimeout(()=>window.dkPublishCustomerPortalSnapshot(portalPublishSnapshot),1500);
+        return;
+      }
       const sb=client();
       if(!sb)return;
       const {data:{session}}=await sb.auth.getSession();
@@ -365,8 +368,19 @@
     // Publish only customer-facing records. Owner ledger remains local to this device.
     if (window.dkPublishCustomerPortalSnapshot && window.state) {
       window.dkPublishCustomerPortalSnapshot(window.state);
+      setTimeout(() => {
+        if (document.visibilityState !== "hidden" && window.dkPublishCustomerPortalSnapshot && window.state) {
+          window.dkPublishCustomerPortalSnapshot(window.state);
+        }
+      }, 5000);
     }
   }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && window.state && window.dkPublishCustomerPortalSnapshot) {
+      window.dkPublishCustomerPortalSnapshot(window.state);
+    }
+  });
 
   let initAttempts=0;
   async function init(){
