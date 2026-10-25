@@ -291,6 +291,38 @@
     startCloudPolling();
   }
 
+  let portalPublishTimer=null, portalPublishSnapshot=null, portalPublishing=false;
+  window.dkPublishCustomerPortalSnapshot=function(snapshot){
+    if(!snapshot||typeof snapshot!=="object")return;
+    portalPublishSnapshot=snapshot;
+    clearTimeout(portalPublishTimer);
+    portalPublishTimer=setTimeout(async()=>{
+      if(portalPublishing)return;
+      const sb=client();
+      if(!sb)return;
+      const {data:{session}}=await sb.auth.getSession();
+      if(!session?.access_token||!session?.user?.id)return;
+      const snap=portalPublishSnapshot;portalPublishSnapshot=null;
+      const deleted=new Set((Array.isArray(snap.deletedCustomerIds)?snap.deletedCustomerIds:[]).map(String));
+      const customers=(Array.isArray(snap.customers)?snap.customers:[]).filter(c=>c?.id&&!deleted.has(String(c.id)));
+      const normalizePhone=v=>{let d=String(v||"").replace(/\\D/g,"");if(d.startsWith("0091")&&d.length===14)d=d.slice(4);if(d.startsWith("91")&&d.length===12)d=d.slice(2);return /^\\d{10}$/.test(d)?d:""};
+      const records=customers.filter(c=>normalizePhone(c.phone)).map(c=>{
+        const id=String(c.id);
+        const transactions=(Array.isArray(snap.tx)?snap.tx:[]).filter(t=>String(t?.customerId??t?.customer_id??"")===id);
+        const reminders=(Array.isArray(snap.reminders)?snap.reminders:[]).filter(r=>String(r?.customerId??r?.customer_id??"")===id);
+        return {customerId:id,phone:normalizePhone(c.phone),customerName:String(c.name||"Customer").slice(0,120),shopName:String(snap.shop?.name||"Dukaan").slice(0,120),shopOwner:String(snap.shop?.owner||"Shop Owner").slice(0,120),shopPhone:normalizePhone(snap.shop?.phone),shopAddress:String(snap.shop?.address||"").slice(0,240),transactions,reminders};
+      });
+      portalPublishing=true;
+      try{
+        const response=await fetch(SUPABASE_URL+"/functions/v1/customer-pin-portal",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({action:"publish",records})});
+        const result=await response.json().catch(()=>({}));
+        if(!response.ok)throw new Error(result.error||"Customer portal publish failed");
+        console.info("Customer portal records updated:",result.published);
+      }catch(e){console.warn("Customer portal update did not complete; local owner data is unchanged.",e?.message||e)}
+      finally{portalPublishing=false;if(portalPublishSnapshot){clearTimeout(portalPublishTimer);portalPublishTimer=setTimeout(()=>window.dkPublishCustomerPortalSnapshot(portalPublishSnapshot),1500)}}
+    },1200);
+  };
+
   function showOwnerAccountPopup(user){
     const meta=user?.user_metadata||{};
     const name=meta.full_name||meta.name||meta.preferred_username||user?.email?.split("@")[0]||"Owner";
