@@ -109,7 +109,7 @@ async function customerPushCall(path,payload){
  if(!response.ok)throw new Error(data.error||"Customer notification service request failed");
  return data;
 }
-function normalizeCustomerPhoneForPush(value){let d=String(value||"").replace(/\\D/g,"");if(d.length===12&&d.startsWith("91"))d=d.slice(2);if(d.length===13&&d.startsWith("0091"))d=d.slice(4);return /^\\d{10}$/.test(d)?d:""}
+function normalizeCustomerPhoneForPush(value){let d=String(value||"").replace(/\D/g,"");if(d.length===12&&d.startsWith("91"))d=d.slice(2);if(d.length===13&&d.startsWith("0091"))d=d.slice(4);return /^\d{10}$/.test(d)?d:""}
 window.dkEnableCustomerNotifications=async function(phone,pin){
  const normalized=normalizeCustomerPhoneForPush(phone);
  if(!normalized)throw new Error("Enter the registered 10-digit mobile number.");
