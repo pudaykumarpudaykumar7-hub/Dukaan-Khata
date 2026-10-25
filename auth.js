@@ -498,7 +498,7 @@ async function openOwnerLogin(){
     panel.querySelector("#dkCustomerNotificationClose")?.addEventListener("click",()=>panel.remove());
     panel.querySelector("#dkCustomerNotificationEnable")?.addEventListener("click",async()=>{
       status.textContent="Requesting notification permission…";
-      try{if(!window.dkEnableCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");await window.dkEnableCustomerNotifications(customerPhone,customerPin);status.textContent="Phone notifications enabled on this device."}
+      try{if(!window.dkEnableCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");await window.dkEnableCustomerNotifications(customerPhone,customerPin);status.textContent="Phone notification permission is enabled. Alerts can appear while Dukaan Khata is open; background alerts are not configured yet."}
       catch(e){status.textContent=e.message||"Could not enable phone notifications."}
     });
     (async()=>{
