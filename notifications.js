@@ -116,7 +116,7 @@ async function customerNotificationApi(action,payload,ownerAuth=false){
  if(!response.ok)throw new Error(data.error||("Notification service returned HTTP "+response.status+"."));
  return data;
 }
-function normalizeCustomerPhoneForPush(value){let d=String(value||"").replace(/\\D/g,"");if(d.length===12&&d.startsWith("91"))d=d.slice(2);if(d.length===14&&d.startsWith("0091"))d=d.slice(4);return /^\\d{10}$/.test(d)?d:""}
+function normalizeCustomerPhoneForPush(value){let d=String(value||"").replace(/\D/g,"");if(d.length===12&&d.startsWith("91"))d=d.slice(2);if(d.length===14&&d.startsWith("0091"))d=d.slice(4);return /^\d{10}$/.test(d)?d:""}
 let customerPollTimer=null;
 let customerSeenNotificationIds=new Set();
 let customerPollReady=false;
