@@ -1,0 +1,35 @@
+name: Validate push notification integration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "functions/**"
+      - "notifications.js"
+      - "auth.js"
+      - "index.html"
+      - ".github/workflows/validate-push.yml"
+  pull_request:
+    paths:
+      - "functions/**"
+      - "notifications.js"
+      - "auth.js"
+      - "index.html"
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check browser scripts
+        run: |
+          node --check notifications.js
+          node --check auth.js
+      - name: Check Firebase Functions
+        working-directory: functions
+        run: |
+          npm install
+          npm run lint
