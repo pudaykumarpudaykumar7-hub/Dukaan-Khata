@@ -145,6 +145,12 @@ function startCustomerNotificationPolling(phone,pin){
  pollCustomerNotificationInbox(phone,pin,false).catch(e=>console.warn("Customer inbox initial load failed",e?.message||e));
  customerPollTimer=setInterval(()=>{if(document.visibilityState==="visible")pollCustomerNotificationInbox(phone,pin,true).catch(e=>console.warn("Customer inbox refresh failed",e?.message||e))},20000);
 }
+async function registerCustomerPushDevice(phone,pin,token){
+ const response=await fetch(PUSH_API+"/registerCustomerPushDevice",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone,pin,token,platform:"web"})});
+ let data={};try{data=await response.json()}catch(e){}
+ if(!response.ok)throw new Error(data.error||"Could not register this phone for customer push notifications.");
+ return data;
+}
 window.dkEnableCustomerNotifications=async function(phone,pin){
  const normalized=normalizeCustomerPhoneForPush(phone);
  if(!normalized)throw new Error("Enter the registered 10-digit mobile number.");
@@ -154,8 +160,15 @@ window.dkEnableCustomerNotifications=async function(phone,pin){
  if(permission!=="granted")throw new Error("Please allow notifications in your browser and Android app settings.");
  try{sessionStorage.setItem("dk_customer_phone",normalized);sessionStorage.setItem("dk_customer_pin","2007")}catch(e){}
  await customerNotificationApi("get",{phone:normalized,pin:"2007"});
+ if(!window.firebase?.messaging)throw new Error("Firebase messaging SDK did not load. Refresh Dukaan Khata and try again.");
+ if(!window.firebase.apps.length)window.firebase.initializeApp(DK_FIREBASE_CONFIG);
+ const registration=await navigator.serviceWorker.ready;
+ const token=await window.firebase.messaging().getToken({vapidKey:DK_VAPID_KEY,serviceWorkerRegistration:registration});
+ if(!token)throw new Error("This phone did not receive a push token. Check browser notification settings and try again.");
+ try{localStorage.setItem("dk_fcm_registration_token_v1",token)}catch(e){}
+ await registerCustomerPushDevice(normalized,"2007",token);
  startCustomerNotificationPolling(normalized,"2007");
- return {ok:true,mode:"while-app-open",message:"In-app inbox and phone banners are enabled while Dukaan Khata remains open. Background push is not configured."};
+ return {ok:true,mode:"push-enabled",message:"Customer notifications are enabled on this phone. New customer alerts can now be delivered by push when the browser supports background notifications."};
 };
 window.dkFetchCustomerNotifications=async function(phone,pin){
  const normalized=normalizeCustomerPhoneForPush(phone);
