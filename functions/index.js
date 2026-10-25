@@ -65,8 +65,7 @@ exports.sendPushToUser = onCall({ maxInstances: 5 }, async (request) => {
   const result = await getMessaging().sendEachForMulticast({
     tokens: tokens.map((x) => x.token),
     notification: { title, body },
-    data: { title, body, url },
-    webpush: { fcmOptions: { link: url.startsWith("https://") ? url : "https://example.invalid/" } }
+    data: { title, body, url }
   });
 
   const removals = [];
