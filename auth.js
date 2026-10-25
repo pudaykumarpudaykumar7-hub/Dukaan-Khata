@@ -513,7 +513,8 @@ async function openOwnerLogin(){
     })();
   }
 
-  document.addEventListener("click",function(e){if(e.target?.id==="dkCustomerNotificationsBell")openCustomerNotificationPanel(window.__dkCustomerPhoneForNotifications,window.__dkCustomerPinForNotifications)});\n  function openCustomerPortal(customerId){
+  document.addEventListener("click",function(e){if(e.target?.id==="dkCustomerNotificationsBell")openCustomerNotificationPanel(window.__dkCustomerPhoneForNotifications,window.__dkCustomerPinForNotifications)});
+  function openCustomerPortal(customerId){
     const c=(state.customers||[]).find(x=>String(x.id)===String(customerId));
     if(!c){toast("Customer record not found");return}
     const phoneKey=normPhone(c.phone);
