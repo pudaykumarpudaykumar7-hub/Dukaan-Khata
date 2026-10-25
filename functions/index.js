@@ -166,10 +166,10 @@ exports.sendSelfNotification = onRequest({ region: "us-central1", maxInstances: 
 
 
 function normalizeCustomerPhone(value) {
-  let digits = String(value || "").replace(/\\D/g, "");
+  let digits = String(value || "").replace(/\D/g, "");
   if (digits.length === 12 && digits.startsWith("91")) digits = digits.slice(2);
   if (digits.length === 13 && digits.startsWith("0091")) digits = digits.slice(4);
-  if (!/^\\d{10}$/.test(digits)) {
+  if (!/^\d{10}$/.test(digits)) {
     const error = new Error("A valid 10-digit Indian customer mobile number is required.");
     error.status = 400;
     throw error;
