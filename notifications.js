@@ -42,7 +42,7 @@ async function pushApiCall(path,payload){
 }
 async function registerPushTokenWithBackend(token){
  if(!token)return;
- try{await pushApiCall("registerPushToken",{token,platform:"web"})}
+ try{await pushApiCall("registerSupabasePushToken",{token,platform:"web"})}
  catch(e){console.warn("Push token is not registered with the remote sender yet:",e?.message||e)}
 }
 async function sendRemoteEvent(title,token){
