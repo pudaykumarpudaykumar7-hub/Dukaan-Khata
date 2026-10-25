@@ -146,10 +146,7 @@ function startCustomerNotificationPolling(phone,pin){
  customerPollTimer=setInterval(()=>{if(document.visibilityState==="visible")pollCustomerNotificationInbox(phone,pin,true).catch(e=>console.warn("Customer inbox refresh failed",e?.message||e))},20000);
 }
 async function registerCustomerPushDevice(phone,pin,token){
- const response=await fetch(PUSH_API+"/registerCustomerPushDevice",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone,pin,token,platform:"web"})});
- let data={};try{data=await response.json()}catch(e){}
- if(!response.ok)throw new Error(data.error||"Could not register this phone for customer push notifications.");
- return data;
+ return await customerNotificationApi("register-device",{phone,pin,token,platform:"web"});
 }
 window.dkEnableCustomerNotifications=async function(phone,pin){
  const normalized=normalizeCustomerPhoneForPush(phone);
