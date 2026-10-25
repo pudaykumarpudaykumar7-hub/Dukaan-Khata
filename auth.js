@@ -460,7 +460,8 @@ async function openOwnerLogin(){
       toast(e.message||"Could not connect to customer records. Please try again.");
     }finally{if(submit){submit.disabled=false;submit.textContent="Login as Customer"}}
   }
-  function openRemoteCustomerPortal(accounts,customerPhone,customerPin){\n    window.__dkCustomerPhoneForNotifications=customerPhone;window.__dkCustomerPinForNotifications=customerPin;
+  function openRemoteCustomerPortal(accounts,customerPhone,customerPin){
+    window.__dkCustomerPhoneForNotifications=customerPhone;window.__dkCustomerPinForNotifications=customerPin;
     const allTx=accounts.flatMap(a=>(Array.isArray(a.transactions)?a.transactions:[]).map(t=>({...t,__customer:a.customer,__shop:a.shop})));
     const sales=allTx.filter(t=>t.type==="sale");
     const payments=allTx.filter(t=>t.type==="payment");
@@ -511,7 +512,8 @@ async function openOwnerLogin(){
       }catch(e){status.textContent=e.message||"Could not load notifications."}
     })();
   }
-\n  document.addEventListener("click",function(e){if(e.target?.id==="dkCustomerNotificationsBell")openCustomerNotificationPanel(window.__dkCustomerPhoneForNotifications,window.__dkCustomerPinForNotifications)});\n  function openCustomerPortal(customerId){
+
+  document.addEventListener("click",function(e){if(e.target?.id==="dkCustomerNotificationsBell")openCustomerNotificationPanel(window.__dkCustomerPhoneForNotifications,window.__dkCustomerPinForNotifications)});\n  function openCustomerPortal(customerId){
     const c=(state.customers||[]).find(x=>String(x.id)===String(customerId));
     if(!c){toast("Customer record not found");return}
     const phoneKey=normPhone(c.phone);
