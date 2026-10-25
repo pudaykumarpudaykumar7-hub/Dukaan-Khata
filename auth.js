@@ -547,12 +547,12 @@ async function openOwnerLogin(){
     panel.querySelector("#dkCustomerNotificationClose")?.addEventListener("click",()=>panel.remove());
     const pushToggle=panel.querySelector("#dkCustomerNotificationEnable");
     const pushLabel=panel.querySelector("#dkPushStateLabel");
-    const syncPushToggle=()=>{const on=window.Notification?.permission==="granted";pushToggle?.setAttribute("aria-checked",String(on));pushToggle?.classList.toggle("is-on",on);if(pushLabel)pushLabel.textContent=on?"On · alerts allowed on this device":(window.Notification?.permission==="denied"?"Blocked in browser settings":"Off · tap to enable");};
+    const syncPushToggle=()=>{let saved=null;try{saved=localStorage.getItem("dk_customer_push_enabled");}catch(e){}const permission=window.Notification?.permission;const on=permission==="granted"&&saved!=="off";pushToggle?.setAttribute("aria-checked",String(on));pushToggle?.classList.toggle("is-on",on);if(pushLabel)pushLabel.textContent=on?"On · saved on this device":(permission==="denied"?"Blocked in browser settings":"Off · tap to enable");};
     syncPushToggle();
     pushToggle?.addEventListener("click",async()=>{
-      if(window.Notification?.permission==="granted"){status.textContent="To turn alerts off, open Android Settings → Apps → Chrome → Notifications. This switch reflects your device permission.";return;}
+      if(window.Notification?.permission==="granted"){let saved="on";try{saved=localStorage.getItem("dk_customer_push_enabled")||"on";}catch(e){}if(saved==="on"){status.textContent="Phone notifications are already enabled. To disable them, use Android Settings → Apps → Chrome → Notifications.";return;}try{localStorage.setItem("dk_customer_push_enabled","on");}catch(e){}syncPushToggle();status.textContent="Phone notifications are on.";return;}
       status.textContent="Requesting notification permission…";
-      try{if(!window.dkEnableCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");await window.dkEnableCustomerNotifications(customerPhone,customerPin);status.textContent="Notifications are enabled on this device.";syncPushToggle();}
+      try{if(!window.dkEnableCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");await window.dkEnableCustomerNotifications(customerPhone,customerPin);try{localStorage.setItem("dk_customer_push_enabled","on");}catch(e){}status.textContent="Notifications are enabled on this device and this preference is saved.";syncPushToggle();}
       catch(e){status.textContent=e.message||"Could not enable phone notifications.";syncPushToggle();}
     });
     (async()=>{
