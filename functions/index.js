@@ -242,10 +242,22 @@ exports.sendCustomerAccountNotification = onRequest({ region: "us-central1", max
       res.status(200).json({ ok: true, sent: 0, saved: true });
       return;
     }
+    const notificationId = noticeRef.id;
     const result = await getMessaging().sendEachForMulticast({
       tokens: devices.map(x => x.token),
       notification: { title, body },
-      data: { title, body, url: "./?customerNotifications=1" }
+      data: { title, body, url: "./?customerNotifications=1", notificationId },
+      webpush: {
+        notification: {
+          title,
+          body,
+          icon: "./icon.svg",
+          badge: "./icon.svg",
+          tag: "dukaan-customer-" + notificationId,
+          renotify: true
+        },
+        fcmOptions: { link: "./?customerNotifications=1" }
+      }
     });
     const removals = [];
     result.responses.forEach((response, index) => {
