@@ -136,7 +136,7 @@ exports.sendSelfNotification = onRequest({ region: "us-central1", maxInstances: 
     }
 
     const snap = await db.collection("pushTokens").doc(user.id).collection("devices").get();
-    const tokens = snap.docs.map((doc) => ({ ref: doc.ref, token: doc.get("token") })).filter((x) => x.token);
+    const excludedTokenId = typeof req.body?.excludeToken === "string" && req.body.excludeToken.length >= 50 ? crypto.createHash("sha256").update(req.body.excludeToken).digest("hex") : "";\n    const tokens = snap.docs.map((doc) => ({ ref: doc.ref, id: doc.id, token: doc.get("token") })).filter((x) => x.token && x.id !== excludedTokenId);
     if (!tokens.length) {
       res.status(200).json({ ok: true, sent: 0, message: "No registered devices." });
       return;
