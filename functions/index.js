@@ -97,7 +97,7 @@ function cleanToken(value) {
  * Authenticated device registration. Only FCM token metadata is stored;
  * shop records, bills, customers and balances remain device-local.
  */
-exports.registerPushToken = onRequest({ region: "us-central1", maxInstances: 10 }, async (req, res) => {
+exports.registerSupabasePushToken = onRequest({ region: "us-central1", maxInstances: 10 }, async (req, res) => {
   if (applyCors(req, res)) return;
   try {
     const user = await requireSupabaseUser(req);
