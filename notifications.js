@@ -104,9 +104,11 @@ window.dkClearNotifications=function(){try{localStorage.removeItem(KEY)}catch(e)
 window.addEventListener("DOMContentLoaded",dot);window.addEventListener("storage",e=>{if(e.key===KEY)dot()});if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{if(e.data?.type==="DK_NOTIFICATION_CLICK")window.dkOpenNotifications?.()});
 
 async function customerPushCall(path,payload){
- const response=await fetch(PUSH_API+"/"+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+ let response;
+ try{response=await fetch(PUSH_API+"/"+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})}
+ catch(e){throw new Error("Cannot reach the Firebase notification server. Firebase Functions may not be deployed yet, or the network is blocking the request. Please try again later.")}
  let data={};try{data=await response.json()}catch(e){}
- if(!response.ok)throw new Error(data.error||"Customer notification service request failed");
+ if(!response.ok)throw new Error(data.error||("Notification server returned HTTP "+response.status+". Firebase deployment may be incomplete."));
  return data;
 }
 function normalizeCustomerPhoneForPush(value){let d=String(value||"").replace(/\D/g,"");if(d.length===12&&d.startsWith("91"))d=d.slice(2);if(d.length===13&&d.startsWith("0091"))d=d.slice(4);return /^\d{10}$/.test(d)?d:""}
