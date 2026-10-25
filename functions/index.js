@@ -256,6 +256,10 @@ exports.sendCustomerAccountNotification = onRequest({ region: "us-central1", max
           tag: "dukaan-customer-" + notificationId,
           renotify: true
         },
+        headers: {
+          "Urgency": "high",
+          "TTL": "86400"
+        },
         fcmOptions: { link: "./?customerNotifications=1" }
       }
     });
