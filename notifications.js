@@ -23,7 +23,50 @@ function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&l
 function dot(){const b=document.getElementById("dkNotificationBadge");if(b){b.hidden=false;b.textContent="";b.classList.toggle("has-unread",read().some(x=>!x.read))}}
 function translate(title,body){const t=tr();let a=title,b=body;if(/new bill saved/i.test(title)){a=t[6];b=t[8]+" • "+String(body||"").replace(/^.*?•\s*/,"")}else if(/payment recorded/i.test(title)){a=t[7];b=t[9]+" • "+String(body||"").replace(/^.*?•\s*/,"")}else if(/notifications enabled/i.test(title)){a=t[10];b=t[11]}return[a,b]}
 async function systemNotice(item){try{if(!("Notification"in window)||Notification.permission!=="granted")return;const reg="serviceWorker"in navigator?await navigator.serviceWorker.ready.catch(()=>null):null;if(reg?.showNotification)await reg.showNotification(item.title,{body:item.body,icon:"./icon.svg",badge:"./icon.svg",tag:item.id,data:{url:"./?notifications=1"}});else new Notification(item.title,{body:item.body,icon:"./icon.svg",tag:item.id})}catch(e){console.warn("Notification could not be shown",e)}}
-window.dkNotify=async function(title,body){if(!/^(new bill saved|payment recorded|important reminder|customer khata updated|item added to khata)$/i.test(String(title||"").trim()))return null;const m=translate(title,body),item={id:"n"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),title:m[0],body:m[1],date:new Date().toISOString(),read:false,language:lang()};const list=read();list.unshift(item);try{localStorage.setItem(KEY,JSON.stringify(list.slice(0,100)))}catch(e){}dot();await systemNotice(item);return item};
+async function supabaseAccessToken(){
+ try{
+  const sb=window.dkSupabase;
+  if(!sb?.auth?.getSession)return null;
+  const result=await sb.auth.getSession();
+  return result?.data?.session?.access_token||null;
+ }catch(e){return null}
+}
+const PUSH_API="https://us-central1-dukaan-khata-a517c.cloudfunctions.net";
+async function pushApiCall(path,payload){
+ const accessToken=await supabaseAccessToken();
+ if(!accessToken)return null;
+ const response=await fetch(PUSH_API+"/"+path,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+accessToken},body:JSON.stringify(payload)});
+ let data={};try{data=await response.json()}catch(e){}
+ if(!response.ok)throw new Error(data.error||"Push service request failed");
+ return data;
+}
+async function registerPushTokenWithBackend(token){
+ if(!token)return;
+ try{await pushApiCall("registerPushToken",{token,platform:"web"})}
+ catch(e){console.warn("Push token is not registered with the remote sender yet:",e?.message||e)}
+}
+async function sendRemoteEvent(title,token){
+ const t=String(title||"").toLowerCase();
+ const kind=/^new bill saved$/.test(t)?"bill":/^payment recorded$/.test(t)?"payment":/^important reminder$/.test(t)?"reminder":null;
+ if(!kind)return null;
+ try{return await pushApiCall("sendSelfNotification",{kind,excludeToken:token||""})}
+ catch(e){console.warn("Remote push was not sent:",e?.message||e);return null}
+}
+let pushAuthSubscription=null;
+function watchSupabaseAuthForPush(){
+ const sb=window.dkSupabase;
+ if(!sb?.auth?.onAuthStateChange||pushAuthSubscription)return;
+ const {data}=sb.auth.onAuthStateChange((event,session)=>{
+  if(session?.access_token){
+   let token=null;try{token=localStorage.getItem("dk_fcm_registration_token_v1")}catch(e){}
+   if(token)setTimeout(()=>registerPushTokenWithBackend(token),0);
+  }
+ });
+ pushAuthSubscription=data?.subscription||true;
+}
+window.addEventListener("dk:push-token-ready",e=>registerPushTokenWithBackend(e.detail?.token));
+window.addEventListener("dk:supabase-ready",watchSupabaseAuthForPush);
+window.dkNotify=async function(title,body){if(!/^(new bill saved|payment recorded|important reminder|customer khata updated|item added to khata)$/i.test(String(title||"").trim()))return null;const m=translate(title,body),item={id:"n"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),title:m[0],body:m[1],date:new Date().toISOString(),read:false,language:lang()};const list=read();list.unshift(item);try{localStorage.setItem(KEY,JSON.stringify(list.slice(0,100)))}catch(e){}dot();const token=(()=>{try{return localStorage.getItem("dk_fcm_registration_token_v1")}catch(e){return null}})();const remote=await sendRemoteEvent(title,token);if(!remote||Number(remote.sent||0)===0)await systemNotice(item);return item};
 function storeRemoteMessage(payload){
   const rawTitle=String(payload?.notification?.title||payload?.data?.title||"Dukaan Khata update").slice(0,120);
   const rawBody=String(payload?.notification?.body||payload?.data?.body||"Your shop has a new update.").slice(0,500);
@@ -52,7 +95,7 @@ window.dkRequestNotifications=async function(){
   const token=await window.firebase.messaging().getToken({vapidKey:DK_VAPID_KEY,serviceWorkerRegistration:reg});
   if(!token)throw new Error("Firebase did not return a device token");
   try{localStorage.setItem("dk_fcm_registration_token_v1",token)}catch(e){}
-  window.dispatchEvent(new CustomEvent("dk:push-token-ready",{detail:{token,projectId:DK_FIREBASE_CONFIG.projectId}}));
+  window.dispatchEvent(new CustomEvent("dk:push-token-ready",{detail:{token,projectId:DK_FIREBASE_CONFIG.projectId}}));await registerPushTokenWithBackend(token);watchSupabaseAuthForPush();
   if(window.toast)toast("Notifications enabled on this device. Remote push requires a deployed, secure sender.");
  }catch(e){console.error("Firebase push setup failed",e);if(window.toast)toast("Push setup failed: "+(e?.message||"check Firebase settings"))}
 };
