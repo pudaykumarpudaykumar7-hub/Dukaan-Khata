@@ -26,7 +26,9 @@ function saveState(){
   let previous=null;
   try{previous=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
   try{
-    localStorage.setItem(KEY,JSON.stringify(state));\n    // Publish only the customer portal projection; do not sync the full owner ledger.\n    if(window.dkPublishCustomerPortalSnapshot)window.dkPublishCustomerPortalSnapshot(state);
+    localStorage.setItem(KEY,JSON.stringify(state));
+    // Publish only the customer portal projection; do not sync the full owner ledger.
+    if(window.dkPublishCustomerPortalSnapshot)window.dkPublishCustomerPortalSnapshot(state);
     if(previous&&window.dkNotifyCustomerAccount){
       const customers=Array.isArray(state.customers)?state.customers:[];
       const oldCustomers=Array.isArray(previous.customers)?previous.customers:[];
