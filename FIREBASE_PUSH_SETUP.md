@@ -5,7 +5,7 @@ This integration uses the **existing Supabase Google login** to authenticate pus
 ## Current behavior
 
 - The client obtains an FCM token after the user grants notification permission.
-- The client sends the token to the Firebase `registerPushToken` HTTPS function using the current Supabase access token.
+- The client sends the token to the Firebase `registerSupabasePushToken` HTTPS function using the current Supabase access token.
 - The function validates the bearer token by calling Supabase Auth's `/auth/v1/user` endpoint. It does not trust a client-supplied user ID or merely decode a JWT.
 - The token is stored under the verified Supabase user ID in Firestore.
 - Bill/payment/reminder events may call `sendSelfNotification`. The function sends only to devices registered to that same verified Supabase user, and it cannot accept a target user ID or arbitrary message.
