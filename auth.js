@@ -362,7 +362,7 @@
       sessionStorage.removeItem("dk_owner_login_pending");
       setTimeout(()=>showOwnerAccountPopup(user),300);
     }
-    // Local-only mode: never restore or poll shop records from Supabase. Google auth may remain for owner identity only.
+    // Publish only the customer-facing projection; owner ledger state remains local-only.\n    if(window.dkPublishCustomerPortalSnapshot)window.dkPublishCustomerPortalSnapshot(localState()||window.state);\n    // Local-only mode: never restore or poll shop records from Supabase. Google auth may remain for owner identity only.
   }
 
   let initAttempts=0;
