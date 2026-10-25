@@ -4961,3 +4961,17 @@ body{
 #modal:has(.dk-customer-fullscreen) .dk-exec-back{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;font-size:28px;line-height:1;border:1px solid #d7e4df;background:#e8f0ec;color:#173d30;border-radius:12px}
 #modal:has(.dk-customer-fullscreen) .dk-customer-screen-top>div{flex:1;min-width:0}
 .dk-customer-fullscreen-close{display:none!important}
+
+/* Dukaan Khata notification center */
+.dk-notification-button{position:relative}
+.dk-notification-badge{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;display:grid;place-items:center;border-radius:20px;background:#d83b42;color:#fff;font:800 10px/1 system-ui;border:2px solid #102c24}
+.dk-notification-badge[hidden]{display:none}
+.dk-notice-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.dk-notice-head h2{margin:0 0 4px}
+.dk-notice-head p{margin:0;opacity:.72}
+.dk-notice-list{display:grid;gap:10px;max-height:min(58vh,520px);overflow:auto}
+.dk-notice-row{padding:13px 14px;border:1px solid var(--line,#dce6e1);border-radius:14px;background:var(--card,#fff)}
+.dk-notice-row p{margin:5px 0;overflow-wrap:anywhere}
+.dk-notice-row small{opacity:.65}
+.dk-notice-empty{padding:26px 12px;text-align:center;opacity:.72}
+.dk-notice-actions{display:flex;justify-content:flex-end;margin-top:14px}
