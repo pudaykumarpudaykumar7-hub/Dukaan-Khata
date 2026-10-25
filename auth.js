@@ -541,14 +541,19 @@ async function openOwnerLogin(){
     const old=document.getElementById("dkCustomerNotificationPanel");old?.remove();
     const panel=document.createElement("div");panel.id="dkCustomerNotificationPanel";
     panel.style.cssText="position:fixed;inset:0;z-index:2147483600;background:#f8fafc;color:#0f172a;overflow:auto;padding:18px;box-sizing:border-box";
-    panel.innerHTML='<div style="max-width:760px;margin:0 auto"><header style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><small style="font-weight:800;color:#176b4d">DUKAAN KHATA</small><h2 style="margin:4px 0 12px">My Notifications</h2></div><button id="dkCustomerNotificationClose" type="button" style="padding:10px 14px;border:1px solid #dbe3ea;border-radius:10px;background:#fff">← Back</button></header><p style="color:#64748b">Bill, item, payment and outstanding updates for your account.</p><button id="dkCustomerNotificationEnable" type="button" style="width:100%;padding:13px;border:0;border-radius:12px;background:#176b4d;color:white;font-weight:800">🔔 Enable phone notifications</button><div id="dkCustomerNotificationStatus" role="status" style="margin:12px 0"></div><div id="dkCustomerNotificationRows"></div><p style="font-size:12px;color:#64748b">This login uses the shared customer PIN 2007, which is not unique identity verification.</p></div>';
+    panel.innerHTML='<div style="max-width:760px;margin:0 auto"><header style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><small style="font-weight:800;color:#176b4d">DUKAAN KHATA</small><h2 style="margin:4px 0 12px">My Notifications</h2></div><button id="dkCustomerNotificationClose" type="button" style="padding:10px 14px;border:1px solid #dbe3ea;border-radius:10px;background:#fff">← Back</button></header><p style="color:#64748b">Bill, item, payment and outstanding updates for your account.</p><div class="dk-push-setting"><div class="dk-push-setting-copy"><span class="dk-push-setting-icon">🔔</span><span><strong>Phone notifications</strong><small id="dkPushStateLabel">Checking status…</small></span></div><button id="dkCustomerNotificationEnable" class="dk-push-switch" type="button" role="switch" aria-checked="false" aria-label="Phone notifications"><span></span></button></div><div id="dkCustomerNotificationStatus" role="status" style="margin:12px 0"></div><div id="dkCustomerNotificationRows"></div><p style="font-size:12px;color:#64748b">This login uses the shared customer PIN 2007, which is not unique identity verification.</p></div>';
     document.body.appendChild(panel);
     const status=panel.querySelector("#dkCustomerNotificationStatus"),rows=panel.querySelector("#dkCustomerNotificationRows");
     panel.querySelector("#dkCustomerNotificationClose")?.addEventListener("click",()=>panel.remove());
-    panel.querySelector("#dkCustomerNotificationEnable")?.addEventListener("click",async()=>{
+    const pushToggle=panel.querySelector("#dkCustomerNotificationEnable");
+    const pushLabel=panel.querySelector("#dkPushStateLabel");
+    const syncPushToggle=()=>{const on=window.Notification?.permission==="granted";pushToggle?.setAttribute("aria-checked",String(on));pushToggle?.classList.toggle("is-on",on);if(pushLabel)pushLabel.textContent=on?"On · alerts allowed on this device":(window.Notification?.permission==="denied"?"Blocked in browser settings":"Off · tap to enable");};
+    syncPushToggle();
+    pushToggle?.addEventListener("click",async()=>{
+      if(window.Notification?.permission==="granted"){status.textContent="To turn alerts off, open Android Settings → Apps → Chrome → Notifications. This switch reflects your device permission.";return;}
       status.textContent="Requesting notification permission…";
-      try{if(!window.dkEnableCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");await window.dkEnableCustomerNotifications(customerPhone,customerPin);status.textContent="Phone notification permission is enabled. Alerts can appear while Dukaan Khata is open; background alerts are not configured yet."}
-      catch(e){status.textContent=e.message||"Could not enable phone notifications."}
+      try{if(!window.dkEnableCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");await window.dkEnableCustomerNotifications(customerPhone,customerPin);status.textContent="Notifications are enabled on this device.";syncPushToggle();}
+      catch(e){status.textContent=e.message||"Could not enable phone notifications.";syncPushToggle();}
     });
     (async()=>{
       try{
