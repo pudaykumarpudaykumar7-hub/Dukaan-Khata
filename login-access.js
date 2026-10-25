@@ -62,7 +62,7 @@
       if(panel){panel.remove();return}
       panel=document.createElement("section");panel.id="dkCustomerNotificationPanel2";
       panel.style.cssText="position:fixed;inset:0;z-index:2147483005;background:#f8fafc;overflow:auto;padding:18px;box-sizing:border-box";
-      panel.innerHTML='<div style="max-width:760px;margin:0 auto"><header style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><small style="font-weight:800;color:#176b4d">DUKAAN KHATA</small><h2 style="margin:4px 0 12px">My Notifications</h2></div><button id="dkCustomerNotificationClose2" type="button" style="border:1px solid #dbe3ea;border-radius:10px;background:white;padding:10px 14px">← Back</button></header><p style="color:#64748b">Bill, item, payment and outstanding updates for this mobile number.</p><button id="dkCustomerNotificationEnable2" type="button" style="width:100%;padding:13px;border:0;border-radius:12px;background:#176b4d;color:white;font-weight:800">🔔 Enable phone notifications</button><div id="dkCustomerNotificationStatus2" role="status" style="margin:12px 0"></div><div id="dkCustomerNotificationRows2"></div><p style="font-size:12px;color:#64748b">Your PIN is the shared customer PIN 2007. It is not unique proof of identity.</p></div>';
+      panel.innerHTML='<div style="max-width:760px;margin:0 auto"><header style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><small style="font-weight:800;color:#176b4d">DUKAAN KHATA</small><h2 style="margin:4px 0 12px">My Notifications</h2></div><button id="dkCustomerNotificationClose2" type="button" style="border:1px solid #dbe3ea;border-radius:10px;background:white;padding:10px 14px">← Back</button></header><p style="color:#64748b">Bill, item, payment and outstanding updates for this mobile number.</p><div class="dk-push-setting"><div class="dk-push-setting-copy"><span class="dk-push-setting-icon">🔔</span><span><strong>Phone notifications</strong><small id="dkPushStateLabel2">Checking status…</small></span></div><button id="dkCustomerNotificationEnable2" class="dk-push-switch" type="button" role="switch" aria-checked="false" aria-label="Phone notifications"><span></span></button></div><div id="dkCustomerNotificationStatus2" role="status" style="margin:12px 0"></div><div id="dkCustomerNotificationRows2"></div><p style="font-size:12px;color:#64748b">Your PIN is the shared customer PIN 2007. It is not unique proof of identity.</p></div>';
       root.appendChild(panel);
       const status=panel.querySelector("#dkCustomerNotificationStatus2"),rows=panel.querySelector("#dkCustomerNotificationRows2");
       panel.querySelector("#dkCustomerNotificationClose2")?.addEventListener("click",()=>panel.remove());
@@ -76,10 +76,15 @@
           rows.innerHTML=list.map(n=>'<article style="background:white;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin:10px 0"><b>'+esc(n.title||"Account update")+'</b><p style="margin:7px 0;color:#334155">'+esc(n.body||"Your account has been updated.")+'</p><small style="color:#64748b">'+esc(n.createdAt?new Date(n.createdAt).toLocaleString("en-IN"):"")+'</small></article>').join("");
         }catch(e){status.textContent=e.message||"Could not load notifications."}
       };
-      panel.querySelector("#dkCustomerNotificationEnable2")?.addEventListener("click",async()=>{
+      const pushToggle=panel.querySelector("#dkCustomerNotificationEnable2");
+      const pushLabel=panel.querySelector("#dkPushStateLabel2");
+      const syncPushToggle=()=>{const on=window.Notification?.permission==="granted";pushToggle?.setAttribute("aria-checked",String(on));pushToggle?.classList.toggle("is-on",on);if(pushLabel)pushLabel.textContent=on?"On · alerts allowed on this device":(window.Notification?.permission==="denied"?"Blocked in browser settings":"Off · tap to enable");};
+      syncPushToggle();
+      pushToggle?.addEventListener("click",async()=>{
+        if(window.Notification?.permission==="granted"){status.textContent="To turn alerts off, open Android Settings → Apps → Chrome → Notifications. This switch reflects your device permission.";return;}
         status.textContent="Requesting notification permission…";
-        try{await window.dkEnableCustomerNotifications(customerPhone,customerPin);status.textContent="Phone notifications enabled on this device."}
-        catch(e){status.textContent=e.message||"Could not enable phone notifications."}
+        try{await window.dkEnableCustomerNotifications(customerPhone,customerPin);status.textContent="Notifications are enabled on this device.";syncPushToggle();}
+        catch(e){status.textContent=e.message||"Could not enable phone notifications.";syncPushToggle();}
       });
       await load();
     });
