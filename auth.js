@@ -382,6 +382,41 @@
     }
   });
 
+  // Nationwide customer portal: publish after owner-side data changes, not only
+  // at login/when the tab becomes visible. This is deliberately limited to the
+  // customer-facing snapshot and never uploads the owner's full ledger.
+  let lastPortalSnapshotSignature = "";
+  let portalWatchStarted = false;
+  function startCustomerPortalWatch() {
+    if (portalWatchStarted) return;
+    portalWatchStarted = true;
+    const readSnapshot = () => {
+      if (document.visibilityState === "hidden" || !window.state || !window.dkPublishCustomerPortalSnapshot) return;
+      let signature = "";
+      try {
+        const s = window.state;
+        signature = JSON.stringify({
+          shop: s.shop || {},
+          customers: s.customers || [],
+          tx: s.tx || [],
+          reminders: s.reminders || [],
+          deletedCustomerIds: s.deletedCustomerIds || []
+        });
+      } catch (_) { return; }
+      if (signature && signature !== lastPortalSnapshotSignature) {
+        lastPortalSnapshotSignature = signature;
+        window.dkPublishCustomerPortalSnapshot(window.state);
+      }
+    };
+    // Polling catches edits made by the existing app's different save paths
+    // without changing those paths or interfering with recent features.
+    setInterval(readSnapshot, 2500);
+    window.addEventListener("dk:state-updated", readSnapshot);
+    window.addEventListener("storage", readSnapshot);
+    readSnapshot();
+  }
+  startCustomerPortalWatch();
+
   let initAttempts=0;
   async function init(){
     // Owner Google sign-in enables per-owner cloud restore/sync; customer login remains independent of owner sign-in.
