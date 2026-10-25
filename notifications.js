@@ -131,7 +131,7 @@ async function pollCustomerNotificationInbox(phone,pin,notifyNew){
     customerSeenNotificationIds.add(id);
     const item={id,title:String(n.title||"Dukaan Khata update"),body:String(n.body||"Your shop account has been updated."),date:n.created_at||new Date().toISOString(),read:false};
     const local=read();local.unshift(item);try{localStorage.setItem(KEY,JSON.stringify(local.slice(0,100)))}catch(e){}
-    dot();systemNotice(item);
+    dot(); // FCM sends the system push; polling only updates the in-app inbox to prevent a duplicate alert.
    }
   });
  }
