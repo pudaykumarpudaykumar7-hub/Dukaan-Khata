@@ -6,7 +6,7 @@ messaging.onBackgroundMessage(payload=>{
  const body=payload?.notification?.body||payload?.data?.body||"Your Khata has been updated.";
  self.registration.showNotification(title,{body,icon:"./icon.svg",badge:"./icon.svg",data:{url:payload?.data?.url||"./?notifications=1"}});
 });
-const CACHE="dukaan-khata-uvms-notifications-v127";
+const CACHE="dukaan-khata-uvms-notifications-v128";
 const CORE=["./","./index.html","./style.css","./app.js","./notifications.js","./auth.js","./i18n.js","./more-routing.js","./manifest.json","./icon.svg","./favicon.svg","./dukaan-pay.html"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil((async()=>{const names=await caches.keys();await Promise.all(names.filter(n=>n.startsWith("dukaan-khata-")&&n!==CACHE).map(n=>caches.delete(n)));await self.clients.claim();})()));
