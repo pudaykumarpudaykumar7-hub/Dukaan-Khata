@@ -47,7 +47,7 @@ function saveState(){
         const total=sales.reduce((n,t)=>n+(Number(t.total)||0),0);
         const paid=payments.reduce((n,t)=>n+(Number(t.amount)||0),0);
         const due=Math.max(0,total-paid);
-        const changedTx=after.find(t=>!before.some(b=>String(b?.id)===String(t?.id)))||after[0];
+        const changedTx=after.find(t=>{const old=before.find(b=>String(b?.id)===String(t?.id));return !old||JSON.stringify(old)!==JSON.stringify(t)})||after[0];
         const changedType=changedTx?.type==="payment"?"Payment recorded":changedTx?.type==="sale"?"Bill updated":"Account updated";
         const lines=Array.isArray(changedTx?.lines)?changedTx.lines:[];
         const itemSummary=lines.slice(0,3).map(line=>{
