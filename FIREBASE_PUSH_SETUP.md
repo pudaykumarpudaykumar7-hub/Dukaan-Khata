@@ -39,3 +39,19 @@ This integration uses the **existing Supabase Google login** to authenticate pus
 ## Honest status
 
 Committing these files does not deploy them. Remote notifications are **not live** until the Firebase functions and rules are deployed and real-device tests pass. The app's shop data remains device-local; this backend stores notification tokens only.
+
+
+## Customer account notifications
+
+The customer login retains the shared PIN `2007`. After a customer signs in with their registered 10-digit mobile number, the customer portal displays a notification bell. The customer can enable browser/phone notification permission on that device; the backend stores the device token against a hash of the customer's phone number, not the shop ledger.
+
+New Firebase Functions added for this flow:
+- `registerCustomerPushDevice`: register a customer phone's FCM token using phone + shared PIN.
+- `getCustomerNotifications`: read the most recent 50 inbox notices for that phone + shared PIN.
+- `sendCustomerAccountNotification`: owner-session-authenticated endpoint that stores an inbox notice and sends it to the customer's registered devices.
+
+The owner app compares a customer's transaction list before/after a local save and attempts to send a summary of bills, paid amount, and outstanding amount when that customer's transactions change. The sender requires an active Supabase Google owner session.
+
+**Security limitation:** the shared PIN `2007` is not unique identity verification. Anyone who knows a customer's mobile number and this PIN may be able to register a device for that phone and view its notification inbox. Do not use this as a high-security financial identity system.
+
+**Deployment status:** these changes are source code only until Firebase Functions are deployed. The customer notification bell and inbox need the deployed endpoints; banner delivery also requires HTTPS, user permission, an installed/current service worker, and FCM testing on a real phone. Do not describe notifications as live until those checks pass.
