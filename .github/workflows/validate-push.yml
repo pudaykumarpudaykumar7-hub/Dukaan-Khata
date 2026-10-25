@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "functions/**"
+      - "app.js"
       - "notifications.js"
       - "auth.js"
       - "index.html"
