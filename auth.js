@@ -454,13 +454,13 @@ async function openOwnerLogin(){
       if(!response.ok)throw new Error(data.error||"Customer login failed");
       const accounts=Array.isArray(data.accounts)?data.accounts:[];
       if(!accounts.length){toast("No registered shop records were found for this number");return}
-      openRemoteCustomerPortal(accounts);
+      openRemoteCustomerPortal(accounts,q,pin);
     }catch(e){
       console.error("Cross-shop customer lookup failed",e);
       toast(e.message||"Could not connect to customer records. Please try again.");
     }finally{if(submit){submit.disabled=false;submit.textContent="Login as Customer"}}
   }
-  function openRemoteCustomerPortal(accounts){
+  function openRemoteCustomerPortal(accounts,customerPhone,customerPin){\n    window.__dkCustomerPhoneForNotifications=customerPhone;window.__dkCustomerPinForNotifications=customerPin;
     const allTx=accounts.flatMap(a=>(Array.isArray(a.transactions)?a.transactions:[]).map(t=>({...t,__customer:a.customer,__shop:a.shop})));
     const sales=allTx.filter(t=>t.type==="sale");
     const payments=allTx.filter(t=>t.type==="payment");
@@ -484,9 +484,34 @@ async function openOwnerLogin(){
       const pays=tx.filter(t=>t.type==="payment").map(t=>'<article class="dk-exec-record"><div class="dk-record-icon">✓</div><div class="dk-record-main"><b>Payment recorded</b><small>'+new Date(t.date||t.created_at||Date.now()).toLocaleString()+'</small></div><strong class="dk-customer-paid">+'+money(Number(t.amount)||0)+'</strong></article>').join("")||'<div class="dk-empty">No payments recorded.</div>';
       return '<section class="dk-exec-section"><div class="dk-exec-section-title"><span>🏪</span><div><h3>'+esc(shop.name||"Shop")+'</h3><small>'+esc(shop.owner||"Shop Owner")+' • '+esc(shop.address||"")+'</small></div></div><div class="dk-customer-summary"><div><small>BILLS</small><b>'+money(shopTotal)+'</b></div><div><small>PAID</small><b class="dk-customer-paid">'+money(shopPaid)+'</b></div><div><small>DUE</small><b class="dk-customer-due">'+money(shopDue)+'</b></div></div><p>Registered customer: <b>'+esc(customer.name||"Customer")+'</b> • '+esc(customer.phone||"")+'</p>'+(phone?'<div class="dk-customer-contact-actions"><a href="tel:'+esc(shop.phone||"")+'">📞 Call owner/shop</a><a target="_blank" rel="noopener noreferrer" href="https://wa.me/'+esc(wa)+'?text='+encodeURIComponent("Hello "+(shop.name||"shop")+", I am contacting you about my Dukaan Khata.")+'">🟢 WhatsApp</a></div>':"")+'<h4>My Bills & Items</h4>'+bills+'<h4>Payments</h4>'+pays+'</section>';
     }).join("");
-    modal('<div class="dk-customer-portal dk-executive-portal dk-customer-fullscreen"><div class="dk-customer-screen-top"><button class="dk-exec-back" type="button" onclick="openCustomerLogin()">‹</button><div><span>DUKAAN KHATA • CUSTOMER VIEW</span><h2>My Shops & Khata</h2></div><button class="dk-customer-screen-close" type="button" onclick="closeModal()">×</button></div><div class="dk-exec-hero"><div class="dk-exec-avatar">👤</div><div class="dk-exec-identity"><span>REGISTERED CUSTOMER</span><h2>'+esc(accounts[0]?.customer?.name||"Customer")+'</h2><small>📱 '+esc(accounts[0]?.customer?.phone||"")+'</small></div></div><div class="dk-customer-summary dk-exec-summary"><div><small>ALL BILLS</small><b>'+money(totalSales)+'</b></div><div><small>PAYMENTS</small><b class="dk-customer-paid">'+money(totalPaid)+'</b></div><div><small>EST. DUE</small><b class="dk-customer-due">'+money(Math.max(0,totalDue))+'</b></div></div><p class="dk-muted-note">Showing '+accounts.length+' shop account(s) registered to this mobile number.</p>'+shopCards+'<div class="dk-exec-private">🔐 Read-only customer view. Contact each shop directly for corrections to its records.</div></div>');
+    modal('<div class="dk-customer-portal dk-executive-portal dk-customer-fullscreen"><div class="dk-customer-screen-top"><button class="dk-exec-back" type="button" onclick="openCustomerLogin()">‹</button><div><span>DUKAAN KHATA • CUSTOMER VIEW</span><h2>My Shops & Khata</h2></div><button class="dk-customer-screen-close" type="button" onclick="closeModal()">×</button><button id="dkCustomerNotificationsBell" type="button" aria-label="Customer notifications" style="border:1px solid #d7e1eb;border-radius:12px;background:#fff;padding:9px 12px;font-size:20px;cursor:pointer">♧</button></div><div class="dk-exec-hero"><div class="dk-exec-avatar">👤</div><div class="dk-exec-identity"><span>REGISTERED CUSTOMER</span><h2>'+esc(accounts[0]?.customer?.name||"Customer")+'</h2><small>📱 '+esc(accounts[0]?.customer?.phone||"")+'</small></div></div><div class="dk-customer-summary dk-exec-summary"><div><small>ALL BILLS</small><b>'+money(totalSales)+'</b></div><div><small>PAYMENTS</small><b class="dk-customer-paid">'+money(totalPaid)+'</b></div><div><small>EST. DUE</small><b class="dk-customer-due">'+money(Math.max(0,totalDue))+'</b></div></div><p class="dk-muted-note">Showing '+accounts.length+' shop account(s) registered to this mobile number.</p>'+shopCards+'<div class="dk-exec-private">🔐 Read-only customer view. Contact each shop directly for corrections to its records.</div></div>');
   }
-  function openCustomerPortal(customerId){
+
+  function openCustomerNotificationPanel(customerPhone,customerPin){
+    const old=document.getElementById("dkCustomerNotificationPanel");old?.remove();
+    const panel=document.createElement("div");panel.id="dkCustomerNotificationPanel";
+    panel.style.cssText="position:fixed;inset:0;z-index:2147483600;background:#f8fafc;color:#0f172a;overflow:auto;padding:18px;box-sizing:border-box";
+    panel.innerHTML='<div style="max-width:760px;margin:0 auto"><header style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><small style="font-weight:800;color:#176b4d">DUKAAN KHATA</small><h2 style="margin:4px 0 12px">My Notifications</h2></div><button id="dkCustomerNotificationClose" type="button" style="padding:10px 14px;border:1px solid #dbe3ea;border-radius:10px;background:#fff">← Back</button></header><p style="color:#64748b">Bill, item, payment and outstanding updates for your account.</p><button id="dkCustomerNotificationEnable" type="button" style="width:100%;padding:13px;border:0;border-radius:12px;background:#176b4d;color:white;font-weight:800">♧ Enable phone notifications</button><div id="dkCustomerNotificationStatus" role="status" style="margin:12px 0"></div><div id="dkCustomerNotificationRows"></div><p style="font-size:12px;color:#64748b">This login uses the shared customer PIN 2007, which is not unique identity verification.</p></div>';
+    document.body.appendChild(panel);
+    const status=panel.querySelector("#dkCustomerNotificationStatus"),rows=panel.querySelector("#dkCustomerNotificationRows");
+    panel.querySelector("#dkCustomerNotificationClose")?.addEventListener("click",()=>panel.remove());
+    panel.querySelector("#dkCustomerNotificationEnable")?.addEventListener("click",async()=>{
+      status.textContent="Requesting notification permission…";
+      try{if(!window.dkEnableCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");await window.dkEnableCustomerNotifications(customerPhone,customerPin);status.textContent="Phone notifications enabled on this device."}
+      catch(e){status.textContent=e.message||"Could not enable phone notifications."}
+    });
+    (async()=>{
+      try{
+        if(!window.dkFetchCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");
+        status.textContent="Loading notifications…";
+        const result=await window.dkFetchCustomerNotifications(customerPhone,customerPin);
+        const list=Array.isArray(result.notifications)?result.notifications:[];
+        status.textContent=list.length?list.length+" notification(s)":"No notifications yet.";
+        rows.innerHTML=list.map(n=>'<article style="background:white;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin:10px 0"><b>'+esc(n.title||"Account update")+'</b><p style="margin:7px 0;color:#334155">'+esc(n.body||"Your account has been updated.")+'</p><small style="color:#64748b">'+esc(n.createdAt?new Date(n.createdAt).toLocaleString("en-IN"):"")+'</small></article>').join("");
+      }catch(e){status.textContent=e.message||"Could not load notifications."}
+    })();
+  }
+\n  document.addEventListener("click",function(e){if(e.target?.id==="dkCustomerNotificationsBell")openCustomerNotificationPanel(window.__dkCustomerPhoneForNotifications,window.__dkCustomerPinForNotifications)});\n  function openCustomerPortal(customerId){
     const c=(state.customers||[]).find(x=>String(x.id)===String(customerId));
     if(!c){toast("Customer record not found");return}
     const phoneKey=normPhone(c.phone);
