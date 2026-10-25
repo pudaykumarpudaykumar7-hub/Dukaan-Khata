@@ -167,11 +167,26 @@ window.dkEnableCustomerNotifications=async function(phone,pin){
  startCustomerNotificationPolling(normalized,"2007");
  return {ok:true,mode:"push-enabled",message:"Customer notifications are enabled on this phone. New customer alerts can now be delivered by push when the browser supports background notifications."};
 };
+async function refreshCustomerPushRegistration(phone,pin){
+ try{
+  if(!("Notification"in window)||Notification.permission!=="granted"||!("serviceWorker"in navigator)||!window.isSecureContext)return false;
+  if(!window.firebase?.messaging)return false;
+  if(!window.firebase.apps.length)window.firebase.initializeApp(DK_FIREBASE_CONFIG);
+  const registration=await navigator.serviceWorker.ready;
+  const token=await window.firebase.messaging().getToken({vapidKey:DK_VAPID_KEY,serviceWorkerRegistration:registration});
+  if(!token)return false;
+  try{localStorage.setItem("dk_fcm_registration_token_v1",token)}catch(e){}
+  await registerCustomerPushDevice(phone,pin,token);
+  return true;
+ }catch(e){console.warn("Customer push registration refresh failed:",e?.message||e);return false}
+}
 window.dkFetchCustomerNotifications=async function(phone,pin){
  const normalized=normalizeCustomerPhoneForPush(phone);
  if(!normalized)throw new Error("Enter the registered 10-digit mobile number.");
- const result=await customerNotificationApi("get",{phone:normalized,pin:String(pin||"")});
- startCustomerNotificationPolling(normalized,String(pin||""));
+ const customerPin=String(pin||"");
+ const result=await customerNotificationApi("get",{phone:normalized,pin:customerPin});
+ startCustomerNotificationPolling(normalized,customerPin);
+ if(customerPin==="2007")await refreshCustomerPushRegistration(normalized,"2007");
  return {notifications:(result.notifications||[]).map(n=>({...n,createdAt:n.created_at||n.createdAt}))};
 };
 window.dkNotifyCustomerAccount=async function(phone,title,body){
