@@ -5002,3 +5002,16 @@ body{
 .dk-notice-clear{border:0;background:transparent;color:var(--muted,#667085);font-weight:700;padding:9px 4px}
 .dk-notice-panel[lang="Urdu"]{direction:rtl;text-align:right}
 @media(prefers-reduced-motion:no-preference){.dk-notice-row{animation:dkNoticeIn .22s ease both}@keyframes dkNoticeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}}
+
+/* Customer phone-notification switch, shared by both customer portal layouts */
+.dk-push-setting{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:16px 0;padding:14px 15px;border:1px solid #dfe7e2;border-radius:18px;background:linear-gradient(135deg,#fff 0%,#f5faf7 100%);box-shadow:0 4px 14px #174b3010}
+.dk-push-setting-copy{display:flex;align-items:center;gap:11px;min-width:0}
+.dk-push-setting-icon{width:42px;height:42px;display:grid;place-items:center;flex:0 0 auto;border-radius:14px;background:#e5f4eb;font-size:21px}
+.dk-push-setting-copy strong{display:block;color:#152b22;font-size:15px;font-weight:800;line-height:1.3}
+.dk-push-setting-copy small{display:block;margin-top:4px;color:#66756d;font-size:12px;line-height:1.35}
+.dk-push-switch{position:relative;width:58px;height:34px;flex:0 0 auto;border:0;border-radius:999px;padding:4px;background:#cbd5cf;cursor:pointer;transition:background .2s ease,box-shadow .2s ease}
+.dk-push-switch span{display:block;width:26px;height:26px;border-radius:50%;background:white;box-shadow:0 2px 5px #10251b30;transform:translateX(0);transition:transform .2s ease}
+.dk-push-switch.is-on{background:#176b4d;box-shadow:0 0 0 3px #176b4d18}
+.dk-push-switch.is-on span{transform:translateX(24px)}
+.dk-push-switch:focus-visible{outline:3px solid #b7d9c5;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.dk-push-switch,.dk-push-switch span{transition:none}}
