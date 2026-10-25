@@ -26,6 +26,7 @@ jobs:
           node-version: 20
       - name: Check browser scripts
         run: |
+          node --check app.js
           node --check notifications.js
           node --check auth.js
       - name: Check Firebase Functions
