@@ -35,17 +35,38 @@ function saveState(){
       const customerTx=(snapshot,id)=>txs(snapshot).filter(t=>String(t?.customerId??t?.customer_id??"")===String(id));
       const signature=items=>JSON.stringify(items.slice().sort((a,b)=>String(a?.id||"").localeCompare(String(b?.id||""))));
       const money=v=>"₹"+Number(v||0).toLocaleString("en-IN",{maximumFractionDigits:2});
+      const shopName=String(state.shop?.name||"Dukaan Khata").slice(0,60);
       for(const [id,c] of allCustomers){
         if(!c)continue;
         const before=customerTx(previous,id),after=customerTx(state,id);
         if(signature(before)===signature(after))continue;
-        const current=customers.find(x=>String(x?.id)===id);
-        const phone=current?.phone||c.phone;
+        const customer=customers.find(x=>String(x?.id)===id)||c;
+        const phone=customer?.phone||c.phone;
         if(!phone)continue;
         const sales=after.filter(t=>t.type==="sale"),payments=after.filter(t=>t.type==="payment"&&Number(t.amount)>0);
-        const total=sales.reduce((n,t)=>n+(Number(t.total)||0),0),paid=payments.reduce((n,t)=>n+(Number(t.amount)||0),0),due=Math.max(0,total-paid);
-        const changed=after.length>before.length?"A bill, item or payment was added.":"Your bill, item, payment or outstanding details changed.";
-        Promise.resolve().then(()=>window.dkNotifyCustomerAccount(phone,"Your Dukaan Khata was updated",changed+" Total bills: "+money(total)+". Paid: "+money(paid)+". Outstanding: "+money(due)+". Open Dukaan Khata to view your account.")).catch(e=>console.warn("Customer notification failed",e));
+        const total=sales.reduce((n,t)=>n+(Number(t.total)||0),0);
+        const paid=payments.reduce((n,t)=>n+(Number(t.amount)||0),0);
+        const due=Math.max(0,total-paid);
+        const changedTx=after.find(t=>!before.some(b=>String(b?.id)===String(t?.id)))||after[0];
+        const changedType=changedTx?.type==="payment"?"Payment recorded":changedTx?.type==="sale"?"Bill updated":"Account updated";
+        const lines=Array.isArray(changedTx?.lines)?changedTx.lines:[];
+        const itemSummary=lines.slice(0,3).map(line=>{
+          const name=String(line?.name||line?.itemName||line?.item||"Item").slice(0,36);
+          const qty=Number(line?.qty??line?.quantity??1)||1;
+          const amount=Number(line?.total??line?.price??0)||0;
+          return name+" ×"+qty+" ("+money(amount)+")";
+        }).join(", ");
+        const latestAmount=changedTx?.type==="payment"?Number(changedTx.amount)||0:Number(changedTx?.total)||0;
+        const details=[
+          changedType+(latestAmount?" "+money(latestAmount):""),
+          itemSummary?"Items: "+itemSummary:"",
+          "Bill total: "+money(total),
+          "Paid: "+money(paid),
+          "Outstanding: "+money(due),
+          "Shop: "+shopName
+        ].filter(Boolean).join(" • ").slice(0,340);
+        const title=String(customer?.name||"Customer").slice(0,70)+" • Account update";
+        Promise.resolve().then(()=>window.dkNotifyCustomerAccount(phone,title,details)).catch(e=>console.warn("Customer notification failed",e));
       }
     }
     if(window.dkQueueSync)window.dkQueueSync();
