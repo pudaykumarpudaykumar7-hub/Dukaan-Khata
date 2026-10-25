@@ -102,4 +102,38 @@ window.dkRequestNotifications=async function(){
 window.dkOpenNotifications=function(){const list=read();list.forEach(x=>x.read=true);try{localStorage.setItem(KEY,JSON.stringify(list))}catch(e){}dot();const t=tr();const rows=list.length?list.map(x=>'<article class="dk-notice-row"><span class="dk-notice-icon">'+(/bill|బిల్లు|बिल|बिल्|બિલ|ಬಿಲ್|বিল|பில்|ബിൽ/.test(x.title)?"▤":/payment|చెల్లింపు|भुगतान|ಪಾವತಿ|பணம்|ચુકવણી|পেমেন্ট/.test(x.title)?"↗":"✦")+'</span><div class="dk-notice-copy"><b>'+esc(x.title)+'</b><p>'+esc(x.body)+'</p><small>'+esc(new Date(x.date).toLocaleString())+'</small></div></article>').join(""):'<div class="dk-notice-empty"><span class="dk-notice-empty-icon">✓</span><h3>'+esc(t[4])+'</h3><p>'+esc(t[5])+'</p></div>';if(typeof window.modal==="function")window.modal('<div class="dk-notice-panel" lang="'+esc(lang())+'"><div class="dk-notice-head"><div class="dk-notice-emblem">✦</div><div class="dk-notice-heading"><h2>'+esc(t[0])+'</h2><p>'+esc(t[1])+'</p></div><button class="dk-notice-enable" type="button" onclick="dkRequestNotifications()">♧ '+esc(t[2])+'</button></div><div class="dk-notice-list">'+rows+'</div><div class="dk-notice-actions"><button class="dk-notice-clear" type="button" onclick="dkClearNotifications()">'+esc(t[3])+'</button></div></div>')};
 window.dkClearNotifications=function(){try{localStorage.removeItem(KEY)}catch(e){}dot();window.dkOpenNotifications()};
 window.addEventListener("DOMContentLoaded",dot);window.addEventListener("storage",e=>{if(e.key===KEY)dot()});if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{if(e.data?.type==="DK_NOTIFICATION_CLICK")window.dkOpenNotifications?.()});
+
+async function customerPushCall(path,payload){
+ const response=await fetch(PUSH_API+"/"+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+ let data={};try{data=await response.json()}catch(e){}
+ if(!response.ok)throw new Error(data.error||"Customer notification service request failed");
+ return data;
+}
+function normalizeCustomerPhoneForPush(value){let d=String(value||"").replace(/\\D/g,"");if(d.length===12&&d.startsWith("91"))d=d.slice(2);if(d.length===13&&d.startsWith("0091"))d=d.slice(4);return /^\\d{10}$/.test(d)?d:""}
+window.dkEnableCustomerNotifications=async function(phone,pin){
+ const normalized=normalizeCustomerPhoneForPush(phone);
+ if(!normalized)throw new Error("Enter the registered 10-digit mobile number.");
+ if(String(pin||"")!=="2007")throw new Error("Customer PIN is incorrect.");
+ if(!("Notification"in window)||!("serviceWorker"in navigator)||!window.isSecureContext)throw new Error("Open Dukaan Khata over HTTPS and allow phone notifications.");
+ const permission=await Notification.requestPermission();
+ if(permission!=="granted")throw new Error("Please allow notifications in phone or browser settings.");
+ if(!window.firebase?.messaging)throw new Error("Firebase messaging SDK did not load.");
+ if(!window.firebase.apps.length)window.firebase.initializeApp(DK_FIREBASE_CONFIG);
+ const reg=await navigator.serviceWorker.ready;
+ const token=await window.firebase.messaging().getToken({vapidKey:DK_VAPID_KEY,serviceWorkerRegistration:reg});
+ if(!token)throw new Error("Firebase did not return a device token.");
+ await customerPushCall("registerCustomerPushDevice",{phone:normalized,pin:"2007",token,platform:"web"});
+ try{sessionStorage.setItem("dk_customer_phone",normalized);sessionStorage.setItem("dk_customer_pin","2007")}catch(e){}
+ return {ok:true};
+};
+window.dkFetchCustomerNotifications=async function(phone,pin){
+ const normalized=normalizeCustomerPhoneForPush(phone);
+ if(!normalized)throw new Error("Enter the registered 10-digit mobile number.");
+ return customerPushCall("getCustomerNotifications",{phone:normalized,pin:String(pin||"")});
+};
+window.dkNotifyCustomerAccount=async function(phone,title,body){
+ const normalized=normalizeCustomerPhoneForPush(phone);if(!normalized)return null;
+ try{return await pushApiCall("sendCustomerAccountNotification",{phone:normalized,title:String(title||"Dukaan Khata account updated"),body:String(body||"Your bill, items or outstanding balance has changed. Open Dukaan Khata to view details.")})}
+ catch(e){console.warn("Customer account notification was not sent:",e?.message||e);return null}
+};
 })();
