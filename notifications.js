@@ -1,5 +1,7 @@
 (()=>{"use strict";
 const KEY="dk_local_notifications_v1";
+const DK_FIREBASE_CONFIG={apiKey:"AIzaSyCaNvRS-tiVHWP6zFlxPlUMxRZoUGg2Fi0",authDomain:"dukaan-khata-a517c.firebaseapp.com",projectId:"dukaan-khata-a517c",storageBucket:"dukaan-khata-a517c.firebasestorage.app",messagingSenderId:"320689548893",appId:"1:320689548893:web:4bd715518e9c9052a4",measurementId:"G-WREN34MCQD"};
+const DK_VAPID_KEY="BDpqvV1cWiSpdZ_W_X6qSjyq2WPD_LV8Dnp39I17srGbO74nAZagZxzzzTZX0qEktIn4FOIqKDKV_zGZB5B1IYY";
 const T={
 English:["Notifications","Your shop updates","Enable phone notifications","Clear notifications","You're all caught up","New bills and payments will appear here.","New bill saved","Payment received","Bill saved for","Payment recorded for","Notifications enabled","Dukaan Khata alerts are enabled on this device."],
 Telugu:["నోటిఫికేషన్లు","మీ షాప్ అప్‌డేట్లు","ఫోన్ నోటిఫికేషన్లు ప్రారంభించండి","నోటిఫికేషన్లు తొలగించండి","అన్ని అప్‌డేట్లు చూశారు","కొత్త బిల్లులు, చెల్లింపులు ఇక్కడ కనిపిస్తాయి.","కొత్త బిల్లు సేవ్ అయింది","చెల్లింపు అందింది","బిల్లు సేవ్ చేసిన కస్టమర్","చెల్లింపు చేసిన కస్టమర్","నోటిఫికేషన్లు ప్రారంభించబడ్డాయి","ఈ పరికరంలో Dukaan Khata అలర్ట్‌లు ప్రారంభమయ్యాయి."],
@@ -22,7 +24,22 @@ function dot(){const b=document.getElementById("dkNotificationBadge");if(b){b.hi
 function translate(title,body){const t=tr();let a=title,b=body;if(/new bill saved/i.test(title)){a=t[6];b=t[8]+" • "+String(body||"").replace(/^.*?•\s*/,"")}else if(/payment recorded/i.test(title)){a=t[7];b=t[9]+" • "+String(body||"").replace(/^.*?•\s*/,"")}else if(/notifications enabled/i.test(title)){a=t[10];b=t[11]}return[a,b]}
 async function systemNotice(item){try{if(!("Notification"in window)||Notification.permission!=="granted")return;const reg="serviceWorker"in navigator?await navigator.serviceWorker.ready.catch(()=>null):null;if(reg?.showNotification)await reg.showNotification(item.title,{body:item.body,icon:"./icon.svg",badge:"./icon.svg",tag:item.id,data:{url:"./?notifications=1"}});else new Notification(item.title,{body:item.body,icon:"./icon.svg",tag:item.id})}catch(e){console.warn("Notification could not be shown",e)}}
 window.dkNotify=async function(title,body){if(!/^(new bill saved|payment recorded|important reminder|customer khata updated|item added to khata)$/i.test(String(title||"").trim()))return null;const m=translate(title,body),item={id:"n"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),title:m[0],body:m[1],date:new Date().toISOString(),read:false,language:lang()};const list=read();list.unshift(item);try{localStorage.setItem(KEY,JSON.stringify(list.slice(0,100)))}catch(e){}dot();await systemNotice(item);return item};
-window.dkRequestNotifications=async function(){const t=tr();if(!("Notification"in window)){if(window.toast)toast("Notifications are not supported");return}try{const p=await Notification.requestPermission();if(p==="granted"){if(window.toast)toast(t[10])}else if(window.toast)toast("Allow notifications in your browser or phone settings")}catch(e){}};
+window.dkRequestNotifications=async function(){
+ if(!("Notification"in window)){if(window.toast)toast("Notifications are not supported in this browser");return}
+ if(!("serviceWorker"in navigator)||!window.isSecureContext){if(window.toast)toast("Open Dukaan Khata over HTTPS to enable push notifications");return}
+ try{
+  const p=await Notification.requestPermission();
+  if(p!=="granted"){if(window.toast)toast("Allow notifications in your browser or phone settings");return}
+  if(!window.firebase?.messaging)throw new Error("Firebase messaging SDK did not load");
+  if(!window.firebase.apps.length)window.firebase.initializeApp(DK_FIREBASE_CONFIG);
+  const reg=await navigator.serviceWorker.ready;
+  const token=await window.firebase.messaging().getToken({vapidKey:DK_VAPID_KEY,serviceWorkerRegistration:reg});
+  if(!token)throw new Error("Firebase did not return a device token");
+  try{localStorage.setItem("dk_fcm_registration_token_v1",token)}catch(e){}
+  window.dispatchEvent(new CustomEvent("dk:push-token-ready",{detail:{token,projectId:DK_FIREBASE_CONFIG.projectId}}));
+  if(window.toast)toast("Push enabled on this device. Server delivery setup is still required.");
+ }catch(e){console.error("Firebase push setup failed",e);if(window.toast)toast("Push setup failed: "+(e?.message||"check Firebase settings"))}
+};
 window.dkOpenNotifications=function(){const list=read();list.forEach(x=>x.read=true);try{localStorage.setItem(KEY,JSON.stringify(list))}catch(e){}dot();const t=tr();const rows=list.length?list.map(x=>'<article class="dk-notice-row"><span class="dk-notice-icon">'+(/bill|బిల్లు|बिल|बिल्|બિલ|ಬಿಲ್|বিল|பில்|ബിൽ/.test(x.title)?"▤":/payment|చెల్లింపు|भुगतान|ಪಾವತಿ|பணம்|ચુકવણી|পেমেন্ট/.test(x.title)?"↗":"✦")+'</span><div class="dk-notice-copy"><b>'+esc(x.title)+'</b><p>'+esc(x.body)+'</p><small>'+esc(new Date(x.date).toLocaleString())+'</small></div></article>').join(""):'<div class="dk-notice-empty"><span class="dk-notice-empty-icon">✓</span><h3>'+esc(t[4])+'</h3><p>'+esc(t[5])+'</p></div>';if(typeof window.modal==="function")window.modal('<div class="dk-notice-panel" lang="'+esc(lang())+'"><div class="dk-notice-head"><div class="dk-notice-emblem">✦</div><div class="dk-notice-heading"><h2>'+esc(t[0])+'</h2><p>'+esc(t[1])+'</p></div><button class="dk-notice-enable" type="button" onclick="dkRequestNotifications()">♧ '+esc(t[2])+'</button></div><div class="dk-notice-list">'+rows+'</div><div class="dk-notice-actions"><button class="dk-notice-clear" type="button" onclick="dkClearNotifications()">'+esc(t[3])+'</button></div></div>')};
 window.dkClearNotifications=function(){try{localStorage.removeItem(KEY)}catch(e){}dot();window.dkOpenNotifications()};
 window.addEventListener("DOMContentLoaded",dot);window.addEventListener("storage",e=>{if(e.key===KEY)dot()});if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{if(e.data?.type==="DK_NOTIFICATION_CLICK")window.dkOpenNotifications?.()});
