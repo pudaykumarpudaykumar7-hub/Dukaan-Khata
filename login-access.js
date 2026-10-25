@@ -29,7 +29,7 @@
     loginAccess2();
   }
 
-  function renderGlobalCustomerAccounts2(accounts){
+  function renderGlobalCustomerAccounts2(accounts,customerPhone,customerPin){
     const root=document.getElementById("dkCustomerFullScreen");
     if(!root)return;
     root.className="dk-customer-fullscreen";
@@ -55,8 +55,35 @@
       const paymentRows=payments.slice().reverse().map(t=>'<div class="dk-exec-record"><div class="dk-record-icon">💳</div><div class="dk-record-main"><b>Payment received</b><small>'+date(t)+(t.mode?" • "+esc(t.mode):"")+'</small></div><strong class="dk-customer-paid">+'+money(Number(t.amount)||0)+'</strong></div>').join("")||'<div class="dk-empty">No payments recorded</div>';
       return '<section class="dk-customer-login-card" style="max-width:900px;text-align:left;margin:0 auto 18px"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><span class="dk-login-badge">REGISTERED SHOP '+(index+1)+'</span><h2 style="margin:8px 0 3px">'+esc(shop.name||"Dukaan")+'</h2><p style="margin:0;color:#64748b">'+esc(shop.address||"")+'</p><small>Customer: '+esc(c.name||"Customer")+'</small></div>'+(tel.replace(/\D/g,"").length>=10?'<a class="dk-customer-call-owner" href="tel:'+esc(tel)+'">☎ Call Owner</a>':'<span class="dk-customer-call-owner-unavailable">Owner phone not available</span>')+'</div><div class="dk-customer-summary dk-exec-summary"><div><small>TOTAL TAKEN</small><b>'+money(total)+'</b></div><div><small>TOTAL PAID</small><b class="dk-customer-paid">'+money(paid)+'</b></div><div><small>TOTAL DUE</small><b class="dk-customer-due">'+money(due)+'</b></div></div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>🛍️</span><div><h3>Items Taken</h3></div></div>'+items+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>🧾</span><div><h3>My Bills</h3></div></div>'+bills+'</div><div class="dk-exec-section"><div class="dk-exec-section-title"><span>💳</span><div><h3>Payment History</h3></div></div>'+paymentRows+'</div></section>';
     }).join("");
-    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkGlobalBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>My Customer Space</small></div></div><span class="dk-customer-secure">🔒 Read Only</span></header><main class="dk-customer-home-main" style="max-width:1000px"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>My <strong>Shops & Khata</strong></h1><p>'+safe.length+' registered shop account(s) found for your verified mobile number.</p></div>'+(safe.length?accountCards:'<section class="dk-customer-login-card"><h2>No shop records found</h2><p>No shop has registered this verified mobile number yet. Ask your shopkeeper to check the number saved in your customer record.</p></section>')+'<button type="button" class="dk-login-close" id="dkCustomerLogout2">↪ Sign out</button></main></div>';
+    root.innerHTML='<div class="dk-customer-home"><header class="dk-customer-home-head"><button class="dk-customer-home-back" id="dkGlobalBack" type="button">←</button><div class="dk-customer-brand"><div class="dk-customer-brand-icon">👤</div><div><b>Dukaan Khata</b><small>My Customer Space</small></div></div><div style="display:flex;align-items:center;gap:8px"><button id="dkCustomerNotificationBell2" type="button" aria-label="Customer notifications" style="position:relative;border:1px solid #d7e1eb;border-radius:12px;padding:10px 13px;background:#fff;font-size:20px;cursor:pointer">♧ <span id="dkCustomerNotificationDot2" style="display:none;position:absolute;right:7px;top:6px;width:8px;height:8px;border-radius:50%;background:#dc2626"></span></button><span class="dk-customer-secure">🔒 Read Only</span></div></header><main class="dk-customer-home-main" style="max-width:1000px"><div class="dk-customer-welcome"><span class="dk-login-badge">CUSTOMER ACCESS</span><h1>My <strong>Shops & Khata</strong></h1><p>'+safe.length+' registered shop account(s) found for your verified mobile number.</p></div>'+(safe.length?accountCards:'<section class="dk-customer-login-card"><h2>No shop records found</h2><p>No shop has registered this verified mobile number yet. Ask your shopkeeper to check the number saved in your customer record.</p></section>')+'<button type="button" class="dk-login-close" id="dkCustomerLogout2">↪ Sign out</button></main></div>';
     root.querySelector("#dkGlobalBack")?.addEventListener("click",()=>openCustomer2(true));
+    root.querySelector("#dkCustomerNotificationBell2")?.addEventListener("click",async()=>{
+      let panel=root.querySelector("#dkCustomerNotificationPanel2");
+      if(panel){panel.remove();return}
+      panel=document.createElement("section");panel.id="dkCustomerNotificationPanel2";
+      panel.style.cssText="position:fixed;inset:0;z-index:2147483005;background:#f8fafc;overflow:auto;padding:18px;box-sizing:border-box";
+      panel.innerHTML='<div style="max-width:760px;margin:0 auto"><header style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><small style="font-weight:800;color:#176b4d">DUKAAN KHATA</small><h2 style="margin:4px 0 12px">My Notifications</h2></div><button id="dkCustomerNotificationClose2" type="button" style="border:1px solid #dbe3ea;border-radius:10px;background:white;padding:10px 14px">← Back</button></header><p style="color:#64748b">Bill, item, payment and outstanding updates for this mobile number.</p><button id="dkCustomerNotificationEnable2" type="button" style="width:100%;padding:13px;border:0;border-radius:12px;background:#176b4d;color:white;font-weight:800">♧ Enable phone notifications</button><div id="dkCustomerNotificationStatus2" role="status" style="margin:12px 0"></div><div id="dkCustomerNotificationRows2"></div><p style="font-size:12px;color:#64748b">Your PIN is the shared customer PIN 2007. It is not unique proof of identity.</p></div>';
+      root.appendChild(panel);
+      const status=panel.querySelector("#dkCustomerNotificationStatus2"),rows=panel.querySelector("#dkCustomerNotificationRows2");
+      panel.querySelector("#dkCustomerNotificationClose2")?.addEventListener("click",()=>panel.remove());
+      const load=async()=>{
+        if(!window.dkFetchCustomerNotifications){status.textContent="Notification service is loading. Refresh and try again.";return}
+        status.textContent="Loading notifications…";
+        try{
+          const result=await window.dkFetchCustomerNotifications(customerPhone,customerPin);
+          const list=Array.isArray(result.notifications)?result.notifications:[];
+          status.textContent=list.length?list.length+" notification(s)":"No notifications yet.";
+          rows.innerHTML=list.map(n=>'<article style="background:white;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin:10px 0"><b>'+esc(n.title||"Account update")+'</b><p style="margin:7px 0;color:#334155">'+esc(n.body||"Your account has been updated.")+'</p><small style="color:#64748b">'+esc(n.createdAt?new Date(n.createdAt).toLocaleString("en-IN"):"")+'</small></article>').join("");
+        }catch(e){status.textContent=e.message||"Could not load notifications."}
+      };
+      panel.querySelector("#dkCustomerNotificationEnable2")?.addEventListener("click",async()=>{
+        status.textContent="Requesting notification permission…";
+        try{await window.dkEnableCustomerNotifications(customerPhone,customerPin);status.textContent="Phone notifications enabled on this device."}
+        catch(e){status.textContent=e.message||"Could not enable phone notifications."}
+      });
+      await load();
+    });
+    
     root.querySelector("#dkCustomerLogout2")?.addEventListener("click",async()=>{try{await getCustomerSB()?.auth.signOut()}catch(e){};openCustomer2(true)});
   }
   function openCustomer2(hideBack){
@@ -84,7 +111,7 @@
         if(error||data?.error)throw new Error(data?.error||"Could not load your Khata.");
         const accounts=Array.isArray(data?.accounts)?data.accounts:[];
         if(!accounts.length){status.textContent="No shop records found for this mobile number.";return}
-        renderGlobalCustomerAccounts2(accounts);
+        renderGlobalCustomerAccounts2(accounts,q,pin);
       }catch(e){status.textContent=e?.message||"Could not connect. Please try again."}
       finally{btn.disabled=false}
     }
