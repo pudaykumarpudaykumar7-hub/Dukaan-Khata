@@ -321,8 +321,12 @@
         const result=await response.json().catch(()=>({}));
         if(!response.ok)throw new Error(result.error||"Customer portal publish failed");
         console.info("Customer portal records updated:",result.published);
-      }catch(e){console.warn("Customer portal update did not complete; local owner data is unchanged.",e?.message||e)}
-      finally{portalPublishing=false;if(portalPublishSnapshot){clearTimeout(portalPublishTimer);portalPublishTimer=setTimeout(()=>window.dkPublishCustomerPortalSnapshot(portalPublishSnapshot),1500)}}
+      }catch(e){
+        console.warn("Customer portal update did not complete; local owner data is unchanged.",e?.message||e);
+        // Retry the same snapshot after transient network/service failures.
+        portalPublishSnapshot=snap;
+      }
+      finally{portalPublishing=false;if(portalPublishSnapshot){clearTimeout(portalPublishTimer);portalPublishTimer=setTimeout(()=>window.dkPublishCustomerPortalSnapshot(portalPublishSnapshot),5000)}}
     },1200);
   };
 
