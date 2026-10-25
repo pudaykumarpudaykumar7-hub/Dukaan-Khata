@@ -11,6 +11,7 @@
     if(window.dkSupabase)return window.dkSupabase;
     if(!window.supabase?.createClient)return null;
     window.dkSupabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    window.dispatchEvent(new CustomEvent("dk:supabase-ready"));
     return window.dkSupabase;
   }
   function accountFromUser(u){
