@@ -670,7 +670,7 @@ function openShopSettings(){
  ];
  const inputs=fields.map((f,i)=>'<div class="dksp-one-line"><label for="'+f.id+'">'+f.label+'</label>'+(f.type==="textarea"?'<textarea id="'+f.id+'" data-shop-field="'+i+'" placeholder="'+f.placeholder+'" autocomplete="'+f.auto+'">'+esc(f.value)+'</textarea>':'<input id="'+f.id+'" data-shop-field="'+i+'" type="'+f.type+'" value="'+esc(f.value)+'" placeholder="'+f.placeholder+'" autocomplete="'+f.auto+'" '+(f.type==="tel"?'inputmode="tel"':'')+'>')+'</div>').join("");
  const pic=s.profilePic?'<img src="'+esc(s.profilePic)+'" alt="Shop profile">':'🏪';
- modal('<div class="dksp-premium-profile"><header class="dksp-premium-head"><div class="dksp-premium-mark"></div><div><h2>Shop Profile</h2><p>Edit all shop details below</p></div></header><form id="dkspPremiumForm" onsubmit="event.preventDefault();saveShopSettings()"><div class="dksp-one-details"></div><button class="dksp-premium-save" type="submit">Save Profile</button></form></div>);
+ modal('<div class="dksp-premium-profile"><header class="dksp-premium-head"><div class="dksp-premium-mark"></div><div><h2>Shop Profile</h2><p>Edit all shop details below</p></div></header><form id="dkspPremiumForm" onsubmit="event.preventDefault();saveShopSettings()"><div class="dksp-one-details">'+inputs+'</div><button class="dksp-premium-save" type="submit">Save Profile</button></form></div>);
  const form=document.getElementById("dkspPremiumForm");
  if(form)form.addEventListener("keydown",function(e){
   if(e.key!=="Enter"||e.isComposing)return;
