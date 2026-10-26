@@ -311,7 +311,7 @@ function dkSubscriptionUsage(){
   const selected=catalogue?.byId(planId);
   // A saved browser value is not payment proof. Paid entitlements must be
   // written by a verified server integration before this can grant access.
-  const plan=(planId==="free"||state.settings?.subscriptionVerified===true)?(selected||catalogue?.byId("free")):(catalogue?.byId("free"));
+  const plan=(planId==="free"||(state.settings?.subscriptionVerified===true&&window.dkSubscriptionEntitlementChecked===true))?(selected||catalogue?.byId("free")):(catalogue?.byId("free"));
   return {customerCount:customers,billCount:bills,plan:plan?.id||"free",customerLimit:plan?.customerLimit??Infinity,billLimit:plan?.billLimit??Infinity,price:(plan?.pricePaise||0)/100,label:plan?.name||"Starter"};
 }
 function dkCheckSubscription(kind){
@@ -367,6 +367,7 @@ window.dkSubscriptionCheckout=async function(planId){
           const verified=await verify.json();
           if(!verify.ok||verified.verified!==true)throw new Error(verified.error||"Payment could not be verified.");
           state.settings={...(state.settings||{}),subscriptionPlan:verified.planId,subscriptionVerified:true,subscriptionPeriodEnd:verified.currentPeriodEnd};
+          window.dkSubscriptionEntitlementChecked=true;
           saveState();await window.dkRefreshSubscriptionEntitlement?.();closeModal();render();toast(verified.planName+" activated successfully.");
         }catch(e){toast((e.message||"Payment verification is pending.")+" If money was deducted, do not pay again; contact support with your Razorpay payment ID.");}
       },
@@ -379,14 +380,15 @@ window.dkSubscriptionCheckout=async function(planId){
   const script=document.createElement("script");script.src="https://checkout.razorpay.com/v1/checkout.js";script.async=true;
   script.onload=openCheckout;script.onerror=()=>toast("Secure Razorpay checkout could not load.");document.head.appendChild(script);
 };
+window.dkSubscriptionEntitlementChecked=false;
 window.dkRefreshSubscriptionEntitlement=async function(){
-  const token=await window.dkGetSupabaseAccessToken?.();if(!token)return false;
+  const token=await window.dkGetSupabaseAccessToken?.();if(!token){window.dkSubscriptionEntitlementChecked=false;return false;}
   try{
     const response=await fetch("/api/subscriptions/entitlement",{headers:{Authorization:"Bearer "+token}});
-    if(!response.ok)return false;const data=await response.json();
+    if(!response.ok){window.dkSubscriptionEntitlementChecked=false;return false;}const data=await response.json();
     state.settings={...(state.settings||{}),subscriptionPlan:data.active?data.planId:"free",subscriptionVerified:!!data.active,subscriptionPeriodEnd:data.currentPeriodEnd||null};
-    saveState();return true;
-  }catch(e){console.warn("Subscription entitlement refresh failed:",e?.message||e);return false;}
+    window.dkSubscriptionEntitlementChecked=true;saveState();return true;
+  }catch(e){window.dkSubscriptionEntitlementChecked=false;console.warn("Subscription entitlement refresh failed:",e?.message||e);return false;}
 };
 
 function addCustomer(mode=""){if(!dkCheckSubscription("customer"))return;modal('<h2>New Customer</h2><form id="newCustomerForm" autocomplete="on"><input id="cname" name="name" placeholder="Customer name" autocomplete="name" enterkeyhint="next" required><input id="cphone" name="tel" type="tel" inputmode="tel" placeholder="Mobile / WhatsApp number" autocomplete="tel" enterkeyhint="next"><input id="caddress" name="address" type="text" placeholder="Address (optional)" autocomplete="street-address" enterkeyhint="done"><label style="display:flex;align-items:flex-start;gap:10px;margin:12px 0;padding:12px;border:1px solid var(--line,#ddd);border-radius:12px"><input id="cWeeklyReminder" type="checkbox" style="margin-top:3px"><span><b>Automatic reminder every 7 days</b><small style="display:block">Optional. Enable only if this customer agrees. Message delivery needs a configured messaging service.</small></span></label><button class="btn primary" id="saveCustomerBtn" type="submit">Save Customer</button></form>');const form=document.getElementById("newCustomerForm");form?.addEventListener("submit",e=>{e.preventDefault();saveCustomer(mode)});const name=document.getElementById("cname"),phone=document.getElementById("cphone"),address=document.getElementById("caddress");name?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();phone?.focus()}});phone?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();address?.focus()}});address?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveCustomer(mode)}});setTimeout(()=>name?.focus(),80)}
