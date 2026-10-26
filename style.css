@@ -5105,3 +5105,34 @@ body{
 .dk-plan-head-vip h3::first-letter{color:#d99b19!important}
 .dk-plan-head-vip h3{ text-shadow:0 1px 0 #fff1be!important}
 .dk-plan-head-vip .dk-plan-badge{font-size:10px!important;letter-spacing:.4px!important}
+
+
+/* DK shop profile reference layout v1 */
+#modal:has(.dksp-profile) .dksp-profile{color:#eafaff;background:linear-gradient(155deg,#03131d 0%,#062837 54%,#071721 78%,#201a0d 100%);border:1px solid #24dff5;border-radius:22px;padding:18px;box-shadow:0 0 18px #20dff522;max-height:78vh;overflow-y:auto;overscroll-behavior:contain}
+#modal:has(.dksp-profile) .dksp-head{display:flex;align-items:center;gap:12px;padding:4px 0 16px;border-bottom:1px solid #176779}
+#modal:has(.dksp-profile) .dksp-head-icon{display:grid;place-items:center;flex:0 0 44px;height:44px;border-radius:14px;color:#03131d;background:linear-gradient(135deg,#20e7ff,#b1f8ff 55%,#f3c96b);font-size:24px}
+#modal:has(.dksp-profile) .dksp-head h2{margin:0;color:#f5fcff;font-size:22px}
+#modal:has(.dksp-profile) .dksp-head p{margin:4px 0 0;color:#a6eaf4;font-size:13px}
+#modal:has(.dksp-profile) .dksp-head b{margin-left:auto;color:#ffe5a0;font-size:11px;letter-spacing:1px}
+#modal:has(.dksp-profile) .dksp-identity{display:flex;align-items:center;gap:14px;margin:15px 0;padding:14px;border:1px solid #20cde2;border-radius:17px;background:linear-gradient(120deg,#063445,#09202a 72%,#2a210e);box-shadow:inset 0 1px #ffffff12}
+#modal:has(.dksp-profile) .dksp-shop-picture{display:grid;place-items:center;flex:0 0 66px;width:66px;height:66px;border-radius:15px;background:linear-gradient(135deg,#24e7fa,#e8faff 60%,#f3c96b);color:#04202a;font-size:32px;overflow:hidden}
+#modal:has(.dksp-profile) .dksp-shop-picture img{width:100%;height:100%;object-fit:cover}
+#modal:has(.dksp-profile) .dksp-identity h3{margin:0;color:#fff;font-size:18px;font-weight:850}
+#modal:has(.dksp-profile) .dksp-identity p{margin:5px 0 0;color:#a8eaf3;font-size:13px}
+#modal:has(.dksp-profile) .dksp-details{border:1px solid #188398;border-radius:17px;padding:14px;background:linear-gradient(145deg,#041b27,#06232f 70%,#19190f)}
+#modal:has(.dksp-profile) .dksp-details h3,#modal:has(.dksp-profile) .dksp-edit-fields h3{margin:0 0 8px;color:#f6fcff;font-size:16px}
+#modal:has(.dksp-profile) .dksp-detail-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #174351}
+#modal:has(.dksp-profile) .dksp-detail-row:last-child{border-bottom:0}
+#modal:has(.dksp-profile) .dksp-detail-row>span{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:50%;color:#03141c;background:linear-gradient(135deg,#24e7fa,#9df4ff 55%,#f3c96b);font-size:17px}
+#modal:has(.dksp-profile) .dksp-detail-row>div{min-width:0;display:flex;flex-direction:column;gap:4px}
+#modal:has(.dksp-profile) .dksp-detail-row small{color:#9deaf4;font-size:12px}
+#modal:has(.dksp-profile) .dksp-detail-row strong{color:#f7fcff;font-size:14px;font-weight:650;overflow-wrap:anywhere}
+#modal:has(.dksp-profile) .dksp-edit-fields{margin-top:14px;padding:14px;border:1px solid #886d35;border-radius:16px;background:linear-gradient(145deg,#071b25,#111d20 70%,#211a0b)}
+#modal:has(.dksp-profile) .dksp-edit-fields label{display:block;margin:12px 0 6px;color:#c8f7fc;font-size:13px;font-weight:650}
+#modal:has(.dksp-profile) .dksp-edit-fields input,#modal:has(.dksp-profile) .dksp-edit-fields textarea{width:100%;box-sizing:border-box;color:#fff!important;background:#03151f!important;border:1px solid #247f91!important;border-radius:11px;padding:12px;font:inherit}
+#modal:has(.dksp-profile) .dksp-edit-fields input::placeholder,#modal:has(.dksp-profile) .dksp-edit-fields textarea::placeholder{color:#9abcc5;opacity:1}
+#modal:has(.dksp-profile) .dksp-edit-fields textarea{min-height:82px;resize:vertical}
+#modal:has(.dksp-profile) .dksp-save-btn{width:100%;margin-top:14px;color:#03151c!important;background:linear-gradient(105deg,#22e5fa,#b6f8ff 54%,#f3c96b)!important;border:1px solid #f3c96b!important;border-radius:12px;font-weight:800}
+#modal:has(.dksp-profile) .dksp-footnote{color:#9edce5;font-size:12px;line-height:1.5;margin:12px 2px 0}
+@media(prefers-reduced-motion:no-preference){#modal:has(.dksp-profile) .dksp-identity{background-size:180% 180%;animation:dkspProfileGlow 8s ease-in-out infinite}}
+@keyframes dkspProfileGlow{0%,100%{background-position:0% 50%;box-shadow:inset 0 1px #ffffff12,0 0 0 #24e7fa00}50%{background-position:100% 50%;box-shadow:inset 0 1px #ffffff12,0 0 15px #24e7fa20}}
