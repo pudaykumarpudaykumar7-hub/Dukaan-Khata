@@ -5091,3 +5091,17 @@ body{
 .dk-plan-head-pro .dk-plan-badge{color:#00333b!important;border-color:#005c67!important}
 .dk-plan-head-premium .dk-plan-badge{color:#111821!important;border-color:#5b6675!important}
 .dk-plan-head-vip .dk-plan-badge{color:#3d2906!important;border-color:#8a641b!important}
+
+
+/* High-contrast, thick subscription badges for easy reading */
+.dk-plan-badge-row{min-height:32px!important;margin-bottom:4px!important;justify-content:flex-end!important}
+.dk-plan-badge{min-height:30px!important;padding:6px 12px!important;border-width:2px!important;border-style:solid!important;border-radius:999px!important;font-size:11px!important;line-height:1.2!important;letter-spacing:.55px!important;font-weight:950!important;text-transform:uppercase!important;white-space:nowrap!important;opacity:1!important;filter:none!important;-webkit-font-smoothing:antialiased!important;text-shadow:none!important;box-shadow:0 2px 0 #0005,0 0 10px currentColor!important}
+.dk-plan-head-free .dk-plan-badge{color:#101820!important;background:#f0f4f9!important;border-color:#596779!important}
+.dk-plan-head-pro .dk-plan-badge{color:#001a20!important;background:#a9fbff!important;border-color:#007e8b!important;box-shadow:0 2px 0 #0005,0 0 13px #00e4ed88!important}
+.dk-plan-head-premium .dk-plan-badge{color:#111820!important;background:#ffffff!important;border-color:#687483!important}
+.dk-plan-head-vip .dk-plan-badge{color:#241600!important;background:linear-gradient(135deg,#fff0a6 0%,#f3cf72 45%,#d59b2c 100%)!important;border-color:#fff0a6!important;box-shadow:0 2px 0 #0005,0 0 16px #f3cf72bb!important}
+.dk-plan-head-vip .dk-plan-badge, .dk-plan-head-vip h3{font-weight:1000!important}
+.dk-plan-head-vip h3{display:flex!important;align-items:center!important;gap:7px!important}
+.dk-plan-head-vip h3::first-letter{color:#d99b19!important}
+.dk-plan-head-vip h3{ text-shadow:0 1px 0 #fff1be!important}
+.dk-plan-head-vip .dk-plan-badge{font-size:10px!important;letter-spacing:.4px!important}
