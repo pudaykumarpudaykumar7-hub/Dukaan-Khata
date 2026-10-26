@@ -300,30 +300,96 @@ function globalResults(){const q=(document.getElementById("globalSearch")?.value
 
 /* Monthly subscription plans. Paid access is granted only after a server-verified gateway payment. */
 function dkSubscriptionUsage(){
-  const now=new Date(),month=now.getMonth(),year=now.getFullYear();
-  const bills=(Array.isArray(state.tx)?state.tx:[]).filter(t=>t.type==="sale"&&(()=>{const d=new Date(t.date||0);return !Number.isNaN(d.getTime())&&d.getMonth()===month&&d.getFullYear()===year})()).length;
+  const now=new Date();
+  const monthKey=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit"}).format(now);
+  const bills=(Array.isArray(state.tx)?state.tx:[]).filter(t=>t.type==="sale"&&(()=>{const d=new Date(t.date||t.created||0);return !Number.isNaN(d.getTime())&&new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit"}).format(d)===monthKey})()).length;
   const customers=(Array.isArray(state.customers)?state.customers:[]).length;
-  const plan=String(state.settings?.subscriptionPlan||"free");
-  const limits=plan==="standard"?{customers:100,bills:1500,price:50,label:"Standard"}:plan==="unlimited"?{customers:Infinity,bills:Infinity,price:100,label:"Unlimited"}:{customers:50,bills:500,price:0,label:"Free"};
-  return {customerCount:customers,billCount:bills,plan,customerLimit:limits.customers,billLimit:limits.bills,price:limits.price,label:limits.label};
+  const catalogue=window.DukaanKhataSubscriptions;
+  const savedPlan=String(state.settings?.subscriptionPlan||"free");
+  const legacyMap={standard:"basic-50",premium:"plus-100",unlimited:"unlimited-149"};
+  const planId=legacyMap[savedPlan]||savedPlan;
+  const selected=catalogue?.byId(planId);
+  // A saved browser value is not payment proof. Paid entitlements must be
+  // written by a verified server integration before this can grant access.
+  const plan=(planId==="free"||(state.settings?.subscriptionVerified===true&&window.dkSubscriptionEntitlementChecked===true))?(selected||catalogue?.byId("free")):(catalogue?.byId("free"));
+  return {customerCount:customers,billCount:bills,plan:plan?.id||"free",customerLimit:plan?.customerLimit??Infinity,billLimit:plan?.billLimit??Infinity,price:(plan?.pricePaise||0)/100,label:plan?.name||"Starter"};
 }
 function dkCheckSubscription(kind){
   const u=dkSubscriptionUsage(),limit=kind==="customer"?u.customerLimit:u.billLimit,used=kind==="customer"?u.customerCount:u.billCount;
   if(used<limit)return true;
-  toast(kind==="customer"?"Free customer limit reached. Open Subscriptions to view plans.":"Monthly bill limit reached. Open Subscriptions to view plans.");
+  toast(kind==="customer"?"Customer limit reached. Choose a plan to add more customers.":"Monthly bill limit reached. Choose a plan to create more bills.");
   openSubscriptionPlans();return false;
 }
 function openSubscriptionPlans(){
   const u=dkSubscriptionUsage();
   const fmt=n=>n===Infinity?"Unlimited":String(n);
-  const planCard=(id,name,price,customers,bills,desc,featured)=>'<article style="border:1px solid '+(featured?'#d5b56a':'var(--line,#ddd)')+';border-radius:18px;padding:16px;background:'+(featured?'linear-gradient(145deg,#fff9e9,#fff)':'var(--card,#fff)')+';box-shadow:'+(featured?'0 8px 24px #9a7b3218':'none')+'"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b style="font-size:16px">'+name+'</b>'+(featured?'<span style="font-size:10px;border-radius:99px;padding:5px 8px;background:#e7d29a;color:#503d12">POPULAR</span>':'')+'</div><div style="margin:10px 0"><strong style="font-size:29px">₹'+price+'</strong><span style="color:var(--muted,#666)"> / month</span></div><div style="font-size:13px;line-height:1.9">✓ '+customers+' customers<br>✓ '+bills+' bills each month</div><button type="button" class="btn '+(featured?'primary':'')+'" style="width:100%;margin-top:12px" onclick="dkStartSubscription(\''+id+'\')">'+(u.plan===id?'Current plan':price===0?'Use Free plan':'Subscribe ₹'+price+'/month')+'</button></article>';
-  modal('<div style="max-width:760px;margin:auto"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><div><span class="eyebrow">DUKAAN KHATA • PLANS</span><h2 style="margin:6px 0">Choose your subscription</h2><p class="muted">Monthly limits reset at the start of each calendar month.</p></div><button class="btn" type="button" onclick="closeModal()" aria-label="Close">✕</button></div><div style="border:1px solid var(--line,#ddd);border-radius:14px;padding:12px;margin:14px 0"><b>Current usage · '+u.label+'</b><div style="display:flex;justify-content:space-between;gap:10px;margin-top:8px"><span>Customers</span><strong>'+u.customerCount+' / '+fmt(u.customerLimit)+'</strong></div><div style="display:flex;justify-content:space-between;gap:10px;margin-top:5px"><span>Bills this month</span><strong>'+u.billCount+' / '+fmt(u.billLimit)+'</strong></div><small class="muted">Free plan includes 50 customers and 500 bills. Upgrade limits apply once the payment is verified.</small></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">'+planCard("free","Free",0,"50","500","For getting started",false)+planCard("standard","Standard",50,"100","1,500","For growing shops",true)+planCard("unlimited","Unlimited",100,"Unlimited","Unlimited","For busy shops",false)+'</div><p class="muted" style="font-size:12px;margin-top:14px">Payments are not connected yet. Choosing a paid plan will not charge you or activate it until merchant checkout, server-side payment verification and bank settlement are configured.</p></div>');
+  const plans=window.DukaanKhataSubscriptions?.plans||[
+    {id:"free",name:"Starter",pricePaise:0,customerLimit:50,billLimit:500,description:"A simple start for small shops"},
+    {id:"basic-50",name:"Pro",pricePaise:5000,customerLimit:100,billLimit:1500,description:"More room for growing shops"},
+    {id:"plus-100",name:"Premium",pricePaise:10000,customerLimit:200,billLimit:2500,description:"For busy shops managing more customers"},
+    {id:"unlimited-149",name:"Ultra Premium",pricePaise:14900,customerLimit:null,billLimit:null,unlimitedCustomers:true,unlimitedBills:true,description:"Unlimited customers and bills"}
+  ];
+  const planCard=p=>{
+    const customers=p.unlimitedCustomers?"Unlimited":fmt(p.customerLimit);
+    const bills=p.unlimitedBills?"Unlimited":fmt(p.billLimit);
+    const price=p.pricePaise/100;
+    const current=u.plan===p.id;
+    return '<article style="border:1px solid '+(p.id==="plus-100"?'#d5b56a':'var(--line,#ddd)')+';border-radius:18px;padding:16px;background:'+(p.id==="plus-100"?'linear-gradient(145deg,#fff9e9,#fff)':'var(--card,#fff)')+';box-shadow:'+(p.id==="plus-100"?'0 8px 24px #9a7b3218':'none')+'"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b style="font-size:16px">'+p.name+'</b>'+(p.id==="plus-100"?'<span style="font-size:10px;border-radius:99px;padding:5px 8px;background:#e7d29a;color:#503d12">POPULAR</span>':'')+'</div><div style="margin:10px 0"><strong style="font-size:29px">'+(price===0?'Free':'₹'+price)+'</strong>'+(price===0?'':'<span style="color:var(--muted,#666)"> / month</span>')+'</div><div style="font-size:13px;line-height:1.9">✓ '+customers+' customers<br>✓ '+bills+' bills each month</div><p class="muted" style="font-size:12px">'+p.description+'</p><button type="button" class="btn '+(p.id==="plus-100"?'primary':'')+'" style="width:100%;margin-top:8px" onclick="dkStartSubscription(\''+p.id+'\')">'+(current?'Current plan':price===0?'Use Starter plan':'Continue with '+p.name)+'</button></article>';
+  };
+  modal('<div style="max-width:820px;margin:auto"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><div><span class="eyebrow">DUKAAN KHATA • PLANS</span><h2 style="margin:6px 0">Choose your subscription</h2><p class="muted">Bills are counted by calendar month in India time. Existing records remain available when a limit is reached.</p></div><button class="btn" type="button" onclick="closeModal()" aria-label="Close">✕</button></div><div style="border:1px solid var(--line,#ddd);border-radius:14px;padding:12px;margin:14px 0"><b>Current usage · '+u.label+'</b><div style="display:flex;justify-content:space-between;gap:10px;margin-top:8px"><span>Customers</span><strong>'+u.customerCount+' / '+fmt(u.customerLimit)+'</strong></div><div style="display:flex;justify-content:space-between;gap:10px;margin-top:5px"><span>Bills this month</span><strong>'+u.billCount+' / '+fmt(u.billLimit)+'</strong></div></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">'+plans.map(planCard).join("")+'</div><p class="muted" style="font-size:12px;margin-top:14px">Paid checkout and automatic activation are not configured yet. No money will be charged from this screen. Paid features remain locked until payment is verified by the server.</p></div>');
 }
 async function dkStartSubscription(plan){
-  if(plan==="free"){state.settings={...(state.settings||{}),subscriptionPlan:"free"};saveState();closeModal();toast("Free plan selected");return}
-  if(typeof window.dkSubscriptionCheckout==="function"){await window.dkSubscriptionCheckout(plan);return}
-  toast("Paid checkout is not configured yet. No money was charged.");
+  if(plan==="free"){
+    state.settings={...(state.settings||{}),subscriptionPlan:"free",subscriptionVerified:false};
+    saveState();closeModal();toast("Starter plan selected");return;
+  }
+  if(typeof window.dkSubscriptionCheckout==="function"){await window.dkSubscriptionCheckout(plan);return;}
+  toast("Owner login is required to subscribe.");
 }
+window.dkSubscriptionCheckout=async function(planId){
+  const token=await window.dkGetSupabaseAccessToken?.();
+  if(!token){toast("Please sign in with your owner Google account before subscribing.");return;}
+  let order;
+  try{
+    const response=await fetch("/api/subscriptions/create.js",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({planId})});
+    order=await response.json();
+    if(!response.ok)throw new Error(order.error||"Could not start subscription checkout.");
+    if(order.alreadyActive){await window.dkRefreshSubscriptionEntitlement?.();toast("This subscription is already active.");openSubscriptionPlans();return;}
+  }catch(e){toast(e.message||"Subscription checkout is not configured yet.");return;}
+  const openCheckout=()=>{
+    if(typeof window.Razorpay!=="function"){toast("Secure checkout could not load. Please check your connection and try again.");return;}
+    const checkout=new window.Razorpay({
+      key:order.keyId,subscription_id:order.subscriptionId,name:order.checkoutName||"Dukaan Khata",
+      description:order.description||"Monthly subscription",theme:{color:"#c7a75a"},
+      handler:async function(result){
+        try{
+          const verify=await fetch("/api/subscriptions/verify.js",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify(result)});
+          const verified=await verify.json();
+          if(!verify.ok||verified.verified!==true)throw new Error(verified.error||"Payment could not be verified.");
+          state.settings={...(state.settings||{}),subscriptionPlan:verified.planId,subscriptionVerified:true,subscriptionPeriodEnd:verified.currentPeriodEnd};
+          window.dkSubscriptionEntitlementChecked=true;
+          saveState();const refreshed=await window.dkRefreshSubscriptionEntitlement?.();if(!refreshed)window.dkSubscriptionEntitlementChecked=true;closeModal();render();toast(verified.planName+" activated successfully.");
+        }catch(e){toast((e.message||"Payment verification is pending.")+" If money was deducted, do not pay again; contact support with your Razorpay payment ID.");}
+      },
+      modal:{ondismiss:function(){toast("Checkout closed. Your plan has not changed unless payment is verified.");}}
+    });
+    checkout.on("payment.failed",function(){toast("Payment failed. Your current plan and records are unchanged.");});
+    checkout.open();
+  };
+  if(typeof window.Razorpay==="function"){openCheckout();return;}
+  const script=document.createElement("script");script.src="https://checkout.razorpay.com/v1/checkout.js";script.async=true;
+  script.onload=openCheckout;script.onerror=()=>toast("Secure Razorpay checkout could not load.");document.head.appendChild(script);
+};
+window.dkSubscriptionEntitlementChecked=false;
+window.dkRefreshSubscriptionEntitlement=async function(){
+  const token=await window.dkGetSupabaseAccessToken?.();if(!token){window.dkSubscriptionEntitlementChecked=false;return false;}
+  try{
+    const response=await fetch("/api/subscriptions/entitlement.js",{headers:{Authorization:"Bearer "+token}});
+    if(!response.ok){window.dkSubscriptionEntitlementChecked=false;return false;}const data=await response.json();
+    state.settings={...(state.settings||{}),subscriptionPlan:data.active?data.planId:"free",subscriptionVerified:!!data.active,subscriptionPeriodEnd:data.currentPeriodEnd||null};
+    window.dkSubscriptionEntitlementChecked=true;saveState();return true;
+  }catch(e){window.dkSubscriptionEntitlementChecked=false;console.warn("Subscription entitlement refresh failed:",e?.message||e);return false;}
+};
 
 function addCustomer(mode=""){if(!dkCheckSubscription("customer"))return;modal('<h2>New Customer</h2><form id="newCustomerForm" autocomplete="on"><input id="cname" name="name" placeholder="Customer name" autocomplete="name" enterkeyhint="next" required><input id="cphone" name="tel" type="tel" inputmode="tel" placeholder="Mobile / WhatsApp number" autocomplete="tel" enterkeyhint="next"><input id="caddress" name="address" type="text" placeholder="Address (optional)" autocomplete="street-address" enterkeyhint="done"><label style="display:flex;align-items:flex-start;gap:10px;margin:12px 0;padding:12px;border:1px solid var(--line,#ddd);border-radius:12px"><input id="cWeeklyReminder" type="checkbox" style="margin-top:3px"><span><b>Automatic reminder every 7 days</b><small style="display:block">Optional. Enable only if this customer agrees. Message delivery needs a configured messaging service.</small></span></label><button class="btn primary" id="saveCustomerBtn" type="submit">Save Customer</button></form>');const form=document.getElementById("newCustomerForm");form?.addEventListener("submit",e=>{e.preventDefault();saveCustomer(mode)});const name=document.getElementById("cname"),phone=document.getElementById("cphone"),address=document.getElementById("caddress");name?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();phone?.focus()}});phone?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();address?.focus()}});address?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveCustomer(mode)}});setTimeout(()=>name?.focus(),80)}
 function saveCustomer(mode=""){const name=(document.getElementById("cname")?.value||"").trim();if(!name)return toast("Enter customer name");const weeklyReminder=!!document.getElementById("cWeeklyReminder")?.checked;const c={id:uid(),name,phone:(document.getElementById("cphone")?.value||"").trim(),address:(document.getElementById("caddress")?.value||"").trim(),created:new Date().toISOString(),weeklyReminderEnabled:weeklyReminder,nextWeeklyReminderAt:weeklyReminder?new Date(Date.now()+7*24*60*60*1000).toISOString():null};state.customers.unshift(c);saveState();closeModal();render();toast("Customer added");if(mode==="many")openManyItems(c.id);if(mode==="many-picker")openManyItems()}
