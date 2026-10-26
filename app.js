@@ -313,6 +313,22 @@ function dkCheckSubscription(kind){
   toast(kind==="customer"?"Free customer limit reached. Open Subscriptions to view plans.":"Monthly bill limit reached. Open Subscriptions to view plans.");
   openSubscriptionPlans();return false;
 }
+function dkStartSubscription(planId){
+  const plan=String(planId||"");
+  if(plan==="free"){
+    state.settings=state.settings||{};
+    state.settings.subscriptionPlan="free";
+    saveState();
+    closeModal();
+    toast("Free plan selected.");
+    return;
+  }
+  const names={"pro":"Pro","premium":"Premium","ultra-premium":"VIP"};
+  const prices={"pro":49,"premium":99,"ultra-premium":149};
+  if(!names[plan]){toast("Please select a valid plan.");return;}
+  modal('<div style="padding:8px 2px;color:#202720"><h2 style="margin:0 0 10px"> '+names[plan]+' plan · ₹'+prices[plan]+'/month</h2><p style="line-height:1.6">Secure payment setup is not complete yet. This action will not charge you or activate a paid plan. Your current plan and records remain unchanged.</p><button type="button" class="btn primary" id="dkPaidPlanStatusClose">OK</button></div>');
+  document.getElementById("dkPaidPlanStatusClose")?.addEventListener("click",closeModal);
+}
 function openSubscriptionPlans(){
   const u=dkSubscriptionUsage();
   const fmt=n=>n===Infinity?"Unlimited":String(n);
