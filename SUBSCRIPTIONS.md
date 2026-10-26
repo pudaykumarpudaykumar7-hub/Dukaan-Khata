@@ -7,9 +7,9 @@ The public plan catalogue is in `subscription-plans.js`. It is a display/configu
 | Plan | Price | Customers | Bills per month |
 |---|---:|---:|---:|
 | Starter | Free | 50 | 500 |
-| Premium | ₹50/month | 100 | 1,500 |
-| Pro Premium | ₹100/month | 200 | 2,500 |
-| Ultra Unlimit Premium | ₹149/month | Unlimited | Unlimited |
+| Pro | ₹50/month | 100 | 1,500 |
+| Premium | ₹100/month | 200 | 2,500 |
+| Ultra Premium | ₹149/month | Unlimited | Unlimited |
 
 ## Required behaviour
 
@@ -28,7 +28,7 @@ This catalogue alone does not activate subscriptions. The current repository has
 
 ## Integration status
 
-- [x] Plan IDs, names, prices, and caps defined (display names updated to Premium, Pro Premium, and Ultra Unlimit Premium).
+- [x] Plan IDs, names, prices, and caps defined (display names updated to Pro, Premium, and Ultra Premium).
 - [ ] Render plan cards in the existing subscription screen.
 - [ ] Connect customer/bill creation paths to the authoritative entitlement check.
 - [ ] Store subscription entitlements per verified owner in the backend.
