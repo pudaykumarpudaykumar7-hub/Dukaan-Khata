@@ -320,9 +320,24 @@ function openSubscriptionPlans(){
   modal('<div style="max-width:760px;margin:auto"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><div><span class="eyebrow">DUKAAN KHATA • PLANS</span><h2 style="margin:6px 0">Choose your subscription</h2><p class="muted">Monthly limits reset at the start of each calendar month.</p></div><button class="btn" type="button" onclick="closeModal()" aria-label="Close">✕</button></div><div style="border:1px solid var(--line,#ddd);border-radius:14px;padding:12px;margin:14px 0"><b>Current usage · '+u.label+'</b><div style="display:flex;justify-content:space-between;gap:10px;margin-top:8px"><span>Customers</span><strong>'+u.customerCount+' / '+fmt(u.customerLimit)+'</strong></div><div style="display:flex;justify-content:space-between;gap:10px;margin-top:5px"><span>Bills this month</span><strong>'+u.billCount+' / '+fmt(u.billLimit)+'</strong></div><small class="muted">Free: 50 customers and 500 bills/month. Paid limits apply only after payment verification.</small></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">'+planCard("free","Free",0,"50","500","For getting started",false)+planCard("pro","Pro",50,"100","1,500","For growing shops",true)+planCard("premium","Premium",100,"200","2,500","For busy shops",false)+planCard("ultra-premium","Ultra Premium",149,"Unlimited","Unlimited","Unlimited customers and bills",false)+'</div><p class="muted" style="font-size:12px;margin-top:14px">Paid checkout is not yet enabled in this live build. Selecting a paid plan will not charge you or activate it until Razorpay plans, checkout, and server-side payment verification are configured.</p></div>');
 }
 async function dkStartSubscription(plan){
-  if(plan==="free"){state.settings={...(state.settings||{}),subscriptionPlan:"free"};saveState();closeModal();toast("Free plan selected");return}
-  if(typeof window.dkSubscriptionCheckout==="function"){await window.dkSubscriptionCheckout(plan);return}
-  toast("Paid checkout is not configured yet. No money was charged.");
+  const plans={
+    free:{name:"Free",price:0,customers:50,bills:500},
+    pro:{name:"Pro",price:50,customers:100,bills:1500},
+    premium:{name:"Premium",price:100,customers:200,bills:2500},
+    "ultra-premium":{name:"Ultra Premium",price:149,customers:"Unlimited",bills:"Unlimited"}
+  };
+  const selected=plans[plan];
+  if(!selected){toast("This subscription plan is unavailable. Please reopen Subscriptions.");return}
+  if(plan==="free"){
+    state.settings={...(state.settings||{}),subscriptionPlan:"free"};
+    saveState();closeModal();toast("Free plan selected");return
+  }
+  if(typeof window.dkSubscriptionCheckout==="function"){
+    try{await window.dkSubscriptionCheckout(plan)}catch(error){console.error("Subscription checkout failed",error);closeModal();toast("Checkout could not open. Please try again.");}
+    return
+  }
+  closeModal();
+  modal('<div style="max-width:460px;margin:auto;padding:8px 2px"><div style="font-size:28px;margin-bottom:8px">₹</div><span class="eyebrow">DUKAAN KHATA • '+selected.name.toUpperCase()+'</span><h2 style="margin:8px 0">₹'+selected.price+' / month</h2><p>Includes '+selected.customers+' customers and '+selected.bills+' bills per month.</p><p><b>Online payment is not ready yet.</b> No money has been charged and your plan has not been upgraded. Razorpay plan setup and verified checkout still need to be connected.</p><button type="button" class="btn primary" style="width:100%" onclick="closeModal()">Got it</button></div>');
 }
 
 function addCustomer(mode=""){if(!dkCheckSubscription("customer"))return;modal('<h2>New Customer</h2><form id="newCustomerForm" autocomplete="on"><input id="cname" name="name" placeholder="Customer name" autocomplete="name" enterkeyhint="next" required><input id="cphone" name="tel" type="tel" inputmode="tel" placeholder="Mobile / WhatsApp number" autocomplete="tel" enterkeyhint="next"><input id="caddress" name="address" type="text" placeholder="Address (optional)" autocomplete="street-address" enterkeyhint="done"><label style="display:flex;align-items:flex-start;gap:10px;margin:12px 0;padding:12px;border:1px solid var(--line,#ddd);border-radius:12px"><input id="cWeeklyReminder" type="checkbox" style="margin-top:3px"><span><b>Automatic reminder every 7 days</b><small style="display:block">Optional. Enable only if this customer agrees. Message delivery needs a configured messaging service.</small></span></label><button class="btn primary" id="saveCustomerBtn" type="submit">Save Customer</button></form>');const form=document.getElementById("newCustomerForm");form?.addEventListener("submit",e=>{e.preventDefault();saveCustomer(mode)});const name=document.getElementById("cname"),phone=document.getElementById("cphone"),address=document.getElementById("caddress");name?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();phone?.focus()}});phone?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();address?.focus()}});address?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveCustomer(mode)}});setTimeout(()=>name?.focus(),80)}
