@@ -358,6 +358,7 @@
     const loginRole=sessionStorage.getItem("dk_login_role")||"owner";
     saveAccount(user);
     if(!user)return;
+    setTimeout(()=>window.dkRefreshSubscriptionEntitlement?.(),700);
     if(loginRole==="customer"){
       sessionStorage.removeItem("dk_login_role");
       setTimeout(()=>openCustomerLogin(),250);
@@ -691,6 +692,9 @@ async function openOwnerLogin(){
   window.openDukaanProfile=openDukaanLogin;
   window.logoutDukaanKhata=logoutDukaanKhata;
   window.startGoogleLogin=startGoogleLogin;
+  window.dkGetSupabaseAccessToken=async function(){
+    try{const sb=client();if(!sb)return null;const result=await sb.auth.getSession();return result?.data?.session?.access_token||null;}catch(e){return null;}
+  };
 
   let launchLoginShown=false;
   function showLoginAfterLaunch(){
