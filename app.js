@@ -351,7 +351,7 @@ window.dkSubscriptionCheckout=async function(planId){
   if(!token){toast("Please sign in with your owner Google account before subscribing.");return;}
   let order;
   try{
-    const response=await fetch("/api/subscriptions/create",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({planId})});
+    const response=await fetch("/api/subscriptions/create.js",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({planId})});
     order=await response.json();
     if(!response.ok)throw new Error(order.error||"Could not start subscription checkout.");
     if(order.alreadyActive){await window.dkRefreshSubscriptionEntitlement?.();toast("This subscription is already active.");openSubscriptionPlans();return;}
@@ -363,7 +363,7 @@ window.dkSubscriptionCheckout=async function(planId){
       description:order.description||"Monthly subscription",theme:{color:"#c7a75a"},
       handler:async function(result){
         try{
-          const verify=await fetch("/api/subscriptions/verify",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify(result)});
+          const verify=await fetch("/api/subscriptions/verify.js",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify(result)});
           const verified=await verify.json();
           if(!verify.ok||verified.verified!==true)throw new Error(verified.error||"Payment could not be verified.");
           state.settings={...(state.settings||{}),subscriptionPlan:verified.planId,subscriptionVerified:true,subscriptionPeriodEnd:verified.currentPeriodEnd};
@@ -384,7 +384,7 @@ window.dkSubscriptionEntitlementChecked=false;
 window.dkRefreshSubscriptionEntitlement=async function(){
   const token=await window.dkGetSupabaseAccessToken?.();if(!token){window.dkSubscriptionEntitlementChecked=false;return false;}
   try{
-    const response=await fetch("/api/subscriptions/entitlement",{headers:{Authorization:"Bearer "+token}});
+    const response=await fetch("/api/subscriptions/entitlement.js",{headers:{Authorization:"Bearer "+token}});
     if(!response.ok){window.dkSubscriptionEntitlementChecked=false;return false;}const data=await response.json();
     state.settings={...(state.settings||{}),subscriptionPlan:data.active?data.planId:"free",subscriptionVerified:!!data.active,subscriptionPeriodEnd:data.currentPeriodEnd||null};
     window.dkSubscriptionEntitlementChecked=true;saveState();return true;
