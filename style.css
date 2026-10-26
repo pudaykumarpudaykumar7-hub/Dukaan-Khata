@@ -5015,3 +5015,13 @@ body{
 .dk-push-switch.is-on span{transform:translateX(24px)}
 .dk-push-switch:focus-visible{outline:3px solid #b7d9c5;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.dk-push-switch,.dk-push-switch span{transition:none}}
+
+
+/* Subscription plans use the entire device viewport */
+#modal.dk-subscription-fullscreen{position:fixed!important;inset:0!important;padding:0!important;margin:0!important;align-items:stretch!important;justify-content:stretch!important;background:#080a0d!important;z-index:100!important}
+#modal.dk-subscription-fullscreen .sheet{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:100dvh!important;max-width:none!important;max-height:100dvh!important;margin:0!important;padding:0!important;border-radius:0!important;overflow:hidden!important;background:#080a0d!important;box-shadow:none!important}
+#modal.dk-subscription-fullscreen #modalBody{width:100%!important;height:100%!important;max-height:100dvh!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important}
+#modal.dk-subscription-fullscreen #modalBody>div{min-height:100dvh!important;max-height:none!important;height:auto!important;box-sizing:border-box!important;border-radius:0!important;padding:calc( max(14px, env(safe-area-inset-top)) ) 14px calc(18px + env(safe-area-inset-bottom))!important}
+#modal.dk-subscription-fullscreen #modalBody>div>div[style*="grid-template-columns:repeat(4"]{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+@media(max-width:760px){#modal.dk-subscription-fullscreen #modalBody>div>div[style*="grid-template-columns:repeat(4"]{grid-template-columns:minmax(0,1fr)!important;gap:12px!important}#modal.dk-subscription-fullscreen #modalBody article{min-height:0!important}#modal.dk-subscription-fullscreen #modalBody article>div:first-child{min-height:0!important}}
+@media(min-width:761px) and (max-width:1050px){#modal.dk-subscription-fullscreen #modalBody>div>div[style*="grid-template-columns:repeat(4"]{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
