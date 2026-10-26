@@ -5132,3 +5132,29 @@ body{
 #modal:has(.dksp-profile) .dksp-inline-editor textarea{min-height:70px}
 #modal:has(.dksp-profile) .dksp-inline-editor button:first-of-type{background:var(--primary,#e8edef);font-weight:800}
 #modal:has(.dksp-profile) .dksp-footnote{color:var(--muted,#66757a);font-size:12px;line-height:1.5;margin:12px 2px 0}
+
+
+/* DK premium Shop Profile form v2 — graphite, ivory and champagne */
+#modal:has(.dksp-premium-profile) .dksp-premium-profile{box-sizing:border-box;max-height:79vh;overflow-y:auto;overscroll-behavior:contain;padding:18px;color:#f6f2e8;background:radial-gradient(ellipse at top right,#3b301b 0%,transparent 43%),linear-gradient(155deg,#171a1e 0%,#101214 60%,#211b10 100%);border:1px solid #b89a55;border-radius:23px;box-shadow:0 16px 42px #0008,inset 0 1px #f6e7bd22}
+#modal:has(.dksp-premium-profile) .dksp-premium-head{display:flex;align-items:center;gap:13px;padding:3px 0 17px;border-bottom:1px solid #b89a554d}
+#modal:has(.dksp-premium-profile) .dksp-premium-mark{display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;overflow:hidden;border-radius:16px;color:#241d0e;background:linear-gradient(135deg,#f5e7b8,#c4a45c 58%,#8d6c2f);font-size:28px;box-shadow:0 5px 16px #0005}
+#modal:has(.dksp-premium-profile) .dksp-premium-mark img{width:100%;height:100%;object-fit:cover}
+#modal:has(.dksp-premium-profile) .dksp-eyebrow{color:#d9c184;font-size:10px;font-weight:800;letter-spacing:2px}
+#modal:has(.dksp-premium-profile) .dksp-premium-head h2{margin:4px 0;color:#fff8e8;font-size:23px;letter-spacing:-.4px}
+#modal:has(.dksp-premium-profile) .dksp-premium-head p{margin:0;color:#c5c0b3;font-size:12px;line-height:1.45}
+#modal:has(.dksp-premium-profile) .dksp-premium-identity{display:flex;flex-direction:column;gap:4px;margin:15px 0;padding:13px 15px;border:1px solid #b89a5566;border-radius:15px;background:linear-gradient(100deg,#29261e,#1d1e1e 65%,#302617)}
+#modal:has(.dksp-premium-profile) .dksp-premium-identity strong{color:#fff7e3;font-size:16px;font-weight:800}
+#modal:has(.dksp-premium-profile) .dksp-premium-identity span{color:#d9c184;font-size:12px}
+#modal:has(.dksp-premium-profile) .dksp-premium-fields{display:flex;flex-direction:column;gap:12px}
+#modal:has(.dksp-premium-profile) .dksp-premium-field{padding:12px;border:1px solid #ffffff16;border-radius:14px;background:linear-gradient(130deg,#222528,#191b1d);box-shadow:inset 0 1px #ffffff08}
+#modal:has(.dksp-premium-profile) .dksp-premium-field label{display:flex;align-items:center;gap:10px;margin:0 0 10px;color:#fff6df;font-size:13px;font-weight:750}
+#modal:has(.dksp-premium-profile) .dksp-field-number{display:grid;place-items:center;flex:0 0 31px;width:31px;height:31px;border-radius:10px;color:#292111;background:linear-gradient(135deg,#f2e2ad,#c4a45c);font-size:11px;font-weight:900}
+#modal:has(.dksp-premium-profile) .dksp-premium-field label small{display:block;margin-top:3px;color:#aaa99f;font-size:11px;font-weight:400}
+#modal:has(.dksp-premium-profile) .dksp-premium-field input,#modal:has(.dksp-premium-profile) .dksp-premium-field textarea{display:block;box-sizing:border-box;width:100%;min-height:45px;padding:12px 13px;border:1px solid #5c5544!important;border-radius:10px;background:#111315!important;color:#fffdf6!important;font:inherit;font-size:14px;outline:none;transition:border-color .18s,box-shadow .18s}
+#modal:has(.dksp-premium-profile) .dksp-premium-field input::placeholder,#modal:has(.dksp-premium-profile) .dksp-premium-field textarea::placeholder{color:#98958c;opacity:1}
+#modal:has(.dksp-premium-profile) .dksp-premium-field input:focus,#modal:has(.dksp-premium-profile) .dksp-premium-field textarea:focus{border-color:#d6b96f!important;box-shadow:0 0 0 3px #d6b96f20}
+#modal:has(.dksp-premium-profile) .dksp-premium-field textarea{min-height:82px;resize:vertical}
+#modal:has(.dksp-premium-profile) .dksp-premium-save{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:50px;margin-top:16px;padding:13px 16px;border:1px solid #f1d99a;border-radius:13px;color:#20190b;background:linear-gradient(105deg,#f3e4b8,#d4b66a 55%,#b38b3f);font-size:15px;font-weight:900;box-shadow:0 6px 16px #0005;cursor:pointer}
+#modal:has(.dksp-premium-profile) .dksp-premium-save span{font-size:19px}
+#modal:has(.dksp-premium-profile) .dksp-premium-note{margin:12px 3px 0;color:#b9b5a9;font-size:11px;line-height:1.55;text-align:center}
+@media(prefers-reduced-motion:no-preference){#modal:has(.dksp-premium-profile) .dksp-premium-save{transition:filter .2s,transform .2s}#modal:has(.dksp-premium-profile) .dksp-premium-save:active{transform:scale(.99);filter:brightness(.95)}}
