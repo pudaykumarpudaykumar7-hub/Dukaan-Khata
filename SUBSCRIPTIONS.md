@@ -29,11 +29,11 @@ This catalogue alone does not activate subscriptions. The current repository has
 ## Integration status
 
 - [x] Plan IDs, names, prices, and caps defined (display names updated to Pro, Premium, and Ultra Premium).
-- [ ] Render plan cards in the existing subscription screen.
+- [x] Render the four plan cards in the existing subscription screen.
 - [ ] Connect customer/bill creation paths to the authoritative entitlement check.
-- [ ] Store subscription entitlements per verified owner in the backend.
-- [ ] Implement provider order/payment verification and signed webhook handling.
-- [ ] Re-fetch entitlement after verified payment and unlock features automatically.
+- [x] Add per-owner subscription storage schema and API (migration must still be applied in Supabase).
+- [x] Add Razorpay subscription creation, server signature verification, and signed webhook endpoints (provider credentials and dashboard plan IDs still required).
+- [x] Add owner entitlement refresh after verified payment (requires database migration and deployment secrets).
 - [ ] Test cap edges, duplicate webhooks, failed/pending payments, month rollover, expired plans, and existing-data access.
 - [ ] Deploy backend and frontend, then verify production behaviour.
 
