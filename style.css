@@ -5033,3 +5033,5 @@ body{
 #modal.dk-subscription-fullscreen #modalBody>div>div[style*="grid-template-columns:repeat(4"]{grid-template-columns:minmax(0,1fr)!important;gap:14px!important}
 #modal.dk-subscription-fullscreen #modalBody article{width:100%!important;min-width:0!important}
 #modal.dk-subscription-fullscreen #modalBody article>div:first-child{min-height:0!important}
+
+.topbar .top-actions .dk-subscription-shortcut span{font-size:10px!important;line-height:14px!important;letter-spacing:.5px!important}
