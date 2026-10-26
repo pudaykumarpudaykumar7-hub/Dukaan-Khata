@@ -5072,3 +5072,22 @@ body{
 @keyframes dk-badge-cyan-pulse{0%,100%{box-shadow:0 0 7px #00e4ed44}50%{box-shadow:0 0 16px #00e4edaa}}
 @keyframes dk-badge-gold-pulse{0%,100%{box-shadow:0 0 8px #f3cf7244}50%{box-shadow:0 0 17px #f3cf72aa}}
 @media(prefers-reduced-motion:reduce){.dk-plan-badge{animation:none!important}}
+
+
+/* Strong, dark plan names and plan colour dominance across each full card */
+.dk-plan-head-free{background:linear-gradient(135deg,#d9e0e9 0%,#aeb8c5 48%,#7c899b 100%)!important;border-bottom:2px solid #eef3fb!important}
+.dk-plan-head-pro{background:linear-gradient(135deg,#00f0fa 0%,#00b9ca 52%,#007d91 100%)!important;border-bottom:2px solid #5ffaff!important}
+.dk-plan-head-premium{background:linear-gradient(135deg,#f4f7fb 0%,#cbd3df 48%,#8994a4 100%)!important;border-bottom:2px solid #ffffff!important}
+.dk-plan-head-vip{background:linear-gradient(135deg,#fff0ad 0%,#f3cf72 42%,#b78322 100%)!important;border-bottom:2px solid #fff0ad!important}
+.dk-plan-head-free h3,.dk-plan-head-pro h3,.dk-plan-head-premium h3,.dk-plan-head-vip h3{color:#080b10!important;font-size:clamp(23px,3.5vw,29px)!important;font-weight:950!important;letter-spacing:1.1px!important;text-shadow:0 1px 0 #ffffff50!important}
+.dk-plan-head-free p,.dk-plan-head-pro p,.dk-plan-head-premium p,.dk-plan-head-vip p{color:#111820!important;font-weight:650!important}
+.dk-plan-head-free strong,.dk-plan-head-pro strong,.dk-plan-head-premium strong,.dk-plan-head-vip strong{color:#080b10!important;font-weight:950!important;text-shadow:0 1px 0 #ffffff55!important}
+.dk-plan-head-free span[style*="font-size:11px"],.dk-plan-head-pro span[style*="font-size:11px"],.dk-plan-head-premium span[style*="font-size:11px"],.dk-plan-head-vip span[style*="font-size:11px"]{color:#111820!important;font-weight:750!important}
+.dk-plan-card.dk-plan-free{border-color:#aeb8c5!important;box-shadow:0 0 0 1px #dbe3ef88,0 0 28px #aeb8c544,inset 0 0 24px #aeb8c510!important}
+.dk-plan-card.dk-plan-pro{border-color:#00e4ed!important;background:linear-gradient(155deg,#003d48 0%,#00212a 45%,#001015 100%)!important;box-shadow:0 0 0 1px #00e4edaa,0 0 30px #00e4ed55,inset 0 0 40px #00d9ed1a!important}
+.dk-plan-card.dk-plan-premium{border-color:#dce3ed!important;background:linear-gradient(155deg,#3c4552 0%,#202630 45%,#0e1218 100%)!important;box-shadow:0 0 0 1px #e8edf588,0 0 30px #dce3ed44,inset 0 0 36px #dce3ed15!important}
+.dk-plan-card.dk-plan-vip{border-color:#f3cf72!important;background:linear-gradient(150deg,#3a2a0c 0%,#1c1508 42%,#050403 100%)!important;box-shadow:0 0 0 1px #f3cf72bb,0 0 32px #f3cf7266,inset 0 0 42px #f3cf721c!important}
+.dk-plan-head-free .dk-plan-badge{color:#17202c!important;border-color:#344253!important}
+.dk-plan-head-pro .dk-plan-badge{color:#00333b!important;border-color:#005c67!important}
+.dk-plan-head-premium .dk-plan-badge{color:#111821!important;border-color:#5b6675!important}
+.dk-plan-head-vip .dk-plan-badge{color:#3d2906!important;border-color:#8a641b!important}
