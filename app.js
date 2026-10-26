@@ -368,7 +368,7 @@ window.dkSubscriptionCheckout=async function(planId){
           if(!verify.ok||verified.verified!==true)throw new Error(verified.error||"Payment could not be verified.");
           state.settings={...(state.settings||{}),subscriptionPlan:verified.planId,subscriptionVerified:true,subscriptionPeriodEnd:verified.currentPeriodEnd};
           window.dkSubscriptionEntitlementChecked=true;
-          saveState();await window.dkRefreshSubscriptionEntitlement?.();closeModal();render();toast(verified.planName+" activated successfully.");
+          saveState();const refreshed=await window.dkRefreshSubscriptionEntitlement?.();if(!refreshed)window.dkSubscriptionEntitlementChecked=true;closeModal();render();toast(verified.planName+" activated successfully.");
         }catch(e){toast((e.message||"Payment verification is pending.")+" If money was deducted, do not pay again; contact support with your Razorpay payment ID.");}
       },
       modal:{ondismiss:function(){toast("Checkout closed. Your plan has not changed unless payment is verified.");}}
