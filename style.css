@@ -5184,3 +5184,14 @@ body{
 #modal:has(.dksp-premium-profile) .dksp-one-line textarea{min-height:65px;resize:vertical}
 #modal:has(.dksp-premium-profile) .dksp-premium-save{margin-top:14px}
 @media(max-width:420px){#modal:has(.dksp-premium-profile) .dksp-one-line{grid-template-columns:1fr;gap:6px;padding:11px 0}}
+
+
+/* Shop Profile: remove decorative outer background; keep one plain details box */
+#modal:has(.dksp-premium-profile) .dksp-premium-profile{background:transparent!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:12px!important;color:var(--text,#222)!important}
+#modal:has(.dksp-premium-profile) .dksp-premium-head{background:transparent!important;background-image:none!important;box-shadow:none!important;border:0!important;border-bottom:1px solid var(--border,#ddd)!important}
+#modal:has(.dksp-premium-profile) .dksp-premium-head h2{color:var(--text,#222)!important}
+#modal:has(.dksp-premium-profile) .dksp-premium-head p{color:var(--muted,#666)!important}
+#modal:has(.dksp-premium-profile) .dksp-one-details{background:var(--card-bg,#fff)!important;background-image:none!important;border:1px solid var(--border,#ddd)!important;border-radius:12px!important;box-shadow:none!important;padding:4px 14px!important}
+#modal:has(.dksp-premium-profile) .dksp-one-line label{color:var(--text,#333)!important}
+#modal:has(.dksp-premium-profile) .dksp-one-line input,#modal:has(.dksp-premium-profile) .dksp-one-line textarea{background:var(--input-bg,#fff)!important;color:var(--text,#222)!important;border:1px solid var(--border,#ccc)!important;box-shadow:none!important}
+#modal:has(.dksp-premium-profile) .dksp-premium-save{background:var(--primary,#e7d8ae)!important;color:var(--text,#222)!important;box-shadow:none!important}
