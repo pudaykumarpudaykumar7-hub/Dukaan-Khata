@@ -5060,3 +5060,15 @@ body{
 @keyframes dk-vip-gold-glow{0%,100%{background-position:0% 50%;opacity:.5}50%{background-position:100% 50%;opacity:1}}
 @keyframes dk-plan-enter{from{opacity:.7;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.dk-plan-card,.dk-plan-card::before,.dk-plan-head::after,.dk-plan-vip::after,.dk-plan-cta::after{animation:none!important;transition:none!important}}
+
+
+/* Small top-right plan label pills like the subscription reference */
+.dk-plan-badge-row{display:flex!important;justify-content:flex-end!important;align-items:center!important;min-height:25px!important;margin-bottom:2px!important}
+.dk-plan-badge{display:inline-flex!important;align-items:center!important;justify-content:center!important;max-width:100%!important;min-height:24px!important;box-sizing:border-box!important;padding:4px 9px!important;border:1px solid currentColor!important;border-radius:999px!important;font-size:9px!important;line-height:1.1!important;letter-spacing:.45px!important;font-weight:900!important;white-space:nowrap!important;background:rgba(6,9,13,.52)!important;box-shadow:0 0 10px currentColor!important;text-shadow:0 0 8px currentColor!important}
+.dk-plan-badge-free{color:#e2e8f0!important;border-color:#b9c3d2!important;background:linear-gradient(135deg,#525d6c,#252b35)!important;box-shadow:0 0 9px #cbd5e133!important}
+.dk-plan-badge-pro{color:#50f7ff!important;border-color:#00e4ed!important;background:linear-gradient(135deg,#003b43,#00181c)!important;box-shadow:0 0 12px #00e4ed66!important;animation:dk-badge-cyan-pulse 2.8s ease-in-out infinite}
+.dk-plan-badge-premium{color:#151a20!important;border-color:#f4f7fb!important;background:linear-gradient(135deg,#ffffff,#aeb8c6)!important;text-shadow:none!important;box-shadow:0 0 12px #dce3ed55!important}
+.dk-plan-badge-vip{color:#ffedb0!important;border-color:#f3cf72!important;background:linear-gradient(135deg,#3c2a08,#0a0803)!important;box-shadow:0 0 15px #f3cf7277!important;animation:dk-badge-gold-pulse 2.8s ease-in-out infinite}
+@keyframes dk-badge-cyan-pulse{0%,100%{box-shadow:0 0 7px #00e4ed44}50%{box-shadow:0 0 16px #00e4edaa}}
+@keyframes dk-badge-gold-pulse{0%,100%{box-shadow:0 0 8px #f3cf7244}50%{box-shadow:0 0 17px #f3cf72aa}}
+@media(prefers-reduced-motion:reduce){.dk-plan-badge{animation:none!important}}
