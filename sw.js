@@ -10,7 +10,7 @@ messaging.onBackgroundMessage(payload=>{
  const notificationId=String(payload?.data?.notificationId||("dk-"+Date.now()+"-"+Math.random().toString(36).slice(2,8)));
  self.registration.showNotification(title,{body,icon:"./icon.svg",badge:"./icon.svg",tag:"dukaan-customer-"+notificationId,renotify:true,data:{url:payload?.data?.url||"./?customerNotifications=1"}});
 });
-const CACHE="dukaan-khata-uvms-notifications-v143-subscription-billing-toggle";
+const CACHE="dukaan-khata-uvms-notifications-v146-paid-subscription-theme";
 const CORE=["./","./index.html","./style.css","./app.js","./notifications.js","./auth.js","./i18n.js","./more-routing.js","./manifest.json","./icon.svg","./favicon.svg","./dukaan-pay.html"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil((async()=>{const names=await caches.keys();await Promise.all(names.filter(n=>n.startsWith("dukaan-khata-")&&n!==CACHE).map(n=>caches.delete(n)));await self.clients.claim();})()));
