@@ -5166,3 +5166,21 @@ body{
 #modal:has(.dksp-premium-profile) .dksp-premium-field:last-child{border-bottom:0}
 #modal:has(.dksp-premium-profile) .dksp-premium-field label{margin-bottom:8px}
 #modal:has(.dksp-premium-profile) .dksp-premium-field input,#modal:has(.dksp-premium-profile) .dksp-premium-field textarea{background:#111315!important}
+
+
+/* Simplified single Shop Profile details panel: no separate field cards */
+#modal:has(.dksp-premium-profile) .dksp-premium-profile{background:#17191b;border:1px solid #b99a55;border-radius:20px;padding:16px;color:#f7f2e5}
+#modal:has(.dksp-premium-profile) .dksp-premium-head{padding-bottom:12px;border-bottom:1px solid #b99a554d}
+#modal:has(.dksp-premium-profile) .dksp-premium-mark{display:none}
+#modal:has(.dksp-premium-profile) .dksp-premium-head h2{margin:0;color:#fff5dc}
+#modal:has(.dksp-premium-profile) .dksp-premium-head p{margin-top:4px;color:#c4beaf}
+#modal:has(.dksp-premium-profile) .dksp-one-details{display:flex;flex-direction:column;gap:0;margin-top:13px;padding:4px 13px;border:1px solid #8d7848;border-radius:15px;background:#202224}
+#modal:has(.dksp-premium-profile) .dksp-one-line{display:grid;grid-template-columns:minmax(95px, .7fr) minmax(0,1.3fr);align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #ffffff20}
+#modal:has(.dksp-premium-profile) .dksp-one-line:last-child{border-bottom:0}
+#modal:has(.dksp-premium-profile) .dksp-one-line label{margin:0;color:#e9d6a0;font-size:13px;font-weight:700}
+#modal:has(.dksp-premium-profile) .dksp-one-line input,#modal:has(.dksp-premium-profile) .dksp-one-line textarea{box-sizing:border-box;width:100%;min-width:0;min-height:42px;padding:10px;border:1px solid #514b3c!important;border-radius:8px;background:#111315!important;color:#fffdf6!important;font:inherit;font-size:13px}
+#modal:has(.dksp-premium-profile) .dksp-one-line input::placeholder,#modal:has(.dksp-premium-profile) .dksp-one-line textarea::placeholder{color:#aaa69c;opacity:1}
+#modal:has(.dksp-premium-profile) .dksp-one-line input:focus,#modal:has(.dksp-premium-profile) .dksp-one-line textarea:focus{outline:2px solid #cbb06a;outline-offset:1px}
+#modal:has(.dksp-premium-profile) .dksp-one-line textarea{min-height:65px;resize:vertical}
+#modal:has(.dksp-premium-profile) .dksp-premium-save{margin-top:14px}
+@media(max-width:420px){#modal:has(.dksp-premium-profile) .dksp-one-line{grid-template-columns:1fr;gap:6px;padding:11px 0}}
