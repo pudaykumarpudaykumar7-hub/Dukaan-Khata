@@ -343,8 +343,51 @@ async function dkStartSubscription(plan){
     state.settings={...(state.settings||{}),subscriptionPlan:"free",subscriptionVerified:false};
     saveState();closeModal();toast("Starter plan selected");return;
   }
-  toast("Paid checkout is not configured yet. No money was charged and no subscription was activated.");
+  if(typeof window.dkSubscriptionCheckout==="function"){await window.dkSubscriptionCheckout(plan);return;}
+  toast("Owner login is required to subscribe.");
 }
+window.dkSubscriptionCheckout=async function(planId){
+  const token=await window.dkGetSupabaseAccessToken?.();
+  if(!token){toast("Please sign in with your owner Google account before subscribing.");return;}
+  let order;
+  try{
+    const response=await fetch("/api/subscriptions/create",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({planId})});
+    order=await response.json();
+    if(!response.ok)throw new Error(order.error||"Could not start subscription checkout.");
+    if(order.alreadyActive){await window.dkRefreshSubscriptionEntitlement?.();toast("This subscription is already active.");openSubscriptionPlans();return;}
+  }catch(e){toast(e.message||"Subscription checkout is not configured yet.");return;}
+  const openCheckout=()=>{
+    if(typeof window.Razorpay!=="function"){toast("Secure checkout could not load. Please check your connection and try again.");return;}
+    const checkout=new window.Razorpay({
+      key:order.keyId,subscription_id:order.subscriptionId,name:order.checkoutName||"Dukaan Khata",
+      description:order.description||"Monthly subscription",theme:{color:"#c7a75a"},
+      handler:async function(result){
+        try{
+          const verify=await fetch("/api/subscriptions/verify",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify(result)});
+          const verified=await verify.json();
+          if(!verify.ok||verified.verified!==true)throw new Error(verified.error||"Payment could not be verified.");
+          state.settings={...(state.settings||{}),subscriptionPlan:verified.planId,subscriptionVerified:true,subscriptionPeriodEnd:verified.currentPeriodEnd};
+          saveState();await window.dkRefreshSubscriptionEntitlement?.();closeModal();render();toast(verified.planName+" activated successfully.");
+        }catch(e){toast((e.message||"Payment verification is pending.")+" If money was deducted, do not pay again; contact support with your Razorpay payment ID.");}
+      },
+      modal:{ondismiss:function(){toast("Checkout closed. Your plan has not changed unless payment is verified.");}}
+    });
+    checkout.on("payment.failed",function(){toast("Payment failed. Your current plan and records are unchanged.");});
+    checkout.open();
+  };
+  if(typeof window.Razorpay==="function"){openCheckout();return;}
+  const script=document.createElement("script");script.src="https://checkout.razorpay.com/v1/checkout.js";script.async=true;
+  script.onload=openCheckout;script.onerror=()=>toast("Secure Razorpay checkout could not load.");document.head.appendChild(script);
+};
+window.dkRefreshSubscriptionEntitlement=async function(){
+  const token=await window.dkGetSupabaseAccessToken?.();if(!token)return false;
+  try{
+    const response=await fetch("/api/subscriptions/entitlement",{headers:{Authorization:"Bearer "+token}});
+    if(!response.ok)return false;const data=await response.json();
+    state.settings={...(state.settings||{}),subscriptionPlan:data.active?data.planId:"free",subscriptionVerified:!!data.active,subscriptionPeriodEnd:data.currentPeriodEnd||null};
+    saveState();return true;
+  }catch(e){console.warn("Subscription entitlement refresh failed:",e?.message||e);return false;}
+};
 
 function addCustomer(mode=""){if(!dkCheckSubscription("customer"))return;modal('<h2>New Customer</h2><form id="newCustomerForm" autocomplete="on"><input id="cname" name="name" placeholder="Customer name" autocomplete="name" enterkeyhint="next" required><input id="cphone" name="tel" type="tel" inputmode="tel" placeholder="Mobile / WhatsApp number" autocomplete="tel" enterkeyhint="next"><input id="caddress" name="address" type="text" placeholder="Address (optional)" autocomplete="street-address" enterkeyhint="done"><label style="display:flex;align-items:flex-start;gap:10px;margin:12px 0;padding:12px;border:1px solid var(--line,#ddd);border-radius:12px"><input id="cWeeklyReminder" type="checkbox" style="margin-top:3px"><span><b>Automatic reminder every 7 days</b><small style="display:block">Optional. Enable only if this customer agrees. Message delivery needs a configured messaging service.</small></span></label><button class="btn primary" id="saveCustomerBtn" type="submit">Save Customer</button></form>');const form=document.getElementById("newCustomerForm");form?.addEventListener("submit",e=>{e.preventDefault();saveCustomer(mode)});const name=document.getElementById("cname"),phone=document.getElementById("cphone"),address=document.getElementById("caddress");name?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();phone?.focus()}});phone?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();address?.focus()}});address?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveCustomer(mode)}});setTimeout(()=>name?.focus(),80)}
 function saveCustomer(mode=""){const name=(document.getElementById("cname")?.value||"").trim();if(!name)return toast("Enter customer name");const weeklyReminder=!!document.getElementById("cWeeklyReminder")?.checked;const c={id:uid(),name,phone:(document.getElementById("cphone")?.value||"").trim(),address:(document.getElementById("caddress")?.value||"").trim(),created:new Date().toISOString(),weeklyReminderEnabled:weeklyReminder,nextWeeklyReminderAt:weeklyReminder?new Date(Date.now()+7*24*60*60*1000).toISOString():null};state.customers.unshift(c);saveState();closeModal();render();toast("Customer added");if(mode==="many")openManyItems(c.id);if(mode==="many-picker")openManyItems()}
