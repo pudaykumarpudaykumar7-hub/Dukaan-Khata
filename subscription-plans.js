@@ -20,7 +20,7 @@
     }),
     Object.freeze({
       id: "basic-50",
-      name: "Premium",
+      name: "Pro",
       pricePaise: 5000,
       currency: "INR",
       interval: "month",
@@ -32,7 +32,7 @@
     }),
     Object.freeze({
       id: "plus-100",
-      name: "Pro Premium",
+      name: "Premium",
       pricePaise: 10000,
       currency: "INR",
       interval: "month",
@@ -44,7 +44,7 @@
     }),
     Object.freeze({
       id: "unlimited-149",
-      name: "Ultra Unlimit Premium",
+      name: "Ultra Premium",
       pricePaise: 14900,
       currency: "INR",
       interval: "month",
