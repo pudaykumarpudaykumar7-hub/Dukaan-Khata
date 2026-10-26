@@ -11,9 +11,20 @@ export default async function handler(req,res){
   if(!["subscription.activated","subscription.charged","subscription.cancelled","subscription.halted"].includes(kind))return res.status(200).json({received:true,ignored:true});
   const sub=event.payload?.subscription?.entity;if(!sub?.id||!sub?.notes?.owner_id||!sub?.notes?.plan_id)return res.status(200).json({received:true,ignored:true});
   const planId=String(sub.notes.plan_id),ownerId=String(sub.notes.owner_id),plan=PLANS[planId];if(!plan||sub.plan_id!==process.env[plan.env])fail(400,"Webhook plan mismatch.");
-  try{await dbRequest("subscription_webhook_events","POST",{event_id:eventId,event_type:kind,received_at:new Date().toISOString()})}catch(e){if(String(e.message||"").includes("Subscription storage"))throw e;return res.status(200).json({received:true,duplicate:true})}
-  const active=kind==="subscription.activated"||kind==="subscription.charged",end=sub.current_end?new Date(sub.current_end*1000).toISOString():null;
-  await saveEntitlement({ownerId,planId,status:active?"active":"inactive",subscriptionId:sub.id,paymentId:event.payload?.payment?.entity?.id||null,currentPeriodEnd:end});
+  const inserted=await dbRequest("subscription_webhook_events","POST",{event_id:eventId,event_type:kind,received_at:new Date().toISOString()},"resolution=ignore-duplicates,return=representation");
+  if(!Array.isArray(inserted)||!inserted.length)return res.status(200).json({received:true,duplicate:true});
+  // Activation alone may only mean the mandate was authorised; a charged event proves a subscription payment succeeded.
+  if(kind==="subscription.activated")return res.status(200).json({received:true,pendingFirstCharge:true});
+  const end=sub.current_end?new Date(sub.current_end*1000).toISOString():null;
+  if(kind==="subscription.charged"){
+    const payment=event.payload?.payment?.entity;
+    if(payment&&payment.status!=="captured")return res.status(200).json({received:true,ignored:true});
+    await saveEntitlement({ownerId,planId,status:"active",subscriptionId:sub.id,paymentId:payment?.id||null,currentPeriodEnd:end});
+  }else{
+    const rows=await dbRequest("owner_subscriptions?select=razorpay_subscription_id&owner_id=eq."+encodeURIComponent(ownerId)+"&limit=1");
+    if(Array.isArray(rows)&&rows[0]?.razorpay_subscription_id===sub.id)
+      await saveEntitlement({ownerId,planId,status:"inactive",subscriptionId:sub.id,paymentId:event.payload?.payment?.entity?.id||null,currentPeriodEnd:end});
+  }
   return res.status(200).json({received:true});
  }catch(e){return jsonError(res,e)}
 }
