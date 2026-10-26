@@ -11,10 +11,13 @@ export default async function handler(req,res){
   if(!["subscription.activated","subscription.charged","subscription.cancelled","subscription.halted"].includes(kind))return res.status(200).json({received:true,ignored:true});
   const sub=event.payload?.subscription?.entity;if(!sub?.id||!sub?.notes?.owner_id||!sub?.notes?.plan_id)return res.status(200).json({received:true,ignored:true});
   const planId=String(sub.notes.plan_id),ownerId=String(sub.notes.owner_id),plan=PLANS[planId];if(!plan||sub.plan_id!==process.env[plan.env])fail(400,"Webhook plan mismatch.");
-  const inserted=await dbRequest("subscription_webhook_events","POST",{event_id:eventId,event_type:kind,received_at:new Date().toISOString()},"resolution=ignore-duplicates,return=representation");
-  if(!Array.isArray(inserted)||!inserted.length)return res.status(200).json({received:true,duplicate:true});
+  const prior=await dbRequest("subscription_webhook_events?select=event_id&event_id=eq."+encodeURIComponent(eventId)+"&limit=1");
+  if(Array.isArray(prior)&&prior.length)return res.status(200).json({received:true,duplicate:true});
   // Activation alone may only mean the mandate was authorised; a charged event proves a subscription payment succeeded.
-  if(kind==="subscription.activated")return res.status(200).json({received:true,pendingFirstCharge:true});
+  if(kind==="subscription.activated"){
+    await dbRequest("subscription_webhook_events?on_conflict=event_id","POST",{event_id:eventId,event_type:kind,received_at:new Date().toISOString()},"resolution=ignore-duplicates,return=representation");
+    return res.status(200).json({received:true,pendingFirstCharge:true});
+  }
   const end=sub.current_end?new Date(sub.current_end*1000).toISOString():null;
   if(kind==="subscription.charged"){
     const payment=event.payload?.payment?.entity;
@@ -25,6 +28,8 @@ export default async function handler(req,res){
     if(Array.isArray(rows)&&rows[0]?.razorpay_subscription_id===sub.id)
       await saveEntitlement({ownerId,planId,status:"inactive",subscriptionId:sub.id,paymentId:event.payload?.payment?.entity?.id||null,currentPeriodEnd:end});
   }
+  // Record after the entitlement write so a transient database failure can be retried safely.
+  await dbRequest("subscription_webhook_events?on_conflict=event_id","POST",{event_id:eventId,event_type:kind,received_at:new Date().toISOString()},"resolution=ignore-duplicates,return=representation");
   return res.status(200).json({received:true});
  }catch(e){return jsonError(res,e)}
 }
