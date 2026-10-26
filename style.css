@@ -5105,3 +5105,158 @@ body{
 .dk-plan-head-vip h3::first-letter{color:#d99b19!important}
 .dk-plan-head-vip h3{ text-shadow:0 1px 0 #fff1be!important}
 .dk-plan-head-vip .dk-plan-badge{font-size:10px!important;letter-spacing:.4px!important}
+
+
+/* DK cyan-gold reference treatment v1
+   Visual-only styling for Smart Receive, Shop Profile and Digital Shop Pass.
+   Does not alter layout dimensions, interaction targets, touch handling or scrolling. */
+:root{--dk-ref-cyan:#25eaff;--dk-ref-cyan-soft:#9bf6ff;--dk-ref-gold:#f4c86a;--dk-ref-gold-soft:#ffe8ae;--dk-ref-ink:#03141e;--dk-ref-panel:#062432}
+@keyframes dkRefShine{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+@keyframes dkRefSweep{
+  0%{transform:translateX(-160%) skewX(-18deg);opacity:0}
+  18%{opacity:.55}
+  62%{opacity:.16}
+  100%{transform:translateX(330%) skewX(-18deg);opacity:0}
+}
+@keyframes dkRefGlow{
+  0%,100%{box-shadow:0 0 0 1px #25eaff55,0 0 12px #25eaff20,0 0 20px #f4c86a10}
+  50%{box-shadow:0 0 0 1px #f4c86a99,0 0 18px #25eaff32,0 0 28px #f4c86a20}
+}
+/* Smart Receive: dark glass panels, mixed cyan/gold highlights */
+#modal:has(.dukaan-pay-shell) .dukaan-pay-shell{
+  color:#f4fcff;
+  background:linear-gradient(145deg,#03131d 0%,#062b3b 38%,#071923 68%,#2b210e 100%);
+  border:1px solid #25eaff;
+  border-radius:22px;
+  box-shadow:0 0 0 1px #f4c86a45,0 0 22px #25eaff18;
+}
+#modal:has(.dukaan-pay-shell) .dukaan-pay-head{
+  color:#f5fcff;
+  background:linear-gradient(110deg,#062a38,#083d4b 48%,#33260e)!important;
+  border-color:#38d9ec!important;
+  box-shadow:inset 0 1px #ffffff18,0 0 16px #25eaff14!important;
+}
+#modal:has(.dukaan-pay-shell) .dukaan-pay-head h2{color:#f6fcff!important}
+#modal:has(.dukaan-pay-shell) .dukaan-pay-icon{
+  color:#04151d!important;
+  background:linear-gradient(135deg,#25eaff 0%,#a2f7ff 48%,#f4c86a 100%)!important;
+  box-shadow:0 0 16px #25eaff45,0 0 18px #f4c86a22;
+}
+#modal:has(.dukaan-pay-shell) .receive-tabs button{
+  color:#dffaff;
+  background:linear-gradient(130deg,#061b27,#0b2b38)!important;
+  border:1px solid #267b8d!important;
+}
+#modal:has(.dukaan-pay-shell) .receive-tabs button.active{
+  color:#03151d!important;
+  background:linear-gradient(105deg,#25eaff,#a2f7ff 52%,#f4c86a)!important;
+  border-color:#ffe8ae!important;
+}
+#modal:has(.dukaan-pay-shell) .dukaan-pay-shell label,
+#modal:has(.dukaan-pay-shell) .smart-receive-label,
+#modal:has(.dukaan-pay-shell) .qr-card b{color:#dffaff!important}
+#modal:has(.dukaan-pay-shell) .dukaan-pay-shell input,
+#modal:has(.dukaan-pay-shell) .dukaan-pay-shell select{
+  color:#f5fcff!important;background:#041923!important;border-color:#328b9b!important
+}
+#modal:has(.dukaan-pay-shell) .dukaan-pay-shell input::placeholder{color:#b5d6df!important;opacity:1}
+#modal:has(.dukaan-pay-shell) .smart-receive-quick{
+  background:linear-gradient(125deg,#062432,#0a303a 60%,#30240e)!important;
+  border-color:#2e8998!important
+}
+#modal:has(.dukaan-pay-shell) .smart-receive-label{color:#a4f5ff!important}
+#modal:has(.dukaan-pay-shell) .smart-receive-chips button{
+  color:#effcff!important;background:linear-gradient(120deg,#082b38,#0a202b 68%,#2a210f)!important;border-color:#3b98a5!important
+}
+#modal:has(.dukaan-pay-shell) .smart-receive-chips button.smart-receive-due{
+  color:#04151c!important;background:linear-gradient(110deg,#25eaff,#a2f7ff 52%,#f4c86a)!important;border-color:#ffe8ae!important
+}
+#modal:has(.dukaan-pay-shell) .qr-card{
+  color:#f5fcff!important;background:linear-gradient(140deg,#031720,#073244 54%,#28200f)!important;
+  border:1px solid #42d8e8!important;box-shadow:0 0 16px #25eaff20,inset 0 0 15px #f4c86a0c!important
+}
+#modal:has(.dukaan-pay-shell) .qr-card canvas,
+#modal:has(.dukaan-pay-shell) .qr-card img{background:#fff!important;padding:6px;border:2px solid #f4c86a;box-sizing:content-box}
+#modal:has(.dukaan-pay-shell) #sharePayBtn,
+#modal:has(.dukaan-pay-shell) #copyPayBtn,
+#modal:has(.dukaan-pay-shell) #savePaymentBtn{
+  color:#03151c!important;background:linear-gradient(110deg,#25eaff,#a2f7ff 52%,#f4c86a)!important;border-color:#f4c86a!important
+}
+/* Shop Profile: keep the existing form and Save Profile action */
+#modal:has(.dk-shop-profile-all) .dk-shop-profile-all{
+  color:#f5fcff!important;
+  background:linear-gradient(145deg,#03131d 0%,#062a39 42%,#071923 70%,#2a210f 100%)!important;
+  border:1px solid #25dff0!important;
+  box-shadow:0 0 18px #25eaff18,0 0 22px #f4c86a12!important
+}
+#modal:has(.dk-shop-profile-all) .dk-modal-head{
+  color:#f5fcff!important;border-bottom-color:#2e8291!important
+}
+#modal:has(.dk-shop-profile-all) .dk-modal-head span,
+#modal:has(.dk-shop-profile-all) .dk-modal-head small{color:#b9eff6!important}
+#modal:has(.dk-shop-profile-all) .dk-modal-head b{color:#ffe3a0!important}
+#modal:has(.dk-shop-profile-all) .dk-modal-icon{
+  color:#04151d!important;background:linear-gradient(135deg,#25eaff,#a2f7ff 52%,#f4c86a)!important;
+  box-shadow:0 0 15px #25eaff32
+}
+#modal:has(.dk-shop-profile-all) .dk-shop-profile-field label{color:#e8fbff!important}
+#modal:has(.dk-shop-profile-all) .dk-shop-profile-field input,
+#modal:has(.dk-shop-profile-all) .dk-shop-profile-field textarea{
+  color:#f7fcff!important;background:#041923!important;border-color:#328b9b!important
+}
+#modal:has(.dk-shop-profile-all) .dk-shop-profile-field input::placeholder,
+#modal:has(.dk-shop-profile-all) .dk-shop-profile-field textarea::placeholder{color:#b5d6df!important;opacity:1}
+#modal:has(.dk-shop-profile-all) .dk-shop-profile-save{
+  color:#03151c!important;background:linear-gradient(110deg,#25eaff,#a2f7ff 52%,#f4c86a)!important;border-color:#f4c86a!important
+}
+/* Digital Shop Pass: maintain scannable QR, existing details and content order */
+#modal:has(.digital-pass-modal) .digital-pass-modal{color:#f5fcff}
+#modal:has(.digital-pass-modal) .digital-pass-heading{margin-bottom:12px}
+#modal:has(.digital-pass-modal) .digital-pass-title{color:#f6fcff!important;text-shadow:0 0 12px #25eaff22}
+#modal:has(.digital-pass-modal) .digital-pass-kicker{color:#8df3ff!important}
+#modal:has(.digital-pass-modal) .digital-pass{
+  position:relative;isolation:isolate;overflow:hidden;text-align:left!important;color:#fff!important;
+  background:linear-gradient(125deg,#03131d 0%,#073348 30%,#061923 56%,#2a210f 82%,#03131d 100%)!important;
+  background-size:220% 220%!important;
+  border:1px solid transparent!important;
+  background-image:linear-gradient(125deg,#03131d,#073348 30%,#061923 56%,#2a210f 82%,#03131d),linear-gradient(110deg,#25eaff,#f4c86a,#25eaff)!important;
+  background-origin:border-box!important;background-clip:padding-box,border-box!important;
+  box-shadow:0 0 17px #25eaff25,0 0 24px #f4c86a18!important;
+  animation:dkRefShine 10s ease-in-out infinite,dkRefGlow 4.5s ease-in-out infinite
+}
+#modal:has(.digital-pass-modal) .digital-pass:after{
+  content:"";position:absolute;z-index:-1;top:-30%;bottom:-30%;left:0;width:30%;pointer-events:none;
+  background:linear-gradient(90deg,transparent,#ffffff14,#25eaff35,#f4c86a38,transparent);
+  animation:dkRefSweep 7s ease-in-out infinite
+}
+#modal:has(.digital-pass-modal) .digital-pass-topline{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#modal:has(.digital-pass-modal) .pass-logo{
+  margin:0!important;color:#03151c!important;background:linear-gradient(135deg,#25eaff,#a2f7ff 48%,#f4c86a)!important;
+  box-shadow:0 0 16px #25eaff38,0 0 18px #f4c86a20
+}
+#modal:has(.digital-pass-modal) .digital-pass-verified{
+  color:#ffe6a5!important;border:1px solid #f4c86a88;background:#f4c86a18;border-radius:999px;padding:6px 10px
+}
+#modal:has(.digital-pass-modal) .digital-pass-shop-name{color:#fff!important;font-weight:900!important;text-shadow:0 0 10px #25eaff20}
+#modal:has(.digital-pass-modal) .digital-pass-owner,
+#modal:has(.digital-pass-modal) .digital-pass-address,
+#modal:has(.digital-pass-modal) .digital-pass-phone,
+#modal:has(.digital-pass-modal) .digital-pass-upi{color:#e2f7ff!important;overflow-wrap:anywhere}
+#modal:has(.digital-pass-modal) .digital-pass-qr-wrap{
+  background:#f8fcff!important;border:2px solid #f4c86a;border-radius:14px;padding:8px;
+  box-shadow:0 0 0 2px #25eaff55,0 0 20px #25eaff25
+}
+#modal:has(.digital-pass-modal) .digital-pass-qr canvas,
+#modal:has(.digital-pass-modal) .digital-pass-qr img{display:block;max-width:100%;height:auto!important}
+#modal:has(.digital-pass-modal) .digital-pass-thanks{color:#bceef5!important}
+#modal:has(.digital-pass-modal) .digital-pass-modal :is(button,.btn){
+  color:#03151c!important;background:linear-gradient(110deg,#25eaff,#a2f7ff 52%,#f4c86a)!important;border-color:#f4c86a!important
+}
+@media(prefers-reduced-motion:reduce){
+  #modal:has(.digital-pass-modal) .digital-pass,
+  #modal:has(.digital-pass-modal) .digital-pass:after{animation:none!important}
+}
