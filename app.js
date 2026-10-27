@@ -887,39 +887,41 @@ function dkOpenShopCopilot(){
     modal('<div class="dk-copilot dk-copilot-lux"><div class="dk-copilot-kicker">DUKAAN KHATA · OWNER ASSISTANT</div><h2>✦ UVMS Assistant</h2><p>UVMS Assistant is included with Premium and VIP. Upgrade to use the voice assistant.</p><button type="button" class="btn primary" id="dkCopilotViewPlans">View plans</button></div>');
     document.getElementById("dkCopilotViewPlans")?.addEventListener("click",openSubscriptionPlans);return;
   }
-  modal('<div class="dk-copilot dk-copilot-lux dk-copilot-voice dk-copilot-fullscreen"><header class="dk-copilot-top"><button type="button" id="dkCopilotBack" aria-label="Close assistant">×</button><span>UVMS ASSISTANT</span><button type="button" id="dkCopilotMute" aria-label="Mute voice replies">🔊</button></header><div class="dk-copilot-main"><h2>UVMS Assistant</h2><p id="dkCopilotStatus" role="status">Starting voice assistant…</p><div class="dk-copilot-speaking-orb" aria-hidden="true"><span>◉</span></div><div id="dkCopilotHeard" class="dk-copilot-heard">Hello! Hello! I’m UVMS Assistant. Ask me anything or tell me what you want to do.</div><div id="dkCopilotResult" class="dk-copilot-result" aria-live="polite"></div></div><form id="dkCopilotTextForm" class="dk-copilot-compose"><button type="button" id="dkCopilotPlus" aria-label="Focus message">＋</button><input id="dkCopilotText" type="text" autocomplete="off" placeholder="Ask UVMS Assistant…" aria-label="Ask UVMS Assistant"/><button type="submit" aria-label="Send message">➤</button><button type="button" id="dkCopilotListen" aria-label="Start listening">🎙</button><button type="button" id="dkCopilotStop" aria-label="Stop listening">×</button></form><p class="dk-copilot-safety">I can answer questions and help with your shop. Payments and deletions need confirmation; calls and WhatsApp open for you to review.</p></div>');
+  modal('<div class="dk-copilot dk-copilot-lux dk-copilot-voice dk-copilot-fullscreen"><header class="dk-copilot-top"><button type="button" id="dkCopilotBack" aria-label="Close assistant">×</button><span>UVMS ASSISTANT</span><button type="button" id="dkCopilotMute" aria-label="Mute voice replies">🔊</button></header><div class="dk-copilot-main"><h2>UVMS Assistant</h2><p id="dkCopilotStatus" role="status">Starting voice assistant…</p><div class="dk-copilot-speaking-orb" role="group" aria-label="UVMS Assistant voice control"><button type="button" id="dkCopilotOrbListen" class="dk-copilot-orb-listen" aria-label="Start listening"><span aria-hidden="true">✦</span><small>Tap to speak</small></button></div><div id="dkCopilotHeard" class="dk-copilot-heard">Hello! Hello! I’m UVMS Assistant. Ask me anything or tell me what you want to do.</div><div id="dkCopilotResult" class="dk-copilot-result" aria-live="polite"></div></div><form id="dkCopilotTextForm" class="dk-copilot-compose"><button type="button" id="dkCopilotPlus" aria-label="Focus message">＋</button><input id="dkCopilotText" type="text" autocomplete="off" placeholder="Ask UVMS Assistant…" aria-label="Ask UVMS Assistant"/><button type="submit" aria-label="Send message">➤</button><button type="button" id="dkCopilotListen" aria-label="Start listening">🎙</button><button type="button" id="dkCopilotStop" aria-label="Stop listening">×</button></form><p class="dk-copilot-safety">I can answer questions and help with your shop. Payments and deletions need confirmation; calls and WhatsApp open for you to review.</p></div>');
   const status=document.getElementById("dkCopilotStatus");
   const heard=document.getElementById("dkCopilotHeard");
   const listenBtn=document.getElementById("dkCopilotListen");
   const stopBtn=document.getElementById("dkCopilotStop");
+  const orbListenBtn=document.getElementById("dkCopilotOrbListen");
+  const syncOrb=()=>{if(orbListenBtn){orbListenBtn.classList.toggle("is-listening",active);orbListenBtn.setAttribute("aria-label",active?"Stop listening":"Start listening");const small=orbListenBtn.querySelector("small");if(small)small.textContent=active?"Listening…":"Tap to speak";}};
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   let recognition=null,active=false,processing=false;
   const setStatus=(message)=>{if(status)status.textContent=message;};
-  const stop=()=>{active=false;try{recognition?.stop()}catch(e){};if(listenBtn)listenBtn.textContent="🎙 Start listening";setStatus("Voice assistant paused.");};
+  const stop=()=>{active=false;try{recognition?.stop()}catch(e){};if(listenBtn)listenBtn.textContent="🎙 Start listening";syncOrb();setStatus("Voice assistant paused.");};
   const listen=()=>{
     if(!SR){setStatus("This browser does not support voice recognition. Please open Dukaan Khata in the latest Chrome browser and allow microphone access.");dkCopilotSpeak("This browser does not support voice recognition. Please use the latest Chrome browser.");return;}
     if(active)return;
     try{
       recognition=new SR();recognition.lang=dkCopilotLocale();recognition.interimResults=false;recognition.maxAlternatives=1;recognition.continuous=false;
-      active=true;processing=false;if(listenBtn)listenBtn.textContent="🔴 Listening…";setStatus("Listening in "+(state.settings?.language||"English")+"…");
+      active=true;processing=false;if(listenBtn)listenBtn.textContent="🔴 Listening…";syncOrb();setStatus("Listening in "+(state.settings?.language||"English")+"…");
       recognition.onresult=async e=>{
         const command=String(e.results?.[e.results.length-1]?.[0]?.transcript||"").trim();
         if(!command)return;
-        processing=true;active=false;if(heard)heard.textContent="You said: “"+command+"”";setStatus("Working on your command…");
+        processing=true;active=false;syncOrb();if(heard)heard.textContent="You said: “"+command+"”";setStatus("Working on your command…");
         await dkRunShopCopilot(command);
         if(active)return;
         const restart=()=>{if(document.getElementById("dkCopilotStatus")&&!active){processing=false;setStatus("Ready for your next command. Listening again…");setTimeout(listen,500)}};
         if("speechSynthesis" in window){const synth=window.speechSynthesis;const check=()=>{if(!document.getElementById("dkCopilotStatus"))return;if(synth.speaking){setTimeout(check,400)}else restart()};setTimeout(check,500)}else restart();
       };
       recognition.onerror=e=>{
-        active=false;if(listenBtn)listenBtn.textContent="🎙 Start listening";
+        active=false;if(listenBtn)listenBtn.textContent="🎙 Start listening";syncOrb();
         const code=e?.error;
         const message=code==="not-allowed"||code==="service-not-allowed"?"Please allow microphone access for Dukaan Khata.":code==="no-speech"?"I didn’t hear a command. I’ll listen again.":code==="network"?"Speech recognition needs an internet connection in this browser.":code==="language-not-supported"?"This browser does not support speech recognition in the selected language.":"Voice recognition had trouble. Tap Start listening to try again.";
         setStatus(message);if(code!=="no-speech"){dkCopilotSpeak(message);toast(message)}else setTimeout(listen,700);
       };
-      recognition.onend=()=>{if(active){active=false;if(listenBtn)listenBtn.textContent="🎙 Start listening";if(!processing&&document.getElementById("dkCopilotStatus"))setStatus("Listening stopped. Tap Start listening to continue.")}};
+      recognition.onend=()=>{if(active){active=false;if(listenBtn)listenBtn.textContent="🎙 Start listening";syncOrb();if(!processing&&document.getElementById("dkCopilotStatus"))setStatus("Listening stopped. Tap Start listening to continue.")}};
       recognition.start();
-    }catch(e){active=false;if(listenBtn)listenBtn.textContent="🎙 Start listening";setStatus("Could not start the microphone. Check browser permission and try again.");}
+    }catch(e){active=false;if(listenBtn)listenBtn.textContent="🎙 Start listening";syncOrb();setStatus("Could not start the microphone. Check browser permission and try again.");}
   };
   let voiceRepliesEnabled=true;
   const muteBtn=document.getElementById("dkCopilotMute");
@@ -932,6 +934,7 @@ function dkOpenShopCopilot(){
   muteBtn?.addEventListener("click",()=>{voiceRepliesEnabled=!voiceRepliesEnabled;muteBtn.textContent=voiceRepliesEnabled?"🔊":"🔇";muteBtn.setAttribute("aria-label",voiceRepliesEnabled?"Mute voice replies":"Enable voice replies");if(!voiceRepliesEnabled)window.speechSynthesis?.cancel();});
   // Keep the voice toggle local to this assistant session; other app speech remains unchanged.
   window.dkCopilotVoiceEnabled=()=>voiceRepliesEnabled;
+  orbListenBtn?.addEventListener("click",()=>active?stop():listen());
   listenBtn?.addEventListener("click",listen);
   stopBtn?.addEventListener("click",stop);
   // Start listening automatically, while retaining text entry for questions and commands.
