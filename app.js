@@ -629,9 +629,9 @@ function dkNormalizePhone(raw){
   return p;
 }
 function dkOpenExternal(url){
-  // Must be called directly from a user click; mobile browsers block background launches.
-  const opened=window.open(url,"_blank","noopener,noreferrer");
-  if(!opened){const link=document.createElement("a");link.href=url;link.target="_blank";link.rel="noopener noreferrer";link.style.display="none";document.body.appendChild(link);link.click();link.remove();}
+  // This helper is used for WhatsApp links. Navigate directly so mobile browsers do not block a popup.
+  // The wa.me URL opens WhatsApp when installed; the owner still reviews and taps Send there.
+  try{window.location.assign(url)}catch(e){const link=document.createElement("a");link.href=url;link.rel="noopener noreferrer";link.style.display="none";document.body.appendChild(link);link.click();link.remove();}
 }
 function shareCustomer(id){
   const c=state.customers.find(x=>String(x.id)===String(id));
@@ -899,7 +899,7 @@ function dkOpenShopCopilot(){
 function dkCopilotTryDirectItemCommand(raw,out){
   const original=String(raw||"").trim(),q=original.toLowerCase();
   if(!original)return false;
-  const actionWords=/\b(add|add item|add items|add bill|bill|include|put|जोड़|जोड|சேர்|சேர்க்க|జోడించ|కలుపు|ಸೇರಿಸು|ಸೇರಿಸಿ|ചേർക്ക|ചേര്‍ക്ക|जोडा|जोड़ें|जोड़ो|వస్తువు|వస్తువులు)\b/iu;
+  const actionWords=/\b(add|add item|add items|add bill|bill|include|put)\b|जोड़|जोड|சேர்|சேர்க்க|జోడించ|కలుపు|సేర్చు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಚೇರ್ಕ್|ചേർക്ക|ചേര്‍ക്ക|जोडा|जोड़ें|जोड़ो|వస్తువు|వస్తువులు/iu;
   if(!actionWords.test(original))return false;
   const customerMatches=state.customers.filter(c=>c?.name&&q.includes(String(c.name).toLowerCase()));
   if(customerMatches.length!==1)return false;
@@ -912,7 +912,7 @@ function dkCopilotTryDirectItemCommand(raw,out){
   if(!Number.isFinite(price)||price<=0)return false;
   let itemText=original.slice(0,priceMatch.index)+" "+original.slice(priceMatch.index+priceMatch[0].length);
   itemText=itemText.replace(new RegExp(customer.name.replace(/[.*+?^$()|[\]\\]/g,"\\$&"),"ig")," ");
-  itemText=itemText.replace(/\b(add|add item|add items|add bill|bill|include|put|to|for|at|price|is|rupees?|rs\.?|rupee|and|the|please|jod|jodo|jodein|joda|ke|liye|me|में|को|के|लिए|जोड़|जोड़ें|जोडा|जोडें|சேர்|சேர்க்க|க்கு|కోసం|జోడించు|జోడించండి|కి|కు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಗೆ|ചേർക്ക|ചേർക്കുക|ക്ക്|रूपये|रुपये|రూపాయలు|రూపాయి|ரூபாய்)\b/giu," ");
+  itemText=itemText.replace(/\b(add|add item|add items|add bill|bill|include|put|to|for|at|price|is|rupees?|rs\.?|rupee|and|the|please|jod|jodo|jodein|joda|ke|liye|me)\b/giu," ").replace(/में|को|के|लिए|जोड़ें|जोड़|जोडा|जोडें|சேர்|சேர்க்க|க்கு|కోసం|జోడించండి|జోడించు|కి|కు|సేర్చు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಗೆ|ಚೇರ್ಕ್|ചേർക്കുക|ചേർക്ക|ക്ക്|रूपये|रुपये|రూపాయలు|రూపాయి|ரூபாய்/gu," ");
   itemText=itemText.replace(/[₹,]/g," ").replace(/\s+/g," ").trim();
   let qty=1;
   const qtyMatch=itemText.match(/^(\d+(?:\.\d+)?)\s+(.+)$/u);
