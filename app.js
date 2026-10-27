@@ -834,21 +834,60 @@ document.addEventListener("focusin",e=>{
 });
 
 function dkOpenShopCopilot(){
-  if(dkSubscriptionUsage().plan!=="ultra-premium"){modal('<div class="dk-copilot"><h2>👑 VIP Shop Copilot</h2><p>Shop Copilot is planned as a VIP workflow feature. Upgrade to VIP to access this starter. Paid plan activation still requires secure checkout setup.</p><button type="button" class="btn primary" id="dkCopilotViewPlans">View plans</button></div>');document.getElementById("dkCopilotViewPlans")?.addEventListener("click",openSubscriptionPlans);return;}
-  modal('<div class="dk-copilot"><h2>✦ Shop Copilot</h2><p>Tell me what your shop needs. This starter can open existing shop workflows and summarize saved records.</p><textarea id="dkCopilotPrompt" placeholder="Example: who owes me the most?"></textarea><button type="button" id="dkCopilotRun">Run workflow</button><div id="dkCopilotResult" aria-live="polite"></div><p class="muted">You review every action before saving. Open-ended GPT needs a secure server-side AI connection and is not live yet.</p></div>');
+  if(dkSubscriptionUsage().plan!=="ultra-premium"){
+    modal('<div class="dk-copilot"><h2>👑 VIP Shop Copilot</h2><p>Your daily shop assistant helps summarize sales and dues, find customers, and open common workflows. This starter works with records saved in Dukaan Khata; open-ended GPT requires a secure server-side AI connection.</p><button type="button" class="btn primary" id="dkCopilotViewPlans">View plans</button></div>');
+    document.getElementById("dkCopilotViewPlans")?.addEventListener("click",openSubscriptionPlans);return;
+  }
+  modal('<div class="dk-copilot"><div class="dk-copilot-head"><span>👑 VIP WORKFLOW ASSISTANT</span><h2>✦ Shop Copilot</h2><p>Ask in everyday language. I can inspect your saved shop records and open the right workflow. You confirm any changes before saving.</p></div><label for="dkCopilotPrompt"><b>What do you need for your shop today?</b></label><textarea id="dkCopilotPrompt" placeholder="Example: show my biggest dues, how much did I sell today, or help me record a payment"></textarea><div class="dk-copilot-suggestions"><button type="button" data-copilot-prompt="Show today's sales and collections">📊 Today</button><button type="button" data-copilot-prompt="Who owes me the most?">💰 Biggest dues</button><button type="button" data-copilot-prompt="Show my top selling items">🏆 Top items</button><button type="button" data-copilot-prompt="Summarize my expenses and profit">🧾 Expenses</button><button type="button" data-copilot-prompt="Find a customer">👥 Find customer</button><button type="button" data-copilot-prompt="Create a bill">＋ Create bill</button></div><button type="button" id="dkCopilotRun">Run workflow →</button><div id="dkCopilotResult" class="dk-copilot-result" aria-live="polite"></div><p class="muted">Privacy & safety: answers use the records available in this app. The assistant will not silently change balances or send messages. Real GPT responses need a secure server-side AI setup; no live GPT connection is claimed.</p></div>');
   document.getElementById("dkCopilotRun")?.addEventListener("click",()=>dkRunShopCopilot(document.getElementById("dkCopilotPrompt")?.value||""));
+  document.querySelectorAll("[data-copilot-prompt]").forEach(b=>b.addEventListener("click",()=>{const p=document.getElementById("dkCopilotPrompt");if(p){p.value=b.getAttribute("data-copilot-prompt")||"";p.focus();}}));
+  document.getElementById("dkCopilotPrompt")?.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();dkRunShopCopilot(e.currentTarget.value||"");}});
 }
 function dkRunShopCopilot(raw){
-  const q=String(raw||"").toLowerCase(),out=document.getElementById("dkCopilotResult");if(!out)return;
-  const dues=state.customers.map(c=>({c,amount:Math.max(0,balance(c.id))})).filter(x=>x.amount>0).sort((a,b)=>b.amount-a.amount);
-  const act=(title,body,fn,label)=>{out.innerHTML="<b>"+esc(title)+"</b><p>"+esc(body)+"</p>"+(fn?'<button type="button" id="dkCopilotAction">'+esc(label||"Open workflow")+'</button>':"");if(fn)document.getElementById("dkCopilotAction")?.addEventListener("click",fn)};
-  if(/due|owe|unpaid|overdue|who|most/.test(q))act("Customer dues",dues.length?dues.slice(0,5).map(x=>x.c.name+" — "+money(x.amount)).join(" · "):"No outstanding dues found.",()=>{closeModal();showPage("khata")},"Review Khata");
-  else if(/add.*customer|new customer/.test(q))act("Add customer","Open the existing form and review details before saving.",()=>{closeModal();addCustomer()},"Open customer form");
-  else if(/bill|sale|invoice/.test(q))act("Create a bill","Open the existing bill workflow; review before saving.",()=>{closeModal();openManyItems()},"Create bill");
-  else if(/payment|receive|collect/.test(q))act("Receive payment","Confirm the customer and amount in the existing workflow.",()=>{closeModal();openReceive()},"Open receive");
-  else if(/expense|profit|cost/.test(q))act("Expenses","Review recorded shop expenses.",()=>{closeModal();openExpenses()},"Open expenses");
-  else if(/report|sales|today|summary/.test(q)){const today=new Date().toDateString(),salesToday=state.tx.filter(t=>t.type==="sale"&&new Date(t.date).toDateString()===today),total=salesToday.reduce((n,t)=>n+(Number(t.total)||0),0);act("Shop summary","Today's sales: "+money(total)+". Bills today: "+salesToday.length+". Outstanding dues: "+money(dues.reduce((n,x)=>n+x.amount,0))+".",()=>{closeModal();showPage("reports")},"Open reports")}
-  else act("Try a shop task","Ask: show today's sales, who owes me the most, add a customer, create a bill, record a payment, or open expenses.");
+  const q=String(raw||"").trim().toLowerCase(),out=document.getElementById("dkCopilotResult");if(!out)return;
+  if(!q){out.innerHTML="<b>Tell me what you need</b><p>Type a shop task or choose one of the suggested prompts.</p>";return;}
+  const customers=Array.isArray(state.customers)?state.customers:[],tx=Array.isArray(state.tx)?state.tx:[],expenses=Array.isArray(state.expenses)?state.expenses:[];
+  const dueRows=customers.map(c=>({c,amount:Math.max(0,Number(balance(c.id))||0)})).filter(x=>x.amount>0).sort((a,b)=>b.amount-a.amount);
+  const totalDue=dueRows.reduce((n,x)=>n+x.amount,0);
+  const today=new Date().toDateString(),yday=new Date();yday.setDate(yday.getDate()-1);
+  const todaySales=tx.filter(t=>t.type==="sale"&&new Date(t.date).toDateString()===today);
+  const todayPayments=tx.filter(t=>t.type==="payment"&&new Date(t.date).toDateString()===today);
+  const salesTotal=arr=>arr.reduce((n,t)=>n+(Number(t.total)||0),0);
+  const paymentTotal=arr=>arr.reduce((n,t)=>n+(Number(t.amount)||0),0);
+  const act=(title,body,fn,label)=>{out.innerHTML="<b>"+esc(title)+"</b><p>"+esc(body)+"</p>"+(fn?'<button type="button" id="dkCopilotAction">'+esc(label||"Open workflow")+' →</button>':"");if(fn)document.getElementById("dkCopilotAction")?.addEventListener("click",fn)};
+  const open=(page)=>()=>{closeModal();showPage(page)};
+  if(/\b(due|owe|unpaid|overdue|who.*pay|who.*owe|biggest dues|pending balance)\b/.test(q)){
+    act("Customer dues",dueRows.length?dueRows.slice(0,8).map(x=>x.c.name+" — "+money(x.amount)).join(" · ")+" Total due: "+money(totalDue):"No outstanding customer dues are recorded.",open("khata"),"Review Khata");
+  }else if(/\b(today|daily|sales|collection|collected|how much.*sell|summary)\b/.test(q)){
+    act("Today's shop summary","Recorded sales: "+money(salesTotal(todaySales))+" across "+todaySales.length+" bills. Payments recorded: "+money(paymentTotal(todayPayments))+". Outstanding customer dues: "+money(totalDue)+". These figures reflect saved records only.",open("reports"),"Open reports");
+  }else if(/top.?sell|best.?sell|popular item|item.*sell/.test(q)){
+    const totals={};tx.filter(t=>t.type==="sale").forEach(t=>(Array.isArray(t.lines)?t.lines:[]).forEach(line=>{const name=String(line.name||line.item||"Item");totals[name]=(totals[name]||0)+(Number(line.total)||((Number(line.qty)||1)*(Number(line.price)||0)));}));
+    const top=Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    act("Top recorded items",top.length?top.map((x,i)=>(i+1)+". "+x[0]+" — "+money(x[1])).join(" · "):"I couldn't find item-level lines in saved sales yet. Record bills with item names to build this view.",open("bills"),"Review bills");
+  }else if(/expense|profit|cost|spend/.test(q)){
+    const totalExp=expenses.reduce((n,x)=>n+(Number(x.amount)||0),0),allSales=salesTotal(tx.filter(t=>t.type==="sale")),allPaid=paymentTotal(tx.filter(t=>t.type==="payment"));
+    act("Expenses & business estimate","Recorded expenses: "+money(totalExp)+". Recorded sales: "+money(allSales)+". Payments recorded: "+money(allPaid)+". Simple sales-minus-recorded-expenses estimate: "+money(allSales-totalExp)+". This is not an accounting-grade net profit calculation.",open("bills"),"Open expenses");
+  }else if(/find.*customer|search.*customer|customer.*phone|phone.*customer/.test(q)){
+    const term=q.replace(/find|search|customer|phone|number|for|please/g," ").trim();
+    const matches=customers.filter(c=>!term||String(c.name||"").toLowerCase().includes(term)||String(c.phone||"").includes(term)).slice(0,8);
+    act("Find a customer",matches.length?matches.map(c=>c.name+(c.phone?" ("+c.phone+")":"")+" — due "+money(Math.max(0,balance(c.id)))).join(" · "):"No matching saved customer found. Try the full or partial name/phone.",open("customers"),"Open customers");
+  }else if(/add.*customer|new customer/.test(q)){
+    act("Add a customer","Open the existing form, check the details, and save when ready.",()=>{closeModal();addCustomer()},"Open customer form");
+  }else if(/bill|sale|invoice/.test(q)){
+    act("Create a bill","The existing bill workflow is ready. Review item names, quantities and amounts before saving.",()=>{closeModal();openManyItems()},"Create bill");
+  }else if(/payment|receive|collect|money received/.test(q)){
+    act("Receive a payment","Open the receive workflow and verify the customer and amount before confirming.",()=>{closeModal();openReceive()},"Open receive");
+  }else if(/remind|follow.?up|message.*due|contact.*due/.test(q)){
+    act("Follow up on dues",dueRows.length?dueRows.length+" customers have pending balances totalling "+money(totalDue)+". Review each recipient and message before sending.":"No pending dues are recorded.",()=>{closeModal();openReminderCenter()},"Review reminders");
+  }else if(/backup|export|download.*data/.test(q)){
+    act("Back up shop records","Open the existing backup/export workflow. Keep your downloaded backup somewhere secure.",()=>{closeModal();exportData()},"Open backup");
+  }else if(/report|month|trend|compare|performance/.test(q)){
+    act("Business reports","Open reports to review saved sales, receipts, expenses, customer balances and recent activity.",open("reports"),"Open reports");
+  }else if(/stock|inventory|reorder|low.?stock/.test(q)){
+    act("Stock workflow","This version doesn't yet have a verified inventory ledger, so I won't guess stock quantities. You can create a bill or review sales while inventory tracking is added.",()=>{closeModal();openManyItems()},"Open bill workflow");
+  }else{
+    act("I can help with these shop tasks","Try: today's sales, who owes me the most, top selling items, expenses and profit estimate, find a customer, create a bill, receive a payment, follow up on dues, reports, or backup.");
+  }
 }
 function dkRenderHomePlanBadge(){const u=dkSubscriptionUsage(),meta={"free":{emoji:"🆓",label:"FREE PLAN"},"pro":{emoji:"🔷",label:"PRO PLAN"},"premium":{emoji:"⭐",label:"PREMIUM"},"ultra-premium":{emoji:"👑",label:"VIP PLAN"}}[u.plan]||{emoji:"🆓",label:"FREE PLAN"};const button=document.getElementById("dkHomePlanShortcut");if(!button)return;const icon=button.querySelector("[data-home-plan-emoji]"),label=button.querySelector("[data-home-plan-label]");if(icon)icon.textContent=meta.emoji;if(label)label.textContent=meta.label;button.setAttribute("aria-label","Current subscription plan: "+u.label+". Open subscription plans");button.title="Current plan: "+u.label+" · Tap to view plans"}
 function render(){dkEnableLiveActionBackground();const now=new Date(),today=now.toDateString(),tod=state.tx.filter(t=>new Date(t.date).toDateString()===today);const revenue=sales().reduce((a,t)=>a+(Number(t.total)||0),0),received=payments().reduce((a,t)=>a+(Number(t.amount)||0),0),due=state.customers.reduce((a,c)=>a+Math.max(0,balance(c.id)),0),expenses=state.expenses.reduce((a,t)=>a+(Number(t.amount)||0),0);const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set("ownerHeader",state.shop.name+" • Infinity");dkRenderHomePlanBadge();paintShopHeaderLogo();set("greeting",(now.getHours()<12?"Good morning":now.getHours()<17?"Good afternoon":"Good evening")+" 👋");set("todayLabel",now.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"}));set("totalDue",money(due));set("todaySales",money(tod.filter(t=>t.type==="sale").reduce((a,t)=>a+(Number(t.total)||0),0)));set("todaySalesCount",tod.filter(t=>t.type==="sale").length+" bills");set("todayPaid",money(tod.filter(t=>t.type==="payment").reduce((a,t)=>a+(Number(t.amount)||0),0)));set("customerCount",state.customers.length);set("newCustomers",state.customers.length+" active");set("overdueCount",state.customers.filter(c=>balance(c.id)>0).length+" with due");set("collectionRate",revenue?Math.round(received/revenue*100)+"% collected":"0% collected");set("rRevenue",money(revenue));set("rCredit",money(Math.max(0,revenue-received)));set("rPaid",money(received));set("rExpense",money(expenses));set("rTx",state.tx.length);const rec=document.getElementById("recent");if(rec)rec.innerHTML=state.tx.slice(0,6).map(t=>'<div class="activity" data-long-delete data-delete-type="transaction" data-delete-id="'+esc(t.id)+'"><div style="display:flex;justify-content:space-between"><span>'+(t.type==="sale"?"🧾":"💰")+' '+esc(state.customers.find(c=>c.id===t.customerId)?.name||"Customer")+'</span><b>'+money(t.type==="sale"?t.total:t.amount)+'</b></div><small class="muted">'+(t.type==="sale"?"Sale":"Payment")+' • Long press to delete</small></div>').join("")||'<p class="muted">No activity yet.</p>';renderKhata();renderCustomers();renderBills();renderReports();applyAppTheme();if(window.applyLanguage)setTimeout(window.applyLanguage,0)}
