@@ -307,7 +307,11 @@ function dkSubscriptionUsage(){
   const limits=plan==="pro"?{customers:100,bills:1500,price:49,label:"Pro"}:plan==="premium"?{customers:200,bills:2500,price:99,label:"Premium"}:plan==="ultra-premium"?{customers:Infinity,bills:Infinity,price:149,label:"VIP"}:{customers:50,bills:500,price:0,label:"Free"};
   return {customerCount:customers,billCount:bills,plan,customerLimit:limits.customers,billLimit:limits.bills,price:limits.price,label:limits.label};
 }
+/* TEMPORARY OWNER TEST MODE: all subscription-gated workflows are enabled for verification.
+   Restore tier checks only after the owner confirms testing is complete. */
+const DK_FEATURE_TEST_MODE=true;
 function dkCheckSubscription(kind){
+  if(DK_FEATURE_TEST_MODE)return true;
   const u=dkSubscriptionUsage(),limit=kind==="customer"?u.customerLimit:u.billLimit,used=kind==="customer"?u.customerCount:u.billCount;
   if(used<limit)return true;
   toast(kind==="customer"?"Free customer limit reached. Open Subscriptions to view plans.":"Monthly bill limit reached. Open Subscriptions to view plans.");
@@ -844,7 +848,7 @@ function dkCopilotSpeak(text){
 }
 function dkOpenShopCopilot(){
   const plan=dkSubscriptionUsage().plan;
-  if(!["premium","ultra-premium"].includes(plan)){modal('<div class="dk-copilot"><h2>✦ Shop Copilot</h2><p>Shop Copilot is included with Premium and VIP. Upgrade to use owner workflow assistance.</p><button type="button" class="btn primary" id="dkCopilotViewPlans">View plans</button></div>');document.getElementById("dkCopilotViewPlans")?.addEventListener("click",openSubscriptionPlans);return;}
+  if(!DK_FEATURE_TEST_MODE&&!["premium","ultra-premium"].includes(plan)){modal('<div class="dk-copilot"><h2>✦ Shop Copilot</h2><p>Shop Copilot is included with Premium and VIP. Upgrade to use owner workflow assistance.</p><button type="button" class="btn primary" id="dkCopilotViewPlans">View plans</button></div>');document.getElementById("dkCopilotViewPlans")?.addEventListener("click",openSubscriptionPlans);return;}
   modal('<div class="dk-copilot dk-copilot-lux"><div class="dk-copilot-kicker">DUKAAN KHATA · OWNER ASSISTANT</div><h2>✦ Shop Copilot</h2><p>Ask in your selected language. Review every change before it is saved.</p><textarea id="dkCopilotPrompt" placeholder="Show today sales / add items / record payment / call Ramesh"></textarea><div class="dk-copilot-controls"><button type="button" id="dkCopilotMic">🎙 Speak</button><button type="button" id="dkCopilotRun">Run workflow</button></div><div id="dkCopilotResult" aria-live="polite"></div><p class="muted">Voice replies use your selected language where your browser has a matching voice. Calls and WhatsApp open your device apps. Destructive actions always need your confirmation. AI replies require the OpenAI key to be configured on Vercel. Calls and WhatsApp open your device apps; review and confirm every change before saving or sending.</p></div>');
   document.getElementById("dkCopilotRun")?.addEventListener("click",()=>dkRunShopCopilot(document.getElementById("dkCopilotPrompt")?.value||""));
   document.getElementById("dkCopilotMic")?.addEventListener("click",()=>{
