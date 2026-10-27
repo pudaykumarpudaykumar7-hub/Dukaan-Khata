@@ -858,8 +858,47 @@ function dkOpenShopCopilot(){
     try{r.start()}catch(e){if(mic)mic.textContent="🎙 Speak"}
   });
 }
-function dkRunShopCopilot(raw){
+async function dkRunShopCopilot(raw){
   const original=String(raw||"").trim(),q=original.toLowerCase(),out=document.getElementById("dkCopilotResult");if(!out)return;
+  let serverNotice="";
+  // Secure AI call: the provider key stays in Supabase Edge Function secrets, never in this browser app.
+  try{
+    const sb=window.dkSupabase;
+    const sessionResult=sb?.auth?.getSession?await sb.auth.getSession():null;
+    const token=sessionResult?.data?.session?.access_token;
+    if(token&&original){
+      const response=await fetch("https://nzsldzyjpxwyyrdwkphp.supabase.co/functions/v1/shop-copilot",{
+        method:"POST",
+        headers:{"Authorization":"Bearer "+token,"apikey":"sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-","Content-Type":"application/json"},
+        body:JSON.stringify({message:original,language:state.settings?.language||"English"})
+      });
+      const data=await response.json().catch(()=>({}));
+      if(response.ok&&data.reply){
+        const language=dkCopilotLocale().slice(0,2);
+        const customerMatch=state.customers.find(c=>c.name&&q.includes(c.name.toLowerCase()));
+        const actions={
+          summary:()=>{closeModal();showPage("reports")},
+          dues:()=>{closeModal();showPage("khata")},
+          add_customer:()=>{closeModal();addCustomer()},
+          add_items:()=>{closeModal();openManyItems(customerMatch?.id)},
+          record_payment:()=>{closeModal();openReceive(customerMatch?.id)},
+          expenses:()=>{closeModal();openExpenses()},
+          call_customer:customerMatch?()=>{closeModal();callCustomer(customerMatch.id)}:null,
+          whatsapp_customer:customerMatch?()=>{closeModal();shareCustomer(customerMatch.id)}:null,
+          delete_record:()=>{closeModal();showPage("khata")}
+        };
+        const action=actions[data.intent];
+        const labels={summary:"Open reports",dues:"Review Khata",add_customer:"Add customer",add_items:"Add items",record_payment:"Record payment",expenses:"Open expenses",call_customer:"Call customer",whatsapp_customer:"Open WhatsApp",delete_record:"Review records"};
+        out.innerHTML="<b>"+esc("Shop Copilot · AI")+"</b><p>"+esc(data.reply)+"</p>"+(action?'<button type="button" id="dkCopilotAction">'+esc(labels[data.intent]||"Review workflow")+"</button>":"")+(data.needs_confirmation?'<p class="muted">Review the details and confirm in the app before saving or sending.</p>':"");
+        if(action)document.getElementById("dkCopilotAction")?.addEventListener("click",action);
+        dkCopilotSpeak(data.reply);
+        return;
+      }
+      if(data.error==="ai_provider_key_missing")serverNotice="Secure AI endpoint is connected, but OPENAI_API_KEY still needs to be added to Supabase Edge Function secrets. Basic local workflows remain available.";
+      else if(data.error==="owner_sign_in_required"||data.error==="invalid_or_expired_session")serverNotice="Sign in with the owner Google account to use server-side AI. Basic local workflows remain available.";
+      else if(data.error)serverNotice="Server-side AI is not ready yet ("+String(data.error)+"). Basic local workflows remain available.";
+    }else if(original){serverNotice="Sign in with the owner Google account to enable secure AI. Basic local workflows remain available."}
+  }catch(e){serverNotice="Secure AI connection could not be reached. Basic local workflows remain available."}
   const lang=dkCopilotLocale().slice(0,2);
   const words={
     en:{dues:"Customer dues",add:"Add customer",bill:"Create bill",payment:"Receive payment",expense:"Expenses",summary:"Shop summary",call:"Call customer",wa:"WhatsApp customer",delete:"Find record to delete",unknown:"I could not confidently match that request. Try a suggested task below."},
@@ -871,7 +910,7 @@ function dkRunShopCopilot(raw){
   };
   const w=words[lang]||words.en;
   const speak=(text)=>{dkCopilotSpeak(text);};
-  const act=(title,body,fn,label,spoken=body)=>{out.innerHTML="<b>"+esc(title)+"</b><p>"+esc(body)+"</p>"+(fn?'<button type="button" id="dkCopilotAction">'+esc(label||"Open workflow")+'</button>':"");if(fn)document.getElementById("dkCopilotAction")?.addEventListener("click",fn);speak(spoken||title)};
+  const act=(title,body,fn,label,spoken=body)=>{out.innerHTML=(serverNotice?'<p class="dk-copilot-server-note">'+esc(serverNotice)+'</p>':"")+"<b>"+esc(title)+"</b><p>"+esc(body)+"</p>"+(fn?'<button type="button" id="dkCopilotAction">'+esc(label||"Open workflow")+'</button>':"");if(fn)document.getElementById("dkCopilotAction")?.addEventListener("click",fn);speak(spoken||title)};
   const dues=state.customers.map(c=>({c,amount:Math.max(0,balance(c.id))})).filter(x=>x.amount>0).sort((a,b)=>b.amount-a.amount);
   const has=(...terms)=>terms.some(t=>q.includes(t));
   const customer=state.customers.find(c=>c.name&&q.includes(c.name.toLowerCase()));
