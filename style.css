@@ -5233,3 +5233,22 @@ header.topbar .top-actions>#dkHomePlanShortcut.dk-subscription-shortcut [data-ho
 .dk-copilot-server-note{margin:10px 0;padding:10px 12px;border:1px solid rgba(196,154,66,.42);border-radius:12px;background:rgba(196,154,66,.10);color:var(--text,#222);font-size:12px;line-height:1.45}
 .dk-copilot-lux #dkCopilotAction{margin-top:8px}
 
+
+
+/* Premium floating Shop Copilot voice assistant launcher */
+.dk-copilot-orb{position:fixed!important;right:max(18px,env(safe-area-inset-right))!important;bottom:max(22px,calc(env(safe-area-inset-bottom) + 16px))!important;z-index:9990!important;width:66px!important;height:66px!important;border-radius:50%!important;border:1px solid #f6dfa0!important;display:grid!important;place-items:center!important;isolation:isolate!important;overflow:hidden!important;cursor:pointer!important;color:#fff5cf!important;background:radial-gradient(circle at 32% 22%,#fff4c4 0%,#e7bd57 13%,#8b5b13 42%,#17120a 73%,#050608 100%)!important;box-shadow:0 0 0 3px #d5aa4930,0 0 20px #d6a63e80,0 12px 32px #0008!important;animation:dkCopilotOrbPulse 3.2s ease-in-out infinite!important}
+.dk-copilot-orb-core{position:relative;z-index:3;font-size:31px;line-height:1;text-shadow:0 0 10px #fff4bd,0 0 22px #ffe9a0;font-weight:900}
+.dk-copilot-orb-ring{position:absolute;inset:5px;border:1px solid #fff1b7a8;border-radius:50%;box-shadow:inset 0 0 12px #f4d77860;z-index:1}
+.dk-copilot-orb-glint{position:absolute;z-index:2;top:-35%;left:-75%;width:48%;height:170%;transform:rotate(28deg);background:linear-gradient(90deg,transparent,#ffffffc9,transparent);animation:dkCopilotOrbShine 3.8s ease-in-out infinite;pointer-events:none}
+.dk-copilot-orb:active{transform:scale(.94)!important}
+@keyframes dkCopilotOrbShine{0%,28%{left:-75%;opacity:0}40%{opacity:1}68%,100%{left:140%;opacity:0}}
+@keyframes dkCopilotOrbPulse{0%,100%{box-shadow:0 0 0 3px #d5aa4930,0 0 18px #d6a63e70,0 12px 32px #0008}50%{box-shadow:0 0 0 6px #d5aa4920,0 0 29px #f3d478b8,0 12px 32px #0008}}
+.dk-copilot-voice{text-align:center!important}
+.dk-copilot-voice .dk-copilot-speaking-orb{width:94px;height:94px;border-radius:50%;margin:18px auto;display:grid;place-items:center;border:1px solid #f6dfa0;background:radial-gradient(circle at 35% 25%,#fff5c7,#d4a33c 22%,#4a3515 58%,#080a0d 78%);box-shadow:0 0 0 5px #d6b65b20,0 0 35px #e4bc5b65;animation:dkCopilotOrbPulse 2.8s ease-in-out infinite}
+.dk-copilot-voice .dk-copilot-speaking-orb span{font-size:42px;color:#fff2bc;text-shadow:0 0 18px #ffe8a0}
+.dk-copilot-voice .dk-copilot-heard{padding:11px 13px;border-radius:12px;border:1px solid #c9a65355;background:#080d14;color:#fff3c5;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.dk-copilot-voice .dk-copilot-controls button{min-width:0}
+.dk-copilot-voice #dkCopilotStop{background:linear-gradient(135deg,#292d34,#11151b);color:#fff;border-color:#6b7481}
+.dk-copilot-voice .dk-copilot-result:empty{display:none}
+@media(max-width:520px){.dk-copilot-orb{width:60px!important;height:60px!important;right:15px!important;bottom:max(18px,calc(env(safe-area-inset-bottom) + 12px))!important}.dk-copilot-voice .dk-copilot-speaking-orb{width:82px;height:82px}}
+@media(prefers-reduced-motion:reduce){.dk-copilot-orb,.dk-copilot-orb-glint,.dk-copilot-voice .dk-copilot-speaking-orb{animation:none!important}}
