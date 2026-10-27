@@ -5330,3 +5330,17 @@ body:not(:has(#home.active)) #dkCopilotLauncher{display:none!important}
 .dk-copilot-fullscreen .dk-copilot-orb-listen.is-listening small{background:#163d9bbd;box-shadow:0 0 24px #d9e6ff88}
 @keyframes uvmsStarListen{0%,100%{transform:scale(.92) rotate(-8deg);opacity:.85}50%{transform:scale(1.18) rotate(8deg);opacity:1}}
 @media(prefers-reduced-motion:reduce){.dk-copilot-fullscreen .dk-copilot-orb-listen.is-listening span{animation:none}}
+
+
+/* Override the earlier full-screen layout: UVMS Assistant opens as a centered popup. */
+#modal:has(.dk-copilot-fullscreen){align-items:center!important;justify-content:center!important;padding:18px!important;box-sizing:border-box!important;background:rgba(12,16,28,.48)!important;backdrop-filter:blur(7px)!important;z-index:1000!important}
+#modal:has(.dk-copilot-fullscreen) .sheet{width:min(100%,520px)!important;max-width:520px!important;height:min(82dvh,740px)!important;min-height:0!important;max-height:calc(100dvh - 36px)!important;overflow:hidden!important;box-sizing:border-box!important;border-radius:28px!important;padding:0!important;margin:auto!important;background:#fbfbfd!important;color:#101116!important;box-shadow:0 24px 90px #0003!important;display:flex!important;flex-direction:column!important}
+.dk-copilot-fullscreen{height:100%!important;min-height:0!important;max-height:100%!important;overflow:hidden!important;border-radius:28px!important;padding:10px 0 max(8px,env(safe-area-inset-bottom))!important}
+.dk-copilot-fullscreen .dk-copilot-top{flex:0 0 auto!important;padding:8px 16px!important}
+.dk-copilot-fullscreen .dk-copilot-main{flex:1 1 auto!important;min-height:0!important;justify-content:center!important;padding:6px 18px 10px!important}
+.dk-copilot-fullscreen .dk-copilot-speaking-orb{width:min(43vw,220px)!important;height:min(43vw,220px)!important;min-width:140px!important;min-height:140px!important;margin:10px auto 16px!important}
+.dk-copilot-fullscreen .dk-copilot-compose{flex:0 0 auto!important;padding:10px 12px 8px!important}
+.dk-copilot-fullscreen .dk-copilot-compose button{flex-basis:42px!important;width:42px!important;height:42px!important}
+.dk-copilot-fullscreen .dk-copilot-compose input{height:46px!important}
+.dk-copilot-fullscreen .dk-copilot-safety{flex:0 0 auto!important;padding:0 14px 8px!important}
+@media(max-width:520px){#modal:has(.dk-copilot-fullscreen){padding:14px!important}#modal:has(.dk-copilot-fullscreen) .sheet{width:100%!important;height:min(82dvh,720px)!important;max-height:calc(100dvh - 28px)!important;border-radius:26px!important}.dk-copilot-fullscreen{border-radius:26px!important}.dk-copilot-fullscreen .dk-copilot-main h2{font-size:22px!important}.dk-copilot-fullscreen .dk-copilot-speaking-orb{width:min(44vw,190px)!important;height:min(44vw,190px)!important;min-width:132px!important;min-height:132px!important}}
