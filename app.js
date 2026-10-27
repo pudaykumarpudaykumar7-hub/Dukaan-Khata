@@ -877,6 +877,7 @@ function dkCopilotLocale(){
   return map[v]||(/^[a-z]{2}(-[A-Z]{2})?$/.test(state.settings?.language||"")?state.settings.language:"en-IN");
 }
 function dkCopilotSpeak(text){
+  if(window.dkCopilotVoiceEnabled&&window.dkCopilotVoiceEnabled()===false)return;
   if(!("speechSynthesis" in window))return;
   try{window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(text||""));u.lang=dkCopilotLocale();const voices=window.speechSynthesis.getVoices();u.voice=voices.find(v=>v.lang.toLowerCase()===u.lang.toLowerCase())||voices.find(v=>v.lang.toLowerCase().startsWith(u.lang.slice(0,2).toLowerCase()))||null;window.speechSynthesis.speak(u)}catch(e){}
 }
@@ -929,7 +930,6 @@ function dkOpenShopCopilot(){
   document.getElementById("dkCopilotBack")?.addEventListener("click",()=>{stop();window.speechSynthesis?.cancel();closeModal();});
   document.getElementById("dkCopilotPlus")?.addEventListener("click",()=>textInput?.focus());
   muteBtn?.addEventListener("click",()=>{voiceRepliesEnabled=!voiceRepliesEnabled;muteBtn.textContent=voiceRepliesEnabled?"🔊":"🔇";muteBtn.setAttribute("aria-label",voiceRepliesEnabled?"Mute voice replies":"Enable voice replies");if(!voiceRepliesEnabled)window.speechSynthesis?.cancel();});
-  const originalSpeak=dkCopilotSpeak;
   // Keep the voice toggle local to this assistant session; other app speech remains unchanged.
   window.dkCopilotVoiceEnabled=()=>voiceRepliesEnabled;
   listenBtn?.addEventListener("click",listen);
