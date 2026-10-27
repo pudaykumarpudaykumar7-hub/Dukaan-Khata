@@ -943,10 +943,11 @@ function dkOpenShopCopilot(){
   setTimeout(listen,350);
 }
 function dkSyncAssistantAccess(){
-  const button=document.getElementById("dkCopilotLauncher");
-  if(!button)return;
   const plan=String(state.settings?.subscriptionPlan||"free");
   const allowed=["premium","ultra-premium"].includes(plan);
+  document.body?.classList.toggle("dk-assistant-enabled",allowed);
+  const button=document.getElementById("dkCopilotLauncher");
+  if(!button)return;
   button.style.display=allowed?"":"none";
   button.setAttribute("aria-hidden",allowed?"false":"true");
   button.tabIndex=allowed?0:-1;
