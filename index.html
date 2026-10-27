@@ -198,62 +198,8 @@ window.openAppInstall=async function(){
 })();
 </script>
 
-<script>
-(()=>{
-  const showInstallNudge=()=>{
-    if(window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true)return;
-    if(document.getElementById("dkWebsiteInstallPopup"))return;
-    const popup=document.createElement("aside");
-    popup.id="dkWebsiteInstallPopup";
-    popup.setAttribute("role","dialog");
-    popup.setAttribute("aria-label","Install Dukaan Khata app");
-    popup.innerHTML='<div class="dk-install-glow" aria-hidden="true"></div><div class="dk-install-shine" aria-hidden="true"></div><div class="dk-install-emblem" aria-hidden="true"><span>DK</span><i>✦</i></div><div class="dk-install-copy"><div class="dk-install-eyebrow"><span></span> YOUR SHOP. ALWAYS WITH YOU.</div><strong>Meet your shop companion</strong><p>Install <b>Dukaan Khata</b> for a faster, app-like experience.</p><button id="dkWebsiteInstallAction" type="button"><span>↓</span> Install app <i>✦</i></button></div><button id="dkWebsiteInstallClose" type="button" aria-label="Close install popup">×</button>';
-    const style=document.createElement("style");
-    style.id="dkWebsiteInstallPopupStyles";
-    style.textContent=`
-      #dkWebsiteInstallPopup{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));bottom:auto;transform:translate(-50%,-22px) scale(.96);width:min(350px,calc(100vw - 24px));max-height:calc(100dvh - 24px - env(safe-area-inset-top,0px));box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:13px 12px 12px;overflow:hidden;isolation:isolate;z-index:2147483647;border:1px solid #dfc17b;border-radius:22px;background:radial-gradient(ellipse at 12% 0%,#315849 0%,transparent 46%),linear-gradient(135deg,#071b17 0%,#14352b 52%,#091b17 100%);color:#fffdf5;box-shadow:0 18px 55px #0008,0 0 0 1px #fff1 inset,0 0 28px #d7b87922;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;animation:dkInstallEnter .65s cubic-bezier(.2,.85,.25,1.15) forwards}
-      #dkWebsiteInstallPopup *{box-sizing:border-box}
-      #dkWebsiteInstallPopup .dk-install-glow{position:absolute;inset:-65%;z-index:-2;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 35%,#e9cb7c18 43%,#fff4d44b 48%,#e9cb7c10 54%,transparent 62% 100%);animation:dkInstallRotate 12s linear infinite}
-      #dkWebsiteInstallPopup .dk-install-shine{position:absolute;inset:-40% auto -40% -65%;width:35%;z-index:-1;pointer-events:none;transform:skewX(-22deg);background:linear-gradient(90deg,transparent,#fff4d53d,transparent);animation:dkInstallShine 4.2s ease-in-out infinite}
-      #dkWebsiteInstallPopup .dk-install-emblem{position:relative;flex:0 0 42px;width:42px;height:42px;display:grid;place-items:center;border-radius:13px;border:1px solid #f4dda0;background:linear-gradient(145deg,#f9e7ad,#c49a49 58%,#8c682d);color:#10291f;box-shadow:0 5px 20px #d8b45b35,inset 0 1px 1px #fff9;animation:dkInstallFloat 3.3s ease-in-out infinite}
-      #dkWebsiteInstallPopup .dk-install-emblem:before{content:"";position:absolute;inset:4px;border:1px solid #654b1c66;border-radius:10px}
-      #dkWebsiteInstallPopup .dk-install-emblem span{font-size:14px;letter-spacing:-.6px;font-weight:950}
-      #dkWebsiteInstallPopup .dk-install-emblem i{position:absolute;right:-4px;top:-6px;color:#fff0b2;font-size:13px;text-shadow:0 0 10px #f8d982}
-      #dkWebsiteInstallPopup .dk-install-copy{min-width:0;flex:1}
-      #dkWebsiteInstallPopup .dk-install-eyebrow{display:flex;align-items:center;gap:6px;margin-bottom:4px;color:#e6cf93;font-size:7px;font-weight:800;letter-spacing:.8px}
-      #dkWebsiteInstallPopup .dk-install-eyebrow span{width:5px;height:5px;border-radius:50%;background:#d9c078;box-shadow:0 0 9px #ffe5a3;animation:dkInstallPulse 1.8s ease-in-out infinite}
-      #dkWebsiteInstallPopup .dk-install-copy>strong{display:block;font-size:13px;line-height:1.25;font-weight:800;letter-spacing:-.2px;color:#fffdf6}
-      #dkWebsiteInstallPopup .dk-install-copy p{margin:4px 0 7px;color:#d0ded6;font-size:10px;line-height:1.35}
-      #dkWebsiteInstallPopup .dk-install-copy p b{color:#f0d99e;font-weight:750}
-      #dkWebsiteInstallPopup #dkWebsiteInstallAction{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:30px;padding:6px 11px;border:1px solid #f7e5b0;border-radius:999px;background:linear-gradient(110deg,#f7e7b1,#d8b96f 45%,#f9e6a8);background-size:200% 100%;color:#152b20;font-size:10px;font-weight:850;box-shadow:0 4px 16px #d9b95d26,inset 0 1px #fff9;cursor:pointer;animation:dkInstallButtonGlow 3s ease-in-out infinite}
-      #dkWebsiteInstallPopup #dkWebsiteInstallAction span{font-size:16px;line-height:10px}
-      #dkWebsiteInstallPopup #dkWebsiteInstallAction i{font-style:normal;font-size:10px}
-      #dkWebsiteInstallPopup #dkWebsiteInstallAction:active{transform:scale(.97)}
-      #dkWebsiteInstallPopup #dkWebsiteInstallClose{position:absolute;top:8px;right:9px;width:27px;height:27px;display:grid;place-items:center;border:1px solid #fff2;border-radius:50%;background:#fff1;color:#e7e9df;font-size:20px;line-height:1;cursor:pointer}
-      @keyframes dkInstallEnter{from{opacity:0;transform:translate(-50%,-22px) scale(.96)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
-      @keyframes dkInstallRotate{to{transform:rotate(360deg)}}
-      @keyframes dkInstallShine{0%,20%{left:-65%;opacity:0}35%{opacity:1}65%{left:130%;opacity:.7}80%,100%{left:130%;opacity:0}}
-      @keyframes dkInstallFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-      @keyframes dkInstallPulse{0%,100%{opacity:.6;box-shadow:0 0 3px #ffe5a3}50%{opacity:1;box-shadow:0 0 12px #ffe5a3}}
-      @keyframes dkInstallButtonGlow{0%,100%{background-position:0% 50%;box-shadow:0 4px 16px #d9b95d26,inset 0 1px #fff9}50%{background-position:100% 50%;box-shadow:0 4px 22px #e5c77655,inset 0 1px #fff9}}
-      @media(max-width:360px){#dkWebsiteInstallPopup{gap:10px;padding:16px 12px}#dkWebsiteInstallPopup .dk-install-emblem{flex-basis:48px;width:48px;height:48px;border-radius:15px}#dkWebsiteInstallPopup .dk-install-copy>strong{font-size:13px}#dkWebsiteInstallPopup .dk-install-eyebrow{font-size:7px;letter-spacing:.8px}}
-      @media(prefers-reduced-motion:reduce){#dkWebsiteInstallPopup,#dkWebsiteInstallPopup *{animation:none!important;transition:none!important}#dkWebsiteInstallPopup{opacity:1;transform:translate(-50%,0)}}
-    `;
-    document.head.appendChild(style);
-    document.body.appendChild(popup);
-    document.getElementById("dkWebsiteInstallClose").addEventListener("click",()=>{popup.remove();style.remove();});
-    document.getElementById("dkWebsiteInstallAction").addEventListener("click",()=>{
-      if(typeof window.openAppInstall==="function")window.openAppInstall();
-      else window.alert("To install Dukaan Khata, open your browser menu and choose Install app or Add to Home screen.");
-    });
-  };
-  // Show before any owner/customer login flow: as soon as the launch animation finishes.
-  // The timeout is a fallback in case the launch-complete event was missed.
-  window.addEventListener("uvms-launch-complete",showInstallNudge,{once:true});
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>window.setTimeout(showInstallNudge,2800),{once:true});
-  else window.setTimeout(showInstallNudge,2800);
-})();
-</script>>
+<!-- Automatic install popup removed at user request. -->
+>
 <button id="dkCopilotLauncher" class="dk-copilot-orb" type="button" aria-label="Open UVMS Assistant voice assistant" title="UVMS Assistant"><span class="dk-copilot-orb-core">✦</span><span class="dk-copilot-orb-ring"></span><span class="dk-copilot-orb-glint"></span></button>
 </body>
 </html>
