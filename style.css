@@ -5105,3 +5105,32 @@ body{
 .dk-plan-head-vip h3::first-letter{color:#d99b19!important}
 .dk-plan-head-vip h3{ text-shadow:0 1px 0 #fff1be!important}
 .dk-plan-head-vip .dk-plan-badge{font-size:10px!important;letter-spacing:.4px!important}
+
+
+/* Premium current-plan badge on the home screen */
+.topbar .top-actions #dkHomePlanShortcut.dk-subscription-shortcut{
+ position:relative!important;isolation:isolate!important;overflow:hidden!important;
+ width:auto!important;min-width:76px!important;max-width:112px!important;height:46px!important;
+ padding:5px 10px!important;display:inline-flex!important;flex:0 0 auto!important;
+ flex-direction:column!important;justify-content:center!important;align-items:center!important;gap:1px!important;
+ border:1px solid #f1d17a!important;border-radius:14px!important;
+ background:linear-gradient(145deg,#493713 0%,#171208 42%,#050505 100%)!important;
+ color:#ffe9a6!important;font-size:20px!important;line-height:21px!important;
+ box-shadow:inset 0 1px 0 #fff4c766,0 0 0 1px #c69a3933,0 0 16px #edc45a55,0 5px 14px #0008!important;
+ text-shadow:0 0 10px #ffe7a0aa!important;animation:dk-home-plan-glow 3s ease-in-out infinite!important
+}
+.topbar .top-actions #dkHomePlanShortcut.dk-subscription-shortcut::before{
+ content:""!important;position:absolute!important;z-index:-1!important;top:-45%!important;left:-70%!important;
+ width:45%!important;height:190%!important;transform:rotate(25deg)!important;
+ background:linear-gradient(90deg,transparent,#fff9d9aa,transparent)!important;
+ animation:dk-home-plan-shine 4s ease-in-out infinite!important;pointer-events:none!important
+}
+.topbar .top-actions #dkHomePlanShortcut [data-home-plan-label]{
+ display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;
+ color:#ffe7a0!important;font-size:8px!important;line-height:10px!important;font-weight:950!important;
+ letter-spacing:.55px!important;white-space:nowrap!important
+}
+@keyframes dk-home-plan-glow{0%,100%{box-shadow:inset 0 1px 0 #fff4c766,0 0 0 1px #c69a3933,0 0 12px #edc45a33,0 5px 14px #0008}50%{box-shadow:inset 0 1px 0 #fff9d999,0 0 0 1px #f1d17a88,0 0 20px #edc45a77,0 5px 14px #0008}}
+@keyframes dk-home-plan-shine{0%,65%{left:-70%}100%{left:140%}}
+@media(max-width:390px){.topbar .top-actions #dkHomePlanShortcut.dk-subscription-shortcut{min-width:64px!important;max-width:78px!important;padding:4px 6px!important;height:42px!important}.topbar .top-actions #dkHomePlanShortcut [data-home-plan-label]{font-size:7px!important;letter-spacing:.25px!important}}
+@media(prefers-reduced-motion:reduce){.topbar .top-actions #dkHomePlanShortcut.dk-subscription-shortcut,.topbar .top-actions #dkHomePlanShortcut.dk-subscription-shortcut::before{animation:none!important}}
