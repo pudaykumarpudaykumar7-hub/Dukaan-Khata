@@ -882,20 +882,50 @@ function dkCopilotSpeak(text){
 }
 function dkOpenShopCopilot(){
   const plan=dkSubscriptionUsage().plan;
-  if(!DK_FEATURE_TEST_MODE&&!["premium","ultra-premium"].includes(plan)){modal('<div class="dk-copilot"><h2>✦ Shop Copilot</h2><p>Shop Copilot is included with Premium and VIP. Upgrade to use owner workflow assistance.</p><button type="button" class="btn primary" id="dkCopilotViewPlans">View plans</button></div>');document.getElementById("dkCopilotViewPlans")?.addEventListener("click",openSubscriptionPlans);return;}
-  modal('<div class="dk-copilot dk-copilot-lux"><div class="dk-copilot-kicker">DUKAAN KHATA · OWNER ASSISTANT</div><h2>✦ Shop Copilot</h2><p>Ask in your selected language. Review every change before it is saved.</p><textarea id="dkCopilotPrompt" placeholder="Show today sales / add items / record payment / call Ramesh"></textarea><div class="dk-copilot-controls"><button type="button" id="dkCopilotMic">🎙 Speak</button><button type="button" id="dkCopilotRun">Run workflow</button></div><div id="dkCopilotResult" aria-live="polite"></div><p class="muted">Voice replies use your selected language where your browser has a matching voice. Calls and WhatsApp open your device apps. Destructive actions always need your confirmation. AI replies require the OpenAI key to be configured on Vercel. Calls and WhatsApp open your device apps; review and confirm every change before saving or sending.</p></div>');
-  document.getElementById("dkCopilotRun")?.addEventListener("click",()=>dkRunShopCopilot(document.getElementById("dkCopilotPrompt")?.value||""));
-  document.getElementById("dkCopilotMic")?.addEventListener("click",()=>{
-    const R=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!R){toast("Voice recognition is not supported in this browser");return}
-    const r=new R();r.lang=dkCopilotLocale();r.interimResults=false;r.maxAlternatives=1;
-    const mic=document.getElementById("dkCopilotMic");if(mic)mic.textContent="🎙 Listening…";
-    r.onresult=e=>{const heard=e.results?.[0]?.[0]?.transcript||"",box=document.getElementById("dkCopilotPrompt");if(box)box.value=heard;if(mic)mic.textContent="🎙 Speak";dkRunShopCopilot(heard)};
-    r.onerror=e=>{if(mic)mic.textContent="🎙 Speak";const code=e?.error;const message=code==="not-allowed"||code==="service-not-allowed"?"Allow microphone access and speech recognition for Dukaan Khata, then try again.":code==="no-speech"?"No speech detected. Tap Speak and say the command clearly.":code==="network"?"Speech recognition needs an internet connection in this browser.":code==="language-not-supported"?"This browser does not support speech recognition for the selected language. Choose another supported language or type the command.":"Voice recognition failed. Please try again or type the command.";out.textContent=message;dkCopilotSpeak(message);toast(message)};
-    r.onend=()=>{if(mic)mic.textContent="🎙 Speak"};
-    try{r.start()}catch(e){if(mic)mic.textContent="🎙 Speak"}
-  });
+  if(!DK_FEATURE_TEST_MODE&&!["premium","ultra-premium"].includes(plan)){
+    modal('<div class="dk-copilot dk-copilot-lux"><div class="dk-copilot-kicker">DUKAAN KHATA · OWNER ASSISTANT</div><h2>✦ Shop Copilot</h2><p>Shop Copilot is included with Premium and VIP. Upgrade to use the voice assistant.</p><button type="button" class="btn primary" id="dkCopilotViewPlans">View plans</button></div>');
+    document.getElementById("dkCopilotViewPlans")?.addEventListener("click",openSubscriptionPlans);return;
+  }
+  modal('<div class="dk-copilot dk-copilot-lux dk-copilot-voice"><div class="dk-copilot-kicker">DUKAAN KHATA · VOICE ASSISTANT</div><h2>Shop Copilot</h2><p id="dkCopilotStatus" role="status">Starting voice assistant…</p><div class="dk-copilot-speaking-orb" aria-hidden="true"><span>✦</span></div><div id="dkCopilotHeard" class="dk-copilot-heard">I’m ready to listen to your command.</div><div id="dkCopilotResult" class="dk-copilot-result" aria-live="polite"></div><div class="dk-copilot-controls"><button type="button" id="dkCopilotListen">🎙 Start listening</button><button type="button" id="dkCopilotStop">Stop listening</button></div><p class="muted">Speak naturally in your selected app language. The assistant will reply aloud. Payments and destructive changes require confirmation; calls open your phone app and WhatsApp opens a prepared message for you to review and send.</p></div>');
+  const status=document.getElementById("dkCopilotStatus");
+  const heard=document.getElementById("dkCopilotHeard");
+  const listenBtn=document.getElementById("dkCopilotListen");
+  const stopBtn=document.getElementById("dkCopilotStop");
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  let recognition=null,active=false,processing=false;
+  const setStatus=(message)=>{if(status)status.textContent=message;};
+  const stop=()=>{active=false;try{recognition?.stop()}catch(e){};if(listenBtn)listenBtn.textContent="🎙 Start listening";setStatus("Voice assistant paused.");};
+  const listen=()=>{
+    if(!SR){setStatus("This browser does not support voice recognition. Please open Dukaan Khata in the latest Chrome browser and allow microphone access.");dkCopilotSpeak("This browser does not support voice recognition. Please use the latest Chrome browser.");return;}
+    if(active)return;
+    try{
+      recognition=new SR();recognition.lang=dkCopilotLocale();recognition.interimResults=false;recognition.maxAlternatives=1;recognition.continuous=false;
+      active=true;processing=false;if(listenBtn)listenBtn.textContent="🔴 Listening…";setStatus("Listening in "+(state.settings?.language||"English")+"…");
+      recognition.onresult=async e=>{
+        const command=String(e.results?.[e.results.length-1]?.[0]?.transcript||"").trim();
+        if(!command)return;
+        processing=true;active=false;if(heard)heard.textContent="You said: “"+command+"”";setStatus("Working on your command…");
+        await dkRunShopCopilot(command);
+        if(active)return;
+        const restart=()=>{if(document.getElementById("dkCopilotStatus")&&!active){processing=false;setStatus("Ready for your next command. Listening again…");setTimeout(listen,500)}};
+        if("speechSynthesis" in window){const synth=window.speechSynthesis;const check=()=>{if(!document.getElementById("dkCopilotStatus"))return;if(synth.speaking){setTimeout(check,400)}else restart()};setTimeout(check,500)}else restart();
+      };
+      recognition.onerror=e=>{
+        active=false;if(listenBtn)listenBtn.textContent="🎙 Start listening";
+        const code=e?.error;
+        const message=code==="not-allowed"||code==="service-not-allowed"?"Please allow microphone access for Dukaan Khata.":code==="no-speech"?"I didn’t hear a command. I’ll listen again.":code==="network"?"Speech recognition needs an internet connection in this browser.":code==="language-not-supported"?"This browser does not support speech recognition in the selected language.":"Voice recognition had trouble. Tap Start listening to try again.";
+        setStatus(message);if(code!=="no-speech"){dkCopilotSpeak(message);toast(message)}else setTimeout(listen,700);
+      };
+      recognition.onend=()=>{if(active){active=false;if(listenBtn)listenBtn.textContent="🎙 Start listening";if(!processing&&document.getElementById("dkCopilotStatus"))setStatus("Listening stopped. Tap Start listening to continue.")}};
+      recognition.start();
+    }catch(e){active=false;if(listenBtn)listenBtn.textContent="🎙 Start listening";setStatus("Could not start the microphone. Check browser permission and try again.");}
+  };
+  listenBtn?.addEventListener("click",listen);
+  stopBtn?.addEventListener("click",stop);
+  // Start listening automatically: this is a conversational voice assistant, not a text-entry form.
+  setTimeout(listen,250);
 }
+document.getElementById("dkCopilotLauncher")?.addEventListener("click",dkOpenShopCopilot);
 function dkCopilotTryDirectPaymentCommand(raw,out){
   const original=String(raw||"").trim(),q=original.toLowerCase();
   if(!/(?:\b(record|receive|received|payment|paid|collect)\b|చెల్లింపు|చెల్లించు|చెల్లించారు|பணம்|செலுத்த|भुगतान|पैसे|પેમેન્ટ|ચુકવણી|ભુગતાન|ਪੈਸੇ|ਭੁਗਤਾਨ|ଦେୟ|ପେମେଣ୍ଟ|পেমেন্ট|টাকা|ادائیگی|پیسے|भुक्तानी|पावती|ಪಾವತಿ|ಪಾವತಿಸಿ|പേയ്മെന്റ്|പണം)/iu.test(original))return false;
