@@ -973,49 +973,47 @@ function dkCopilotWhatsAppCustomer(id,raw){
 function dkCopilotTryDirectItemCommand(raw,out){
   const original=String(raw||"").trim(),q=original.toLowerCase();
   if(!original)return false;
-  if(/\b(payment|paid|receive|received|record|collect|remittance|amount received)\b|చెల్లింపు|చెల్లించు|చెల్లించారు|భుగతానం|பணம்|செலுத்த|भुगतान|पैसे|ಪಾವತಿ|ಪಾವತಿಸಿ|പേയ്മെന്റ്|പണം/iu.test(original))return false;
-  const actionWords=/\b(add|add item|add items|add bill|bill|include|put)\b|जोड़|जोड|சேர்|சேர்க்க|జోడించ|కలుపు|సేర్చు|సేరిసు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಚೇರ್ಕ್|ചേർക്ക|ചേര്‍ക്ക|जोडा|जोड़ें|जोड़ो|વધારો|ઉમેરો|योग करा|যোগ করুন|যোগ করো|ਜੋੜੋ|ਸ਼ਾਮਲ|ଯୋଡ଼|ଯୋଡନ୍ତୁ|যোগ কৰক|شامل کریں|थप्नुहोस्|जोड्नुहोस्|వస్తువు|వస్తువులు/iu;
+  if(/\b(payment|paid|receive|received|record|collect|remittance|amount received)\b|చెల్లింపు|చెల్లించు|చెల్లించారు|భుగతానం|பணம்|செலுத்த|भुगतान|पैसे|પેમેન્ટ|ચુકવણી|ਭੁਗਤਾਨ|ଦେୟ|পেমেন্ট|ادائیگی|भुक्तानी|ಪಾವತಿ|പേയ്മെന്റ്/iu.test(original))return false;
+  const actionWords=/\b(add|add item|add items|add bill|bill|include|put)\b|जोड़|जोड|சேர்|சேர்க்க|జోడించ|కలుపు|సేర్చు|సేరిసు|ಸೇರಿಸು|ಸೇರಿಸಿ|ചേർക്ക|जोडा|जोड़ें|जोड़ो|વધારો|ઉમેરો|योग करा|যোগ করুন|যোগ করো|ਜੋੜੋ|ਸ਼ਾਮਲ|ଯୋଡ଼|ଯୋଡନ୍ତୁ|যোগ কৰক|شامل کریں|थप्नुहोस्|जोड्नुहोस्|వస్తువు|వస్తువులు/iu;
   if(!actionWords.test(original))return false;
   const customerMatches=state.customers.filter(c=>c?.name&&q.includes(String(c.name).toLowerCase()));
   if(customerMatches.length!==1)return false;
   const customer=customerMatches[0];
-  const priceRe=/(?:₹\s*\d+(?:\.\d{1,2})?|\b(?:at|for|price(?:\s+is)?|rupees?|rs\.?|rupee|రూపాయలు|రూపాయి|ரூபாய்|ரூபாய|रुपये|रुपया|रुपए|रुपए|రూపాయలకు|रुपए में)\s*₹?\s*\d+(?:\.\d{1,2})?|\b\d+(?:\.\d{1,2})?\s*(?:rupees?|rs\.?|rupee|రూపాయలు|రూపాయి|ரூபாய்|ரூபாய|रुपये|रुपया|रुपए)\b)/iu;
+  const priceRe=/(?:₹\s*\d+(?:\.\d{1,2})?|\b(?:at|for|price(?:\s+is)?|rupees?|rs\.?|rupee|రూపాయలు|రూపాయి|ரூபாய்|ரூபாய|रुपये|रुपया|रुपए|రూపాయలకు|रुपए में)\s*₹?\s*\d+(?:\.\d{1,2})?|\b\d+(?:\.\d{1,2})?\s*(?:rupees?|rs\.?|rupee|రూపాయలు|రూపాయి|ரூபாய்|ரூபாய|रुपये|रुपया|रुपए)\b)/iu;
   const allPrices=[...original.matchAll(new RegExp(priceRe.source,"giu"))];
+  const escapedName=customer.name.replace(/[.*+?^$()|[\]\\]/g,"\\$&");
   if(allPrices.length>1){
-    let cleaned=original.replace(new RegExp(customer.name.replace(/[.*+?^$()|[\]\\]/g,"\\  const priceMatch=priceRe.exec(original);
-  if(!priceMatch)return false;"),"ig")," ");
+    let cleaned=original.replace(new RegExp(escapedName,"ig")," ");
     cleaned=cleaned.replace(/\b(add|add item|add items|add bill|bill|include|put|to|for|at|price|is|rupees?|rs\.?|rupee|and|the|please|jod|jodo|jodein|joda|ke|liye|me)\b/giu," ");
-    cleaned=cleaned.replace(/में|को|के|लिए|जोड़ें|जोड़|जोडा|जोडें|சேர்|சேர்க்க|க்கு|కోసం|జోడించండి|జోడించు|కి|కు|సేర్చు|సేరిసు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಗೆ|ചേർക്കുക|ചേർക്ക|ക്ക്|रूपये|रुपये|రూపాయలు|రూపాయి|ரூபாய்|₹/gu," ").replace(/\s+/g," ").trim();
+    cleaned=cleaned.replace(/में|को|के|लिए|जोड़ें|जोड़|जोडा|जोडें|சேர்|சேர்க்க|க்கு|కోసం|జోడించండి|జోడించు|కి|కు|సేర్చు|సేరిసు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಗೆ|ചേർക്കുക|ചേർക്ക|ക്ക്|रूपये|रुपये|રકમ|ઉમેરો|વધારો|যোগ করুন|যোগ করো|ਜੋੜੋ|ਸ਼ਾਮਲ|ଯୋଡ଼ନ୍ତୁ|ଯୋଡ଼|যোগ কৰক|شامل کریں|थप्नुहोस्|जोड्नुहोस्|రూపాయలు|రూపాయి|ரூபாய்|₹/gu," ").replace(/\s+/g," ").trim();
     const parsed=parseSpokenItems(cleaned);
-    if(parsed.length===allPrices.length&&parsed.length>1){
-      if(!dkCheckSubscription("bill")){dkCopilotSpeak("Please check your subscription bill limit.");return true;}
-      const lines=parsed.map(item=>({name:item.name,qty:1,price:item.price,total:item.price}));
-      const total=lines.reduce((sum,line)=>sum+line.total,0);
-      state.tx.unshift({id:uid(),type:"sale",customerId:customer.id,total,paid:0,mode:"credit",lines,date:new Date().toISOString()});
-      saveState();render();
-      const locale=dkCopilotLocale().slice(0,2);
-      const replies={
-        te:customer.name+" బిల్లులో "+lines.length+" వస్తువులు జోడించబడ్డాయి. మొత్తం "+money(total)+".",
-        hi:customer.name+" के बिल में "+lines.length+" आइटम जोड़ दिए गए। कुल "+money(total)+".",
-        ta:customer.name+" அவர்களின் பில்லில் "+lines.length+" பொருட்கள் சேர்க்கப்பட்டன. மொத்தம் "+money(total)+".",
-        kn:customer.name+" ಅವರ ಬಿಲ್‌ಗೆ "+lines.length+" ಐಟಂಗಳನ್ನು ಸೇರಿಸಲಾಗಿದೆ. ಒಟ್ಟು "+money(total)+".",
-        ml:customer.name+"ന്റെ ബില്ലിൽ "+lines.length+" ഇനങ്ങൾ ചേർത്തു. ആകെ "+money(total)+".",
-        mr:customer.name+" यांच्या बिलात "+lines.length+" वस्तू जोडल्या. एकूण "+money(total)+".",
-        bn:customer.name+"-এর বিলে "+lines.length+"টি আইটেম যোগ করা হয়েছে। মোট "+money(total)+".",
-        gu:customer.name+"ના બિલમાં "+lines.length+" વસ્તુઓ ઉમેરાઈ. કુલ "+money(total)+".",
-        pa:customer.name+" ਦੇ ਬਿੱਲ ਵਿੱਚ "+lines.length+" ਚੀਜ਼ਾਂ ਜੋੜੀਆਂ ਗਈਆਂ। ਕੁੱਲ "+money(total)+".",
-        or:customer.name+"ଙ୍କ ବିଲ୍‌ରେ "+lines.length+"ଟି ଜିନିଷ ଯୋଡ଼ାଗଲା। ମୋଟ "+money(total)+".",
-        as:customer.name+"ৰ বিলত "+lines.length+"টা বস্তু যোগ কৰা হৈছে। মুঠ "+money(total)+".",
-        ur:customer.name+" کے بل میں "+lines.length+" اشیاء شامل کی گئیں۔ کل "+money(total)+".",
-        ne:customer.name+" को बिलमा "+lines.length+" वस्तु थपियो। जम्मा "+money(total)+".",
-        en:"Added "+lines.length+" items to "+customer.name+"'s bill. Total "+money(total)+"."
-      };
-      const reply=replies[locale]||replies.en;
-      if(out)out.innerHTML="<b>Shop Copilot</b><p>"+esc(reply)+"</p><p class=\"muted\">Saved to this device's current shop records.</p>";
-      dkCopilotSpeak(reply);window.dkNotify?.("New bill saved",customer.name+" • "+money(total));
-      return true;
-    }
-    return false;
+    if(parsed.length!==allPrices.length||parsed.length<2)return false;
+    if(!dkCheckSubscription("bill")){dkCopilotSpeak("Please check your subscription bill limit.");return true;}
+    const lines=parsed.map(item=>({name:item.name,qty:1,price:item.price,total:item.price}));
+    const total=lines.reduce((sum,line)=>sum+line.total,0);
+    state.tx.unshift({id:uid(),type:"sale",customerId:customer.id,total,paid:0,mode:"credit",lines,date:new Date().toISOString()});
+    saveState();render();
+    const locale=dkCopilotLocale().slice(0,2);
+    const replies={
+      te:customer.name+" బిల్లులో "+lines.length+" వస్తువులు జోడించబడ్డాయి. మొత్తం "+money(total)+".",
+      hi:customer.name+" के बिल में "+lines.length+" आइटम जोड़ दिए गए। कुल "+money(total)+".",
+      ta:customer.name+" அவர்களின் பில்லில் "+lines.length+" பொருட்கள் சேர்க்கப்பட்டன. மொத்தம் "+money(total)+".",
+      kn:customer.name+" ಅವರ ಬಿಲ್‌ಗೆ "+lines.length+" ಐಟಂಗಳನ್ನು ಸೇರಿಸಲಾಗಿದೆ. ಒಟ್ಟು "+money(total)+".",
+      ml:customer.name+"ന്റെ ബില്ലിൽ "+lines.length+" ഇനങ്ങൾ ചേർത്തു. ആകെ "+money(total)+".",
+      mr:customer.name+" यांच्या बिलात "+lines.length+" वस्तू जोडल्या. एकूण "+money(total)+".",
+      bn:customer.name+"-এর বিলে "+lines.length+"টি আইটেম যোগ করা হয়েছে। মোট "+money(total)+".",
+      gu:customer.name+"ના બિલમાં "+lines.length+" વસ્તુઓ ઉમેરાઈ. કુલ "+money(total)+".",
+      pa:customer.name+" ਦੇ ਬਿੱਲ ਵਿੱਚ "+lines.length+" ਚੀਜ਼ਾਂ ਜੋੜੀਆਂ ਗਈਆਂ। ਕੁੱਲ "+money(total)+".",
+      or:customer.name+"ଙ୍କ ବିଲ୍‌ରେ "+lines.length+"ଟି ଜିନିଷ ଯୋଡ଼ାଗଲା। ମୋଟ "+money(total)+".",
+      as:customer.name+"ৰ বিলত "+lines.length+"টা বস্তু যোগ কৰা হৈছে। মুঠ "+money(total)+".",
+      ur:customer.name+" کے بل میں "+lines.length+" اشیاء شامل کی گئیں۔ کل "+money(total)+".",
+      ne:customer.name+" को बिलमा "+lines.length+" वस्तु थपियो। जम्मा "+money(total)+".",
+      en:"Added "+lines.length+" items to "+customer.name+"'s bill. Total "+money(total)+"."
+    };
+    const reply=replies[locale]||replies.en;
+    if(out)out.innerHTML="<b>Shop Copilot</b><p>"+esc(reply)+"</p><p class=\"muted\">Saved to this device's current shop records.</p>";
+    dkCopilotSpeak(reply);window.dkNotify?.("New bill saved",customer.name+" • "+money(total));
+    return true;
   }
   const priceMatch=priceRe.exec(original);
   if(!priceMatch)return false;
@@ -1023,8 +1021,9 @@ function dkCopilotTryDirectItemCommand(raw,out){
   const price=numberMatch?Number(numberMatch[0]):NaN;
   if(!Number.isFinite(price)||price<=0)return false;
   let itemText=original.slice(0,priceMatch.index)+" "+original.slice(priceMatch.index+priceMatch[0].length);
-  itemText=itemText.replace(new RegExp(customer.name.replace(/[.*+?^$()|[\]\\]/g,"\\$&"),"ig")," ");
-  itemText=itemText.replace(/\b(add|add item|add items|add bill|bill|include|put|to|for|at|price|is|rupees?|rs\.?|rupee|and|the|please|jod|jodo|jodein|joda|ke|liye|me)\b/giu," ").replace(/में|को|के|लिए|जोड़ें|जोड़|जोडा|जोडें|சேர்|சேர்க்க|க்கு|కోసం|జోడించండి|జోడించు|కి|కు|సేర్చు|సేరిసు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಗೆ|ಚೇರ್ಕ್|ചേർക്കുക|ചേർക്ക|ക്ക്|रूपये|रुपये|રકમ|ઉમેરો|વધારો|যোগ করুন|যোগ করো|ਜੋੜੋ|ਸ਼ਾਮਲ|ଯୋଡ଼ନ୍ତୁ|ଯୋଡ଼|যোগ কৰক|شامل کریں|थप्नुहोस्|जोड्नुहोस्|రూపాయలు|రూపాయి|ரூபாய்/gu," ");
+  itemText=itemText.replace(new RegExp(escapedName,"ig")," ");
+  itemText=itemText.replace(/\b(add|add item|add items|add bill|bill|include|put|to|for|at|price|is|rupees?|rs\.?|rupee|and|the|please|jod|jodo|jodein|joda|ke|liye|me)\b/giu," ");
+  itemText=itemText.replace(/में|को|के|लिए|जोड़ें|जोड़|जोडा|जोडें|சேர்|சேர்க்க|க்கு|కోసం|జోడించండి|జోడించు|కి|కు|సేర్చు|సేరిసు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಗೆ|ಚೇರ್ಕ್|ചേർക്കുക|ചേർക്ക|ക്ക്|रूपये|रुपये|રકમ|ઉમેરો|વધારો|যোগ করুন|যোগ করো|ਜੋੜੋ|ਸ਼ਾਮਲ|ଯୋଡ଼ନ୍ତୁ|ଯୋଡ଼|যোগ কৰক|شامل کریں|थપ्नुहोस्|जोड्नुहोस्|రూపాయలు|రూపాయి|ரூபாய்/gu," ");
   itemText=itemText.replace(/[₹,]/g," ").replace(/\s+/g," ").trim();
   let qty=1;
   const qtyMatch=itemText.match(/^(\d+(?:\.\d+)?)\s+(.+)$/u);
