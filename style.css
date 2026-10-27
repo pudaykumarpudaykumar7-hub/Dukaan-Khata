@@ -5227,3 +5227,8 @@ header.topbar .top-actions>#dkHomePlanShortcut.dk-subscription-shortcut [data-ho
 #dkCopilotResult{margin-top:12px;padding:12px;border:1px solid #ffffff20;border-radius:13px;background:#ffffff08;color:#fff;line-height:1.5}
 #dkCopilotResult p{white-space:pre-wrap;overflow-wrap:anywhere}
 #dkCopilotResult button{border:1px solid #e0bf68;border-radius:10px;background:#e7ca7e;color:#17130a;padding:10px 13px;font-weight:900}
+
+
+/* Shop Copilot secure AI connection status */
+.dk-copilot-server-note{margin:10px 0;padding:10px 12px;border:1px solid rgba(196,154,66,.42);border-radius:12px;background:rgba(196,154,66,.10);color:var(--text,#222);font-size:12px;line-height:1.45}
+.dk-copilot-lux #dkCopilotAction{margin-top:8px}
