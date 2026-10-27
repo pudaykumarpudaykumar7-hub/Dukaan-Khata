@@ -5361,3 +5361,23 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
   width:0!important;
   height:0!important;
 }
+
+/* Add Many Items: use one outer modal scroll only; keep item rows in normal flow. */
+#modal:has(#manyRows){
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-y:contain!important;
+}
+#modal .sheet:has(#manyRows){
+  max-height:none!important;
+  height:auto!important;
+  overflow:visible!important;
+  overflow-y:visible!important;
+  overscroll-behavior:initial!important;
+}
+#manyRows{
+  overflow:visible!important;
+  max-height:none!important;
+  height:auto!important;
+}
