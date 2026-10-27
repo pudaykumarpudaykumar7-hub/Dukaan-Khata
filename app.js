@@ -898,7 +898,7 @@ function dkOpenShopCopilot(){
 }
 function dkCopilotTryDirectPaymentCommand(raw,out){
   const original=String(raw||"").trim(),q=original.toLowerCase();
-  if(!/(?:\b(record|receive|received|payment|paid|collect)\b|చెల్లింపు|చెల్లించు|చెల్లించారు|பணம்|செலுத்த|भुगतान|पैसे|ಪಾವತಿ|ಪಾವತಿಸಿ|പേയ്മെന്റ്|പണം)/iu.test(original))return false;
+  if(!/(?:\b(record|receive|received|payment|paid|collect)\b|చెల్లింపు|చెల్లించు|చెల్లించారు|பணம்|செலுத்த|भुगतान|पैसे|પેમેન્ટ|ચુકવણી|ભુગતાન|ਪੈਸੇ|ਭੁਗਤਾਨ|ଦେୟ|ପେମେଣ୍ଟ|পেমেন্ট|টাকা|ادائیگی|پیسے|भुक्तानी|पावती|ಪಾವತಿ|ಪಾವತಿಸಿ|പേയ്മെന്റ്|പണം)/iu.test(original))return false;
   if(!/\d/.test(original))return false;
   const customerMatches=state.customers.filter(c=>c?.name&&q.includes(String(c.name).toLowerCase()));
   if(customerMatches.length!==1){
@@ -1121,7 +1121,7 @@ async function dkRunShopCopilot(raw){
   else if(has("expense","profit","cost","ఖర్చు","खर्च","செலவு","ವೆಚ್ಚ","ചെലവ്"))act(w.expense,"Review the recorded shop expenses.",()=>{closeModal();openExpenses()},"Open expenses",w.expense);
   else if(has("report","sales","today","summary","సేల్స్","ఈరోజు","बिक्री","आज","விற்பனை","ಇಂದಿನ","വിൽപ്പന")){const today=new Date().toDateString(),salesToday=state.tx.filter(t=>t.type==="sale"&&new Date(t.date).toDateString()===today),total=salesToday.reduce((n,t)=>n+(Number(t.total)||0),0),body="Today's sales: "+money(total)+". Bills today: "+salesToday.length+". Outstanding dues: "+money(dues.reduce((n,x)=>n+x.amount,0))+".";act(w.summary,body,()=>{closeModal();showPage("reports")},"Open reports",body)}
   else if(has("call","phone","dial","కాల్","ఫోన్","कॉल","फोन","அழை","ಕರೆ","വിളി")&&customer)act(w.call,"Open phone call for "+customer.name+".",()=>{closeModal();callCustomer(customer.id)},"Call "+customer.name,w.call+" "+customer.name);
-  else if(has("whatsapp","whats app","message","msg","వాట్సాప్","సందేశం","व्हाट्सऐप","संदेश","வாட்ஸ்அப்","ಸಂದೇಶ","വാട്ട്സ്ആപ്പ്")&&customer)act(w.wa,"Open WhatsApp for "+customer.name+". Review the message before sending.",()=>{closeModal();shareCustomer(customer.id)},"Open WhatsApp",w.wa+" "+customer.name);
+  else if(has("whatsapp","whats app","message","msg","వాట్సాప్","సందేశం","व्हाट्सऐप","संदेश","வாட்ஸ்அப்","ಸಂದేశ","വാട്ട്സ്ആപ്പ്","व्हॉट्सअॅप","বার্তা","হোয়াটসঅ্যাপ","વોટ્સએપ","ਸੁਨੇਹਾ","ਵਟਸਐਪ","ବାର୍ତ୍ତା","ହ୍ୱାଟ୍ସଆପ୍","মেছেজ","واٹس ایپ","پیغام","सन्देश","ह्वाट्सएप")&&customer)act(w.wa,"Open WhatsApp for "+customer.name+". Review the message before sending.",()=>{closeModal();dkCopilotWhatsAppCustomer(customer.id,original)},"Open WhatsApp",w.wa+" "+customer.name);
   else if(has("delete","remove","తొలగించు","हटाओ","நீக்கு","ಅಳಿಸು","ഇല്ലാതാക്ക്"))act(w.delete,"For safety, choose the exact customer or record and confirm deletion in the existing screen.",()=>{closeModal();showPage("khata")},"Review records",w.delete);
   else act("Shop Copilot",w.unknown+" Try: show dues, today's sales, add customer, add items, record payment, expenses, or call/WhatsApp followed by the exact customer name.",null,"",w.unknown);
 }
