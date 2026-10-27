@@ -896,8 +896,36 @@ function dkOpenShopCopilot(){
     try{r.start()}catch(e){if(mic)mic.textContent="🎙 Speak"}
   });
 }
+function dkCopilotTryDirectItemCommand(raw,out){
+  const original=String(raw||"").trim(),q=original.toLowerCase();
+  // Only auto-save a bill when customer, item, quantity and unit price are all explicit.
+  if(!/\b(add|add item|add items|bill)\b/i.test(original))return false;
+  const customerMatches=state.customers.filter(c=>c?.name&&q.includes(String(c.name).toLowerCase()));
+  if(customerMatches.length!==1)return false;
+  const customer=customerMatches[0];
+  const priceMatch=original.match(/(?:at|for|price(?:\s+is)?|₹|rs\.?|rupees?)\s*₹?\s*(\d+(?:\.\d{1,2})?)/i)||original.match(/₹\s*(\d+(?:\.\d{1,2})?)/i);
+  if(!priceMatch)return false;
+  const price=Number(priceMatch[1]);
+  if(!Number.isFinite(price)||price<=0)return false;
+  let itemText=original.replace(customer.name," ").replace(priceMatch[0]," ").replace(/\b(add|add item|add items|bill|to|for|at|price|is|rupees|rs)\b/ig," ").replace(/₹|\b\d+(?:\.\d{1,2})?\b/g," ").replace(/\s+/g," ").trim();
+  let qty=1;
+  const qtyMatch=itemText.match(/^(\d+(?:\.\d+)?)\s+(.+)$/);
+  if(qtyMatch){qty=Number(qtyMatch[1]);itemText=qtyMatch[2].trim();}
+  itemText=itemText.replace(/^(?:of|the)\s+/i,"").trim();
+  if(!itemText||itemText.length>80||!Number.isFinite(qty)||qty<=0||qty>10000)return false;
+  const total=Math.round(qty*price*100)/100;
+  if(!dkCheckSubscription("bill")){dkCopilotSpeak("Please check your subscription bill limit.");return true;}
+  const line={name:itemText,qty,price,total};
+  state.tx.unshift({id:uid(),type:"sale",customerId:customer.id,total,paid:0,mode:"credit",lines:[line],date:new Date().toISOString()});
+  saveState();render();
+  const reply="Added "+qty+" "+itemText+" at "+money(price)+" each to "+customer.name+"'s bill. Total "+money(total)+".";
+  if(out)out.innerHTML="<b>Shop Copilot</b><p>"+esc(reply)+"</p><p class=\"muted\">Saved to this device's current shop records.</p>";
+  dkCopilotSpeak(reply);
+  window.dkNotify?.("New bill saved",customer.name+" • "+money(total));
+  return true;
+}
 async function dkRunShopCopilot(raw){
-  const original=String(raw||"").trim(),q=original.toLowerCase(),out=document.getElementById("dkCopilotResult");if(!out)return;
+  const original=String(raw||"").trim(),q=original.toLowerCase(),out=document.getElementById("dkCopilotResult");if(!out)return;if(dkCopilotTryDirectItemCommand(original,out))return;
   let serverNotice="";
   // Secure AI call: the provider key stays in Supabase Edge Function secrets, never in this browser app.
   try{
