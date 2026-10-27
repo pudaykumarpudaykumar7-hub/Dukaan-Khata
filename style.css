@@ -5203,3 +5203,12 @@ header.topbar .top-actions>#dkHomePlanShortcut.dk-subscription-shortcut [data-ho
 .dk-copilot .dk-copilot-result p{margin:7px 0 10px}
 .dk-copilot #dkCopilotAction{border:1px solid #d7a83b;border-radius:10px;padding:10px 12px;background:linear-gradient(110deg,#fff0b4,#d9a83b);color:#211707;font-weight:900;cursor:pointer}
 @media(max-width:380px){.dk-copilot .dk-copilot-suggestions{grid-template-columns:1fr}.dk-copilot-head h2{font-size:21px}}
+
+/* Premium highlight for the main Add Many Items action */
+#home .quick-grid>button.quick.primary{position:relative!important;isolation:isolate!important;overflow:hidden!important;background:linear-gradient(125deg,#fff2b8 0%,#e8c45e 28%,#c58b22 58%,#f8e7a0 82%,#d6a438 100%)!important;color:#2a1b05!important;border:1px solid #f7df91!important;box-shadow:0 8px 22px rgba(190,139,33,.28),inset 0 1px 0 rgba(255,255,255,.8)!important;transition:transform .18s ease,box-shadow .18s ease!important}
+#home .quick-grid>button.quick.primary::before{content:"";position:absolute;z-index:-1;top:-60%;left:-70%;width:45%;height:220%;transform:rotate(22deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.58),transparent);animation:dkAddItemsShine 4.5s ease-in-out infinite;pointer-events:none}
+#home .quick-grid>button.quick.primary span,#home .quick-grid>button.quick.primary small{color:#2a1b05!important;position:relative}
+#home .quick-grid>button.quick.primary span{font-weight:900!important;letter-spacing:.1px}
+#home .quick-grid>button.quick.primary:active{transform:scale(.98)!important;box-shadow:0 3px 10px rgba(190,139,33,.22)!important}
+@keyframes dkAddItemsShine{0%,65%{left:-70%}100%{left:145%}}
+@media(prefers-reduced-motion:reduce){#home .quick-grid>button.quick.primary::before{animation:none!important;display:none!important}}
