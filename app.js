@@ -1374,9 +1374,11 @@ dkApplyGlobalTheme();
 // Keep the home greeting in sync with the device's local clock, even while the app stays open.
 function dkRefreshHomeGreeting(){
   const now=new Date();
+  const hour=now.getHours(); // Device-local time: 00:00–11:59 morning, 12:00–16:59 afternoon, 17:00–23:59 evening.
   const greeting=document.getElementById("greeting");
   const today=document.getElementById("todayLabel");
-  if(greeting)greeting.textContent=(now.getHours()<12?"Good morning":now.getHours()<17?"Good afternoon":"Good evening")+" 🙏";
+  const period=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening";
+  if(greeting)greeting.textContent=period+" 🙏";
   if(today)today.textContent=now.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});
 }
 setInterval(dkRefreshHomeGreeting,2500);
