@@ -918,7 +918,16 @@ function dkCopilotTryDirectItemCommand(raw,out){
   const line={name:itemText,qty,price,total};
   state.tx.unshift({id:uid(),type:"sale",customerId:customer.id,total,paid:0,mode:"credit",lines:[line],date:new Date().toISOString()});
   saveState();render();
-  const reply="Added "+qty+" "+itemText+" at "+money(price)+" each to "+customer.name+"'s bill. Total "+money(total)+".";
+  const locale=dkCopilotLocale().slice(0,2);
+  const replyText={
+    te:"బిల్‌లో "+customer.name+" కోసం "+qty+" "+itemText+" జోడించబడింది. ఒక్కొక్కటి "+money(price)+". మొత్తం "+money(total)+".",
+    hi:customer.name+" के बिल में "+qty+" "+itemText+" जोड़ दिया गया। प्रति आइटम "+money(price)+". कुल "+money(total)+".",
+    ta:customer.name+" அவர்களின் பில்லில் "+qty+" "+itemText+" சேர்க்கப்பட்டது. ஒவ்வொன்றும் "+money(price)+". மொத்தம் "+money(total)+".",
+    kn:customer.name+" ಅವರ ಬಿಲ್‌ಗೆ "+qty+" "+itemText+" ಸೇರಿಸಲಾಗಿದೆ. ಪ್ರತಿ ಐಟಂ "+money(price)+". ಒಟ್ಟು "+money(total)+".",
+    ml:customer.name+"ന്റെ ബില്ലിൽ "+qty+" "+itemText+" ചേർത്തു. ഓരോന്നിനും "+money(price)+". ആകെ "+money(total)+".",
+    en:"Added "+qty+" "+itemText+" at "+money(price)+" each to "+customer.name+"'s bill. Total "+money(total)+"."
+  };
+  const reply=replyText[locale]||replyText.en;
   if(out)out.innerHTML="<b>Shop Copilot</b><p>"+esc(reply)+"</p><p class=\"muted\">Saved to this device's current shop records.</p>";
   dkCopilotSpeak(reply);
   window.dkNotify?.("New bill saved",customer.name+" • "+money(total));
