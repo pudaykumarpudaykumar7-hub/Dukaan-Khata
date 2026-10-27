@@ -5319,3 +5319,14 @@ body:not(:has(#home.active)) #dkCopilotLauncher{display:none!important}
 @keyframes uvmsCloudFlow{0%{transform:translate(-5%,-3%) rotate(-8deg) scale(.94);opacity:.7}50%{transform:translate(4%,1%) rotate(7deg) scale(1.05);opacity:1}100%{transform:translate(-2%,5%) rotate(15deg) scale(1.1);opacity:.8}}
 @keyframes uvmsHaloSpin{from{transform:rotate(0deg) scale(.96)}to{transform:rotate(360deg) scale(1.04)}}
 @media(prefers-reduced-motion:reduce){.dk-copilot-fullscreen .dk-copilot-speaking-orb,.dk-copilot-fullscreen .dk-copilot-speaking-orb::before,.dk-copilot-fullscreen .dk-copilot-speaking-orb::after{animation:none!important}}
+
+/* Interactive star-to-listen control embedded in the morphing UVMS core. */
+.dk-copilot-fullscreen .dk-copilot-speaking-orb{display:grid;place-items:center}
+.dk-copilot-fullscreen .dk-copilot-orb-listen{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;width:100%;height:100%;border:0;border-radius:inherit;background:transparent;color:#fff;text-shadow:0 2px 14px #1742a5a6;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.dk-copilot-fullscreen .dk-copilot-orb-listen span{font-size:clamp(48px,12vw,76px);line-height:1;font-weight:400;transition:transform .35s ease;text-shadow:0 0 22px #fff9,0 3px 18px #2454c9aa}
+.dk-copilot-fullscreen .dk-copilot-orb-listen small{font-size:12px;letter-spacing:.08em;font-weight:700;opacity:.95;background:#315bc45c;border:1px solid #ffffff50;border-radius:20px;padding:7px 12px;backdrop-filter:blur(8px)}
+.dk-copilot-fullscreen .dk-copilot-orb-listen:focus-visible{outline:3px solid #fff;outline-offset:-8px}
+.dk-copilot-fullscreen .dk-copilot-orb-listen.is-listening span{animation:uvmsStarListen 1.15s ease-in-out infinite}
+.dk-copilot-fullscreen .dk-copilot-orb-listen.is-listening small{background:#163d9bbd;box-shadow:0 0 24px #d9e6ff88}
+@keyframes uvmsStarListen{0%,100%{transform:scale(.92) rotate(-8deg);opacity:.85}50%{transform:scale(1.18) rotate(8deg);opacity:1}}
+@media(prefers-reduced-motion:reduce){.dk-copilot-fullscreen .dk-copilot-orb-listen.is-listening span{animation:none}}
