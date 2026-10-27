@@ -5253,7 +5253,7 @@ header.topbar .top-actions>#dkHomePlanShortcut.dk-subscription-shortcut [data-ho
 @media(max-width:520px){.dk-copilot-orb{width:60px!important;height:60px!important;right:15px!important;bottom:max(18px,calc(env(safe-area-inset-bottom) + 12px))!important}.dk-copilot-voice .dk-copilot-speaking-orb{width:82px;height:82px}}
 @media(prefers-reduced-motion:reduce){.dk-copilot-orb,.dk-copilot-orb-glint,.dk-copilot-voice .dk-copilot-speaking-orb{animation:none!important}}
 
-/* Subscription gate: hide the floating assistant unless JS confirms Premium or VIP. */
+/* Subscription gate: hide the floating assistant unless JS confirms Premium or VIP. Latest production refresh trigger. */
 #dkCopilotLauncher{display:none!important}
 body.dk-assistant-enabled #dkCopilotLauncher{display:grid!important}
 
