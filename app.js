@@ -621,9 +621,43 @@ function copyUPILink(){const x=upiLink();if(!x)return toast("Add UPI ID first");
 function sharePaymentLink(){const x=upiLink();if(!x)return toast("Add UPI ID first");const text="Pay "+state.shop.name+"\n"+x;if(navigator.share)navigator.share({title:"Payment",text}).catch(()=>{});else window.open("https://wa.me/?text="+encodeURIComponent(text),"_blank")}
 function savePayment(){const amount=Number(document.getElementById("payAmount")?.value)||0;if(amount<=0)return toast("Enter a valid amount");const paidCustomerId=document.getElementById("payCustomer")?.value||"";state.tx.unshift({id:uid(),type:"payment",customerId:paidCustomerId,amount,mode:document.getElementById("payMode")?.value||"cash",date:new Date().toISOString()});saveState();closeModal();render();toast("Payment recorded");const paidCustomer=state.customers.find(x=>x.id===paidCustomerId);window.dkNotify?.("Payment recorded",(paidCustomer?.name||"Customer")+" • "+money(amount))}
 
-function shareCustomer(id){const c=state.customers.find(x=>x.id===id),p=(c?.phone||"").replace(/\D/g,"");if(!p)return toast("Add customer phone first");window.open("https://wa.me/"+(p.length===10?"91":"")+p+"?text="+encodeURIComponent("Hello "+c.name+" 👋 Your Dukaan Khata balance is "+money(balance(id))+".") ,"_blank")}
-function callCustomer(id){const p=(state.customers.find(x=>x.id===id)?.phone||"").replace(/\D/g,"");if(!p)return toast("Add customer phone first");location.href="tel:"+p}
-function remindCustomer(id){const c=state.customers.find(x=>x.id===id);if(!c||balance(id)<=0)return toast("No due balance");const p=(c.phone||"").replace(/\D/g,"");state.reminders.unshift({id:uid(),customerId:id,amount:balance(id),date:new Date().toISOString()});saveState();if(p)window.open("https://wa.me/"+(p.length===10?"91":"")+p+"?text="+encodeURIComponent("Reminder from "+state.shop.name+": outstanding "+money(balance(id))),"_blank");toast("Reminder prepared")}
+function dkNormalizePhone(raw){
+  let p=String(raw||"").replace(/\D/g,"");
+  if(p.startsWith("00"))p=p.slice(2);
+  if(p.length===11&&p.startsWith("0"))p=p.slice(1);
+  if(p.length===10)p="91"+p;
+  return p;
+}
+function dkOpenExternal(url){
+  // Must be called directly from a user click; mobile browsers block background launches.
+  const opened=window.open(url,"_blank","noopener,noreferrer");
+  if(!opened){const link=document.createElement("a");link.href=url;link.target="_blank";link.rel="noopener noreferrer";link.style.display="none";document.body.appendChild(link);link.click();link.remove();}
+}
+function shareCustomer(id){
+  const c=state.customers.find(x=>String(x.id)===String(id));
+  if(!c)return toast("Customer not found");
+  const p=dkNormalizePhone(c.phone);
+  if(!p)return toast("Add customer phone first");
+  const text="Hello "+(c.name||"") +" 👋 Your Dukaan Khata balance is "+money(balance(id))+".";
+  dkOpenExternal("https://wa.me/"+p+"?text="+encodeURIComponent(text));
+}
+function callCustomer(id){
+  const c=state.customers.find(x=>String(x.id)===String(id));
+  if(!c)return toast("Customer not found");
+  const p=String(c.phone||"").replace(/[^\d+]/g,"");
+  if(!p)return toast("Add customer phone first");
+  window.location.href="tel:"+p;
+}
+function remindCustomer(id){
+  const c=state.customers.find(x=>String(x.id)===String(id));
+  if(!c||balance(id)<=0)return toast("No due balance");
+  const p=dkNormalizePhone(c.phone);
+  if(!p)return toast("Add customer phone first");
+  const text="Reminder from "+state.shop.name+": outstanding "+money(balance(id));
+  // Record the reminder only after validating a contact number; WhatsApp still requires the owner to tap Send.
+  state.reminders.unshift({id:uid(),customerId:id,amount:balance(id),date:new Date().toISOString()});
+  saveState();dkOpenExternal("https://wa.me/"+p+"?text="+encodeURIComponent(text));toast("WhatsApp reminder opened. Tap Send in WhatsApp.");
+}
 function openCustomerHub(){
   document.getElementById("dkCustomerContactFullscreen")?.remove();
   const customers=Array.isArray(state.customers)?state.customers:[];
