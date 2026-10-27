@@ -5255,3 +5255,27 @@ header.topbar .top-actions>#dkHomePlanShortcut.dk-subscription-shortcut [data-ho
 
 /* Keep the floating assistant on the Home screen only. */
 body:not(:has(#home.active)) #dkCopilotLauncher{display:none!important}
+
+
+/* Refined compact launcher: floats just above the Home bottom navigation. */
+.dk-copilot-orb{
+  width:48px!important;height:48px!important;
+  right:16px!important;
+  bottom:calc(86px + env(safe-area-inset-bottom))!important;
+  border-width:1px!important;
+  box-shadow:0 0 0 2px #d5aa4925,0 0 13px #d6a63e65,0 5px 14px #0007!important;
+}
+.dk-copilot-orb-core{font-size:23px!important}
+.dk-copilot-orb-ring{inset:4px!important}
+@keyframes dkCopilotOrbPulse{
+  0%,100%{box-shadow:0 0 0 2px #d5aa4925,0 0 11px #d6a63e55,0 5px 14px #0007}
+  50%{box-shadow:0 0 0 4px #d5aa4918,0 0 18px #f3d4788c,0 5px 14px #0007}
+}
+@media(max-width:520px){
+  .dk-copilot-orb{
+    width:44px!important;height:44px!important;
+    right:13px!important;
+    bottom:calc(82px + env(safe-area-inset-bottom))!important;
+  }
+  .dk-copilot-orb-core{font-size:21px!important}
+}
