@@ -867,9 +867,9 @@ async function dkRunShopCopilot(raw){
     const sessionResult=sb?.auth?.getSession?await sb.auth.getSession():null;
     const token=sessionResult?.data?.session?.access_token;
     if(token&&original){
-      const response=await fetch("https://nzsldzyjpxwyyrdwkphp.supabase.co/functions/v1/shop-copilot",{
+      const response=await fetch("/api/shop-copilot",{
         method:"POST",
-        headers:{"Authorization":"Bearer "+token,"apikey":"sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-","Content-Type":"application/json"},
+        headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},
         body:JSON.stringify({message:original,language:state.settings?.language||"English"})
       });
       const data=await response.json().catch(()=>({}));
