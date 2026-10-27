@@ -931,6 +931,14 @@ function dkCopilotTryDirectPaymentCommand(raw,out){
       ta:customer.name+" க்கான "+money(amount)+" பணம் பதிவு செய்யப்பட்டது.",
       kn:customer.name+" ಅವರ "+money(amount)+" ಪಾವತಿ ದಾಖಲಿಸಲಾಗಿದೆ.",
       ml:customer.name+"ന്റെ "+money(amount)+" പേയ്മെന്റ് രേഖപ്പെടുത്തി.",
+      mr:customer.name+" यांच्यासाठी "+money(amount)+" चे पेमेंट नोंदवले.",
+      bn:customer.name+"-এর জন্য "+money(amount)+" পেমেন্ট রেকর্ড করা হয়েছে।",
+      gu:customer.name+" માટે "+money(amount)+" ની ચુકવણી નોંધાઈ છે.",
+      pa:customer.name+" ਲਈ "+money(amount)+" ਦੀ ਅਦਾਇਗੀ ਦਰਜ ਕੀਤੀ ਗਈ।",
+      or:customer.name+"ଙ୍କ ପାଇଁ "+money(amount)+" ଦେୟ ରେକର୍ଡ ହେଲା।",
+      as:customer.name+"ৰ বাবে "+money(amount)+" পেমেণ্ট নথিভুক্ত কৰা হৈছে।",
+      ur:customer.name+" کے لیے "+money(amount)+" کی ادائیگی درج کر دی گئی۔",
+      ne:customer.name+" का लागि "+money(amount)+" भुक्तानी रेकर्ड गरियो।",
       en:"Payment of "+money(amount)+" recorded for "+customer.name+"."
     }[locale]||"Payment of "+money(amount)+" recorded for "+customer.name+".";
     if(out)out.innerHTML="<p>"+esc(done)+"</p>";
@@ -966,7 +974,7 @@ function dkCopilotTryDirectItemCommand(raw,out){
   const original=String(raw||"").trim(),q=original.toLowerCase();
   if(!original)return false;
   if(/\b(payment|paid|receive|received|record|collect|remittance|amount received)\b|చెల్లింపు|చెల్లించు|చెల్లించారు|భుగతానం|பணம்|செலுத்த|भुगतान|पैसे|ಪಾವತಿ|ಪಾವತಿಸಿ|പേയ്മെന്റ്|പണം/iu.test(original))return false;
-  const actionWords=/\b(add|add item|add items|add bill|bill|include|put)\b|जोड़|जोड|சேர்|சேர்க்க|జోడించ|కలుపు|సేర్చు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಚೇರ್ಕ್|ചേർക്ക|ചേര്‍ക്ക|जोडा|जोड़ें|जोड़ो|వస్తువు|వస్తువులు/iu;
+  const actionWords=/\b(add|add item|add items|add bill|bill|include|put)\b|जोड़|जोड|சேர்|சேர்க்க|జోడించ|కలుపు|సేర్చు|సేరిసు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಚೇರ್ಕ್|ചേർക്ക|ചേര്‍ക്ക|जोडा|जोड़ें|जोड़ो|વધારો|ઉમેરો|योग करा|যোগ করুন|যোগ করো|ਜੋੜੋ|ਸ਼ਾਮਲ|ଯୋଡ଼|ଯୋଡନ୍ତୁ|যোগ কৰক|شامل کریں|थप्नुहोस्|जोड्नुहोस्|వస్తువు|వస్తువులు/iu;
   if(!actionWords.test(original))return false;
   const customerMatches=state.customers.filter(c=>c?.name&&q.includes(String(c.name).toLowerCase()));
   if(customerMatches.length!==1)return false;
@@ -979,7 +987,7 @@ function dkCopilotTryDirectItemCommand(raw,out){
   if(!Number.isFinite(price)||price<=0)return false;
   let itemText=original.slice(0,priceMatch.index)+" "+original.slice(priceMatch.index+priceMatch[0].length);
   itemText=itemText.replace(new RegExp(customer.name.replace(/[.*+?^$()|[\]\\]/g,"\\$&"),"ig")," ");
-  itemText=itemText.replace(/\b(add|add item|add items|add bill|bill|include|put|to|for|at|price|is|rupees?|rs\.?|rupee|and|the|please|jod|jodo|jodein|joda|ke|liye|me)\b/giu," ").replace(/में|को|के|लिए|जोड़ें|जोड़|जोडा|जोडें|சேர்|சேர்க்க|க்கு|కోసం|జోడించండి|జోడించు|కి|కు|సేర్చు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಗೆ|ಚೇರ್ಕ್|ചേർക്കുക|ചേർക്ക|ക്ക്|रूपये|रुपये|రూపాయలు|రూపాయి|ரூபாய்/gu," ");
+  itemText=itemText.replace(/\b(add|add item|add items|add bill|bill|include|put|to|for|at|price|is|rupees?|rs\.?|rupee|and|the|please|jod|jodo|jodein|joda|ke|liye|me)\b/giu," ").replace(/में|को|के|लिए|जोड़ें|जोड़|जोडा|जोडें|சேர்|சேர்க்க|க்கு|కోసం|జోడించండి|జోడించు|కి|కు|సేర్చు|సేరిసు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಗೆ|ಚೇರ್ಕ್|ചേർക്കുക|ചേർക്ക|ക്ക്|रूपये|रुपये|રકમ|ઉમેરો|વધારો|যোগ করুন|যোগ করো|ਜੋੜੋ|ਸ਼ਾਮਲ|ଯୋଡ଼ନ୍ତୁ|ଯୋଡ଼|যোগ কৰক|شامل کریں|थप्नुहोस्|जोड्नुहोस्|రూపాయలు|రూపాయి|ரூபாய்/gu," ");
   itemText=itemText.replace(/[₹,]/g," ").replace(/\s+/g," ").trim();
   let qty=1;
   const qtyMatch=itemText.match(/^(\d+(?:\.\d+)?)\s+(.+)$/u);
@@ -997,6 +1005,14 @@ function dkCopilotTryDirectItemCommand(raw,out){
     ta:customer.name+" அவர்களின் பில்லில் "+qty+" "+itemText+" சேர்க்கப்பட்டது. ஒவ்வொன்றும் "+money(price)+". மொத்தம் "+money(total)+".",
     kn:customer.name+" ಅವರ ಬಿಲ್‌ಗೆ "+qty+" "+itemText+" ಸೇರಿಸಲಾಗಿದೆ. ಪ್ರತಿ ಐಟಂ "+money(price)+". ಒಟ್ಟು "+money(total)+".",
     ml:customer.name+"ന്റെ ബില്ലിൽ "+qty+" "+itemText+" ചേർത്തു. ഓരോന്നിനും "+money(price)+". ആകെ "+money(total)+".",
+    mr:customer.name+" यांच्या बिलात "+qty+" "+itemText+" जोडले. प्रत्येकाची किंमत "+money(price)+". एकूण "+money(total)+".",
+    bn:customer.name+"-এর বিলে "+qty+" "+itemText+" যোগ করা হয়েছে। প্রতিটির দাম "+money(price)+". মোট "+money(total)+".",
+    gu:customer.name+"ના બિલમાં "+qty+" "+itemText+" ઉમેર્યું. દરેકની કિંમત "+money(price)+". કુલ "+money(total)+".",
+    pa:customer.name+" ਦੇ ਬਿੱਲ ਵਿੱਚ "+qty+" "+itemText+" ਜੋੜਿਆ ਗਿਆ। ਹਰ ਇੱਕ ਦੀ ਕੀਮਤ "+money(price)+". ਕੁੱਲ "+money(total)+".",
+    or:customer.name+"ଙ୍କ ବିଲ୍‌ରେ "+qty+" "+itemText+" ଯୋଡ଼ାଗଲା। ପ୍ରତିଟିର ମୂଲ୍ୟ "+money(price)+". ମୋଟ "+money(total)+".",
+    as:customer.name+"ৰ বিলত "+qty+" "+itemText+" যোগ কৰা হৈছে। প্ৰতিটোৰ মূল্য "+money(price)+". মুঠ "+money(total)+".",
+    ur:customer.name+" کے بل میں "+qty+" "+itemText+" شامل کیا گیا۔ فی آئٹم "+money(price)+". کل "+money(total)+".",
+    ne:customer.name+" को बिलमा "+qty+" "+itemText+" थपियो। प्रति वस्तु "+money(price)+". जम्मा "+money(total)+".",
     en:"Added "+qty+" "+itemText+" at "+money(price)+" each to "+customer.name+"'s bill. Total "+money(total)+"."
   };
   const reply=replyText[locale]||replyText.en;
