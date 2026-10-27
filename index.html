@@ -141,14 +141,14 @@ html body #uvmsLaunchSplash .uvms-launch-frame{z-index:3!important;}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js" defer></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js" defer></script>
 <script>(()=>{const h=new Date().getHours();const e=document.getElementById("greeting");if(e)e.textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+" 🙏";const d=document.getElementById("todayLabel");if(d)d.textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});})();</script>
-<script src="app.js?v=home-greeting-stable-local-clock-20261027b" defer></script>
+<script src="app.js?v=home-greeting-2p5s-force-refresh-20261027c" defer></script>
 <script src="notifications.js?v=20261025-supabase-customer-notifications-v2" defer></script>
 <script src="auth.js?v=customer-push-persistent-v2" defer></script>
 
 <script src="i18n.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 <script src="more-routing.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 </div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=home-greeting-cache-refresh-20261027b",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=home-greeting-cache-refresh-20261027c",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
 <script>
 (()=>{let deferredPrompt=null;const btn=()=>document.getElementById("pwaInstallBtn");
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=btn();if(b)b.hidden=false;});
