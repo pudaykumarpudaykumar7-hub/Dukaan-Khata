@@ -891,28 +891,33 @@ function dkOpenShopCopilot(){
     const r=new R();r.lang=dkCopilotLocale();r.interimResults=false;r.maxAlternatives=1;
     const mic=document.getElementById("dkCopilotMic");if(mic)mic.textContent="🎙 Listening…";
     r.onresult=e=>{const heard=e.results?.[0]?.[0]?.transcript||"",box=document.getElementById("dkCopilotPrompt");if(box)box.value=heard;if(mic)mic.textContent="🎙 Speak";dkRunShopCopilot(heard)};
-    r.onerror=()=>{if(mic)mic.textContent="🎙 Speak";toast("Could not hear that. Try again.")};
+    r.onerror=e=>{if(mic)mic.textContent="🎙 Speak";const code=e?.error;const message=code==="not-allowed"||code==="service-not-allowed"?"Allow microphone access and speech recognition for Dukaan Khata, then try again.":code==="no-speech"?"No speech detected. Tap Speak and say the command clearly.":code==="network"?"Speech recognition needs an internet connection in this browser.":code==="language-not-supported"?"This browser does not support speech recognition for the selected language. Choose another supported language or type the command.":"Voice recognition failed. Please try again or type the command.";out.textContent=message;dkCopilotSpeak(message);toast(message)};
     r.onend=()=>{if(mic)mic.textContent="🎙 Speak"};
     try{r.start()}catch(e){if(mic)mic.textContent="🎙 Speak"}
   });
 }
 function dkCopilotTryDirectItemCommand(raw,out){
   const original=String(raw||"").trim(),q=original.toLowerCase();
-  // Only auto-save a bill when customer, item, quantity and unit price are all explicit.
-  if(!/\b(add|add item|add items|bill)\b/i.test(original))return false;
+  if(!original)return false;
+  const actionWords=/\b(add|add item|add items|add bill|bill|include|put|जोड़|जोड|சேர்|சேர்க்க|జోడించ|కలుపు|ಸೇರಿಸು|ಸೇರಿಸಿ|ചേർക്ക|ചേര്‍ക്ക|जोडा|जोड़ें|जोड़ो|వస్తువు|వస్తువులు)\b/iu;
+  if(!actionWords.test(original))return false;
   const customerMatches=state.customers.filter(c=>c?.name&&q.includes(String(c.name).toLowerCase()));
   if(customerMatches.length!==1)return false;
   const customer=customerMatches[0];
-  const priceMatch=original.match(/(?:at|for|price(?:\s+is)?|₹|rs\.?|rupees?)\s*₹?\s*(\d+(?:\.\d{1,2})?)/i)||original.match(/₹\s*(\d+(?:\.\d{1,2})?)/i);
+  const priceRe=/(?:₹\s*\d+(?:\.\d{1,2})?|\b(?:at|for|price(?:\s+is)?|rupees?|rs\.?|rupee|రూపాయలు|రూపాయి|ரூபாய்|ரூபாய|रुपये|रुपया|रुपए|रुपए|రూపాయలకు|रुपए में)\s*₹?\s*\d+(?:\.\d{1,2})?|\b\d+(?:\.\d{1,2})?\s*(?:rupees?|rs\.?|rupee|రూపాయలు|రూపాయి|ரூபாய்|ரூபாய|रुपये|रुपया|रुपए)\b)/iu;
+  const priceMatch=priceRe.exec(original);
   if(!priceMatch)return false;
-  const price=Number(priceMatch[1]);
+  const numberMatch=priceMatch[0].match(/\d+(?:\.\d{1,2})?/);
+  const price=numberMatch?Number(numberMatch[0]):NaN;
   if(!Number.isFinite(price)||price<=0)return false;
-  let itemText=original.replace(customer.name," ").replace(priceMatch[0]," ").replace(/\b(add|add item|add items|bill|to|for|at|price|is|rupees|rs)\b/ig," ").replace(/₹|\b\d+(?:\.\d{1,2})?\b/g," ").replace(/\s+/g," ").trim();
+  let itemText=original.slice(0,priceMatch.index)+" "+original.slice(priceMatch.index+priceMatch[0].length);
+  itemText=itemText.replace(new RegExp(customer.name.replace(/[.*+?^$()|[\]\\]/g,"\\$&"),"ig")," ");
+  itemText=itemText.replace(/\b(add|add item|add items|add bill|bill|include|put|to|for|at|price|is|rupees?|rs\.?|rupee|and|the|please|jod|jodo|jodein|joda|ke|liye|me|में|को|के|लिए|जोड़|जोड़ें|जोडा|जोडें|சேர்|சேர்க்க|க்கு|కోసం|జోడించు|జోడించండి|కి|కు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಗೆ|ചേർക്ക|ചേർക്കുക|ക്ക്|रूपये|रुपये|రూపాయలు|రూపాయి|ரூபாய்)\b/giu," ");
+  itemText=itemText.replace(/[₹,]/g," ").replace(/\s+/g," ").trim();
   let qty=1;
-  const qtyMatch=itemText.match(/^(\d+(?:\.\d+)?)\s+(.+)$/);
+  const qtyMatch=itemText.match(/^(\d+(?:\.\d+)?)\s+(.+)$/u);
   if(qtyMatch){qty=Number(qtyMatch[1]);itemText=qtyMatch[2].trim();}
-  itemText=itemText.replace(/^(?:of|the)\s+/i,"").trim();
-  if(!itemText||itemText.length>80||!Number.isFinite(qty)||qty<=0||qty>10000)return false;
+  if(!itemText||itemText.length>100||!Number.isFinite(qty)||qty<=0||qty>10000)return false;
   const total=Math.round(qty*price*100)/100;
   if(!dkCheckSubscription("bill")){dkCopilotSpeak("Please check your subscription bill limit.");return true;}
   const line={name:itemText,qty,price,total};
