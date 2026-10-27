@@ -899,14 +899,15 @@ function dkOpenShopCopilot(){
 function dkCopilotTryDirectPaymentCommand(raw,out){
   const original=String(raw||"").trim(),q=original.toLowerCase();
   if(!/(?:\b(record|receive|received|payment|paid|collect)\b|చెల్లింపు|చెల్లించు|చెల్లించారు|பணம்|செலுத்த|भुगतान|पैसे|ಪಾವತಿ|ಪಾವತಿಸಿ|പേയ്മെന്റ്|പണം)/iu.test(original))return false;
-  if(!/(?:\b(?:₹\s*\d+|\d+(?:\.\d{1,2})?\s*(?:rupees?|rs\.?|రూపాయలు|రూపాయి|रुपये|ரூபாய்|ரூபாய))\b|₹\s*\d+)/iu.test(original))return false;
+  if(!/\d/.test(original))return false;
   const customerMatches=state.customers.filter(c=>c?.name&&q.includes(String(c.name).toLowerCase()));
   if(customerMatches.length!==1){
     if(out){const msg="Please select one exact customer and say the payment amount, for example: record payment ₹500 from Ravi.";out.innerHTML="<p>"+esc(msg)+"</p>";dkCopilotSpeak(msg);}
     return true;
   }
   const customer=customerMatches[0];
-  const amountMatches=[...original.matchAll(/₹\s*(\d+(?:\.\d{1,2})?)|\b(\d+(?:\.\d{1,2})?)\s*(?:rupees?|rs\.?|రూపాయలు|రూపాయి|रुपये|ரூபாய்|ரூபாய)\b/giu)];
+  let amountMatches=[...original.matchAll(/₹\s*(\d+(?:\.\d{1,2})?)|\b(\d+(?:\.\d{1,2})?)\s*(?:rupees?|rs\.?|రూపాయలు|రూపాయి|रुपये|ரூபாய்|ரூபாய)\b/giu)];
+  if(!amountMatches.length)amountMatches=[...original.matchAll(/\b(\d+(?:\.\d{1,2})?)\b/g)];
   if(amountMatches.length!==1)return false;
   const amount=Number(amountMatches[0][1]||amountMatches[0][2]);
   if(!Number.isFinite(amount)||amount<=0)return false;
@@ -964,6 +965,7 @@ function dkCopilotWhatsAppCustomer(id,raw){
 function dkCopilotTryDirectItemCommand(raw,out){
   const original=String(raw||"").trim(),q=original.toLowerCase();
   if(!original)return false;
+  if(/\b(payment|paid|receive|received|record|collect|remittance|amount received)\b|చెల్లింపు|చెల్లించు|చెల్లించారు|భుగతానం|பணம்|செலுத்த|भुगतान|पैसे|ಪಾವತಿ|ಪಾವತಿಸಿ|പേയ്മെന്റ്|പണം/iu.test(original))return false;
   const actionWords=/\b(add|add item|add items|add bill|bill|include|put)\b|जोड़|जोड|சேர்|சேர்க்க|జోడించ|కలుపు|సేర్చు|ಸೇರಿಸು|ಸೇರಿಸಿ|ಚೇರ್ಕ್|ചേർക്ക|ചേര്‍ക്ക|जोडा|जोड़ें|जोड़ो|వస్తువు|వస్తువులు/iu;
   if(!actionWords.test(original))return false;
   const customerMatches=state.customers.filter(c=>c?.name&&q.includes(String(c.name).toLowerCase()));
