@@ -5348,3 +5348,16 @@ body:not(:has(#home.active)) #dkCopilotLauncher{display:none!important}
 .dk-copilot-fullscreen .dk-copilot-compose input{height:46px!important}
 .dk-copilot-fullscreen .dk-copilot-safety{flex:0 0 auto!important;padding:0 14px 8px!important}
 @media(max-width:520px){#modal:has(.dk-copilot-fullscreen){padding:14px!important}#modal:has(.dk-copilot-fullscreen) .sheet{width:100%!important;height:min(82dvh,720px)!important;max-height:calc(100dvh - 28px)!important;border-radius:26px!important}.dk-copilot-fullscreen{border-radius:26px!important}.dk-copilot-fullscreen .dk-copilot-main h2{font-size:22px!important}.dk-copilot-fullscreen .dk-copilot-speaking-orb{width:min(44vw,190px)!important;height:min(44vw,190px)!important;min-width:132px!important;min-height:132px!important}}
+
+/* Hide visible scrollbar tracks on the main app while preserving touch/mouse scrolling. */
+html,body,main,.page,#home,#khata,#customers,#bills,#tools{
+  scrollbar-width:none!important;
+  -ms-overflow-style:none!important;
+}
+html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
+.page::-webkit-scrollbar,#home::-webkit-scrollbar,#khata::-webkit-scrollbar,
+#customers::-webkit-scrollbar,#bills::-webkit-scrollbar,#tools::-webkit-scrollbar{
+  display:none!important;
+  width:0!important;
+  height:0!important;
+}
