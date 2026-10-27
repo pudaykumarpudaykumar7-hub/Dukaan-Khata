@@ -247,8 +247,11 @@ window.openAppInstall=async function(){
       else window.alert("To install Dukaan Khata, open your browser menu and choose Install app or Add to Home screen.");
     });
   };
-  window.addEventListener("uvms-launch-complete",()=>window.setTimeout(showInstallNudge,700),{once:true});
-  window.setTimeout(showInstallNudge,4200);
+  // Show before any owner/customer login flow: as soon as the launch animation finishes.
+  // The timeout is a fallback in case the launch-complete event was missed.
+  window.addEventListener("uvms-launch-complete",showInstallNudge,{once:true});
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>window.setTimeout(showInstallNudge,2800),{once:true});
+  else window.setTimeout(showInstallNudge,2800);
 })();
 </script>>
 <button id="dkCopilotLauncher" class="dk-copilot-orb" type="button" aria-label="Open UVMS Assistant voice assistant" title="UVMS Assistant"><span class="dk-copilot-orb-core">✦</span><span class="dk-copilot-orb-ring"></span><span class="dk-copilot-orb-glint"></span></button>
