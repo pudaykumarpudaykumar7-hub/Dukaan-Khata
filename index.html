@@ -197,6 +197,29 @@ window.openAppInstall=async function(){
   });
 })();
 </script>
+
+<script>
+(()=> {
+  const showInstallNudge=()=>{
+    if(window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true)return;
+    if(document.getElementById("dkWebsiteInstallPopup"))return;
+    const popup=document.createElement("aside");
+    popup.id="dkWebsiteInstallPopup";
+    popup.setAttribute("role","dialog");
+    popup.setAttribute("aria-label","Install Dukaan Khata app");
+    Object.assign(popup.style,{position:"fixed",left:"50%",bottom:"calc(22px + env(safe-area-inset-bottom, 0px))",transform:"translateX(-50%)",width:"min(410px, calc(100vw - 28px))",boxSizing:"border-box",zIndex:"2147483001",display:"flex",alignItems:"center",gap:"12px",padding:"14px 14px 14px 16px",border:"1px solid #d7b879",borderRadius:"18px",background:"linear-gradient(135deg,#102b25,#173d32)",color:"#fff",boxShadow:"0 12px 38px #0005",fontFamily:"system-ui,-apple-system,sans-serif"});
+    popup.innerHTML='<div aria-hidden="true" style="flex:0 0 42px;height:42px;border-radius:12px;display:grid;place-items:center;background:#d7b879;color:#15352b;font-size:23px;font-weight:900">D</div><div style="flex:1;min-width:0"><strong style="display:block;font-size:14px;line-height:1.3">Get Dukaan Khata on your phone</strong><span style="display:block;margin-top:3px;color:#e4e8e3;font-size:12px;line-height:1.35">Install the app for quick access to your shop.</span><button id="dkWebsiteInstallAction" type="button" style="margin-top:9px;border:0;border-radius:999px;padding:8px 13px;background:#e2c787;color:#172d25;font-size:12px;font-weight:800;cursor:pointer">↓ Install app</button></div><button id="dkWebsiteInstallClose" type="button" aria-label="Close install popup" style="align-self:flex-start;border:0;background:transparent;color:#fff9;font-size:23px;line-height:1;cursor:pointer;padding:0 2px">×</button>';
+    document.body.appendChild(popup);
+    document.getElementById("dkWebsiteInstallClose").addEventListener("click",()=>popup.remove());
+    document.getElementById("dkWebsiteInstallAction").addEventListener("click",()=>{
+      if(typeof window.openAppInstall==="function")window.openAppInstall();
+      else {const text="To install Dukaan Khata, open this website in your browser menu and choose Install app or Add to Home screen.";window.alert(text);}
+    });
+  };
+  window.addEventListener("uvms-launch-complete",()=>window.setTimeout(showInstallNudge,700),{once:true});
+  window.setTimeout(showInstallNudge,4200);
+})();
+</script>
 <button id="dkCopilotLauncher" class="dk-copilot-orb" type="button" aria-label="Open UVMS Assistant voice assistant" title="UVMS Assistant"><span class="dk-copilot-orb-core">✦</span><span class="dk-copilot-orb-ring"></span><span class="dk-copilot-orb-glint"></span></button>
 </body>
 </html>
