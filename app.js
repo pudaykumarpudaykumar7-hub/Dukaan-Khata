@@ -309,7 +309,7 @@ function dkSubscriptionUsage(){
 }
 /* TEMPORARY OWNER TEST MODE: all subscription-gated workflows are enabled for verification.
    Restore tier checks only after the owner confirms testing is complete. */
-const DK_FEATURE_TEST_MODE=true;
+const DK_FEATURE_TEST_MODE=false;
 function dkCheckSubscription(kind){
   if(DK_FEATURE_TEST_MODE)return true;
   const u=dkSubscriptionUsage(),limit=kind==="customer"?u.customerLimit:u.billLimit,used=kind==="customer"?u.customerCount:u.billCount;
@@ -324,7 +324,8 @@ function dkStartSubscription(planId){
     state.settings.subscriptionPlan="free";
     saveState();
     closeModal();
-    toast("Free plan selected.");
+    dkSyncAssistantAccess();
+    toast("Free plan selected. UVMS Assistant is available on Premium and VIP only.");
     return;
   }
   const names={"pro":"Pro","premium":"Premium","ultra-premium":"VIP"};
@@ -940,7 +941,21 @@ function dkOpenShopCopilot(){
   // Start listening automatically, while retaining text entry for questions and commands.
   setTimeout(listen,350);
 }
-document.getElementById("dkCopilotLauncher")?.addEventListener("click",dkOpenShopCopilot);
+function dkSyncAssistantAccess(){
+  const button=document.getElementById("dkCopilotLauncher");
+  if(!button)return;
+  const plan=String(state.settings?.subscriptionPlan||"free");
+  const allowed=["premium","ultra-premium"].includes(plan);
+  button.style.display=allowed?"":"none";
+  button.setAttribute("aria-hidden",allowed?"false":"true");
+  button.tabIndex=allowed?0:-1;
+}
+document.getElementById("dkCopilotLauncher")?.addEventListener("click",()=>{
+  const plan=String(state.settings?.subscriptionPlan||"free");
+  if(!["premium","ultra-premium"].includes(plan)){openSubscriptionPlans();return;}
+  dkOpenShopCopilot();
+});
+dkSyncAssistantAccess();
 function dkCopilotTryDirectPaymentCommand(raw,out){
   const original=String(raw||"").trim(),q=original.toLowerCase();
   if(!/(?:\b(record|receive|received|payment|paid|collect)\b|చెల్లింపు|చెల్లించు|చెల్లించారు|பணம்|செலுத்த|भुगतान|पैसे|પેમેન્ટ|ચુકવણી|ભુગતાન|ਪੈਸੇ|ਭੁਗਤਾਨ|ଦେୟ|ପେମେଣ୍ଟ|পেমেন্ট|টাকা|ادائیگی|پیسے|भुक्तानी|पावती|ಪಾವತಿ|ಪಾವತಿಸಿ|പേയ്മെന്റ്|പണം)/iu.test(original))return false;
