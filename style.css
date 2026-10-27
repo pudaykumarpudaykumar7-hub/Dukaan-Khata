@@ -5212,3 +5212,18 @@ header.topbar .top-actions>#dkHomePlanShortcut.dk-subscription-shortcut [data-ho
 #home .quick-grid>button.quick.primary:active{transform:scale(.98)!important;box-shadow:0 3px 10px rgba(190,139,33,.22)!important}
 @keyframes dkAddItemsShine{0%,65%{left:-70%}100%{left:145%}}
 @media(prefers-reduced-motion:reduce){#home .quick-grid>button.quick.primary::before{animation:none!important;display:none!important}}
+
+
+/* Shop Copilot premium workspace */
+.dk-copilot-lux{padding:18px!important;border:1px solid #bda05b!important;border-radius:20px!important;background:radial-gradient(ellipse at top right,#1b3b5c 0%,#111820 42%,#090c11 100%)!important;color:#f7f4ec!important;box-shadow:0 0 0 1px #d8bc7540,0 18px 45px #0009!important}
+.dk-copilot-lux .dk-copilot-kicker{font-size:10px;letter-spacing:1.7px;font-weight:900;color:#e5c87b;margin-bottom:9px}
+.dk-copilot-lux h2{color:#f6d889!important;margin:0 0 8px!important}
+.dk-copilot-lux p{color:#d7deea!important;font-size:12px;line-height:1.55}
+.dk-copilot-lux textarea{display:block;width:100%;min-height:100px;resize:vertical;box-sizing:border-box;padding:13px;border-radius:13px;border:1px solid #9cabc0;background:#0b1119;color:#fff;font:inherit;outline:none}
+.dk-copilot-lux textarea:focus{border-color:#f2cf79;box-shadow:0 0 0 3px #f2cf7924}
+.dk-copilot-controls{display:flex;gap:9px;margin:11px 0;flex-wrap:wrap}
+.dk-copilot-controls button{flex:1;min-height:43px;border-radius:12px;border:1px solid #d8b85d;background:linear-gradient(120deg,#f6e6a8,#c99a35);color:#17130a;font-weight:900;padding:10px 12px;cursor:pointer}
+.dk-copilot-controls #dkCopilotMic{background:linear-gradient(120deg,#173f62,#236f91);border-color:#6bc6e9;color:#fff}
+#dkCopilotResult{margin-top:12px;padding:12px;border:1px solid #ffffff20;border-radius:13px;background:#ffffff08;color:#fff;line-height:1.5}
+#dkCopilotResult p{white-space:pre-wrap;overflow-wrap:anywhere}
+#dkCopilotResult button{border:1px solid #e0bf68;border-radius:10px;background:#e7ca7e;color:#17130a;padding:10px 13px;font-weight:900}
