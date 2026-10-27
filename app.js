@@ -886,7 +886,7 @@ function dkOpenShopCopilot(){
     modal('<div class="dk-copilot dk-copilot-lux"><div class="dk-copilot-kicker">DUKAAN KHATA · OWNER ASSISTANT</div><h2>✦ Shop Copilot</h2><p>Shop Copilot is included with Premium and VIP. Upgrade to use the voice assistant.</p><button type="button" class="btn primary" id="dkCopilotViewPlans">View plans</button></div>');
     document.getElementById("dkCopilotViewPlans")?.addEventListener("click",openSubscriptionPlans);return;
   }
-  modal('<div class="dk-copilot dk-copilot-lux dk-copilot-voice"><div class="dk-copilot-kicker">DUKAAN KHATA · VOICE ASSISTANT</div><h2>Shop Copilot</h2><p id="dkCopilotStatus" role="status">Starting voice assistant…</p><div class="dk-copilot-speaking-orb" aria-hidden="true"><span>✦</span></div><div id="dkCopilotHeard" class="dk-copilot-heard">I’m ready to listen to your command.</div><div id="dkCopilotResult" class="dk-copilot-result" aria-live="polite"></div><div class="dk-copilot-controls"><button type="button" id="dkCopilotListen">🎙 Start listening</button><button type="button" id="dkCopilotStop">Stop listening</button></div><p class="muted">Speak naturally in your selected app language. The assistant will reply aloud. Payments and destructive changes require confirmation; calls open your phone app and WhatsApp opens a prepared message for you to review and send.</p></div>');
+  modal('<div class="dk-copilot dk-copilot-lux dk-copilot-voice dk-copilot-fullscreen"><header class="dk-copilot-top"><button type="button" id="dkCopilotBack" aria-label="Close assistant">×</button><span>DUKAAN KHATA</span><button type="button" id="dkCopilotMute" aria-label="Mute voice replies">🔊</button></header><div class="dk-copilot-main"><h2>Shop Copilot</h2><p id="dkCopilotStatus" role="status">Starting voice assistant…</p><div class="dk-copilot-speaking-orb" aria-hidden="true"><span>◉</span></div><div id="dkCopilotHeard" class="dk-copilot-heard">Hello! Ask me anything about your shop, or tell me what you want to do.</div><div id="dkCopilotResult" class="dk-copilot-result" aria-live="polite"></div></div><form id="dkCopilotTextForm" class="dk-copilot-compose"><button type="button" id="dkCopilotPlus" aria-label="Focus message">＋</button><input id="dkCopilotText" type="text" autocomplete="off" placeholder="Ask Shop Copilot…" aria-label="Ask Shop Copilot"/><button type="submit" aria-label="Send message">➤</button><button type="button" id="dkCopilotListen" aria-label="Start listening">🎙</button><button type="button" id="dkCopilotStop" aria-label="Stop listening">×</button></form><p class="dk-copilot-safety">I can answer questions and help with your shop. Payments and deletions need confirmation; calls and WhatsApp open for you to review.</p></div>');
   const status=document.getElementById("dkCopilotStatus");
   const heard=document.getElementById("dkCopilotHeard");
   const listenBtn=document.getElementById("dkCopilotListen");
@@ -920,10 +920,22 @@ function dkOpenShopCopilot(){
       recognition.start();
     }catch(e){active=false;if(listenBtn)listenBtn.textContent="🎙 Start listening";setStatus("Could not start the microphone. Check browser permission and try again.");}
   };
+  let voiceRepliesEnabled=true;
+  const muteBtn=document.getElementById("dkCopilotMute");
+  const textInput=document.getElementById("dkCopilotText");
+  const textForm=document.getElementById("dkCopilotTextForm");
+  const runText=async()=>{const value=String(textInput?.value||"").trim();if(!value)return;if(textInput)textInput.value="";if(heard)heard.textContent="You: "+value;setStatus("Working…");processing=true;await dkRunShopCopilot(value);processing=false;};
+  textForm?.addEventListener("submit",e=>{e.preventDefault();stop();runText();});
+  document.getElementById("dkCopilotBack")?.addEventListener("click",()=>{stop();window.speechSynthesis?.cancel();closeModal();});
+  document.getElementById("dkCopilotPlus")?.addEventListener("click",()=>textInput?.focus());
+  muteBtn?.addEventListener("click",()=>{voiceRepliesEnabled=!voiceRepliesEnabled;muteBtn.textContent=voiceRepliesEnabled?"🔊":"🔇";muteBtn.setAttribute("aria-label",voiceRepliesEnabled?"Mute voice replies":"Enable voice replies");if(!voiceRepliesEnabled)window.speechSynthesis?.cancel();});
+  const originalSpeak=dkCopilotSpeak;
+  // Keep the voice toggle local to this assistant session; other app speech remains unchanged.
+  window.dkCopilotVoiceEnabled=()=>voiceRepliesEnabled;
   listenBtn?.addEventListener("click",listen);
   stopBtn?.addEventListener("click",stop);
-  // Start listening automatically: this is a conversational voice assistant, not a text-entry form.
-  setTimeout(listen,250);
+  // Start listening automatically, while retaining text entry for questions and commands.
+  setTimeout(listen,350);
 }
 document.getElementById("dkCopilotLauncher")?.addEventListener("click",dkOpenShopCopilot);
 function dkCopilotTryDirectPaymentCommand(raw,out){
