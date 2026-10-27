@@ -834,6 +834,7 @@ document.addEventListener("focusin",e=>{
 });
 
 function dkOpenShopCopilot(){
+  if(dkSubscriptionUsage().plan!=="ultra-premium"){modal('<div class="dk-copilot"><h2>👑 VIP Shop Copilot</h2><p>Shop Copilot is planned as a VIP workflow feature. Upgrade to VIP to access this starter. Paid plan activation still requires secure checkout setup.</p><button type="button" class="btn primary" id="dkCopilotViewPlans">View plans</button></div>');document.getElementById("dkCopilotViewPlans")?.addEventListener("click",openSubscriptionPlans);return;}
   modal('<div class="dk-copilot"><h2>✦ Shop Copilot</h2><p>Tell me what your shop needs. This starter can open existing shop workflows and summarize saved records.</p><textarea id="dkCopilotPrompt" placeholder="Example: who owes me the most?"></textarea><button type="button" id="dkCopilotRun">Run workflow</button><div id="dkCopilotResult" aria-live="polite"></div><p class="muted">You review every action before saving. Open-ended GPT needs a secure server-side AI connection and is not live yet.</p></div>');
   document.getElementById("dkCopilotRun")?.addEventListener("click",()=>dkRunShopCopilot(document.getElementById("dkCopilotPrompt")?.value||""));
 }
