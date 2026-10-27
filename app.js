@@ -1379,7 +1379,7 @@ function dkRefreshHomeGreeting(){
   if(greeting)greeting.textContent=(now.getHours()<12?"Good morning":now.getHours()<17?"Good afternoon":"Good evening")+" 🙏";
   if(today)today.textContent=now.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});
 }
-setInterval(dkRefreshHomeGreeting,15000);
+setInterval(dkRefreshHomeGreeting,2500);
 window.addEventListener("pageshow",dkRefreshHomeGreeting);
 window.addEventListener("focus",dkRefreshHomeGreeting);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)dkRefreshHomeGreeting()});
