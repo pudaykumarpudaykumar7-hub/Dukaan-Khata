@@ -42,3 +42,26 @@ The service-worker cache namespace and stylesheet URL are versioned to help brow
 - Static review: confirmed the existing stylesheet, JavaScript entry point, service worker, PWA manifest, and Capacitor configuration before changes.
 - Scope: visual CSS, stylesheet cache-busting, service-worker cache namespace, and PWA theme colors only.
 - A successful Git commit does not by itself prove the GitHub Pages build has finished or that the UI has been visually checked on a device.
+
+## Shop Copilot (Vercel + OpenAI)
+
+The existing Shop Copilot entry is available to **Premium and VIP** plans. Its GPT-backed replies use the Vercel serverless route at `/api/shop-copilot`; the OpenAI key is read only on the server and must never be added to browser code or committed to GitHub.
+
+### Enable AI replies
+
+1. In OpenAI Platform, create an API key for a project with API billing enabled: https://platform.openai.com/api-keys
+2. In Vercel, open the **dukaan-khata** project → **Settings → Environment Variables**.
+3. Add `OPENAI_API_KEY` as a **Sensitive/Secret** variable for **Production** (and Preview if needed). Paste the value directly into Vercel; do not send it in chat, put it in `app.js`, or commit it.
+4. The Production environment already contains `SUPABASE_URL` and `SUPABASE_ANON_KEY`, which the route uses to validate the signed-in Supabase session. If setting up a different Vercel project, configure those two variables there as well.
+5. Redeploy the latest `main` commit after setting the key. Environment changes apply to new deployments.
+6. Open the Vercel-hosted app, sign in with the owner account, select Premium or VIP, and test a simple request such as “summarise today's sales”.
+
+Optional: set `OPENAI_MODEL` to a model enabled for your OpenAI project. The default in the route is `gpt-4.1-mini`.
+
+### Current boundaries
+
+- The API accepts only a signed-in Supabase session and does not receive customer ledgers or shop records as model input.
+- The assistant classifies requests into the app's existing workflows. The app still opens its current form/report/contact flow; the owner must review and confirm before saving or contacting a customer.
+- Calling and WhatsApp actions open the device's existing apps; this does not silently place calls or send messages.
+- Do not treat the Copilot as an autonomous bookkeeping agent yet. Before enabling fully automatic edits, implement server-verified Premium/VIP entitlements, per-owner authorization for every data mutation, audit logs, idempotency, rate limits, and explicit confirmation for payments/deletions/message sends.
+- Voice input/output depends on the browser's speech-recognition and speech-synthesis language support.
