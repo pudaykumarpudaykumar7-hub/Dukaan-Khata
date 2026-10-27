@@ -5176,3 +5176,14 @@ header.topbar .top-actions>#dkHomePlanShortcut.dk-subscription-shortcut [data-ho
  header.topbar .top-actions>#dkHomePlanShortcut.dk-subscription-shortcut{width:49px!important;min-width:49px!important}
 }
 @media(prefers-reduced-motion:reduce){header.topbar .top-actions>#dkHomePlanShortcut.dk-subscription-shortcut{animation:none!important}}
+
+/* Premium Shop Copilot */
+.dk-copilot-home{background:linear-gradient(135deg,#fff4c9,#d9a83b 55%,#8c5a12)!important;color:#201707!important;border:1px solid #ffe9a0!important;box-shadow:0 6px 22px #d9a83b35!important}
+.dk-copilot-home>span,.dk-copilot-home>small{color:#201707!important}
+.dk-copilot{color:var(--text,#202520);padding:4px 0}
+.dk-copilot h2{margin:0 0 8px;color:var(--text,#222)}
+.dk-copilot textarea{width:100%;box-sizing:border-box;resize:vertical;border:1px solid var(--border,#ccc);border-radius:12px;padding:12px;background:var(--input-bg,#fff);color:var(--text,#222);font:inherit;margin:8px 0}
+.dk-copilot #dkCopilotRun,.dk-copilot #dkCopilotAction{border:0;border-radius:11px;padding:12px;background:linear-gradient(110deg,#f9e8a8,#d4a43c);color:#211707;font-weight:900}
+.dk-copilot-result{margin-top:13px;padding:12px;border:1px solid #d7a83b88;border-radius:12px;background:var(--card-bg,#fff);font-size:12px;line-height:1.6}
+.dk-copilot-result:empty{display:none}
+.dk-copilot-result p{margin:6px 0 10px}
