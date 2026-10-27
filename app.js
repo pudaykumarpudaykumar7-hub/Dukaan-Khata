@@ -896,6 +896,71 @@ function dkOpenShopCopilot(){
     try{r.start()}catch(e){if(mic)mic.textContent="🎙 Speak"}
   });
 }
+function dkCopilotTryDirectPaymentCommand(raw,out){
+  const original=String(raw||"").trim(),q=original.toLowerCase();
+  if(!/(?:\b(record|receive|received|payment|paid|collect)\b|చెల్లింపు|చెల్లించు|చెల్లించారు|பணம்|செலுத்த|भुगतान|पैसे|ಪಾವತಿ|ಪಾವತಿಸಿ|പേയ്മെന്റ്|പണം)/iu.test(original))return false;
+  if(!/(?:\b(?:₹\s*\d+|\d+(?:\.\d{1,2})?\s*(?:rupees?|rs\.?|రూపాయలు|రూపాయి|रुपये|ரூபாய்|ரூபாய))\b|₹\s*\d+)/iu.test(original))return false;
+  const customerMatches=state.customers.filter(c=>c?.name&&q.includes(String(c.name).toLowerCase()));
+  if(customerMatches.length!==1){
+    if(out){const msg="Please select one exact customer and say the payment amount, for example: record payment ₹500 from Ravi.";out.innerHTML="<p>"+esc(msg)+"</p>";dkCopilotSpeak(msg);}
+    return true;
+  }
+  const customer=customerMatches[0];
+  const amountMatches=[...original.matchAll(/₹\s*(\d+(?:\.\d{1,2})?)|\b(\d+(?:\.\d{1,2})?)\s*(?:rupees?|rs\.?|రూపాయలు|రూపాయి|रुपये|ரூபாய்|ரூபாய)\b/giu)];
+  if(amountMatches.length!==1)return false;
+  const amount=Number(amountMatches[0][1]||amountMatches[0][2]);
+  if(!Number.isFinite(amount)||amount<=0)return false;
+  const locale=dkCopilotLocale().slice(0,2);
+  const prompt={
+    te:customer.name+" నుండి "+money(amount)+" చెల్లింపు నమోదు చేయాలా?",
+    hi:customer.name+" से "+money(amount)+" का भुगतान दर्ज करना है?",
+    ta:customer.name+" அவர்களிடமிருந்து "+money(amount)+" பணம் பெற்றதாக பதிவு செய்யவா?",
+    kn:customer.name+" ಅವರಿಂದ "+money(amount)+" ಪಾವತಿಯನ್ನು ದಾಖಲಿಸಬೇಕೇ?",
+    ml:customer.name+"ൽ നിന്ന് "+money(amount)+" പേയ്മെന്റ് രേഖപ്പെടുത്തട്ടേ?",
+    en:"Record a payment of "+money(amount)+" from "+customer.name+"?"
+  }[locale]||"Record a payment of "+money(amount)+" from "+customer.name+"?";
+  if(out)out.innerHTML="<b>Confirm payment</b><p>"+esc(prompt)+"</p><button type=\"button\" id=\"dkCopilotConfirmPayment\">Confirm and record payment</button><button type=\"button\" id=\"dkCopilotCancelPayment\">Cancel</button>";
+  dkCopilotSpeak(prompt);
+  document.getElementById("dkCopilotConfirmPayment")?.addEventListener("click",()=>{
+    state.tx.unshift({id:uid(),type:"payment",customerId:customer.id,amount,mode:"cash",date:new Date().toISOString()});
+    saveState();render();
+    const done={
+      te:customer.name+" కోసం "+money(amount)+" చెల్లింపు నమోదు చేయబడింది.",
+      hi:customer.name+" के लिए "+money(amount)+" का भुगतान दर्ज कर दिया गया।",
+      ta:customer.name+" க்கான "+money(amount)+" பணம் பதிவு செய்யப்பட்டது.",
+      kn:customer.name+" ಅವರ "+money(amount)+" ಪಾವತಿ ದಾಖಲಿಸಲಾಗಿದೆ.",
+      ml:customer.name+"ന്റെ "+money(amount)+" പേയ്മെന്റ് രേഖപ്പെടുത്തി.",
+      en:"Payment of "+money(amount)+" recorded for "+customer.name+"."
+    }[locale]||"Payment of "+money(amount)+" recorded for "+customer.name+".";
+    if(out)out.innerHTML="<p>"+esc(done)+"</p>";
+    dkCopilotSpeak(done);window.dkNotify?.("Payment recorded",customer.name+" • "+money(amount));
+  });
+  document.getElementById("dkCopilotCancelPayment")?.addEventListener("click",()=>{if(out)out.textContent="Payment cancelled.";});
+  return true;
+}
+function dkCopilotWhatsAppCustomer(id,raw){
+  const c=state.customers.find(x=>String(x.id)===String(id));
+  if(!c)return toast("Customer not found");
+  const p=dkNormalizePhone(c.phone);
+  if(!p)return toast("Add customer phone first");
+  const q=String(raw||"").toLowerCase(),tx=state.tx.filter(t=>String(t.customerId)===String(id));
+  let text;
+  if(/\b(bill|invoice|items|purchase|sale)\b|బిల్లు|பில்|बिल|ಬಿಲ್|ബിൽ/iu.test(q)){
+    const sale=tx.find(t=>t.type==="sale");
+    if(!sale)return toast("No bill found for this customer yet");
+    const lines=(sale.lines||[]).map(l=>String(l.name||"Item")+" × "+(Number(l.qty)||1)+": "+money(Number(l.total)||0)).join("\n");
+    text="Hello "+c.name+", here is your latest bill from "+(state.shop.name||"our shop")+":\n"+lines+"\nTotal: "+money(sale.total)+". Thank you.";
+  }else if(/\b(payment|paid|received|receipt)\b|చెల్లింపు|பணம்|भुगतान|ಪಾವತಿ|പേയ്മെന്റ്/iu.test(q)){
+    const payment=tx.find(t=>t.type==="payment");
+    if(!payment)return toast("No recorded payment found for this customer yet");
+    text="Hello "+c.name+", we recorded your payment of "+money(payment.amount)+" at "+(state.shop.name||"our shop")+". Thank you.";
+  }else if(/\b(due|balance|remind|outstanding|unpaid)\b|బాకీ|நிலுவை|बाकी|ಬಾಕಿ|കുടിശ്ശിക/iu.test(q)){
+    text="Hello "+c.name+", your outstanding balance at "+(state.shop.name||"our shop")+" is "+money(balance(id))+". Please contact us if you have questions.";
+  }else{
+    text="Hello "+c.name+" 👋 Your Dukaan Khata balance is "+money(balance(id))+".";
+  }
+  dkOpenExternal("https://wa.me/"+p+"?text="+encodeURIComponent(text));
+}
 function dkCopilotTryDirectItemCommand(raw,out){
   const original=String(raw||"").trim(),q=original.toLowerCase();
   if(!original)return false;
@@ -939,7 +1004,7 @@ function dkCopilotTryDirectItemCommand(raw,out){
   return true;
 }
 async function dkRunShopCopilot(raw){
-  const original=String(raw||"").trim(),q=original.toLowerCase(),out=document.getElementById("dkCopilotResult");if(!out)return;if(dkCopilotTryDirectItemCommand(original,out))return;
+  const original=String(raw||"").trim(),q=original.toLowerCase(),out=document.getElementById("dkCopilotResult");if(!out)return;if(dkCopilotTryDirectItemCommand(original,out))return;if(dkCopilotTryDirectPaymentCommand(original,out))return;
   let serverNotice="";
   // Secure AI call: the provider key stays in Supabase Edge Function secrets, never in this browser app.
   try{
@@ -964,7 +1029,7 @@ async function dkRunShopCopilot(raw){
           record_payment:()=>{closeModal();openReceive(customerMatch?.id)},
           expenses:()=>{closeModal();openExpenses()},
           call_customer:customerMatch?()=>{closeModal();callCustomer(customerMatch.id)}:null,
-          whatsapp_customer:customerMatch?()=>{closeModal();shareCustomer(customerMatch.id)}:null,
+          whatsapp_customer:customerMatch?()=>{closeModal();dkCopilotWhatsAppCustomer(customerMatch.id,original)}:null,
           delete_record:()=>{closeModal();showPage("khata")}
         };
         const action=actions[data.intent];
