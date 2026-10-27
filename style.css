@@ -5187,3 +5187,19 @@ header.topbar .top-actions>#dkHomePlanShortcut.dk-subscription-shortcut [data-ho
 .dk-copilot-result{margin-top:13px;padding:12px;border:1px solid #d7a83b88;border-radius:12px;background:var(--card-bg,#fff);font-size:12px;line-height:1.6}
 .dk-copilot-result:empty{display:none}
 .dk-copilot-result p{margin:6px 0 10px}
+
+
+/* VIP Shop Copilot — practical, mobile-friendly workflow panel */
+.dk-copilot-head{padding:15px;margin:-2px 0 15px;border:1px solid #d8ae4f66;border-radius:16px;background:radial-gradient(ellipse at top right,#f2cf7430,transparent 65%),linear-gradient(135deg,#201a0c,#0d1014);color:#fff}
+.dk-copilot-head>span{font-size:9px;letter-spacing:1.6px;font-weight:950;color:#f3d47c}
+.dk-copilot-head h2{margin:8px 0 5px!important;color:#fff!important;font-size:24px}
+.dk-copilot-head p{margin:0;color:#d8dce3;font-size:12px;line-height:1.55}
+.dk-copilot>label{display:block;font-size:12px;margin:10px 0 5px}
+.dk-copilot .dk-copilot-suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:9px 0 12px}
+.dk-copilot .dk-copilot-suggestions button{min-width:0;text-align:left;border:1px solid var(--border,#d5d9df);border-radius:11px;background:var(--card-bg,#fff);color:var(--text,#222);padding:10px 9px;font-size:11px;font-weight:800;cursor:pointer}
+.dk-copilot .dk-copilot-suggestions button:active{transform:scale(.98)}
+.dk-copilot #dkCopilotRun{width:100%;padding:13px;border:1px solid #ffe9a0;border-radius:12px;background:linear-gradient(110deg,#fff0b4,#d9a83b 60%,#b77d19);color:#211707;font-weight:950;box-shadow:0 5px 16px #d9a83b30;cursor:pointer}
+.dk-copilot .dk-copilot-result{margin-top:12px;padding:13px;border:1px solid #d7a83b88;border-radius:13px;background:var(--card-bg,#fff);font-size:12px;line-height:1.6;color:var(--text,#222)}
+.dk-copilot .dk-copilot-result p{margin:7px 0 10px}
+.dk-copilot #dkCopilotAction{border:1px solid #d7a83b;border-radius:10px;padding:10px 12px;background:linear-gradient(110deg,#fff0b4,#d9a83b);color:#211707;font-weight:900;cursor:pointer}
+@media(max-width:380px){.dk-copilot .dk-copilot-suggestions{grid-template-columns:1fr}.dk-copilot-head h2{font-size:21px}}
