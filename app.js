@@ -304,6 +304,7 @@ function dkSubscriptionUsage(){
   const bills=(Array.isArray(state.tx)?state.tx:[]).filter(t=>t.type==="sale"&&(()=>{const d=new Date(t.date||0);return !Number.isNaN(d.getTime())&&d.getMonth()===month&&d.getFullYear()===year})()).length;
   const customers=(Array.isArray(state.customers)?state.customers:[]).length;
   const plan=String(state.settings?.subscriptionPlan||"free");
+  if(typeof dkSyncAssistantAccess==="function")dkSyncAssistantAccess();
   const limits=plan==="pro"?{customers:100,bills:1500,price:49,label:"Pro"}:plan==="premium"?{customers:200,bills:2500,price:99,label:"Premium"}:plan==="ultra-premium"?{customers:Infinity,bills:Infinity,price:149,label:"VIP"}:{customers:50,bills:500,price:0,label:"Free"};
   return {customerCount:customers,billCount:bills,plan,customerLimit:limits.customers,billLimit:limits.bills,price:limits.price,label:limits.label};
 }
