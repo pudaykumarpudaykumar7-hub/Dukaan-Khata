@@ -27,6 +27,9 @@
 .top-menu button:hover{background:#ffffff16;color:#fff}
 @media(max-width:720px){.top-menu{display:none}}
 @media(min-width:721px){.topbar{padding-left:max(18px,calc((100vw - 1180px)/2));padding-right:max(18px,calc((100vw - 1180px)/2))}main{max-width:1180px}.bottom-nav{width:min(1180px,100%)}}
+/* Desktop navigation recovery: keep primary sections visible on laptop/desktop. */
+@media(min-width:721px){.top-menu{display:flex!important;visibility:visible!important;opacity:1!important;flex:0 1 auto;min-width:max-content}.top-menu button{display:inline-flex!important;align-items:center;justify-content:center}.bottom-nav{display:none!important}main{padding-bottom:40px}}
+@media(max-width:720px){.top-menu{display:none!important}.bottom-nav{display:grid!important;visibility:visible!important;opacity:1!important;position:fixed;left:0;right:0;bottom:0;z-index:1000}}
 
 /* Bills screen fit */
 #bills{width:100%;max-width:100%;overflow:hidden}
