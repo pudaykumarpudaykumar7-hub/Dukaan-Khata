@@ -171,25 +171,29 @@ window.openAppInstall=async function(){
   installButton.textContent = "Install UVMS Dukaan Khata";
   installButton.setAttribute("aria-label", "Install UVMS Dukaan Khata app");
   Object.assign(installButton.style, {
-    display: "none", position: "fixed", right: "16px",
-    bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
-    zIndex: "2147483000", padding: "13px 17px", border: "1px solid #d7b879",
+    display: "block", position: "fixed", top: "calc(10px + env(safe-area-inset-top, 0px))",
+    left: "50%", right: "auto", bottom: "auto", transform: "translateX(-50%)",
+    zIndex: "2147483000", padding: "10px 15px", border: "1px solid #d7b879",
     borderRadius: "999px", background: "#153e32", color: "#fff",
-    font: "600 14px system-ui, sans-serif", boxShadow: "0 6px 24px #0003",
-    cursor: "pointer"
+    font: "600 13px system-ui, sans-serif", boxShadow: "0 6px 24px #0003",
+    cursor: "pointer", whiteSpace: "nowrap", maxWidth: "calc(100vw - 24px)"
   });
-  document.addEventListener("DOMContentLoaded", () => document.body.appendChild(installButton));
+  const attachInstallButton = () => { if (!installButton.isConnected) document.body.appendChild(installButton); };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", attachInstallButton, { once: true });
+  else attachInstallButton();
   window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
     installPrompt = event;
-    installButton.style.display = "block";
   });
   installButton.addEventListener("click", async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    await installPrompt.userChoice;
-    installPrompt = null;
-    installButton.style.display = "none";
+    if (installPrompt) {
+      installPrompt.prompt();
+      await installPrompt.userChoice;
+      installPrompt = null;
+      return;
+    }
+    if (typeof window.openAppInstall === "function") window.openAppInstall();
+    else alert("To install, open this site in Chrome and use the menu (⋮) → Install app or Add to Home screen.");
   });
   window.addEventListener("appinstalled", () => {
     installPrompt = null;
