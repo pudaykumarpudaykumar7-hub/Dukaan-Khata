@@ -186,6 +186,7 @@ window.openAppInstall=async function(){
     if (isInstalledApp()) { hideInstallButton(); return; }
     try { if (localStorage.getItem(installedKey) === "1") { hideInstallButton(); return; } } catch(e) {}
     installButton.style.display = "block";
+    installButton.style.pointerEvents = "auto";
   };
   const attachInstallButton = () => {
     if (!installButton.isConnected) document.body.appendChild(installButton);
@@ -200,14 +201,25 @@ window.openAppInstall=async function(){
   });
   installButton.addEventListener("click", async () => {
     if (installPrompt) {
-      installPrompt.prompt();
-      const choice = await installPrompt.userChoice;
+      const promptEvent = installPrompt;
       installPrompt = null;
-      if (choice && choice.outcome === "accepted") hideInstallButton();
+      try {
+        promptEvent.prompt();
+        const choice = await promptEvent.userChoice;
+        if (choice && choice.outcome === "accepted") hideInstallButton();
+        else showInstallButton();
+      } catch (error) {
+        showInstallButton();
+      }
       return;
     }
-    if (typeof window.openAppInstall === "function") window.openAppInstall();
-    else alert("To install, open this website in Chrome and use the menu (⋮) → Install app or Add to Home screen.");
+    if (typeof window.openAppInstall === "function") {
+      window.openAppInstall();
+      return;
+    }
+    // No automatic popup: without a native install prompt, keep the website usable.
+    // The browser's own menu remains available for manual installation.
+    if (typeof toast === "function") toast("To install, open your browser menu (⋮) and choose Install app or Add to Home screen.");
   });
   window.addEventListener("appinstalled", () => {
     installPrompt = null;
