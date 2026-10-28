@@ -154,11 +154,27 @@ html body #uvmsLaunchSplash .uvms-launch-frame{z-index:3!important;}
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=btn();if(b)b.hidden=false;});
 window.addEventListener("appinstalled",()=>{deferredPrompt=null;const b=btn();if(b)b.hidden=true;if(typeof toast==="function")toast("Dukaan Khata installed successfully");});
 window.openAppInstall=async function(){
- if(deferredPrompt){deferredPrompt.prompt();const result=await deferredPrompt.userChoice;deferredPrompt=null;const b=btn();if(b)b.hidden=true;if(result?.outcome==="accepted"&&typeof toast==="function")toast("Installing Dukaan Khata…");return;}
+ if(deferredPrompt){
+   const promptEvent=deferredPrompt;
+   deferredPrompt=null;
+   try {
+     promptEvent.prompt();
+     const result=await promptEvent.userChoice;
+     if(result?.outcome==="accepted"){const b=btn();if(b)b.hidden=true;if(typeof toast==="function")toast("Installing Dukaan Khata…");}
+   } catch(e) {}
+   return;
+ }
  const isStandalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
- const msg=isStandalone?"Dukaan Khata is already installed on this device.":"Android: open this website in Chrome, tap ⋮, then choose Install app or Add to Home screen. iPhone/iPad: open in Safari, tap Share, then Add to Home Screen. This creates an installable web app; Google Play Store publication needs a signed Android package and a verified domain association.";
- const m=document.getElementById("modal"),b=document.getElementById("modalBody");if(!m||!b){alert(msg);return;}
- b.innerHTML='<div class="install-guide"><span class="install-orbit">✦</span><p class="eyebrow">DUKAAN KHATA • EVERYWHERE</p><h2>Take your shop with you</h2><p>'+msg.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</p><button class="btn primary" type="button" onclick="closeModal()">Got it</button></div>';m.classList.remove("hidden");
+ const isLaptop=!window.matchMedia("(max-width: 720px)").matches;
+ const msg=isStandalone
+   ?"Dukaan Khata is already installed on this device."
+   :isLaptop
+     ?"To install on this laptop, open this site in Google Chrome or Microsoft Edge. Use the Install icon in the address bar, or open the browser menu (⋮) and choose “Install Dukaan Khata” or “Apps → Install this site as an app”. If that option is missing, this browser has not offered installation for this site yet."
+     :"Android: open this website in Chrome, tap ⋮, then choose Install app or Add to Home screen. iPhone/iPad: open in Safari, tap Share, then Add to Home Screen.";
+ const m=document.getElementById("modal"),b=document.getElementById("modalBody");if(!m||!b)return;
+ const safeMsg=msg.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+ b.innerHTML='<div class="install-guide"><span class="install-orbit">✦</span><p class="eyebrow">DUKAAN KHATA • INSTALL</p><h2>'+(isLaptop?'Install on this laptop':'Take your shop with you')+'</h2><p>'+safeMsg+'</p>'+(isLaptop&&!isStandalone?'<button class="btn primary" type="button" onclick="if(typeof toast===\'function\')toast(\'Use Chrome or Edge browser menu (⋮) → Install Dukaan Khata.\');closeModal()">Install on this laptop</button>':'<button class="btn primary" type="button" onclick="closeModal()">Got it</button>')+'</div>';
+ m.classList.remove("hidden");
 };
 })();
 </script>
