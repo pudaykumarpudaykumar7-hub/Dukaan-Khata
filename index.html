@@ -163,44 +163,59 @@ window.openAppInstall=async function(){
 })();
 </script>
 <script>(()=>{const splash=document.getElementById("uvmsLaunchSplash");if(!splash)return;let finished=false;const dismiss=()=>{if(finished)return;finished=true;window.dispatchEvent(new Event("uvms-launch-complete"));splash.remove()};window.setTimeout(dismiss,2500);})();</script><script>
-(()=> {
+(()=>{
   let installPrompt = null;
+  const installedKey = "uvmsDukaanKhataInstalled";
   const installButton = document.createElement("button");
   installButton.id = "uvmsInstallAppButton";
   installButton.type = "button";
   installButton.textContent = "Install UVMS Dukaan Khata";
   installButton.setAttribute("aria-label", "Install UVMS Dukaan Khata app");
   Object.assign(installButton.style, {
-    display: "block", position: "fixed", top: "calc(10px + env(safe-area-inset-top, 0px))",
+    display: "none", position: "fixed", top: "calc(10px + env(safe-area-inset-top, 0px))",
     left: "50%", right: "auto", bottom: "auto", transform: "translateX(-50%)",
-    zIndex: "2147483000", padding: "10px 15px", border: "1px solid #d7b879",
+    zIndex: "2147483646", padding: "10px 15px", border: "1px solid #d7b879",
     borderRadius: "999px", background: "#153e32", color: "#fff",
     font: "600 13px system-ui, sans-serif", boxShadow: "0 6px 24px #0003",
     cursor: "pointer", whiteSpace: "nowrap", maxWidth: "calc(100vw - 24px)"
   });
-  const attachInstallButton = () => { if (!installButton.isConnected) document.body.appendChild(installButton); };
+  const isInstalledApp = () => window.matchMedia("(display-mode: standalone)").matches ||
+    window.matchMedia("(display-mode: fullscreen)").matches || window.navigator.standalone === true;
+  const hideInstallButton = () => { installButton.style.display = "none"; };
+  const showInstallButton = () => {
+    if (isInstalledApp()) { hideInstallButton(); return; }
+    try { if (localStorage.getItem(installedKey) === "1") { hideInstallButton(); return; } } catch(e) {}
+    installButton.style.display = "block";
+  };
+  const attachInstallButton = () => {
+    if (!installButton.isConnected) document.body.appendChild(installButton);
+    showInstallButton();
+  };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", attachInstallButton, { once: true });
   else attachInstallButton();
   window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
     installPrompt = event;
+    showInstallButton();
   });
   installButton.addEventListener("click", async () => {
     if (installPrompt) {
       installPrompt.prompt();
-      await installPrompt.userChoice;
+      const choice = await installPrompt.userChoice;
       installPrompt = null;
+      if (choice && choice.outcome === "accepted") hideInstallButton();
       return;
     }
     if (typeof window.openAppInstall === "function") window.openAppInstall();
-    else alert("To install, open this site in Chrome and use the menu (⋮) → Install app or Add to Home screen.");
+    else alert("To install, open this website in Chrome and use the menu (⋮) → Install app or Add to Home screen.");
   });
   window.addEventListener("appinstalled", () => {
     installPrompt = null;
-    installButton.style.display = "none";
+    try { localStorage.setItem(installedKey, "1"); } catch(e) {}
+    hideInstallButton();
   });
-})();
-</script>
+  window.matchMedia("(display-mode: standalone)").addEventListener?.("change", e => { if (e.matches) hideInstallButton(); });
+})();</script>
 
 <!-- Automatic install popup removed at user request. -->
 >
