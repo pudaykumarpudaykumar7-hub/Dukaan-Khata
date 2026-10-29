@@ -223,6 +223,47 @@
       return {...snapshot,shop:{...(snapshot.shop||{}),profilePic:compressed}};
     }catch(e){return snapshot}
   }
+  async function compactPreferenceImage(value){
+    if(typeof value!=="string"||value.length<350000||!value.startsWith("data:image/"))return value;
+    try{return await new Promise(resolve=>{
+      const image=new Image();
+      image.onerror=()=>resolve(value);
+      image.onload=()=>{
+        try{
+          const scale=Math.min(1,1000/Math.max(image.naturalWidth||image.width,image.naturalHeight||image.height));
+          const canvas=document.createElement("canvas");
+          canvas.width=Math.max(1,Math.round((image.naturalWidth||image.width)*scale));
+          canvas.height=Math.max(1,Math.round((image.naturalHeight||image.height)*scale));
+          const ctx=canvas.getContext("2d");if(!ctx){resolve(value);return}
+          ctx.fillStyle="#ffffff";ctx.fillRect(0,0,canvas.width,canvas.height);
+          ctx.drawImage(image,0,0,canvas.width,canvas.height);
+          canvas.toBlob(blob=>{
+            if(!blob||blob.size*1.4>=value.length*0.85){resolve(value);return}
+            const reader=new FileReader();
+            reader.onload=()=>resolve(typeof reader.result==="string"&&reader.result.length<value.length*0.85?reader.result:value);
+            reader.onerror=()=>resolve(value);reader.readAsDataURL(blob);
+          },"image/jpeg",0.78);
+        }catch(e){resolve(value)}
+      };
+      image.src=value;
+    })}catch(e){return value}
+  }
+  async function compactSharedPreferences(snapshot){
+    const prefs={...(snapshot?.cloudPreferences||{})};
+    if(typeof prefs["dukaan_khata_logo_image"]==="string")
+      prefs["dukaan_khata_logo_image"]=await compactPreferenceImage(prefs["dukaan_khata_logo_image"]);
+    const bgKey="dukaan_khata_global_background_v1";
+    if(typeof prefs[bgKey]==="string"){
+      try{
+        const bg=JSON.parse(prefs[bgKey]);
+        if(bg&&typeof bg.image==="string"){
+          const image=await compactPreferenceImage(bg.image);
+          if(image!==bg.image)prefs[bgKey]=JSON.stringify({...bg,image});
+        }
+      }catch(e){}
+    }
+    return {...snapshot,cloudPreferences:prefs};
+  }
   async function syncToCloud(){
     // Device-local mode: never merge, upload, or restore customer data from cloud.
     if(window.DukaanKhataMode!=="cloud")return;
@@ -239,6 +280,7 @@
       if(!local||typeof local!=="object")return;
       const originalLocal=local;
       local=await compactShopPhoto(local);
+      local=await compactSharedPreferences(local);
       if(localMutationVersion===syncVersion&&local!==originalLocal){
         // Profile photos are display assets, not ledger data. Compress oversized
         // data URLs before syncing so they cannot exhaust mobile storage or make
