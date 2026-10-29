@@ -208,15 +208,19 @@
         local=localState()||window.state||local;
       }
       const merged=row?.state?mergeStates(local,row.state):local;
-      await writeCloud(sb,userId,merged,row?.updated_at);
+      // Use the server-verified snapshot returned by writeCloud, not just the
+      // pre-write candidate. This makes deletions/tombstones acknowledged only
+      // after the durable row has been read back successfully.
+      const written=await writeCloud(sb,userId,merged,row?.updated_at);
+      const committed=written?.state?mergeStates(written.state,written.state):merged;
       localStorage.setItem("dukaan_khata_local_cloud_ready","1");
       if(localMutationVersion===syncVersion){
         // Only replace local state when no user edit occurred during the whole
         // read/merge/write. Otherwise keep the newer local state for the next pass.
-        localStorage.setItem(stateKey(),JSON.stringify(merged));
+        localStorage.setItem(stateKey(),JSON.stringify(committed));
         localStorage.removeItem("dukaan_khata_local_dirty");
-        if(!same(window.state,merged)){
-          window.state=merged;
+        if(!same(window.state,committed)){
+          window.state=committed;
           try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw after cloud sync",e)}
         }
       }else{
