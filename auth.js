@@ -7,6 +7,7 @@
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
   let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null, localMutationVersion=0;
+  const SHARED_PREFERENCE_KEYS=["dukaan_khata_background_theme","dukaan_khata_pass_profile","dukaan_khata_pass_color","dukaan_khata_outstanding_color","dukaan_khata_logo_text","dukaan_khata_logo_image","dukaan_khata_global_background_v1","dukaan_khata_language"];
 
   function client(){
     if(window.dkSupabase)return window.dkSupabase;
@@ -90,15 +91,47 @@
     // bring those linked records back after refresh or the next poll.
     out.tx=out.tx.filter(item=>!deleted.has(String(item?.customerId??item?.customer_id??"")));
     out.reminders=out.reminders.filter(item=>!deleted.has(String(item?.customerId??item?.customer_id??"")));
-    out.shop={...(b.shop||{}),...(a.shop||{})};
+    // Keep the validated shop merge above; a raw spread here would reintroduce placeholder overwrites.
     out.settings={...(b.settings||{}),...(a.settings||{})};
+    out.cloudPreferences={...(b.cloudPreferences||{}),...(a.cloudPreferences||{})};
     return out;
   }
   function stateKey(){return "dukaan_khata_infinity_v2"}
   function same(a,b){try{return JSON.stringify(a)===JSON.stringify(b)}catch(e){return false}}
   function localState(){
-    try{const v=JSON.parse(localStorage.getItem(stateKey())||"null");return v&&typeof v==="object"?v:null}catch(e){return null}
+    try{
+      const v=JSON.parse(localStorage.getItem(stateKey())||"null");
+      if(!v||typeof v!=="object")return null;
+      const prefs={...(v.cloudPreferences||{})};
+      for(const key of SHARED_PREFERENCE_KEYS){
+        if(!Object.prototype.hasOwnProperty.call(prefs,key)){
+          const value=localStorage.getItem(key);
+          if(value!==null)prefs[key]=value;
+        }
+      }
+      return {...v,cloudPreferences:prefs};
+    }catch(e){return null}
   }
+  function applySharedPreferences(snapshot){
+    const prefs=snapshot?.cloudPreferences;
+    if(!prefs||typeof prefs!=="object")return;
+    for(const key of SHARED_PREFERENCE_KEYS){
+      if(!Object.prototype.hasOwnProperty.call(prefs,key))continue;
+      try{if(prefs[key]===null)localStorage.removeItem(key);else if(typeof prefs[key]==="string")localStorage.setItem(key,prefs[key]);}catch(e){console.warn("Could not apply shared preference",key,e)}
+    }
+  }
+  window.dkSaveSharedPreference=function(key,value){
+    if(!SHARED_PREFERENCE_KEYS.includes(key))return false;
+    try{
+      if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,String(value));
+      const current=window.state&&typeof window.state==="object"?window.state:{};
+      current.cloudPreferences={...(current.cloudPreferences||{}),[key]:value===null?null:String(value)};
+      window.state=current;
+      localStorage.setItem(stateKey(),JSON.stringify(current));
+      if(typeof window.dkQueueSync==="function")window.dkQueueSync();
+      return true;
+    }catch(e){console.warn("Shared preference could not be saved",key,e);return false}
+  };
   // Keep a device-local safety copy per Google owner before switching accounts.
   // This is a recovery fallback only; cloud remains the shared source of truth.
   function accountBackupKey(uid){return "dukaan_khata_local_backup_"+String(uid||"")}
@@ -227,6 +260,7 @@
       // after the durable row has been read back successfully.
       const written=await writeCloud(sb,userId,merged,row?.updated_at);
       const committed=written?.state?mergeStates(written.state,written.state):merged;
+      applySharedPreferences(committed);
       localStorage.setItem("dukaan_khata_local_cloud_ready","1");
       if(localMutationVersion===syncVersion){
         // Only replace local state when no user edit occurred during the whole
@@ -290,6 +324,7 @@
         const local=localState()||{};
         // Never clear the dirty flag here. Only a completed syncToCloud write
         // may acknowledge local edits; a poll must not acknowledge a deletion.
+        applySharedPreferences(merged);
         localStorage.setItem(stateKey(),JSON.stringify(merged));
         if(cloudUpdatedAt)localStorage.setItem("dukaan_khata_cloud_updated_at",cloudUpdatedAt);
         if(!same(local,merged)){
@@ -348,6 +383,7 @@
         if(!same(cleanCloudState,row.state))await writeCloud(sb,uid,cleanCloudState,row.updated_at);
         row=await readCloud(sb,uid);
         const restoredState=row?.state?mergeStates(row.state,row.state):cleanCloudState;
+        applySharedPreferences(restoredState);
         localStorage.setItem(stateKey(),JSON.stringify(restoredState));
         localStorage.setItem("dukaan_khata_cloud_updated_at",row?.updated_at||"");
         localStorage.removeItem("dukaan_khata_local_dirty");
