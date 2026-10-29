@@ -842,10 +842,17 @@ async function openOwnerLogin(){
       '</div>');
   }
   async function startGoogleLogin(){
+    const canonicalOrigin="https://dukaan-khata-seven.vercel.app";
+    // OAuth must start and finish on the same origin so the pending-login flag
+    // and Supabase session are available when the callback returns.
+    if(window.location.origin!==canonicalOrigin){
+      window.location.replace(canonicalOrigin+"/?dk_google_login=1");
+      return;
+    }
     const sb=client();
     if(!sb){toast("Google sign-in is unavailable. Please refresh and try again.");return}
     sessionStorage.setItem("dk_owner_login_pending","1");
-    const redirectTo="https://dukaan-khata-seven.vercel.app/";
+    const redirectTo=canonicalOrigin+"/";
     const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{prompt:"select_account"}}});
     if(error){sessionStorage.removeItem("dk_owner_login_pending");toast("Google sign-in failed: "+error.message)}
   }
@@ -869,6 +876,14 @@ async function openOwnerLogin(){
   function showLoginAfterLaunch(){
     if(launchLoginShown)return;
     launchLoginShown=true;
+    const params=new URLSearchParams(window.location.search);
+    if(params.get("dk_google_login")==="1"){
+      params.delete("dk_google_login");
+      const cleanUrl=window.location.pathname+(params.toString()?"?"+params.toString():"")+window.location.hash;
+      window.history.replaceState({},document.title,cleanUrl);
+      window.setTimeout(()=>{if(window.startGoogleLogin)window.startGoogleLogin()},250);
+      return;
+    }
     // Always show the Choose Access popup at app launch. Each button then
     // enters its own existing login flow.
     try{
