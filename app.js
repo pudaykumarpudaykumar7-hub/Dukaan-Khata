@@ -761,7 +761,13 @@ function renderKhata(){
   if(allBtn)allBtn.textContent="All ("+state.customers.length+")";
   if(dueBtn)dueBtn.innerHTML="Due ("+dueCustomers.length+") • <span class=\"khata-filter-due\" style=\"color:#dc2626!important;-webkit-text-fill-color:#dc2626!important;font-weight:900\">"+money(dueTotal)+"</span>";
   if(paidBtn)paidBtn.innerHTML="Paid ("+paidCustomers.length+") • <span class=\"khata-filter-paid\" style=\"color:#16a34a!important;-webkit-text-fill-color:#16a34a!important;font-weight:900\">"+money(paidTotal)+"</span>";
-  box.innerHTML=state.customers.filter(c=>{
+  // Keep the newest customer at the top of Khata, regardless of cloud-merge array order.
+  const newestFirst=[...state.customers].sort((a,b)=>{
+    const at=Date.parse(a.created||a.createdAt||a.addedAt||"")||0;
+    const bt=Date.parse(b.created||b.createdAt||b.addedAt||"")||0;
+    return bt-at;
+  });
+  box.innerHTML=newestFirst.filter(c=>{
     const b=balance(c.id),received=receivedTotal(c.id),matches=(c.name+" "+c.phone).toLowerCase().includes(q);
     const show=khataFilter==="all"||(khataFilter==="due"&&b>0)||(khataFilter==="paid"&&received>0);
     return matches&&show;
