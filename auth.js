@@ -425,9 +425,13 @@
         await writeCloud(sb,uid,initial);
         row=await readCloud(sb,uid);
       }else if(local){
-        // Merge local and shared cloud state so a stale device cannot blindly replace
-        // newer records from another device. Tombstones are retained by mergeStates.
-        const merged=mergeStates(local,row.state);
+        // Prefer the durable cloud snapshot when the device has no pending local edits.
+        // A stale laptop must not overwrite newer mobile changes merely because it
+        // still has an older copy in localStorage. If a local save is pending/retrying,
+        // keep local edits as the primary side; mergeStates retains unique records and
+        // deletion tombstones from both snapshots.
+        const localHasPendingChanges=localStorage.getItem("dukaan_khata_local_dirty")==="1";
+        const merged=localHasPendingChanges?mergeStates(local,row.state):mergeStates(row.state,local);
         if(!same(merged,row.state))await writeCloud(sb,uid,merged,row.updated_at);
         row=await readCloud(sb,uid);
       }
