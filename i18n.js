@@ -112,7 +112,7 @@
   };
   window.setLanguage=function(x){
     if(!keys.includes(x))return;
-    localStorage.setItem("dukaan_khata_language",x);
+    if(typeof window.dkSaveSharedPreference==="function")window.dkSaveSharedPreference("dukaan_khata_language",x);else localStorage.setItem("dukaan_khata_language",x);
     try{if(window.state&&window.state.settings){window.state.settings.language=x;if(typeof window.saveState==="function")window.saveState()}}catch(e){}
     window.applyLanguage();
     const m=document.getElementById("modal");if(m)m.classList.add("hidden");
