@@ -100,12 +100,12 @@
     if(error)throw error;
     return data||null;
   }
-  async function writeCloud(sb,uid,data){
+  async function writeCloud(sb,uid,data,baseUpdatedAt){
     // Optimistic concurrency: never blindly upsert a stale whole-account snapshot.
     // If another device writes between our read and write, merge its latest row
     // and retry against that exact updated_at version.
     let candidate=data&&typeof data==="object"?data:{};
-    let expectedVersion;
+    let expectedVersion=baseUpdatedAt;
     for(let attempt=0;attempt<6;attempt++){
       const current=await readCloud(sb,uid);
       if(current){
@@ -207,7 +207,7 @@
         local=localState()||window.state||local;
       }
       const merged=row?.state?mergeStates(local,row.state):local;
-      await writeCloud(sb,userId,merged);
+      await writeCloud(sb,userId,merged,row?.updated_at);
       localStorage.setItem("dukaan_khata_local_cloud_ready","1");
       if(localMutationVersion===syncVersion){
         // Only replace local state when no user edit occurred during the whole
@@ -261,7 +261,7 @@
       let merged=mergeStates(row.state,row.state);
       let cloudUpdatedAt=row.updated_at||"";
       if(!same(merged,row.state)){
-        await writeCloud(sb,userId,merged);
+        await writeCloud(sb,userId,merged,row.updated_at);
         if(hasLocalMutation())return;
         cloudUpdatedAt=localStorage.getItem("dukaan_khata_cloud_updated_at")||cloudUpdatedAt;
       }
@@ -316,14 +316,14 @@
         // records from both sources. mergeStates carries deletion tombstones so deleted
         // customers are not restored from a stale device copy.
         const merged=mergeStates(local,row.state);
-        if(!same(merged,row.state))await writeCloud(sb,uid,merged);
+        if(!same(merged,row.state))await writeCloud(sb,uid,merged,row.updated_at);
         row=await readCloud(sb,uid);
       }
       if(row?.state){
         const currentLocal=localState();
         // Sanitize any historical cloud snapshot before restoring it into the UI.
         const cleanCloudState=mergeStates(row.state,row.state);
-        if(!same(cleanCloudState,row.state))await writeCloud(sb,uid,cleanCloudState);
+        if(!same(cleanCloudState,row.state))await writeCloud(sb,uid,cleanCloudState,row.updated_at);
         row=await readCloud(sb,uid);
         const restoredState=row?.state?mergeStates(row.state,row.state):cleanCloudState;
         localStorage.setItem(stateKey(),JSON.stringify(restoredState));
