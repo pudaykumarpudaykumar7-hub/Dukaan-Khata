@@ -2,7 +2,7 @@
 (function(){
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
-  window.DukaanKhataMode="local";
+  window.DukaanKhataMode="cloud";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
   let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null, localMutationVersion=0;
@@ -130,8 +130,8 @@
     }catch(e){return snapshot}
   }
   async function syncToCloud(){
-    // Device-local mode: never merge, upload, or restore customer data from cloud.
-    if(window.DukaanKhataMode==="local")return;
+    // Owner ledger must sync to the authenticated owner's shared cloud row.
+    if(window.DukaanKhataMode!=="cloud")return;
     const sb=client(),userId=window.DukaanKhataUser?.id;
     if(!sb||!userId)return;
     // Serialize writes. A request arriving during a sync must trigger another pass.
@@ -191,15 +191,15 @@
   }
   window.dkSyncNow=syncToCloud;
   window.dkQueueSync=function(){
-    if(window.DukaanKhataMode==="local")return;
+    if(window.DukaanKhataMode!=="cloud")return;
     localMutationVersion++;
     localStorage.setItem("dukaan_khata_local_dirty","1");
     clearTimeout(syncTimer);
     syncTimer=setTimeout(syncToCloud,900);
   };
   async function pollCloud(){
-    // Hard stop: local-only mode must never read or restore remote shop data.
-    if(window.DukaanKhataMode==="local")return;
+    // Only the owner cloud mode may read shared owner data.
+    if(window.DukaanKhataMode!=="cloud")return;
     const sb=client(),userId=window.DukaanKhataUser?.id;
     if(!sb||!userId||syncing||localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
     if(localStorage.getItem("dukaan_khata_cloud_user_id")!==userId ||
@@ -236,8 +236,8 @@
   }
   function startCloudPolling(){clearInterval(cloudPollTimer);cloudPollTimer=setInterval(pollCloud,5000)}
   async function restoreCloudState(user){
-    // Hard stop: preserve device-local records; never import a cloud snapshot.
-    if(window.DukaanKhataMode==="local")return;
+    // Restore/merge the authenticated owner's shared data without discarding local records.
+    if(window.DukaanKhataMode!=="cloud")return;
     const uid=user?.id;
     const restoredKey=uid?"dukaan_khata_restored_"+uid:"";
     if(!uid)return;
@@ -369,7 +369,10 @@
       sessionStorage.removeItem("dk_owner_login_pending");
       setTimeout(()=>showOwnerAccountPopup(user),300);
     }
-    // Publish only customer-facing records. Owner ledger remains local to this device.
+    // Restore the owner's full ledger from the shared database before publishing
+    // the customer-facing projection. This is what makes the same Google account
+    // show the same owner data on a second device.
+    await restoreCloudState(user);
     if (window.dkPublishCustomerPortalSnapshot && window.state) {
       window.dkPublishCustomerPortalSnapshot(window.state);
       setTimeout(() => {
