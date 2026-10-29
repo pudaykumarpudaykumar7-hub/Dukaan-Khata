@@ -3,10 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<script>
-(()=>{const mobile=/Android|iPhone|iPod|Mobile/i.test(navigator.userAgent||"");if(mobile)return;
-const css=document.createElement("style");css.textContent="html.dk-mobile-only body>*:not(#dkMobileOnlyNotice){display:none!important}#dkMobileOnlyNotice{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:24px;background:#101714;color:#f7f4e9;font:16px/1.55 system-ui,sans-serif;text-align:center}#dkMobileOnlyNotice section{max-width:430px}#dkMobileOnlyNotice h1{font-size:25px;margin:0 0 12px}#dkMobileOnlyNotice p{color:#d0d6d0;margin:0}";document.documentElement.classList.add("dk-mobile-only");document.head.appendChild(css);document.addEventListener("DOMContentLoaded",()=>{const el=document.createElement("div");el.id="dkMobileOnlyNotice";el.innerHTML="<section><h1>UVMS Dukaan Khata is mobile-only</h1><p>Owner records and settings can only be opened in the mobile app on your phone. Sign in with your Google account on your phone to restore your saved data.</p></section>";document.body.appendChild(el);});})();
-</script>
 <meta name="theme-color" content="#176b4d">
 <meta name="description" content="UVMS Dukaan Khata is a free digital khata and shop management app for Indian shopkeepers. Track customers, udhaar, balances, sales, bills, payments and reminders. Open online or install the app on your phone.">
 <meta name="keywords" content="UVMS Dukaan Khata, UVMS DUKAAN KHATA, Dukaan Khata app download, Dukaan Khata online, digital khata app, dukaan khata, dukaan kotha, udhaar khata, shop management app, customer ledger, billing app India, shopkeeper app">
@@ -145,14 +141,14 @@ html body #uvmsLaunchSplash .uvms-launch-frame{z-index:3!important;}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js" defer></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js" defer></script>
 <script>(()=>{const h=new Date().getHours();const e=document.getElementById("greeting");if(e)e.textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+" 🙏";const d=document.getElementById("todayLabel");if(d)d.textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});})();</script>
-<script src="app.js?v=mobile-only-backup-20261029c" defer></script>
+<script src="app.js?v=shared-sync-20261029h" defer></script>
 <script src="notifications.js?v=20261025-supabase-customer-notifications-v2" defer></script>
-<script src="auth.js?v=mobile-only-backup-20261029c" defer></script>
+<script src="auth.js?v=shared-sync-20261029h" defer></script>
 
-<script src="i18n.js?v=mobile-only-backup-20261029c" defer></script>
+<script src="i18n.js?v=shared-sync-20261029h" defer></script>
 <script src="more-routing.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 </div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=mobile-only-refresh-20261029c",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=shared-sync-refresh-20261029h",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
 <script>
 (()=>{let deferredPrompt=null;const btn=()=>document.getElementById("pwaInstallBtn");
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=btn();if(b)b.hidden=false;});
