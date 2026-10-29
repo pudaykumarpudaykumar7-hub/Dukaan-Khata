@@ -258,6 +258,7 @@
     if(window.DukaanKhataMode!=="cloud")return;
     const uid=user?.id;
     const restoredKey=uid?"dukaan_khata_restored_"+uid:"";
+    const restoreMutationVersion=localMutationVersion;
     if(!uid)return;
     // Always verify the durable cloud row after a page reload. sessionStorage can
     // outlive a reload while the local state is missing/empty on some mobile browsers.
@@ -303,7 +304,16 @@
         const cleanCloudState=mergeStates(row.state,row.state);
         if(!same(cleanCloudState,row.state))await writeCloud(sb,uid,cleanCloudState);
         row=await readCloud(sb,uid);
-        const restoredState=row?.state?mergeStates(row.state,row.state):cleanCloudState;
+        let restoredState=row?.state?mergeStates(row.state,row.state):cleanCloudState;
+        if(localMutationVersion!==restoreMutationVersion){
+          const newestLocal=localState()||((window.state&&typeof window.state==="object")?window.state:null);
+          if(newestLocal){
+            restoredState=mergeStates(newestLocal,restoredState);
+            await writeCloud(sb,uid,restoredState);
+            row=await readCloud(sb,uid);
+            if(row?.state)restoredState=mergeStates(row.state,row.state);
+          }
+        }
         localStorage.setItem(stateKey(),JSON.stringify(restoredState));
         localStorage.setItem("dukaan_khata_cloud_updated_at",row?.updated_at||"");
         localStorage.removeItem("dukaan_khata_local_dirty");
