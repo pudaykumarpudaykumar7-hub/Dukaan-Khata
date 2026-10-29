@@ -2,8 +2,8 @@
 (function(){
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
-  window.DukaanKhataMode="local";
-  window.DukaanKhataSyncVersion="2026-10-29h";
+  window.DukaanKhataMode="cloud";
+  window.DukaanKhataSyncVersion="2026-10-30-cloud-restore";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
   let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null, pollInFlight=false, cloudRealtimeChannel=null, cloudRealtimeUid="", localMutationVersion=0;
