@@ -3,7 +3,7 @@
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
   window.DukaanKhataMode="cloud";
-  window.DukaanKhataSyncVersion="2026-10-29c";
+  window.DukaanKhataSyncVersion="2026-10-29d";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
   let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null, localMutationVersion=0;
