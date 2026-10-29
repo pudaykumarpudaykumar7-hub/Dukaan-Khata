@@ -22,6 +22,14 @@ function loadState(){
   }catch(e){return defaults()}
 }
 function markRecordDeleted(collection,id){const all=state.deletedRecordIds&&typeof state.deletedRecordIds==="object"?state.deletedRecordIds:{};const ids=new Set((Array.isArray(all[collection])?all[collection]:[]).map(String));ids.add(String(id));state.deletedRecordIds={...all,[collection]:Array.from(ids)}}
+function saveSharedPreference(key,value){
+  if(typeof window.dkSaveSharedPreference==="function")return window.dkSaveSharedPreference(key,value);
+  try{
+    if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,String(value));
+    state.cloudPreferences={...(state.cloudPreferences||{}),[key]:value===null?null:String(value)};
+    return saveState();
+  }catch(e){console.warn("Could not save shared preference",key,e);return false}
+}
 function saveState(){
   let previous=null;
   try{previous=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
@@ -101,7 +109,7 @@ function getPassProfile(){
   p.visits=Number(p.visits||0);p.referrals=Number(p.referrals||0);p.stamps=Number(p.stamps||0);p.points=Number(p.points||0);p.rewards=Number(p.rewards||0);p.redeemed=Number(p.redeemed||0);
   return p;
 }
-function savePassProfile(p){localStorage.setItem("dukaan_khata_pass_profile",JSON.stringify(p))}
+function savePassProfile(p){saveSharedPreference("dukaan_khata_pass_profile",JSON.stringify(p))}
 function passTier(points){return points>=1000?"DIAMOND":points>=500?"GOLD":points>=200?"SILVER":"STARTER"}
 function passQr(text,id){
   const box=document.getElementById(id);if(!box)return;
@@ -168,7 +176,7 @@ function openDigitalPassColor(){
   document.querySelectorAll(".color-swatch").forEach(b=>b.addEventListener("click",()=>{selected=b.dataset.color;document.getElementById("passColorInput").value=selected;update()}));
   document.getElementById("passColorInput")?.addEventListener("input",e=>{selected=e.target.value;update()});
   document.getElementById("resetPassColor")?.addEventListener("click",()=>{selected="linear-gradient(135deg,#111827,#4f46e5,#06b6d4)";update()});
-  document.getElementById("savePassColor")?.addEventListener("click",()=>{localStorage.setItem("dukaan_khata_pass_color",selected);closeModal();toast("Digital App Pass color updated");});
+  document.getElementById("savePassColor")?.addEventListener("click",()=>{saveSharedPreference("dukaan_khata_pass_color",selected);closeModal();toast("Digital App Pass color updated");});
   update();
 }
 function openOutstandingColor(){
@@ -186,7 +194,7 @@ function openOutstandingColor(){
   document.querySelectorAll(".color-swatch").forEach(b=>b.addEventListener("click",()=>{selected=b.dataset.color;const i=document.getElementById("outstandingColorInput");if(i)i.value=selected;update()}));
   document.getElementById("outstandingColorInput")?.addEventListener("input",e=>{selected=e.target.value;update()});
   document.getElementById("resetOutstandingColor")?.addEventListener("click",()=>{selected="";update();const i=document.getElementById("outstandingColorInput");if(i)i.value="#0b1220"});
-  document.getElementById("saveOutstandingColor")?.addEventListener("click",()=>{if(selected)localStorage.setItem("dukaan_khata_outstanding_color",selected);else localStorage.removeItem("dukaan_khata_outstanding_color");applyOutstandingColor();closeModal();toast("Outstanding color updated")});
+  document.getElementById("saveOutstandingColor")?.addEventListener("click",()=>{if(selected)saveSharedPreference("dukaan_khata_outstanding_color",selected);else saveSharedPreference("dukaan_khata_outstanding_color",null);applyOutstandingColor();closeModal();toast("Outstanding color updated")});
   update();
 }
 function applyOutstandingColor(){
@@ -234,9 +242,9 @@ function openLogoEditor(){
   });
   document.getElementById("saveLogo")?.addEventListener("click",()=>{
     const v=(document.getElementById("logoText")?.value||"₹").trim().slice(0,4)||"₹";
-    if(selectedImage)localStorage.setItem("dukaan_khata_logo_image",selectedImage);
-    else localStorage.removeItem("dukaan_khata_logo_image");
-    localStorage.setItem("dukaan_khata_logo_text",v);
+    if(selectedImage)saveSharedPreference("dukaan_khata_logo_image",selectedImage);
+    else saveSharedPreference("dukaan_khata_logo_image",null);
+    saveSharedPreference("dukaan_khata_logo_text",v);
     applyHomeLogo();
     closeModal();toast("Home logo updated");
   });
@@ -762,7 +770,7 @@ function openLanguage(){
 }
 function voiceEntry(){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return toast("Voice input is not supported in this browser");const r=new R();r.lang=state.settings.language==="Telugu"?"te-IN":state.settings.language==="Hindi"?"hi-IN":"en-IN";r.onresult=e=>toast("Heard: "+e.results[0][0].transcript);r.start()}
 function openAbout(){modal('<h2>✦ Dukaan Khata Infinity</h2><p>Simple digital tools for Indian shops.</p><div class="line"><span>Digital Khata</span><b>✓</b></div><div class="line"><span>Many items with individual prices</span><b>✓</b></div><div class="line"><span>UPI QR Receive</span><b>✓</b></div><div class="line"><span>Customer Connect</span><b>✓</b></div><div class="line"><span>Backup & Restore</span><b>✓</b></div>')}
-function toggleTheme(){state.settings.theme=state.settings.theme==="dark"?"light":"dark";try{localStorage.setItem("dukaan_khata_background_theme",state.settings.theme)}catch(e){}saveState();applyAppTheme();render()}
+function toggleTheme(){state.settings.theme=state.settings.theme==="dark"?"light":"dark";try{saveSharedPreference("dukaan_khata_background_theme",state.settings.theme)}catch(e){}saveState();applyAppTheme();render()}
 function applyAppTheme(){let mode="light";try{const saved=localStorage.getItem("dukaan_khata_background_theme");mode=(saved==="dark"||saved==="light")?saved:(state?.settings?.theme==="dark"?"dark":"light")}catch(e){mode=state?.settings?.theme==="dark"?"dark":"light"}if(state?.settings)state.settings.theme=mode;document.documentElement.dataset.dkTheme=mode;document.body.classList.toggle("darkmode",mode==="dark");document.body.dataset.dkTheme=mode;document.body.style.colorScheme=mode;}
 function clearDemo(){
   if(!confirm("Clear all Dukaan Khata data on this device?"))return;
@@ -1307,7 +1315,7 @@ function dkApplyGlobalTheme(){
   b.style.setProperty("--dk-global-overlay",String(Number(t.overlay??.18)));
 }
 function dkSaveGlobalTheme(t){
-  try{localStorage.setItem(DK_GLOBAL_THEME_KEY,JSON.stringify(t));dkApplyGlobalTheme();document.body.classList.add("dk-live-background");toast("Background theme saved on this device ✓")}
+  try{saveSharedPreference(DK_GLOBAL_THEME_KEY,JSON.stringify(t));dkApplyGlobalTheme();document.body.classList.add("dk-live-background");toast("Background theme saved on this device ✓")}
   catch(e){toast("Could not save this theme")}
 }
 function openBackgroundTheme(){
@@ -1407,7 +1415,7 @@ function dkSaveGlobalThemeFromEditor(){
   dkSaveGlobalTheme(t);closeModal();
 }
 function dkResetGlobalTheme(){
-  localStorage.removeItem(DK_GLOBAL_THEME_KEY);dkApplyGlobalTheme();toast("Background reset ✓");openBackgroundTheme();
+  saveSharedPreference(DK_GLOBAL_THEME_KEY,null);dkApplyGlobalTheme();toast("Background reset ✓");openBackgroundTheme();
 }
 dkApplyGlobalTheme();
 
