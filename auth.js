@@ -160,8 +160,19 @@
       if(localMutationVersion!==syncVersion){
         local=localState()||window.state||local;
       }
-      const merged=row?.state?mergeStates(local,row.state):local;
+      let merged=row?.state?mergeStates(local,row.state):local;
       await writeCloud(sb,userId,merged);
+      // Concurrent first sign-ins from phone and laptop can both read the same
+      // old snapshot and overwrite each other. Re-read and reconcile repeatedly
+      // so unique records from both devices converge into the shared row.
+      for(let pass=0;pass<4;pass++){
+        const latest=await readCloud(sb,userId);
+        if(!latest?.state)break;
+        const reconciled=mergeStates(localState()||window.state||local,latest.state);
+        if(same(reconciled,latest.state)){merged=reconciled;break;}
+        await writeCloud(sb,userId,reconciled);
+        merged=reconciled;
+      }
       localStorage.setItem("dukaan_khata_local_cloud_ready","1");
       if(localMutationVersion===syncVersion){
         // Only replace local state when no user edit occurred during the whole
@@ -262,8 +273,18 @@
         // into the owner’s shared snapshot on first cloud sign-in, preserving unique
         // records from both sources. mergeStates carries deletion tombstones so deleted
         // customers are not restored from a stale device copy.
-        const merged=mergeStates(local,row.state);
+        let merged=mergeStates(local,row.state);
         if(!same(merged,row.state))await writeCloud(sb,uid,merged);
+        // Retry against the latest cloud copy to prevent simultaneous device
+        // restores from replacing one another's unique customers or transactions.
+        for(let pass=0;pass<5;pass++){
+          const latest=await readCloud(sb,uid);
+          if(!latest?.state){row=latest;break;}
+          const reconciled=mergeStates(local,latest.state);
+          if(same(reconciled,latest.state)){row=latest;break;}
+          await writeCloud(sb,uid,reconciled);
+          row=await readCloud(sb,uid);
+        }
         row=await readCloud(sb,uid);
       }
       if(row?.state){
