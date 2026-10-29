@@ -3,7 +3,7 @@
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
   window.DukaanKhataMode="cloud";
-  window.DukaanKhataSyncVersion="2026-10-29d";
+  window.DukaanKhataSyncVersion="2026-10-29e";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
   let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null, localMutationVersion=0;
@@ -42,6 +42,20 @@
     const a=primary&&typeof primary==="object"?primary:{};
     const b=secondary&&typeof secondary==="object"?secondary:{};
     const out={...b,...a};
+    // Fresh browsers start with placeholder shop values. Do not let those
+    // defaults replace a real profile already saved by this Google owner.
+    const primaryShop=a.shop&&typeof a.shop==="object"?a.shop:{};
+    const secondaryShop=b.shop&&typeof b.shop==="object"?b.shop:{};
+    const shop={...secondaryShop,...primaryShop};
+    for(const key of ["name","owner","phone","upi","address","profilePic"]){
+      const primary=String(primaryShop[key]??"").trim();
+      const secondary=String(secondaryShop[key]??"").trim();
+      const placeholder=(key==="name"&&primary==="My Dukaan")||(key==="owner"&&primary==="Shop Owner");
+      if((!primary||placeholder)&&secondary)shop[key]=secondary;
+      else if(primary)shop[key]=primary;
+      else if(!(key in shop))shop[key]=primaryShop[key]??secondaryShop[key]??"";
+    }
+    out.shop=shop;
     // A deletion tombstone must win over stale copies on every device. Never use
     // a union-only merge for customers without carrying explicit deletion IDs.
     const deletedCustomerIds=Array.from(new Set([
