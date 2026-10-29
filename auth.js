@@ -230,19 +230,29 @@
       // local save or cloud sync began while the read was pending, discard it.
       if(hasLocalMutation())return;
       if(!row?.state)return;
-      let merged=mergeStates(row.state,row.state);
+      const local=localState()||((window.state&&typeof window.state==="object")?window.state:{});
+      // Treat cloud polling as reconciliation, not a one-way restore. A device may
+      // have valid local records that were delayed during a previous network wait.
+      let merged=mergeStates(local,row.state);
       let cloudUpdatedAt=row.updated_at||"";
+      if(hasLocalMutation())return;
       if(!same(merged,row.state)){
         await writeCloud(sb,userId,merged);
         if(hasLocalMutation())return;
-        cloudUpdatedAt=localStorage.getItem("dukaan_khata_cloud_updated_at")||cloudUpdatedAt;
+        const verified=await readCloud(sb,userId);
+        if(!verified?.state)return;
+        merged=mergeStates(merged,verified.state);
+        cloudUpdatedAt=verified.updated_at||cloudUpdatedAt;
+        if(!same(merged,verified.state)){
+          await writeCloud(sb,userId,merged);
+          if(hasLocalMutation())return;
+        }
       }
       if(hasLocalMutation())return;
       const last=localStorage.getItem("dukaan_khata_cloud_updated_at")||"";
-      if((cloudUpdatedAt&&cloudUpdatedAt!==last)||!same(row.state,merged)){
-        const local=localState()||{};
-        // Never clear the dirty flag here. Only a completed syncToCloud write
-        // may acknowledge local edits; a poll must not acknowledge a deletion.
+      if((cloudUpdatedAt&&cloudUpdatedAt!==last)||!same(local,merged)){
+        // Only apply a reconciled snapshot when no local save occurred during the
+        // network operations above. Local-only unique records are retained.
         localStorage.setItem(stateKey(),JSON.stringify(merged));
         if(cloudUpdatedAt)localStorage.setItem("dukaan_khata_cloud_updated_at",cloudUpdatedAt);
         if(!same(local,merged)){
