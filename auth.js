@@ -3,12 +3,14 @@
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
   window.DukaanKhataMode="cloud";
-  window.DukaanKhataSyncVersion="2026-10-29f";
+  window.DukaanKhataSyncVersion="2026-10-29g";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
-  let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null, pollInFlight=false, cloudRealtimeChannel=null, cloudRealtimeUid="", localMutationVersion=0;
+  let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null, localMutationVersion=0;
   const SHARED_PREFERENCE_KEYS=["dukaan_khata_background_theme","dukaan_khata_pass_profile","dukaan_khata_pass_color","dukaan_khata_outstanding_color","dukaan_khata_logo_text","dukaan_khata_logo_image","dukaan_khata_global_background_v1","dukaan_khata_language"];
 
+  function isMobileDevice(){return /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent||"");}
+  window.dkIsMobileDevice=isMobileDevice;
   function client(){
     if(window.dkSupabase)return window.dkSupabase;
     if(!window.supabase?.createClient)return null;
@@ -266,7 +268,7 @@
   }
   async function syncToCloud(){
     // Device-local mode: never merge, upload, or restore customer data from cloud.
-    if(window.DukaanKhataMode!=="cloud")return;
+    if(window.DukaanKhataMode!=="cloud"||!isMobileDevice())return;
     const sb=client(),userId=window.DukaanKhataUser?.id;
     if(!sb||!userId)return;
     // Serialize writes. A request arriving during a sync must trigger another pass.
@@ -296,7 +298,7 @@
       if(localMutationVersion!==syncVersion){
         local=localState()||window.state||local;
       }
-      const merged=row?.state?mergeStates(local,row.state):local;
+      const merged=local; // Phone-local state is the only write source; never import another device snapshot.
       // Use the server-verified snapshot returned by writeCloud, not just the
       // pre-write candidate. This makes deletions/tombstones acknowledged only
       // after the durable row has been read back successfully.
@@ -332,20 +334,19 @@
   }
   window.dkSyncNow=syncToCloud;
   window.dkQueueSync=function(){
-    if(window.DukaanKhataMode!=="cloud")return;
+    if(window.DukaanKhataMode!=="cloud"||!isMobileDevice())return;
     localMutationVersion++;
     localStorage.setItem("dukaan_khata_local_dirty","1");
     clearTimeout(syncTimer);
-    syncTimer=setTimeout(syncToCloud,100);
+    syncTimer=setTimeout(syncToCloud,500);
   };
   async function pollCloud(){
     // Hard stop: local-only mode must never read or restore remote shop data.
     if(window.DukaanKhataMode!=="cloud")return;
     const sb=client(),userId=window.DukaanKhataUser?.id;
-    if(!sb||!userId||syncing||pollInFlight||localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
+    if(!isMobileDevice()||!sb||!userId||syncing||localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
     if(localStorage.getItem("dukaan_khata_cloud_user_id")!==userId ||
        localStorage.getItem("dukaan_khata_local_cloud_ready")!=="1")return;
-    pollInFlight=true;
     const pollVersion=localMutationVersion;
     const hasLocalMutation=()=>localMutationVersion!==pollVersion||localStorage.getItem("dukaan_khata_local_dirty")==="1"||syncing;
     try{
@@ -376,29 +377,15 @@
         }
       }
     }catch(e){console.error("Dukaan Khata cloud polling failed:",e)}
-    finally{pollInFlight=false}
   }
   function startCloudPolling(){
+    // This is a private mobile backup, not a live cross-device sync.
+    // Never poll/pull cloud changes while the app is running.
     clearInterval(cloudPollTimer);
-    const userId=window.DukaanKhataUser?.id;
-    const sb=client();
-    // Supabase Realtime delivers cross-device writes immediately when the table
-    // is included in the project's Realtime publication. The 1-second poll is
-    // a fallback for projects/environments where Realtime is not enabled.
-    if(sb&&userId&&cloudRealtimeUid!==userId){
-      try{if(cloudRealtimeChannel)sb.removeChannel(cloudRealtimeChannel)}catch(e){}
-      cloudRealtimeUid=userId;
-      cloudRealtimeChannel=sb.channel("dk-shared-state-"+userId)
-        .on("postgres_changes",{event:"*",schema:"public",table:"dukaan_khata_state",filter:"user_id=eq."+userId},()=>{
-          if(!syncing&&!pollInFlight)pollCloud();
-        })
-        .subscribe(status=>{if(status==="SUBSCRIBED")pollCloud()});
-    }
-    cloudPollTimer=setInterval(pollCloud,1000);
   }
   async function restoreCloudState(user){
     // Hard stop: preserve device-local records; never import a cloud snapshot.
-    if(window.DukaanKhataMode!=="cloud")return;
+    if(window.DukaanKhataMode!=="cloud"||!isMobileDevice())return;
     const uid=user?.id;
     const restoredKey=uid?"dukaan_khata_restored_"+uid:"";
     if(!uid)return;
@@ -425,16 +412,12 @@
         else if(accountBackup&&legacy)initial=mergeStates(legacy,accountBackup);
         await writeCloud(sb,uid,initial);
         row=await readCloud(sb,uid);
-      }else if(local&&(
-        previousUid!==uid ||
-        localStorage.getItem("dukaan_khata_local_cloud_ready")!=="1" ||
-        localStorage.getItem("dukaan_khata_local_dirty")==="1"
-      )){
-        // Merge device-only or explicitly unsynced records during first migration.
-        // Once this device is known to be synced and clean, cloud wins on login:
-        // a stale local snapshot must not overwrite newer edits from another device.
-        const merged=mergeStates(local,row.state);
-        if(!same(merged,row.state))await writeCloud(sb,uid,merged,row.updated_at);
+      }else if(local){
+        // Mobile local storage is the source of truth on an already-used phone.
+        // Replace any older shared snapshot with this phone's data; do not import
+        // edits made from another device. A fresh install has no local snapshot
+        // and therefore restores the phone's private backup from this Google account.
+        if(!same(local,row.state))await writeCloud(sb,uid,local,row.updated_at);
         row=await readCloud(sb,uid);
       }
       if(row?.state){
@@ -465,7 +448,7 @@
 
   let portalPublishTimer=null, portalPublishSnapshot=null, portalPublishing=false;
   window.dkPublishCustomerPortalSnapshot=function(snapshot){
-    if(!snapshot||typeof snapshot!=="object")return;
+    if(!isMobileDevice()||!snapshot||typeof snapshot!=="object")return;
     portalPublishSnapshot=snapshot;
     clearTimeout(portalPublishTimer);
     portalPublishTimer=setTimeout(async()=>{
@@ -526,6 +509,7 @@
   }
 
   async function handleSession(session){
+    if(!isMobileDevice())return;
     const user=session?.user;
     const loginRole=sessionStorage.getItem("dk_login_role")||"owner";
     saveAccount(user);
@@ -597,7 +581,9 @@
 
   let initAttempts=0;
   async function init(){
-    // Owner Google sign-in enables per-owner cloud restore/sync; customer login remains independent of owner sign-in.
+    // Owner records and account backup are mobile-only. Desktop access is blocked before auth can restore data.
+    if(!isMobileDevice())return;
+    // Owner Google sign-in enables private per-phone backup; customer login remains independent of owner sign-in.
     const sb=client();
     if(!sb){
       if(initAttempts++<20){setTimeout(init,500);return;}
