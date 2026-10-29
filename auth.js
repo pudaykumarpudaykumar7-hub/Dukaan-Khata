@@ -3,6 +3,7 @@
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
   window.DukaanKhataMode="cloud";
+  window.DukaanKhataSyncVersion="2026-10-29c";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
   let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null, localMutationVersion=0;
@@ -547,7 +548,7 @@ async function openOwnerLogin(){
       showOwnerAccountPopup(data.session.user);
       return;
     }
-    modal('<div class="dk-login-shell"><div class="dk-login-top"><div class="dk-login-icon">🏪</div><div><span class="dk-login-badge">OWNER ACCESS</span><h2>Sign in with Google</h2></div></div><p class="dk-login-sub">Use your Google account to verify your owner identity. Shop records are saved on this device only; cross-device syncing is disabled.</p><button class="dk-login-action dk-login-primary" onclick="startGoogleLogin()">Continue with Google <span>→</span></button><button class="dk-login-close" onclick="closeModal()">Cancel</button></div>');
+    modal('<div class="dk-login-shell"><div class="dk-login-top"><div class="dk-login-icon">🏪</div><div><span class="dk-login-badge">OWNER ACCESS</span><h2>Sign in with Google</h2></div></div><p class="dk-login-sub">Use your Google account to verify your owner identity. Shop records sync through your Google account so you can access them on your other signed-in devices.</p><button class="dk-login-action dk-login-primary" onclick="startGoogleLogin()">Continue with Google <span>→</span></button><button class="dk-login-close" onclick="closeModal()">Cancel</button></div>');
   }
   function normPhone(v){
     let d=String(v??"").replace(/\D/g,"");
