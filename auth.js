@@ -84,6 +84,17 @@
   function localState(){
     try{const v=JSON.parse(localStorage.getItem(stateKey())||"null");return v&&typeof v==="object"?v:null}catch(e){return null}
   }
+  // Keep a device-local safety copy per Google owner before switching accounts.
+  // This is a recovery fallback only; cloud remains the shared source of truth.
+  function accountBackupKey(uid){return "dukaan_khata_local_backup_"+String(uid||"")}
+  function readAccountBackup(uid){
+    if(!uid)return null;
+    try{const v=JSON.parse(localStorage.getItem(accountBackupKey(uid))||"null");return v&&typeof v==="object"?v:null}catch(e){return null}
+  }
+  function saveAccountBackup(uid,snapshot){
+    if(!uid||!snapshot||typeof snapshot!=="object")return;
+    try{localStorage.setItem(accountBackupKey(uid),JSON.stringify(snapshot))}catch(e){console.warn("Could not save owner recovery copy on this device",e)}
+  }
   async function readCloud(sb,uid){
     const {data,error}=await sb.from("dukaan_khata_state").select("state,updated_at").eq("user_id",uid).maybeSingle();
     if(error)throw error;
@@ -246,15 +257,22 @@
     try{
       const sb=client();
       const previousUid=localStorage.getItem("dukaan_khata_cloud_user_id");
+      const currentLocal=localState();
+      // Preserve the previous owner's current local snapshot before another
+      // Google account is allowed to restore into the shared localStorage key.
+      if(previousUid&&previousUid!==uid&&currentLocal)saveAccountBackup(previousUid,currentLocal);
       // Never copy one Google account's local shop records into another account.
-      const local=(!previousUid||previousUid===uid)?localState():null;
+      const local=(!previousUid||previousUid===uid)?currentLocal:null;
+      const accountBackup=readAccountBackup(uid);
       const legacy=user?.user_metadata?.dukaan_khata;
       let row=await readCloud(sb,uid);
       if(!row){
-        // One-time migration from the old metadata-based sync. Do not discard
-        // records already stored locally on this phone/laptop.
-        let initial=local||legacy||{};
+        // One-time migration from the old metadata-based sync. If this owner has
+        // a device-local recovery copy, use it instead of creating an empty cloud
+        // state after an account switch. Other owners' records are never imported.
+        let initial=local||accountBackup||legacy||{};
         if(local&&legacy)initial=mergeStates(legacy,local);
+        else if(accountBackup&&legacy)initial=mergeStates(legacy,accountBackup);
         await writeCloud(sb,uid,initial);
         row=await readCloud(sb,uid);
       }else if(local){
