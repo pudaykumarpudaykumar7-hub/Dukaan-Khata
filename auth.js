@@ -298,7 +298,7 @@
       if(localMutationVersion!==syncVersion){
         local=localState()||window.state||local;
       }
-      const merged=row?.state?mergeStates(local,row.state):local;
+      const merged=local; // Phone-local state is the only write source; never import another device snapshot.
       // Use the server-verified snapshot returned by writeCloud, not just the
       // pre-write candidate. This makes deletions/tombstones acknowledged only
       // after the durable row has been read back successfully.
