@@ -845,7 +845,7 @@ async function openOwnerLogin(){
     const sb=client();
     if(!sb){toast("Google sign-in is unavailable. Please refresh and try again.");return}
     sessionStorage.setItem("dk_owner_login_pending","1");
-    const redirectTo=window.location.origin+window.location.pathname;
+    const redirectTo="https://dukaan-khata-seven.vercel.app/";
     const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{prompt:"select_account"}}});
     if(error){sessionStorage.removeItem("dk_owner_login_pending");toast("Google sign-in failed: "+error.message)}
   }
