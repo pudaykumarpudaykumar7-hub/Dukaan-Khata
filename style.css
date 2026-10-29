@@ -5416,3 +5416,19 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 
 /* Reliable, thumb-friendly Returns panel on small screens. */
 .dk-returns-panel{display:flex;flex-direction:column;gap:10px;min-width:0}.dk-returns-panel label{display:block;font-weight:600;margin-top:4px}.dk-returns-panel input{width:100%;min-width:0;box-sizing:border-box}.dk-returns-history{display:flex;flex-direction:column;gap:8px;max-height:min(38vh,360px);overflow:auto;overscroll-behavior:contain;padding:2px}.dk-returns-history .activity{min-width:0;overflow-wrap:anywhere}@media(max-width:600px){.dk-returns-panel{padding-bottom:env(safe-area-inset-bottom,0px)}.dk-returns-panel .btn{width:100%;min-height:46px}.dk-returns-history{max-height:32vh}}
+
+
+/* Returns Log compact spacing override (high-specificity, loaded from stylesheet). */
+#modal .sheet #modalBody .dk-returns-panel{padding:0!important;margin:0!important;gap:0!important}
+#modal .sheet #modalBody .dk-returns-panel h2{font-size:1.15rem!important;line-height:1.25!important;margin:0 0 7px!important}
+#modal .sheet #modalBody .dk-returns-panel label{display:block!important;font-size:.82rem!important;line-height:1.2!important;margin:5px 0 2px!important}
+#modal .sheet #modalBody .dk-returns-panel input{display:block!important;box-sizing:border-box!important;width:100%!important;min-height:34px!important;height:36px!important;padding:6px 9px!important;margin:0 0 3px!important;font-size:.9rem!important}
+#modal .sheet #modalBody .dk-returns-panel button.btn{min-height:35px!important;padding:7px 11px!important;margin:3px 0 6px!important}
+#modal .sheet #modalBody .dk-returns-panel h3{font-size:.98rem!important;line-height:1.25!important;margin:7px 0 4px!important}
+#modal .sheet #modalBody .dk-returns-panel .dk-returns-history .activity{box-sizing:border-box!important;padding:7px 9px!important;margin:4px 0!important;border-radius:12px!important}
+#modal .sheet #modalBody .dk-returns-panel .dk-returns-history .activity>div:first-child{gap:4px!important;align-items:center!important}
+#modal .sheet #modalBody .dk-returns-panel .dk-returns-history .activity>div:first-child>span{min-width:0!important;display:flex!important;flex-direction:column!important;gap:1px!important}
+#modal .sheet #modalBody .dk-returns-panel .dk-returns-history .activity>div:first-child>span small{margin:0!important;line-height:1.15!important}
+#modal .sheet #modalBody .dk-returns-panel .dk-returns-history .activity>div:first-child>b{white-space:nowrap!important;font-size:.9rem!important;margin-left:4px!important}
+#modal .sheet #modalBody .dk-returns-panel .dk-returns-history .activity>small{display:block!important;margin-top:2px!important;font-size:.7rem!important;line-height:1.2!important}
+
