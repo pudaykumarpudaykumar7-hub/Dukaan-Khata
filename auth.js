@@ -2,7 +2,7 @@
 (function(){
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
-  window.DukaanKhataMode="cloud";
+  window.DukaanKhataMode="local";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
   let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null, localMutationVersion=0;
@@ -82,14 +82,7 @@
   function stateKey(){return "dukaan_khata_infinity_v2"}
   function same(a,b){try{return JSON.stringify(a)===JSON.stringify(b)}catch(e){return false}}
   function localState(){
-    // Read the current key first, then the legacy key used by older installs.
-    // A legacy snapshot may still contain records that have not reached the cloud.
-    try{
-      const current=JSON.parse(localStorage.getItem(stateKey())||"null");
-      if(current&&typeof current==="object")return current;
-      const legacy=JSON.parse(localStorage.getItem("dukaan_khata_infinity_v1")||"null");
-      return legacy&&typeof legacy==="object"?legacy:null;
-    }catch(e){return null}
+    try{const v=JSON.parse(localStorage.getItem(stateKey())||"null");return v&&typeof v==="object"?v:null}catch(e){return null}
   }
   async function readCloud(sb,uid){
     const {data,error}=await sb.from("dukaan_khata_state").select("state,updated_at").eq("user_id",uid).maybeSingle();
@@ -137,8 +130,8 @@
     }catch(e){return snapshot}
   }
   async function syncToCloud(){
-    // Owner ledger must sync to the authenticated owner's shared cloud row.
-    if(window.DukaanKhataMode!=="cloud")return;
+    // Device-local mode: never merge, upload, or restore customer data from cloud.
+    if(window.DukaanKhataMode==="local")return;
     const sb=client(),userId=window.DukaanKhataUser?.id;
     if(!sb||!userId)return;
     // Serialize writes. A request arriving during a sync must trigger another pass.
@@ -167,19 +160,8 @@
       if(localMutationVersion!==syncVersion){
         local=localState()||window.state||local;
       }
-      let merged=row?.state?mergeStates(local,row.state):local;
+      const merged=row?.state?mergeStates(local,row.state):local;
       await writeCloud(sb,userId,merged);
-      // Concurrent first sign-ins from phone and laptop can both read the same
-      // old snapshot and overwrite each other. Re-read and reconcile repeatedly
-      // so unique records from both devices converge into the shared row.
-      for(let pass=0;pass<4;pass++){
-        const latest=await readCloud(sb,userId);
-        if(!latest?.state)break;
-        const reconciled=mergeStates(localState()||window.state||local,latest.state);
-        if(same(reconciled,latest.state)){merged=reconciled;break;}
-        await writeCloud(sb,userId,reconciled);
-        merged=reconciled;
-      }
       localStorage.setItem("dukaan_khata_local_cloud_ready","1");
       if(localMutationVersion===syncVersion){
         // Only replace local state when no user edit occurred during the whole
@@ -209,15 +191,15 @@
   }
   window.dkSyncNow=syncToCloud;
   window.dkQueueSync=function(){
-    if(window.DukaanKhataMode!=="cloud")return;
+    if(window.DukaanKhataMode==="local")return;
     localMutationVersion++;
     localStorage.setItem("dukaan_khata_local_dirty","1");
     clearTimeout(syncTimer);
     syncTimer=setTimeout(syncToCloud,900);
   };
   async function pollCloud(){
-    // Only the owner cloud mode may read shared owner data.
-    if(window.DukaanKhataMode!=="cloud")return;
+    // Hard stop: local-only mode must never read or restore remote shop data.
+    if(window.DukaanKhataMode==="local")return;
     const sb=client(),userId=window.DukaanKhataUser?.id;
     if(!sb||!userId||syncing||localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
     if(localStorage.getItem("dukaan_khata_cloud_user_id")!==userId ||
@@ -230,29 +212,19 @@
       // local save or cloud sync began while the read was pending, discard it.
       if(hasLocalMutation())return;
       if(!row?.state)return;
-      const local=localState()||((window.state&&typeof window.state==="object")?window.state:{});
-      // Treat cloud polling as reconciliation, not a one-way restore. A device may
-      // have valid local records that were delayed during a previous network wait.
-      let merged=mergeStates(local,row.state);
+      let merged=mergeStates(row.state,row.state);
       let cloudUpdatedAt=row.updated_at||"";
-      if(hasLocalMutation())return;
       if(!same(merged,row.state)){
         await writeCloud(sb,userId,merged);
         if(hasLocalMutation())return;
-        const verified=await readCloud(sb,userId);
-        if(!verified?.state)return;
-        merged=mergeStates(merged,verified.state);
-        cloudUpdatedAt=verified.updated_at||cloudUpdatedAt;
-        if(!same(merged,verified.state)){
-          await writeCloud(sb,userId,merged);
-          if(hasLocalMutation())return;
-        }
+        cloudUpdatedAt=localStorage.getItem("dukaan_khata_cloud_updated_at")||cloudUpdatedAt;
       }
       if(hasLocalMutation())return;
       const last=localStorage.getItem("dukaan_khata_cloud_updated_at")||"";
-      if((cloudUpdatedAt&&cloudUpdatedAt!==last)||!same(local,merged)){
-        // Only apply a reconciled snapshot when no local save occurred during the
-        // network operations above. Local-only unique records are retained.
+      if((cloudUpdatedAt&&cloudUpdatedAt!==last)||!same(row.state,merged)){
+        const local=localState()||{};
+        // Never clear the dirty flag here. Only a completed syncToCloud write
+        // may acknowledge local edits; a poll must not acknowledge a deletion.
         localStorage.setItem(stateKey(),JSON.stringify(merged));
         if(cloudUpdatedAt)localStorage.setItem("dukaan_khata_cloud_updated_at",cloudUpdatedAt);
         if(!same(local,merged)){
@@ -264,11 +236,10 @@
   }
   function startCloudPolling(){clearInterval(cloudPollTimer);cloudPollTimer=setInterval(pollCloud,5000)}
   async function restoreCloudState(user){
-    // Restore/merge the authenticated owner's shared data without discarding local records.
-    if(window.DukaanKhataMode!=="cloud")return;
+    // Hard stop: preserve device-local records; never import a cloud snapshot.
+    if(window.DukaanKhataMode==="local")return;
     const uid=user?.id;
     const restoredKey=uid?"dukaan_khata_restored_"+uid:"";
-    const restoreMutationVersion=localMutationVersion;
     if(!uid)return;
     // Always verify the durable cloud row after a page reload. sessionStorage can
     // outlive a reload while the local state is missing/empty on some mobile browsers.
@@ -276,20 +247,7 @@
       const sb=client();
       const previousUid=localStorage.getItem("dukaan_khata_cloud_user_id");
       // Never copy one Google account's local shop records into another account.
-      // If the local storage key is absent but the app already loaded a snapshot
-      // (including older installs), use that in-memory snapshot for the first merge.
-      const mayUseLocal=!previousUid||previousUid===uid;
-      const local=mayUseLocal?(localState()||((window.state&&typeof window.state==="object")?window.state:null)):null;
-      // Save a local recovery snapshot before merging any cloud copy.
-      if(local && typeof local==="object"){
-        try{
-          const backupKey="dukaan_khata_device_recovery_backup_v1";
-          const previousBackup=JSON.parse(localStorage.getItem(backupKey)||"null");
-          if(!previousBackup || previousBackup.userId===uid || !previousBackup.userId){
-            localStorage.setItem(backupKey,JSON.stringify({userId:uid,savedAt:new Date().toISOString(),state:local}));
-          }
-        }catch(backupError){console.warn("Could not create local recovery snapshot",backupError)}
-      }
+      const local=(!previousUid||previousUid===uid)?localState():null;
       const legacy=user?.user_metadata?.dukaan_khata;
       let row=await readCloud(sb,uid);
       if(!row){
@@ -304,18 +262,8 @@
         // into the owner’s shared snapshot on first cloud sign-in, preserving unique
         // records from both sources. mergeStates carries deletion tombstones so deleted
         // customers are not restored from a stale device copy.
-        let merged=mergeStates(local,row.state);
+        const merged=mergeStates(local,row.state);
         if(!same(merged,row.state))await writeCloud(sb,uid,merged);
-        // Retry against the latest cloud copy to prevent simultaneous device
-        // restores from replacing one another's unique customers or transactions.
-        for(let pass=0;pass<5;pass++){
-          const latest=await readCloud(sb,uid);
-          if(!latest?.state){row=latest;break;}
-          const reconciled=mergeStates(local,latest.state);
-          if(same(reconciled,latest.state)){row=latest;break;}
-          await writeCloud(sb,uid,reconciled);
-          row=await readCloud(sb,uid);
-        }
         row=await readCloud(sb,uid);
       }
       if(row?.state){
@@ -324,16 +272,7 @@
         const cleanCloudState=mergeStates(row.state,row.state);
         if(!same(cleanCloudState,row.state))await writeCloud(sb,uid,cleanCloudState);
         row=await readCloud(sb,uid);
-        let restoredState=row?.state?mergeStates(row.state,row.state):cleanCloudState;
-        if(localMutationVersion!==restoreMutationVersion){
-          const newestLocal=localState()||((window.state&&typeof window.state==="object")?window.state:null);
-          if(newestLocal){
-            restoredState=mergeStates(newestLocal,restoredState);
-            await writeCloud(sb,uid,restoredState);
-            row=await readCloud(sb,uid);
-            if(row?.state)restoredState=mergeStates(row.state,row.state);
-          }
-        }
+        const restoredState=row?.state?mergeStates(row.state,row.state):cleanCloudState;
         localStorage.setItem(stateKey(),JSON.stringify(restoredState));
         localStorage.setItem("dukaan_khata_cloud_updated_at",row?.updated_at||"");
         localStorage.removeItem("dukaan_khata_local_dirty");
@@ -430,10 +369,7 @@
       sessionStorage.removeItem("dk_owner_login_pending");
       setTimeout(()=>showOwnerAccountPopup(user),300);
     }
-    // Restore the owner's full ledger from the shared database before publishing
-    // the customer-facing projection. This is what makes the same Google account
-    // show the same owner data on a second device.
-    await restoreCloudState(user);
+    // Publish only customer-facing records. Owner ledger remains local to this device.
     if (window.dkPublishCustomerPortalSnapshot && window.state) {
       window.dkPublishCustomerPortalSnapshot(window.state);
       setTimeout(() => {
