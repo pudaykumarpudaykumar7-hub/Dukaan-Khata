@@ -82,7 +82,14 @@
   function stateKey(){return "dukaan_khata_infinity_v2"}
   function same(a,b){try{return JSON.stringify(a)===JSON.stringify(b)}catch(e){return false}}
   function localState(){
-    try{const v=JSON.parse(localStorage.getItem(stateKey())||"null");return v&&typeof v==="object"?v:null}catch(e){return null}
+    // Read the current key first, then the legacy key used by older installs.
+    // A legacy snapshot may still contain records that have not reached the cloud.
+    try{
+      const current=JSON.parse(localStorage.getItem(stateKey())||"null");
+      if(current&&typeof current==="object")return current;
+      const legacy=JSON.parse(localStorage.getItem("dukaan_khata_infinity_v1")||"null");
+      return legacy&&typeof legacy==="object"?legacy:null;
+    }catch(e){return null}
   }
   async function readCloud(sb,uid){
     const {data,error}=await sb.from("dukaan_khata_state").select("state,updated_at").eq("user_id",uid).maybeSingle();
@@ -258,7 +265,10 @@
       const sb=client();
       const previousUid=localStorage.getItem("dukaan_khata_cloud_user_id");
       // Never copy one Google account's local shop records into another account.
-      const local=(!previousUid||previousUid===uid)?localState():null;
+      // If the local storage key is absent but the app already loaded a snapshot
+      // (including older installs), use that in-memory snapshot for the first merge.
+      const mayUseLocal=!previousUid||previousUid===uid;
+      const local=mayUseLocal?(localState()||((window.state&&typeof window.state==="object")?window.state:null)):null;
       const legacy=user?.user_metadata?.dukaan_khata;
       let row=await readCloud(sb,uid);
       if(!row){
