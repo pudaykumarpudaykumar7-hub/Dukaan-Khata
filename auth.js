@@ -280,6 +280,16 @@
       // (including older installs), use that in-memory snapshot for the first merge.
       const mayUseLocal=!previousUid||previousUid===uid;
       const local=mayUseLocal?(localState()||((window.state&&typeof window.state==="object")?window.state:null)):null;
+      // Save a local recovery snapshot before merging any cloud copy.
+      if(local && typeof local==="object"){
+        try{
+          const backupKey="dukaan_khata_device_recovery_backup_v1";
+          const previousBackup=JSON.parse(localStorage.getItem(backupKey)||"null");
+          if(!previousBackup || previousBackup.userId===uid || !previousBackup.userId){
+            localStorage.setItem(backupKey,JSON.stringify({userId:uid,savedAt:new Date().toISOString(),state:local}));
+          }
+        }catch(backupError){console.warn("Could not create local recovery snapshot",backupError)}
+      }
       const legacy=user?.user_metadata?.dukaan_khata;
       let row=await readCloud(sb,uid);
       if(!row){
