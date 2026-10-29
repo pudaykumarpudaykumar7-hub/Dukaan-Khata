@@ -3,10 +3,10 @@
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
   window.DukaanKhataMode="cloud";
-  window.DukaanKhataSyncVersion="2026-10-29e";
+  window.DukaanKhataSyncVersion="2026-10-29f";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
-  let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null, localMutationVersion=0;
+  let syncTimer=null, syncing=false, syncRequested=false, cloudPollTimer=null, pollInFlight=false, cloudRealtimeChannel=null, cloudRealtimeUid="", localMutationVersion=0;
   const SHARED_PREFERENCE_KEYS=["dukaan_khata_background_theme","dukaan_khata_pass_profile","dukaan_khata_pass_color","dukaan_khata_outstanding_color","dukaan_khata_logo_text","dukaan_khata_logo_image","dukaan_khata_global_background_v1","dukaan_khata_language"];
 
   function client(){
@@ -336,15 +336,16 @@
     localMutationVersion++;
     localStorage.setItem("dukaan_khata_local_dirty","1");
     clearTimeout(syncTimer);
-    syncTimer=setTimeout(syncToCloud,900);
+    syncTimer=setTimeout(syncToCloud,100);
   };
   async function pollCloud(){
     // Hard stop: local-only mode must never read or restore remote shop data.
     if(window.DukaanKhataMode!=="cloud")return;
     const sb=client(),userId=window.DukaanKhataUser?.id;
-    if(!sb||!userId||syncing||localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
+    if(!sb||!userId||syncing||pollInFlight||localStorage.getItem("dukaan_khata_local_dirty")==="1")return;
     if(localStorage.getItem("dukaan_khata_cloud_user_id")!==userId ||
        localStorage.getItem("dukaan_khata_local_cloud_ready")!=="1")return;
+    pollInFlight=true;
     const pollVersion=localMutationVersion;
     const hasLocalMutation=()=>localMutationVersion!==pollVersion||localStorage.getItem("dukaan_khata_local_dirty")==="1"||syncing;
     try{
@@ -375,8 +376,26 @@
         }
       }
     }catch(e){console.error("Dukaan Khata cloud polling failed:",e)}
+    finally{pollInFlight=false}
   }
-  function startCloudPolling(){clearInterval(cloudPollTimer);cloudPollTimer=setInterval(pollCloud,5000)}
+  function startCloudPolling(){
+    clearInterval(cloudPollTimer);
+    const userId=window.DukaanKhataUser?.id;
+    const sb=client();
+    // Supabase Realtime delivers cross-device writes immediately when the table
+    // is included in the project's Realtime publication. The 1-second poll is
+    // a fallback for projects/environments where Realtime is not enabled.
+    if(sb&&userId&&cloudRealtimeUid!==userId){
+      try{if(cloudRealtimeChannel)sb.removeChannel(cloudRealtimeChannel)}catch(e){}
+      cloudRealtimeUid=userId;
+      cloudRealtimeChannel=sb.channel("dk-shared-state-"+userId)
+        .on("postgres_changes",{event:"*",schema:"public",table:"dukaan_khata_state",filter:"user_id=eq."+userId},()=>{
+          if(!syncing&&!pollInFlight)pollCloud();
+        })
+        .subscribe(status=>{if(status==="SUBSCRIBED")pollCloud()});
+    }
+    cloudPollTimer=setInterval(pollCloud,1000);
+  }
   async function restoreCloudState(user){
     // Hard stop: preserve device-local records; never import a cloud snapshot.
     if(window.DukaanKhataMode!=="cloud")return;
