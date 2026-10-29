@@ -1,0 +1,2 @@
+-- Recovery snapshots contain complete owner ledgers and must never be exposed through the client Data API.
+revoke all on table public.dukaan_khata_state_recovery_backup_20261029 from anon, authenticated;
