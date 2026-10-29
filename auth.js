@@ -2,7 +2,7 @@
 (function(){
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
-  window.DukaanKhataMode="cloud";
+  window.DukaanKhataMode="local";
   window.DukaanKhataSyncVersion="2026-10-29h";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
@@ -842,17 +842,10 @@ async function openOwnerLogin(){
       '</div>');
   }
   async function startGoogleLogin(){
-    const canonicalOrigin="https://dukaan-khata-seven.vercel.app";
-    // OAuth must start and finish on the same origin so the pending-login flag
-    // and Supabase session are available when the callback returns.
-    if(window.location.origin!==canonicalOrigin){
-      window.location.replace(canonicalOrigin+"/?dk_google_login=1");
-      return;
-    }
     const sb=client();
     if(!sb){toast("Google sign-in is unavailable. Please refresh and try again.");return}
     sessionStorage.setItem("dk_owner_login_pending","1");
-    const redirectTo=canonicalOrigin+"/";
+    const redirectTo=window.location.origin+window.location.pathname;
     const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo,queryParams:{prompt:"select_account"}}});
     if(error){sessionStorage.removeItem("dk_owner_login_pending");toast("Google sign-in failed: "+error.message)}
   }
