@@ -101,12 +101,47 @@
     return data||null;
   }
   async function writeCloud(sb,uid,data){
-    const {error}=await sb.from("dukaan_khata_state").upsert({user_id:uid,state:data,updated_at:new Date().toISOString()},{onConflict:"user_id"});
-    if(error)throw error;
-    const row=await readCloud(sb,uid);
-    if(row?.updated_at)localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at);
-    // Do not clear the dirty flag here: a poll or another sync may still be in flight.
-    // Only the top-level sync that has finished writing local state may clear it.
+    // Optimistic concurrency: never blindly upsert a stale whole-account snapshot.
+    // If another device writes between our read and write, merge its latest row
+    // and retry against that exact updated_at version.
+    let candidate=data&&typeof data==="object"?data:{};
+    let expectedVersion;
+    for(let attempt=0;attempt<6;attempt++){
+      const current=await readCloud(sb,uid);
+      if(current){
+        if(expectedVersion!==undefined&&current.updated_at!==expectedVersion){
+          // A concurrent device won the previous race. Preserve its version for
+          // records with the same ID, while retaining unique local records and tombstones.
+          candidate=mergeStates(current.state,candidate);
+        }else if(expectedVersion===undefined){
+          candidate=mergeStates(candidate,current.state);
+        }
+        const nextStamp=new Date().toISOString();
+        const result=await sb.from("dukaan_khata_state")
+          .update({state:candidate,updated_at:nextStamp})
+          .eq("user_id",uid).eq("updated_at",current.updated_at)
+          .select("updated_at").maybeSingle();
+        if(result.error)throw result.error;
+        if(result.data){
+          const verified=await readCloud(sb,uid);
+          if(verified&&verified.updated_at)localStorage.setItem("dukaan_khata_cloud_updated_at",verified.updated_at);
+          return verified;
+        }
+        expectedVersion=current.updated_at;
+        continue;
+      }
+      const inserted=await sb.from("dukaan_khata_state")
+        .insert({user_id:uid,state:candidate,updated_at:new Date().toISOString()});
+      if(!inserted.error){
+        const row=await readCloud(sb,uid);
+        if(row&&row.updated_at)localStorage.setItem("dukaan_khata_cloud_updated_at",row.updated_at);
+        return row;
+      }
+      // Another device may have created this owner's first row concurrently.
+      if(inserted.error.code!=="23505")throw inserted.error;
+      expectedVersion="";
+    }
+    throw new Error("Cloud state changed repeatedly while saving. Local data is preserved; retry sync.");
   }
   async function compactShopPhoto(snapshot){
     const picture=snapshot?.shop?.profilePic;
