@@ -513,7 +513,8 @@
         const cleanCloudState=mergeStates(row.state,row.state);
         if(!same(cleanCloudState,row.state))await writeCloud(sb,uid,cleanCloudState,row.updated_at);
         row=await readCloud(sb,uid);
-        let restoredState=row?.state?mergeStates(row.state,row.state):cleanCloudState;
+        const cloudBaseline=row?.state?mergeStates(row.state,row.state):cleanCloudState;
+        let restoredState=cloudBaseline;
         const changedDuringRestore=localMutationVersion!==restoreMutationVersion ||
           localStorage.getItem("dukaan_khata_local_dirty")==="1";
         if(changedDuringRestore){
@@ -524,7 +525,7 @@
         }
         applySharedPreferences(restoredState);
         localStorage.setItem(stateKey(),JSON.stringify(restoredState));
-        saveCloudBase(uid,restoredState);
+        saveCloudBase(uid,cloudBaseline);
         localStorage.setItem("dukaan_khata_cloud_updated_at",row?.updated_at||"");
         if(changedDuringRestore){
           localStorage.setItem("dukaan_khata_local_dirty","1");
