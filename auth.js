@@ -2,7 +2,7 @@
 (function(){
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
-  window.DukaanKhataMode="cloud";
+  window.DukaanKhataMode="local"; // GitHub Pages is device-local; do not sync owner records across devices.
   window.DukaanKhataSyncVersion="2026-10-30-cloud-restore";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
@@ -568,7 +568,8 @@
 
   let portalPublishTimer=null, portalPublishSnapshot=null, portalPublishing=false;
   window.dkPublishCustomerPortalSnapshot=function(snapshot){
-    if(!snapshot||typeof snapshot!=="object")return;
+    // Local-only privacy mode: do not publish customer records to the remote portal.
+    if(window.DukaanKhataMode!=="cloud"||!snapshot||typeof snapshot!=="object")return;
     portalPublishSnapshot=snapshot;
     clearTimeout(portalPublishTimer);
     portalPublishTimer=setTimeout(async()=>{
@@ -669,7 +670,7 @@
   let lastPortalSnapshotSignature = "";
   let portalWatchStarted = false;
   function startCustomerPortalWatch() {
-    if (portalWatchStarted) return;
+    if (window.DukaanKhataMode!=="cloud" || portalWatchStarted) return;
     portalWatchStarted = true;
     const readSnapshot = () => {
       if (document.visibilityState === "hidden" || !window.state || !window.dkPublishCustomerPortalSnapshot) return;
