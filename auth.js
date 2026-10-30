@@ -14,7 +14,7 @@
   function client(){
     if(window.dkSupabase)return window.dkSupabase;
     if(!window.supabase?.createClient)return null;
-    window.dkSupabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    window.dkSupabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true},global:{fetch:(url,options={})=>fetch(url,{...options,cache:"no-store"})}});
     window.dispatchEvent(new CustomEvent("dk:supabase-ready"));
     return window.dkSupabase;
   }
@@ -239,10 +239,24 @@
         if(result.error)throw result.error;
         if(result.data){
           const verified=await readCloud(sb,uid);
-          if(verified&&verified.updated_at)localStorage.setItem("dukaan_khata_cloud_updated_at",verified.updated_at);
+          if(!verified)throw new Error("Cloud write returned success but the saved row could not be read back. Local changes are being kept.");
+          // A 200 response with no returned row is not a successful write. Confirm
+          // the latest server version and retry against that exact version.
+          if(!same(verified.state,candidate)){
+            candidate=mergeStates(verified.state,candidate);
+            expectedVersion=verified.updated_at;
+            continue;
+          }
+          if(verified.updated_at)localStorage.setItem("dukaan_khata_cloud_updated_at",verified.updated_at);
           return verified;
         }
-        expectedVersion=current.updated_at;
+        // PostgREST can return HTTP 200 with an empty representation when the
+        // conditional UPDATE matched zero rows (for example, a stale version).
+        // Never treat that as success; re-read the row before retrying.
+        const latest=await readCloud(sb,uid);
+        if(!latest)throw new Error("Cloud row disappeared during sync. Local changes are being kept.");
+        candidate=mergeStates(latest.state,candidate);
+        expectedVersion=latest.updated_at;
         continue;
       }
       const inserted=await sb.from("dukaan_khata_state")
