@@ -2,7 +2,7 @@
 (function(){
   const SUPABASE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
-  window.DukaanKhataMode="local"; // GitHub Pages is device-local; do not sync owner records across devices.
+  window.DukaanKhataMode=(/Android|iPhone|iPod|Mobile/i.test(navigator.userAgent||""))?"cloud":"local"; // Back up/restore owner data only on mobile; desktop remains device-local.
   window.DukaanKhataSyncVersion="2026-10-30-cloud-restore";
   window.dkSupabase=null;
   window.DukaanKhataUser=null;
