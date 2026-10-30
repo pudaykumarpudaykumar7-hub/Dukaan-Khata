@@ -98,6 +98,71 @@
     out.cloudPreferences={...(b.cloudPreferences||{}),...(a.cloudPreferences||{})};
     return out;
   }
+  // A per-owner baseline enables a three-way merge: last acknowledged cloud state,
+  // this device's current state, and the latest server state. This prevents an old
+  // laptop snapshot from replacing newer mobile edits while retaining offline additions.
+  function cloudBaseKey(uid){return "dukaan_khata_cloud_base_"+String(uid||"")}
+  function readCloudBase(uid){
+    if(!uid)return null;
+    try{const value=JSON.parse(localStorage.getItem(cloudBaseKey(uid))||"null");return value&&typeof value==="object"?value:null}catch(e){return null}
+  }
+  function saveCloudBase(uid,snapshot){
+    if(!uid||!snapshot||typeof snapshot!=="object")return;
+    try{localStorage.setItem(cloudBaseKey(uid),JSON.stringify(snapshot))}catch(e){console.warn("Could not store cloud sync baseline",e)}
+  }
+  function mergeStatesWithBase(base,local,cloud){
+    const b=base&&typeof base==="object"?base:{};
+    const l=local&&typeof local==="object"?local:{};
+    const c=cloud&&typeof cloud==="object"?cloud:{};
+    const out=mergeStates(c,l);
+    for(const key of ["customers","tx","expenses","returns","reminders"]){
+      const bm=new Map((Array.isArray(b[key])?b[key]:[]).map(item=>[String(item?.id??JSON.stringify(item)),item]));
+      const lm=new Map((Array.isArray(l[key])?l[key]:[]).map(item=>[String(item?.id??JSON.stringify(item)),item]));
+      const cm=new Map((Array.isArray(c[key])?c[key]:[]).map(item=>[String(item?.id??JSON.stringify(item)),item]));
+      const ids=new Set([...cm.keys(),...lm.keys(),...bm.keys()]);
+      const merged=[];
+      for(const id of ids){
+        const before=bm.get(id),left=lm.get(id),right=cm.get(id);
+        const leftChanged=!same(left,before),rightChanged=!same(right,before);
+        let chosen;
+        if(!bm.has(id)){
+          chosen=right!==undefined?right:left;
+        }else if(leftChanged&&!rightChanged){
+          chosen=left;
+        }else if(!leftChanged&&rightChanged){
+          chosen=right;
+        }else if(leftChanged&&rightChanged){
+          if(left===undefined&&right!==undefined)chosen=right;
+          else if(right===undefined&&left!==undefined)chosen=left;
+          else if(left!==undefined&&right!==undefined){
+            const lt=Date.parse(left.__dkUpdatedAt||"")||0;
+            const rt=Date.parse(right.__dkUpdatedAt||"")||0;
+            chosen=lt>rt?left:right;
+          }
+        }else{
+          chosen=right!==undefined?right:left;
+        }
+        if(chosen!==undefined)merged.push(chosen);
+      }
+      out[key]=merged;
+    }
+    for(const key of ["shop","settings","cloudPreferences"]){
+      const before=b[key]&&typeof b[key]==="object"?b[key]:{};
+      const left=l[key]&&typeof l[key]==="object"?l[key]:{};
+      const right=c[key]&&typeof c[key]==="object"?c[key]:{};
+      const value={...right};
+      for(const field of new Set([...Object.keys(before),...Object.keys(left),...Object.keys(right)])){
+        const lc=!same(left[field],before[field]),rc=!same(right[field],before[field]);
+        if(lc&&!rc){
+          if(Object.prototype.hasOwnProperty.call(left,field))value[field]=left[field];else delete value[field];
+        }else if(lc&&rc&&same(left[field],right[field])){
+          value[field]=right[field];
+        }
+      }
+      out[key]=value;
+    }
+    return mergeStates(out,out);
+  }
   function stateKey(){return "dukaan_khata_infinity_v2"}
   function same(a,b){try{return JSON.stringify(a)===JSON.stringify(b)}catch(e){return false}}
   function localState(){
@@ -298,13 +363,15 @@
       if(localMutationVersion!==syncVersion){
         local=localState()||window.state||local;
       }
-      const merged=mergeStates(local,row?.state||{}); // Preserve unique records already saved by other devices while applying this device's edits.
+      const base=readCloudBase(userId);
+      const merged=base?mergeStatesWithBase(base,local,row?.state||{}):mergeStates(local,row?.state||{}); // Three-way merge after baseline is established.
       // Use the server-verified snapshot returned by writeCloud, not just the
       // pre-write candidate. This makes deletions/tombstones acknowledged only
       // after the durable row has been read back successfully.
       const written=await writeCloud(sb,userId,merged,row?.updated_at);
       const committed=written?.state?mergeStates(written.state,written.state):merged;
       applySharedPreferences(committed);
+      saveCloudBase(userId,committed);
       localStorage.setItem("dukaan_khata_local_cloud_ready","1");
       if(localMutationVersion===syncVersion){
         // Only replace local state when no user edit occurred during the whole
@@ -370,6 +437,7 @@
         // Never clear the dirty flag here. Only a completed syncToCloud write
         // may acknowledge local edits; a poll must not acknowledge a deletion.
         applySharedPreferences(merged);
+        saveCloudBase(userId,merged);
         localStorage.setItem(stateKey(),JSON.stringify(merged));
         if(cloudUpdatedAt)localStorage.setItem("dukaan_khata_cloud_updated_at",cloudUpdatedAt);
         if(!same(local,merged)){
@@ -415,6 +483,7 @@
       const accountBackup=readAccountBackup(uid);
       const legacy=user?.user_metadata?.dukaan_khata;
       let row=await readCloud(sb,uid);
+      const cloudBase=readCloudBase(uid);
       if(!row){
         // One-time migration from the old metadata-based sync. If this owner has
         // a device-local recovery copy, use it instead of creating an empty cloud
@@ -431,7 +500,7 @@
         // keep local edits as the primary side; mergeStates retains unique records and
         // deletion tombstones from both snapshots.
         const localHasPendingChanges=localStorage.getItem("dukaan_khata_local_dirty")==="1";
-        const merged=localHasPendingChanges?mergeStates(local,row.state):mergeStates(row.state,local);
+        const merged=cloudBase?mergeStatesWithBase(cloudBase,local,row.state):(localHasPendingChanges?mergeStates(local,row.state):mergeStates(row.state,local));
         if(!same(merged,row.state))await writeCloud(sb,uid,merged,row.updated_at);
         row=await readCloud(sb,uid);
       }
@@ -444,6 +513,7 @@
         const restoredState=row?.state?mergeStates(row.state,row.state):cleanCloudState;
         applySharedPreferences(restoredState);
         localStorage.setItem(stateKey(),JSON.stringify(restoredState));
+        saveCloudBase(uid,restoredState);
         localStorage.setItem("dukaan_khata_cloud_updated_at",row?.updated_at||"");
         localStorage.removeItem("dukaan_khata_local_dirty");
         localStorage.setItem("dukaan_khata_local_cloud_ready","1");
