@@ -469,6 +469,9 @@
     const uid=user?.id;
     const restoredKey=uid?"dukaan_khata_restored_"+uid:"";
     if(!uid)return;
+    // Track edits made while the initial cloud restore is waiting on the network.
+    // A save during this window must never be overwritten or marked as synced.
+    const restoreMutationVersion=localMutationVersion;
     // Always verify the durable cloud row after a page reload. sessionStorage can
     // outlive a reload while the local state is missing/empty on some mobile browsers.
     try{
@@ -510,18 +513,35 @@
         const cleanCloudState=mergeStates(row.state,row.state);
         if(!same(cleanCloudState,row.state))await writeCloud(sb,uid,cleanCloudState,row.updated_at);
         row=await readCloud(sb,uid);
-        const restoredState=row?.state?mergeStates(row.state,row.state):cleanCloudState;
+        let restoredState=row?.state?mergeStates(row.state,row.state):cleanCloudState;
+        const changedDuringRestore=localMutationVersion!==restoreMutationVersion ||
+          localStorage.getItem("dukaan_khata_local_dirty")==="1";
+        if(changedDuringRestore){
+          // Re-read the latest browser state, merge it with the verified cloud
+          // snapshot, and leave it dirty so syncToCloud uploads the in-flight edit.
+          const latestLocal=localState()||window.state||{};
+          restoredState=mergeStates(latestLocal,restoredState);
+        }
         applySharedPreferences(restoredState);
         localStorage.setItem(stateKey(),JSON.stringify(restoredState));
         saveCloudBase(uid,restoredState);
         localStorage.setItem("dukaan_khata_cloud_updated_at",row?.updated_at||"");
-        localStorage.removeItem("dukaan_khata_local_dirty");
+        if(changedDuringRestore){
+          localStorage.setItem("dukaan_khata_local_dirty","1");
+        }else{
+          localStorage.removeItem("dukaan_khata_local_dirty");
+        }
         localStorage.setItem("dukaan_khata_local_cloud_ready","1");
         localStorage.setItem("dukaan_khata_cloud_user_id",uid);
         if(restoredKey)sessionStorage.setItem(restoredKey,"1");
         if(!same(currentLocal,restoredState)){
           window.state=restoredState;
           try{if(typeof window.render==="function")window.render()}catch(e){console.warn("Could not redraw restored cloud data",e)}
+        }
+        if(changedDuringRestore){
+          // Queue only after this owner is marked ready; otherwise the earlier
+          // save queue could have fired while cloud sync was still gated.
+          window.dkQueueSync?.();
         }
       }
     }catch(e){
