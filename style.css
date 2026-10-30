@@ -5544,3 +5544,27 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
   #modal .dk-shop-profile-all .dk-shop-step-foot{padding:0 14px 16px!important}
 }
 
+
+
+/* Shop Profile refresh: compact midnight-blue business form */
+#modal:has(.dk-shop-profile-all){align-items:center!important;padding:12px!important;background:rgba(3,10,24,.78)!important;backdrop-filter:blur(12px)!important}
+#modal:has(.dk-shop-profile-all) .sheet{width:min(620px,calc(100vw - 28px))!important;max-width:620px!important;max-height:calc(100dvh - 28px)!important;overflow-y:auto!important;padding:12px!important;border:1px solid #263b61!important;border-radius:22px!important;background:#0b1426!important;box-shadow:0 28px 90px #0009!important}
+#modal .dk-shop-profile-all{padding:16px!important;border:1px solid #263b61!important;border-radius:17px!important;background:linear-gradient(145deg,#101e35 0%,#0b1426 65%,#101b30 100%)!important;box-shadow:none!important;color:#edf4ff!important}
+#modal .dk-shop-profile-all .dk-modal-head{display:flex!important;align-items:center!important;gap:11px!important;padding:11px 13px!important;margin-bottom:10px!important;border:1px solid #2a4268!important;border-radius:14px!important;background:linear-gradient(110deg,#142b4c,#173d69 60%,#124e68)!important}
+#modal .dk-shop-profile-all .dk-modal-head span{font-size:9px!important;letter-spacing:1.6px!important;color:#9fc9ff!important}
+#modal .dk-shop-profile-all .dk-modal-head h2{margin:1px 0!important;font-size:20px!important;line-height:1.15!important;color:#fff!important}
+#modal .dk-shop-profile-all .dk-modal-head small{font-size:11px!important;color:#b8cbe3!important}
+#modal .dk-shop-profile-all .dk-modal-head>b{margin-left:auto!important;color:#a9cfff!important;font-size:9px!important;letter-spacing:1px!important}
+#modal .dk-shop-profile-all .dk-modal-icon{width:38px!important;height:38px!important;flex:0 0 38px!important;display:grid!important;place-items:center!important;border:1px solid #6caeff55!important;border-radius:11px!important;background:#ffffff12!important;font-size:20px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-fields{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin:9px 0!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field{display:flex!important;flex-direction:column!important;gap:3px!important;min-width:0!important;padding:8px 9px!important;border:1px solid #263a59!important;border-radius:11px!important;background:#111f34!important;box-shadow:none!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field label{margin:0!important;color:#a9c9f2!important;font-size:11px!important;font-weight:800!important;line-height:1.2!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{width:100%!important;min-height:37px!important;margin:0!important;padding:7px 9px!important;border:1px solid #304b70!important;border-radius:8px!important;background:#0a1527!important;color:#f4f8ff!important;font-size:14px!important;line-height:1.25!important;box-shadow:none!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field input::placeholder,#modal .dk-shop-profile-all .dk-shop-profile-field textarea::placeholder{color:#7389a8!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field input:focus,#modal .dk-shop-profile-all .dk-shop-profile-field textarea:focus{border-color:#55a9ff!important;box-shadow:0 0 0 2px #3998ff25!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field:has(textarea){grid-column:1/-1!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:48px!important;resize:vertical!important}
+#modal .dk-shop-profile-all .dk-shop-profile-save{width:100%!important;min-height:43px!important;margin:3px 0 0!important;border:1px solid #63b7ff!important;border-radius:11px!important;background:linear-gradient(100deg,#1765c2,#168bb5)!important;color:#fff!important;font-size:14px!important;font-weight:900!important;letter-spacing:.2px!important;box-shadow:0 7px 18px #0875c533!important}
+#modal .dk-shop-profile-all .dk-shop-profile-save:active{transform:translateY(1px)}
+#modal .dk-shop-profile-all .dk-shop-step-foot{display:none!important}
+@media(max-width:480px){#modal:has(.dk-shop-profile-all) .sheet{width:calc(100vw - 20px)!important;max-height:calc(100dvh - 20px)!important;padding:8px!important;border-radius:18px!important}#modal .dk-shop-profile-all{padding:10px!important}#modal .dk-shop-profile-all .dk-shop-profile-fields{grid-template-columns:minmax(0,1fr)!important;gap:6px!important;margin:7px 0!important}#modal .dk-shop-profile-all .dk-shop-profile-field{padding:7px 8px!important}#modal .dk-shop-profile-all .dk-shop-profile-field:has(textarea){grid-column:auto!important}#modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:36px!important;padding:7px 8px!important}#modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:46px!important}}
