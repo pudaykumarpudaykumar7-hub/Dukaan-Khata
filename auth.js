@@ -873,16 +873,36 @@ async function openOwnerLogin(){
       try{if(!window.dkEnableCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");await window.dkEnableCustomerNotifications(customerPhone,customerPin);try{localStorage.setItem("dk_customer_push_enabled","on");}catch(e){}status.textContent="Notifications are enabled on this device and this preference is saved.";syncPushToggle();}
       catch(e){status.textContent=e.message||"Could not enable phone notifications.";syncPushToggle();}
     });
-    (async()=>{
+    const loadNotifications=async()=>{
       try{
         if(!window.dkFetchCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");
         status.textContent="Loading notifications…";
         const result=await window.dkFetchCustomerNotifications(customerPhone,customerPin);
         const list=Array.isArray(result.notifications)?result.notifications:[];
         status.textContent=list.length?list.length+" notification(s)":"No notifications yet.";
-        rows.innerHTML=list.map(n=>'<article style="background:white;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin:10px 0"><b>'+esc(n.title||"Account update")+'</b><p style="margin:7px 0;color:#334155">'+esc(n.body||"Your account has been updated.")+'</p><small style="color:#64748b">'+esc(n.createdAt?new Date(n.createdAt).toLocaleString("en-IN"):"")+'</small></article>').join("");
+        rows.innerHTML='<div style="display:flex;justify-content:flex-end;margin:10px 0"><button id="dkCustomerClearAll" type="button" '+(list.length?'':'disabled')+' style="border:1px solid #fecaca;background:#fff1f2;color:#b91c1c;border-radius:10px;padding:9px 13px;font-weight:800">Clear All</button></div>'+(list.length?list.map(n=>'<article data-customer-notice-id="'+esc(n.id||"")+'" style="background:white;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin:10px 0;touch-action:pan-y;user-select:none;-webkit-user-select:none"><b>'+esc(n.title||"Account update")+'</b><p style="margin:7px 0;color:#334155">'+esc(n.body||"Your account has been updated.")+'</p><small style="color:#64748b">'+esc(n.createdAt?new Date(n.createdAt).toLocaleString("en-IN"):"")+'</small><small style="display:block;color:#94a3b8;margin-top:8px">Long press to delete</small></article>').join(""):'<div style="text-align:center;padding:28px 12px;color:#64748b">✓<h3 style="color:#334155">No notifications</h3><p>You’re all caught up.</p></div>');
+        panel.querySelector("#dkCustomerClearAll")?.addEventListener("click",async()=>{
+          if(!list.length||!confirm("Clear all notifications? Your bills and customer data will not be deleted."))return;
+          status.textContent="Clearing notifications…";
+          try{const response=await fetch("https://us-central1-dukaan-khata-a517c.cloudfunctions.net/clearCustomerNotifications",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:customerPhone,pin:customerPin})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Could not clear notifications.");await loadNotifications();}
+          catch(error){status.textContent=error.message||"Could not clear notifications."}
+        });
+        let pressTimer=null;
+        const cancelPress=()=>{if(pressTimer)clearTimeout(pressTimer);pressTimer=null};
+        rows.querySelectorAll("[data-customer-notice-id]").forEach(card=>{
+          card.addEventListener("pointerdown",()=>{cancelPress();pressTimer=setTimeout(async()=>{
+            const id=card.getAttribute("data-customer-notice-id");if(!id)return;
+            if(!confirm("Delete this notification?"))return;
+            status.textContent="Deleting notification…";
+            try{const response=await fetch("https://us-central1-dukaan-khata-a517c.cloudfunctions.net/deleteCustomerNotification",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:customerPhone,pin:customerPin,notificationId:id})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Could not delete notification.");await loadNotifications();}
+            catch(error){status.textContent=error.message||"Could not delete notification."}
+          },650)});
+          ["pointerup","pointerleave","pointercancel"].forEach(event=>card.addEventListener(event,cancelPress));
+          card.addEventListener("contextmenu",event=>event.preventDefault());
+        });
       }catch(e){status.textContent=e.message||"Could not load notifications."}
-    })();
+    };
+    loadNotifications();
   }
 
   document.addEventListener("click",function(e){if(e.target?.id==="dkCustomerNotificationsBell")openCustomerNotificationPanel(window.__dkCustomerPhoneForNotifications,window.__dkCustomerPinForNotifications)});
