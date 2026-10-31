@@ -180,6 +180,7 @@ async function refreshCustomerPushRegistration(phone,pin){
   return true;
  }catch(e){console.warn("Customer push registration refresh failed:",e?.message||e);return false}
 }
+window.dkDeleteCustomerNotification=async function(phone,pin,notificationId){const normalized=normalizeCustomerPhoneForPush(phone);if(!normalized||String(pin||"")!=="2007")throw new Error("Enter a valid customer mobile number and PIN.");return await customerNotificationApi("delete",{phone:normalized,pin:"2007",notificationId:String(notificationId||"")});};window.dkClearCustomerNotifications=async function(phone,pin){const normalized=normalizeCustomerPhoneForPush(phone);if(!normalized||String(pin||"")!=="2007")throw new Error("Enter a valid customer mobile number and PIN.");return await customerNotificationApi("clear",{phone:normalized,pin:"2007"});};
 window.dkFetchCustomerNotifications=async function(phone,pin){
  const normalized=normalizeCustomerPhoneForPush(phone);
  if(!normalized)throw new Error("Enter the registered 10-digit mobile number.");
