@@ -862,6 +862,16 @@ async function openOwnerLogin(){
     panel.innerHTML='<div style="max-width:760px;margin:0 auto"><header style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><small style="font-weight:800;color:#176b4d">DUKAAN KHATA</small><h2 style="margin:4px 0 12px">My Notifications</h2></div><button id="dkCustomerNotificationClose" type="button" style="padding:10px 14px;border:1px solid #dbe3ea;border-radius:10px;background:#fff">← Back</button></header><p style="color:#64748b">Bill, item, payment and outstanding updates for your account.</p><div class="dk-push-setting"><div class="dk-push-setting-copy"><span class="dk-push-setting-icon">🔔</span><span><strong>Phone notifications</strong><small id="dkPushStateLabel">Checking status…</small></span></div><button id="dkCustomerNotificationEnable" class="dk-push-switch" type="button" role="switch" aria-checked="false" aria-label="Phone notifications"><span></span></button></div><div id="dkCustomerNotificationStatus" role="status" style="margin:12px 0"></div><div id="dkCustomerNotificationRows"></div><p style="font-size:12px;color:#64748b">This login uses the shared customer PIN 2007, which is not unique identity verification.</p></div>';
     document.body.appendChild(panel);
     const status=panel.querySelector("#dkCustomerNotificationStatus"),rows=panel.querySelector("#dkCustomerNotificationRows");
+    const askDeleteNotification=()=>new Promise(resolve=>{
+      const dialog=document.createElement("div");
+      dialog.style.cssText="position:fixed;inset:0;z-index:2147483647;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box";
+      dialog.innerHTML='<div role="dialog" aria-modal="true" style="width:min(100%,360px);background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);color:#0f172a"><h3 style="margin:0 0 8px;font-size:19px">Delete notification?</h3><p style="margin:0 0 20px;color:#64748b;line-height:1.5">This removes only this notification. Your bills and customer data will stay safe.</p><div style="display:flex;gap:12px"><button type="button" data-notice-cancel style="flex:1;padding:12px;border:0;border-radius:10px;background:#16a34a;color:#fff;font-weight:800">Cancel</button><button type="button" data-notice-delete style="flex:1;padding:12px;border:0;border-radius:10px;background:#dc2626;color:#fff;font-weight:800">Delete</button></div></div>';
+      const finish=value=>{dialog.remove();resolve(value)};
+      dialog.querySelector("[data-notice-cancel]").addEventListener("click",()=>finish(false));
+      dialog.querySelector("[data-notice-delete]").addEventListener("click",()=>finish(true));
+      dialog.addEventListener("click",event=>{if(event.target===dialog)finish(false)});
+      panel.appendChild(dialog);
+    });
     panel.querySelector("#dkCustomerNotificationClose")?.addEventListener("click",()=>panel.remove());
     const pushToggle=panel.querySelector("#dkCustomerNotificationEnable");
     const pushLabel=panel.querySelector("#dkPushStateLabel");
@@ -892,7 +902,7 @@ async function openOwnerLogin(){
         rows.querySelectorAll("[data-customer-notice-id]").forEach(card=>{
           card.addEventListener("pointerdown",()=>{cancelPress();pressTimer=setTimeout(async()=>{
             const id=card.getAttribute("data-customer-notice-id");if(!id)return;
-            if(!confirm("Delete this notification?"))return;
+            if(!await askDeleteNotification())return;
             status.textContent="Deleting notification…";
             try{const response=await fetch("https://us-central1-dukaan-khata-a517c.cloudfunctions.net/deleteCustomerNotification",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:customerPhone,pin:customerPin,notificationId:id})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Could not delete notification.");await loadNotifications();}
             catch(error){status.textContent=error.message||"Could not delete notification."}
