@@ -710,15 +710,16 @@ function shareShopPass(){const text=state.shop.name+"\n"+(state.shop.address||""
 
 function paintShopHeaderLogo(){const box=document.querySelector(".uvms-logo-button");if(!box)return;box.innerHTML='<span class="uvms-crown">◆</span><strong>UVMS</strong><i></i>';box.setAttribute("aria-label","Open UVMS logo");box.onclick=()=>openUVMSLogo()}
 function openShopSettings(){
-  const s=state.shop||{};
-  window.__shopProfileDraft={
-    name:s.name||"",owner:s.owner||"",phone:s.phone||"",upi:s.upi||"",
-    address:s.address||"",profilePic:s.profilePic||""
-  };
-  window.__shopProfileStep=-1;
-  shopProfileStep(0);
-}
-function openShopBackgroundTheme(){
+  const shop=state.shop&&typeof state.shop==="object"?state.shop:{};
+  window.__shopProfilePicDraft=shop.profilePic||"";
+  modal('<div class="dk-modal dk-shop-profile-neon"><div class="dk-shop-profile-heading"><div class="dk-shop-profile-mark">🏪</div><div><h2>Shop Profile</h2><p>Update your shop details</p></div></div><div class="dk-shop-profile-list">'+
+    '<label class="dk-shop-profile-row dk-shop-row-gold"><span class="dk-shop-row-icon">🏪</span><span class="dk-shop-row-content"><b>Shop Name</b><input id="shopName" type="text" autocomplete="organization" placeholder="Enter shop name" value="'+esc(shop.name||"")+'"></span><span class="dk-shop-row-edit">✎</span></label>'+
+    '<label class="dk-shop-profile-row dk-shop-row-blue"><span class="dk-shop-row-icon">📍</span><span class="dk-shop-row-content"><b>Shop Address</b><input id="shopAddress" type="text" autocomplete="street-address" placeholder="Enter shop address" value="'+esc(shop.address||"")+'"></span><span class="dk-shop-row-edit">✎</span></label>'+
+    '<label class="dk-shop-profile-row dk-shop-row-green"><span class="dk-shop-row-icon">☎</span><span class="dk-shop-row-content"><b>Contact Number</b><input id="shopPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Enter contact number" value="'+esc(shop.phone||"")+'"></span><span class="dk-shop-row-edit">✎</span></label>'+
+    '<label class="dk-shop-profile-row dk-shop-row-red"><span class="dk-shop-row-icon">✉</span><span class="dk-shop-row-content"><b>Email Address</b><input id="shopEmail" type="email" autocomplete="email" placeholder="Enter email address" value="'+esc(shop.email||"")+'"></span><span class="dk-shop-row-edit">✎</span></label>'+
+    '<label class="dk-shop-profile-row dk-shop-row-purple"><span class="dk-shop-row-icon">▣</span><span class="dk-shop-row-content"><b>GST Number</b><input id="shopGst" type="text" autocomplete="off" placeholder="Enter GST number" value="'+esc(shop.gst||"")+'"></span><span class="dk-shop-row-edit">✎</span></label>'+
+    '</div><button type="button" class="dk-shop-profile-save-neon" onclick="saveShopSettings()">▣ &nbsp; Save Profile</button><p class="dk-shop-profile-foot">Your shop details are saved when you tap Save Profile.</p></div>');
+}function openShopBackgroundTheme(){
   window.__shopProfileDraft={name:document.getElementById("shopName")?.value??state.shop.name??"",owner:document.getElementById("shopOwner")?.value??state.shop.owner??"",phone:document.getElementById("shopPhone")?.value??state.shop.phone??"",upi:document.getElementById("shopUpi")?.value??state.shop.upi??"",address:document.getElementById("shopAddress")?.value??state.shop.address??""};
   window.__returnToShopProfileAfterTheme=true;
   openBackgroundTheme();
@@ -733,7 +734,7 @@ function previewShopProfilePic(input){const file=input?.files?.[0];if(!file)retu
 async function saveShopSettings(){
   const current=state.shop&&typeof state.shop==="object"?state.shop:{};
   const read=(id,key)=>{const el=document.getElementById(id);return el?el.value.trim():String(current[key]||"")};
-  state.shop={...current,name:read("shopName","name")||"My Dukaan",owner:read("shopOwner","owner")||"Shop Owner",phone:read("shopPhone","phone"),upi:read("shopUpi","upi"),address:read("shopAddress","address"),profilePic:window.__shopProfilePicDraft||current.profilePic||""};window.__shopProfileDraft=null;
+  state.shop={...current,name:read("shopName","name")||"My Dukaan",owner:String(current.owner||"Shop Owner"),phone:read("shopPhone","phone"),upi:String(current.upi||""),address:read("shopAddress","address"),email:read("shopEmail","email"),gst:read("shopGst","gst"),profilePic:window.__shopProfilePicDraft||current.profilePic||""};
   if(!saveState())return;
   closeModal();render();toast("Shop profile saved on this device");
   if(typeof window.dkSyncNow==="function"){
