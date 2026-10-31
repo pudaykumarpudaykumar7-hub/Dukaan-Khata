@@ -701,7 +701,7 @@
 
   let initAttempts=0;
   async function init(){
-    // Owner Google sign-in enables shared cloud restore/sync across supported devices.
+    // Google sign-in restores cloud backups on mobile only; desktop browsers stay device-local.
     // Owner Google sign-in enables private per-phone backup; customer login remains independent of owner sign-in.
     const sb=client();
     if(!sb){
@@ -768,7 +768,7 @@ async function openOwnerLogin(){
       showOwnerAccountPopup(data.session.user);
       return;
     }
-    modal('<div class="dk-login-shell"><div class="dk-login-top"><div class="dk-login-icon">🏪</div><div><span class="dk-login-badge">OWNER ACCESS</span><h2>Sign in with Google</h2></div></div><p class="dk-login-sub">Use your Google account to verify your owner identity. Shop records sync through your Google account so you can access them on your other signed-in devices.</p><button class="dk-login-action dk-login-primary" onclick="startGoogleLogin()">Continue with Google <span>→</span></button><button class="dk-login-close" onclick="closeModal()">Cancel</button></div>');
+    modal('<div class="dk-login-shell"><div class="dk-login-top"><div class="dk-login-icon">🏪</div><div><span class="dk-login-badge">OWNER ACCESS</span><h2>Sign in with Google</h2></div></div><p class="dk-login-sub">Use your Google account to verify your owner identity. On Android mobile, your shop records are backed up to your Google account. On laptops, records stay on that device and are not synced.</p><button class="dk-login-action dk-login-primary" onclick="startGoogleLogin()">Continue with Google <span>→</span></button><button class="dk-login-close" onclick="closeModal()">Cancel</button></div>');
   }
   function normPhone(v){
     let d=String(v??"").replace(/\D/g,"");
@@ -957,8 +957,26 @@ async function openOwnerLogin(){
   }
 
   async function logoutDukaanKhata(){
-    if(window.closeModal)window.closeModal();
-    if(window.toast)window.toast("This app is using local-only access.");
+    const sb=client();
+    try{
+      if(sb){
+        const {error}=await sb.auth.signOut();
+        if(error)throw error;
+      }
+      clearInterval(cloudPollTimer);
+      if(sb&&cloudRealtimeChannel){
+        try{await sb.removeChannel(cloudRealtimeChannel)}catch(e){}
+      }
+      cloudRealtimeChannel=null;
+      cloudRealtimeUid="";
+      saveAccount(null);
+      if(window.closeModal)window.closeModal();
+      if(window.openDukaanLogin)window.openDukaanLogin();
+      if(window.toast)window.toast("Logged out. Your saved records remain on this device.");
+    }catch(e){
+      console.error("Owner logout failed:",e);
+      if(window.toast)window.toast("Logout failed. Please try again.");
+    }
   }
 
   window.openDukaanLogin=openDukaanLogin;
