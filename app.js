@@ -704,13 +704,16 @@ function openDigitalPass(){
  if(!drawQr()){let tries=0;const retry=()=>{if(drawQr()||tries++>=8)return;setTimeout(retry,350)};retry();}
  document.getElementById("shareDigitalPassBtn")?.addEventListener("click",shareShopPass);
 }
-async function editDigitalPassShopType(){
+function editDigitalPassShopType(){
  const current=state.shop&&typeof state.shop==="object"?state.shop:{};
  const existing=String(current.shopType||current.type||"").trim();
- const updated=window.prompt("Enter your shop type",existing);
- if(updated===null)return;
- const value=updated.trim();
- if(!value)return toast("Shop type cannot be empty");
+ modal('<div class="dk-modal" style="max-width:420px;padding:22px;border-radius:20px;background:linear-gradient(155deg,#10243a,#173d4b);color:#fff;border:1px solid #d6ad57;box-shadow:0 18px 55px #0008"><div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><span style="width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:#d6ad5722;color:#f4ce79;font-size:23px">✎</span><div><h2 style="margin:0;color:#fff;font-size:20px">Edit Shop Type</h2><p style="margin:4px 0 0;color:#c6d5df;font-size:13px">Change the category shown on your Digital Shop Pass</p></div></div><label for="digitalPassShopTypeInput" style="display:block;margin:0 0 7px;color:#f4ce79;font-size:13px;font-weight:800">SHOP TYPE</label><input id="digitalPassShopTypeInput" type="text" maxlength="60" value="'+esc(existing)+'" placeholder="e.g. Grocery Store, Clothing Shop" style="width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid #7893a4;border-radius:11px;background:#fff;color:#172638;font-size:16px;outline:none"><div style="display:flex;gap:10px;margin-top:18px"><button type="button" onclick="openDigitalPass()" style="flex:1;padding:12px;border:1px solid #8ca0ae;border-radius:11px;background:transparent;color:#fff;font-weight:800">Cancel</button><button type="button" onclick="saveDigitalPassShopType()" style="flex:1;padding:12px;border:1px solid #f1cf80;border-radius:11px;background:linear-gradient(135deg,#f4d78f,#c99539);color:#263448;font-weight:900">Save Changes</button></div></div>');
+ setTimeout(()=>document.getElementById("digitalPassShopTypeInput")?.focus(),0);
+}
+async function saveDigitalPassShopType(){
+ const value=String(document.getElementById("digitalPassShopTypeInput")?.value||"").trim();
+ if(!value)return toast("Please enter a shop type");
+ const current=state.shop&&typeof state.shop==="object"?state.shop:{};
  state.shop={...current,shopType:value};
  if(!saveState())return;
  closeModal();openDigitalPass();toast("Shop type updated");
