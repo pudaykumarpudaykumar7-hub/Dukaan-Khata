@@ -5749,3 +5749,31 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 #modal .dsp-banner strong{margin-left:auto;color:#ffe08a;font-size:28px}
 #modal #shareDigitalPassBtn{width:100%!important;min-height:52px!important;border:1px solid #e7c15d!important;border-radius:14px!important;background:linear-gradient(100deg,#0b5792,#176fa9 50%,#0c6948)!important;color:#fff!important;font-size:17px!important;font-weight:900!important}
 @media(max-width:480px){#modal .sheet:has(.dsp-page){padding:16px 11px 24px!important}#modal .dsp-card{min-height:170px;padding:12px 96px 10px 10px}#modal .dsp-shop>span{width:45px;height:45px;flex-basis:45px}#modal .dsp-shop b{font-size:15px}#modal .dsp-qr{right:7px;width:78px;padding:5px}#modal .dsp-qr>div{width:64px;height:64px}#modal .dsp-qr canvas,#modal .dsp-qr img{width:62px!important;height:62px!important;max-width:62px!important;max-height:62px!important}#modal .dsp-brief p{font-size:10px}#modal .dsp-row{gap:8px;padding:8px 0}#modal .dsp-row i{width:37px;height:37px;flex-basis:37px}}
+
+/* Digital Shop Pass: mobile-safe title, reliable QR visibility and tappable share action */
+#modal:has(.dsp-page){align-items:center!important;justify-content:center!important;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)!important;overflow-y:auto!important}
+#modal .sheet:has(.dsp-page){box-sizing:border-box!important;width:min(700px,100vw)!important;height:auto!important;min-height:0!important;max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;padding:calc(18px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom))!important;border-radius:22px!important}
+#modal .dsp-page{width:100%!important;max-width:610px!important;min-width:0!important;margin:0 auto!important;box-sizing:border-box!important;overflow:visible!important}
+#modal .dsp-page .dsp-page-header{position:relative!important;display:flex!important;align-items:center!important;gap:12px!important;width:100%!important;min-height:64px!important;margin:0 0 18px!important;padding:5px 2px!important;overflow:visible!important;background:transparent!important;color:#fff!important}
+#modal .dsp-page .dsp-page-header>span{display:grid!important;place-items:center!important;flex:0 0 44px!important;width:44px!important;height:48px!important;font-size:37px!important;line-height:1!important;color:#f4c75e!important}
+#modal .dsp-page .dsp-heading-copy{display:block!important;min-width:0!important;flex:1 1 auto!important;overflow:visible!important}
+#modal .dsp-page .dsp-page-header h2{display:block!important;visibility:visible!important;opacity:1!important;position:static!important;margin:0!important;padding:0!important;color:#fff!important;font-size:clamp(21px,5.2vw,29px)!important;line-height:1.22!important;font-weight:900!important;white-space:normal!important;overflow-wrap:anywhere!important}
+#modal .dsp-page .dsp-page-header small{display:block!important;visibility:visible!important;opacity:1!important;margin:5px 0 0!important;color:#83eaff!important;font-size:clamp(11px,3vw,13px)!important;line-height:1.35!important;white-space:normal!important}
+#modal .dsp-qr{z-index:2!important;display:block!important;visibility:visible!important;opacity:1!important;min-height:104px!important}
+#modal .dsp-qr>div{display:grid!important;place-items:center!important;width:100%!important;height:auto!important;min-height:84px!important;aspect-ratio:1!important;background:#fff!important}
+#modal .dsp-qr img,#modal .dsp-qr canvas{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:auto!important;max-width:100%!important;max-height:none!important;aspect-ratio:1!important;object-fit:contain!important}
+#modal .dsp-qr-error{display:block!important;padding:8px 2px!important;color:#a21b1b!important;font-size:9px!important;line-height:1.25!important}
+#modal .dsp-tabs button{display:block!important;visibility:visible!important;opacity:1!important;min-width:0!important;white-space:normal!important}
+#modal .dsp-panel[hidden]{display:none!important}
+#modal #shareDigitalPassBtn{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:3!important;min-height:52px!important;cursor:pointer!important;touch-action:manipulation!important}
+@media(max-width:480px){
+ #modal:has(.dsp-page){align-items:flex-start!important;padding-top:env(safe-area-inset-top)!important}
+ #modal .sheet:has(.dsp-page){width:100vw!important;max-height:calc(100dvh - env(safe-area-inset-top))!important;padding:calc(14px + env(safe-area-inset-top)) 11px calc(22px + env(safe-area-inset-bottom))!important;border-radius:0!important}
+ #modal .dsp-page .dsp-page-header{min-height:60px!important;margin-bottom:14px!important}
+ #modal .dsp-page .dsp-page-header>span{flex-basis:38px!important;width:38px!important;font-size:32px!important}
+ #modal .dsp-page .dsp-page-header h2{font-size:22px!important}
+ #modal .dsp-page .dsp-page-header small{font-size:11px!important}
+ #modal .dsp-card{padding-right:96px!important}
+ #modal .dsp-qr{width:78px!important;min-height:86px!important}
+ #modal .dsp-qr>div{min-height:64px!important}
+}
