@@ -710,6 +710,7 @@ function shareShopPass(){const text=state.shop.name+"\n"+(state.shop.address||""
 
 function paintShopHeaderLogo(){const box=document.querySelector(".uvms-logo-button");if(!box)return;box.innerHTML='<span class="uvms-crown">◆</span><strong>UVMS</strong><i></i>';box.setAttribute("aria-label","Open UVMS logo");box.onclick=()=>openUVMSLogo()}
 function openShopSettings(){
+  window.__returnToShopProfileAfterTheme=false;
   const s=state.shop||{},d=window.__shopProfileDraft||{};
   const val=k=>esc(d[k]!==undefined?d[k]:(s[k]||""));
   modal('<div class="dk-modal dk-shop-theme dk-shop-theme-mint dk-shop-profile-all"><div class="dk-modal-head"><div class="dk-modal-icon">🏪</div><div><span>YOUR BUSINESS</span><h2>Shop Profile</h2><small>All your shop details in one place</small></div><b>PROFILE</b></div><div class="dk-shop-profile-fields"><div class="dk-shop-profile-field"><label for="shopName">Shop name</label><input id="shopName" type="text" value="'+val("name")+'" placeholder="e.g. Sri Lakshmi Stores" autocomplete="organization"></div><div class="dk-shop-profile-field"><label for="shopOwner">Owner name</label><input id="shopOwner" type="text" value="'+val("owner")+'" placeholder="Enter owner name" autocomplete="name"></div><div class="dk-shop-profile-field"><label for="shopPhone">Shop phone</label><input id="shopPhone" type="tel" value="'+val("phone")+'" placeholder="Enter phone number" autocomplete="tel" inputmode="tel"></div><div class="dk-shop-profile-field"><label for="shopUpi">UPI ID</label><input id="shopUpi" type="text" value="'+val("upi")+'" placeholder="e.g. shop@upi" autocomplete="off"></div><div class="dk-shop-profile-field"><label for="shopAddress">Shop address</label><textarea id="shopAddress" placeholder="Enter full shop address" autocomplete="street-address">'+val("address")+'</textarea></div></div><div class="dk-shop-background-row"><div><b>🎨 Background Theme</b><small>Customize the app background from your Shop Profile</small></div><button type="button" onclick="openShopBackgroundTheme()">Change Theme</button></div><button type="button" class="btn primary dk-shop-profile-save" onclick="saveShopSettings()">✓ Save Profile</button><div class="dk-shop-step-foot">Your saved shop details stay unchanged until you tap Save Profile.</div></div>');
@@ -1426,6 +1427,7 @@ function dkSaveGlobalThemeFromEditor(){
   t.position=document.getElementById("dkBgPosition")?.value||"center";
   t.overlay=Number(document.getElementById("dkBgOverlay")?.value||.18);
   dkSaveGlobalTheme(t);closeModal();
+  if(window.__returnToShopProfileAfterTheme){window.__returnToShopProfileAfterTheme=false;openShopSettings();}
 }
 function dkResetGlobalTheme(){
   saveSharedPreference(DK_GLOBAL_THEME_KEY,null);dkApplyGlobalTheme();toast("Background reset ✓");openBackgroundTheme();
