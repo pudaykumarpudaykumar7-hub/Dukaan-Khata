@@ -892,9 +892,20 @@ async function openOwnerLogin(){
         status.textContent=list.length?list.length+" notification(s)":"No notifications yet.";
         rows.innerHTML='<div style="display:flex;justify-content:flex-end;margin:10px 0"><button id="dkCustomerClearAll" type="button" '+(list.length?'':'disabled')+' style="border:1px solid #fecaca;background:#fff1f2;color:#b91c1c;border-radius:10px;padding:9px 13px;font-weight:800">Clear All</button></div>'+(list.length?list.map(n=>'<article data-customer-notice-id="'+esc(n.id||"")+'" style="background:white;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin:10px 0;touch-action:pan-y;user-select:none;-webkit-user-select:none"><b>'+esc(n.title||"Account update")+'</b><p style="margin:7px 0;color:#334155">'+esc(n.body||"Your account has been updated.")+'</p><small style="color:#64748b">'+esc(n.createdAt?new Date(n.createdAt).toLocaleString("en-IN"):"")+'</small><small style="display:block;color:#94a3b8;margin-top:8px">Long press to delete</small></article>').join(""):'<div style="text-align:center;padding:28px 12px;color:#64748b">✓<h3 style="color:#334155">No notifications</h3><p>You’re all caught up.</p></div>');
         panel.querySelector("#dkCustomerClearAll")?.addEventListener("click",async()=>{
-          if(!list.length||!confirm("Clear all notifications? Your bills and customer data will not be deleted."))return;
+          if(!list.length)return;
+          const confirmed=await new Promise(resolve=>{
+            const dialog=document.createElement("div");
+            dialog.style.cssText="position:fixed;inset:0;z-index:2147483647;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box";
+            dialog.innerHTML='<div role="dialog" aria-modal="true" style="width:min(100%,360px);background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25);color:#0f172a"><h3 style="margin:0 0 8px;font-size:19px">Clear all notifications?</h3><p style="margin:0 0 20px;color:#64748b;line-height:1.5">This removes only notifications from this inbox. Your bills and customer data will stay safe.</p><div style="display:flex;gap:12px"><button type="button" data-clear-cancel style="flex:1;padding:12px;border:0;border-radius:10px;background:#16a34a;color:#fff;font-weight:800">Cancel</button><button type="button" data-clear-confirm style="flex:1;padding:12px;border:0;border-radius:10px;background:#dc2626;color:#fff;font-weight:800">Clear</button></div></div>';
+            const finish=value=>{dialog.remove();resolve(value)};
+            dialog.querySelector("[data-clear-cancel]").addEventListener("click",()=>finish(false));
+            dialog.querySelector("[data-clear-confirm]").addEventListener("click",()=>finish(true));
+            dialog.addEventListener("click",event=>{if(event.target===dialog)finish(false)});
+            panel.appendChild(dialog);
+          });
+          if(!confirmed)return;
           status.textContent="Clearing notifications…";
-          try{const response=await fetch("https://us-central1-dukaan-khata-a517c.cloudfunctions.net/clearCustomerNotifications",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:customerPhone,pin:customerPin})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Could not clear notifications.");await loadNotifications();}
+          try{if(!window.dkClearCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");await window.dkClearCustomerNotifications(customerPhone,customerPin);await loadNotifications();}
           catch(error){status.textContent=error.message||"Could not clear notifications."}
         });
         let pressTimer=null;
@@ -904,7 +915,7 @@ async function openOwnerLogin(){
             const id=card.getAttribute("data-customer-notice-id");if(!id)return;
             if(!await askDeleteNotification())return;
             status.textContent="Deleting notification…";
-            try{const response=await fetch("https://us-central1-dukaan-khata-a517c.cloudfunctions.net/deleteCustomerNotification",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:customerPhone,pin:customerPin,notificationId:id})});const data=await response.json();if(!response.ok)throw new Error(data.error||"Could not delete notification.");await loadNotifications();}
+            try{if(!window.dkDeleteCustomerNotification)throw new Error("Notification service is still loading. Refresh and try again.");await window.dkDeleteCustomerNotification(customerPhone,customerPin,id);await loadNotifications();}
             catch(error){status.textContent=error.message||"Could not delete notification."}
           },650)});
           ["pointerup","pointerleave","pointercancel"].forEach(event=>card.addEventListener(event,cancelPress));
