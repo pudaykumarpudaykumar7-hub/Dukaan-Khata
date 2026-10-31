@@ -5568,3 +5568,43 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 #modal .dk-shop-profile-all .dk-shop-profile-save:active{transform:translateY(1px)}
 #modal .dk-shop-profile-all .dk-shop-step-foot{display:none!important}
 @media(max-width:480px){#modal:has(.dk-shop-profile-all) .sheet{width:calc(100vw - 20px)!important;max-height:calc(100dvh - 20px)!important;padding:8px!important;border-radius:18px!important}#modal .dk-shop-profile-all{padding:10px!important}#modal .dk-shop-profile-all .dk-shop-profile-fields{grid-template-columns:minmax(0,1fr)!important;gap:6px!important;margin:7px 0!important}#modal .dk-shop-profile-all .dk-shop-profile-field{padding:7px 8px!important}#modal .dk-shop-profile-all .dk-shop-profile-field:has(textarea){grid-column:auto!important}#modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:36px!important;padding:7px 8px!important}#modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:46px!important}}
+
+
+/* Restored classic Shop Profile: one mint-and-teal panel, every detail together. */
+#modal:has(.dk-shop-profile-all){align-items:center!important;padding:10px!important;background:rgba(7,35,32,.58)!important;backdrop-filter:blur(8px)!important}
+#modal:has(.dk-shop-profile-all) .sheet{width:min(590px,calc(100vw - 20px))!important;max-width:590px!important;max-height:calc(100dvh - 20px)!important;overflow-y:auto!important;padding:10px!important;border:1px solid #b8e9d9!important;border-radius:24px!important;background:linear-gradient(155deg,#f0fff8 0%,#e3f8f2 55%,#e9f7ff 100%)!important;box-shadow:0 22px 60px rgba(7,70,59,.22)!important}
+#modal .dk-shop-profile-all{box-sizing:border-box!important;position:relative!important;padding:16px!important;border:1px solid #b8e9d9!important;border-radius:20px!important;background:linear-gradient(155deg,#f0fff8 0%,#e3f8f2 55%,#e9f7ff 100%)!important;color:#163c3a!important;box-shadow:none!important}
+#modal .dk-shop-profile-all:before{display:none!important}
+#modal .dk-shop-profile-all .dk-modal-head{display:flex!important;align-items:center!important;gap:12px!important;margin:0 0 14px!important;padding:5px 2px 14px!important;border:0!important;border-bottom:1px solid #c8eade!important;border-radius:0!important;background:transparent!important;color:#163c3a!important;box-shadow:none!important}
+#modal .dk-shop-profile-all .dk-modal-head .dk-modal-icon{display:grid!important;place-items:center!important;width:48px!important;height:48px!important;flex:0 0 48px!important;border:0!important;border-radius:16px!important;background:linear-gradient(140deg,#baf2dc,#d7f7ed)!important;color:#087f72!important;font-size:24px!important;box-shadow:none!important}
+#modal .dk-shop-profile-all .dk-modal-head span{display:block!important;margin:0 0 3px!important;color:#087f72!important;font-size:10px!important;letter-spacing:1.7px!important;font-weight:900!important}
+#modal .dk-shop-profile-all .dk-modal-head h2{margin:2px 0!important;color:#124e49!important;font-size:23px!important;line-height:1.2!important;font-weight:850!important;letter-spacing:0!important}
+#modal .dk-shop-profile-all .dk-modal-head small{display:block!important;margin-top:4px!important;color:#64847e!important;font-size:12px!important}
+#modal .dk-shop-profile-all .dk-modal-head>b{margin-left:auto!important;padding:7px 10px!important;border:0!important;border-radius:99px!important;background:#d2f5e7!important;color:#087f72!important;font-size:10px!important;letter-spacing:.5px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-fields{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px 14px!important;margin:0!important;padding:2px 1px 14px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field{display:flex!important;flex-direction:column!important;gap:6px!important;min-width:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field label{display:block!important;margin:0!important;color:#17665e!important;font-size:12px!important;line-height:1.35!important;font-weight:800!important;letter-spacing:.15px!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{display:block!important;width:100%!important;min-width:0!important;box-sizing:border-box!important;margin:0!important;padding:12px 13px!important;border:1px solid #b9e2d5!important;border-radius:12px!important;background:#f8fffc!important;color:#173f3b!important;font-size:15px!important;line-height:1.4!important;outline:none!important;box-shadow:none!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field input:focus,#modal .dk-shop-profile-all .dk-shop-profile-field textarea:focus{border-color:#0d9488!important;box-shadow:0 0 0 3px #0d94881a!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field input::placeholder,#modal .dk-shop-profile-all .dk-shop-profile-field textarea::placeholder{color:#87a49d!important;opacity:1!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field:has(#shopAddress){grid-column:1/-1!important}
+#modal .dk-shop-profile-all .dk-shop-profile-field textarea{min-height:76px!important;resize:vertical!important}
+#modal .dk-shop-profile-all .dk-shop-background-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin:0 0 13px!important;padding:12px 13px!important;border:1px solid #bfe8dc!important;border-radius:14px!important;background:rgba(255,255,255,.72)!important}
+#modal .dk-shop-profile-all .dk-shop-background-row>div{display:flex!important;flex-direction:column!important;gap:3px!important;min-width:0!important}
+#modal .dk-shop-profile-all .dk-shop-background-row b{color:#17665e!important;font-size:13px!important}
+#modal .dk-shop-profile-all .dk-shop-background-row small{color:#66877f!important;font-size:10px!important;line-height:1.4!important}
+#modal .dk-shop-profile-all .dk-shop-background-row button{flex:0 0 auto!important;min-height:36px!important;padding:0 12px!important;border:1px solid #a8ded0!important;border-radius:10px!important;background:#e2f8ef!important;color:#087f72!important;font-size:11px!important;font-weight:850!important}
+#modal .dk-shop-profile-all .dk-shop-profile-save{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:48px!important;margin:0!important;padding:12px 16px!important;border:0!important;border-radius:13px!important;background:linear-gradient(110deg,#087f72,#0d9488)!important;color:#fff!important;font-size:15px!important;font-weight:850!important;letter-spacing:.1px!important;box-shadow:0 7px 16px #087f7225!important}
+#modal .dk-shop-profile-all .dk-shop-step-foot{margin:10px 4px 0!important;padding:0!important;color:#6d8983!important;font-size:10px!important;line-height:1.45!important;text-align:center!important}
+@media(max-width:600px){
+ #modal:has(.dk-shop-profile-all) .sheet{width:calc(100vw - 12px)!important;max-width:none!important;max-height:calc(100dvh - 12px)!important;padding:5px!important;border-radius:21px!important}
+ #modal .dk-shop-profile-all{padding:13px!important;border-radius:18px!important}
+ #modal .dk-shop-profile-all .dk-modal-head{gap:10px!important;margin-bottom:12px!important;padding:3px 1px 12px!important}
+ #modal .dk-shop-profile-all .dk-modal-head .dk-modal-icon{width:43px!important;height:43px!important;flex-basis:43px!important;font-size:22px!important}
+ #modal .dk-shop-profile-all .dk-modal-head h2{font-size:21px!important}
+ #modal .dk-shop-profile-all .dk-shop-profile-fields{grid-template-columns:minmax(0,1fr)!important;gap:10px!important;padding-bottom:12px!important}
+ #modal .dk-shop-profile-all .dk-shop-profile-field:has(#shopAddress){grid-column:auto!important}
+ #modal .dk-shop-profile-all .dk-shop-profile-field input,#modal .dk-shop-profile-all .dk-shop-profile-field textarea{padding:11px 12px!important;font-size:15px!important}
+ #modal .dk-shop-profile-all .dk-shop-background-row{align-items:flex-start!important;padding:10px!important}
+ #modal .dk-shop-profile-all .dk-shop-background-row button{min-height:34px!important;padding:0 9px!important}
+}
