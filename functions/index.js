@@ -219,6 +219,43 @@ exports.getCustomerNotifications = onRequest({ region: "us-central1", maxInstanc
   } catch (error) { sendError(res, error); }
 });
 
+
+/** Delete one notification from the authenticated customer's own inbox. */
+exports.deleteCustomerNotification = onRequest({ region: "us-central1", maxInstances: 10 }, async (req, res) => {
+  if (applyCors(req, res)) return;
+  try {
+    const phone = normalizeCustomerPhone(req.body?.phone);
+    verifySharedCustomerPin(req.body?.pin);
+    const notificationId = String(req.body?.notificationId || "");
+    if (!/^[A-Za-z0-9_-]{1,150}$/.test(notificationId)) {
+      const error = new Error("Invalid notification.");
+      error.status = 400;
+      throw error;
+    }
+    const customerId = customerDocId(phone);
+    await db.collection("customerPush").doc(customerId).collection("inbox").doc(notificationId).delete();
+    res.status(200).json({ ok: true });
+  } catch (error) { sendError(res, error); }
+});
+
+/** Clear only this customer's notification inbox; bills and account data are untouched. */
+exports.clearCustomerNotifications = onRequest({ region: "us-central1", maxInstances: 10 }, async (req, res) => {
+  if (applyCors(req, res)) return;
+  try {
+    const phone = normalizeCustomerPhone(req.body?.phone);
+    verifySharedCustomerPin(req.body?.pin);
+    const customerId = customerDocId(phone);
+    const inbox = db.collection("customerPush").doc(customerId).collection("inbox");
+    const snap = await inbox.limit(500).get();
+    if (!snap.empty) {
+      const batch = db.batch();
+      snap.docs.forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+    }
+    res.status(200).json({ ok: true, deleted: snap.size });
+  } catch (error) { sendError(res, error); }
+});
+
 /**
  * Owner-authenticated delivery endpoint. The caller must have a valid Supabase
  * owner session. It sends only to the supplied customer's registered devices.
