@@ -711,15 +711,30 @@ function shareShopPass(){const text=state.shop.name+"\n"+(state.shop.address||""
 function paintShopHeaderLogo(){const box=document.querySelector(".uvms-logo-button");if(!box)return;box.innerHTML='<span class="uvms-crown">◆</span><strong>UVMS</strong><i></i>';box.setAttribute("aria-label","Open UVMS logo");box.onclick=()=>openUVMSLogo()}
 function openShopSettings(){
   const shop=state.shop&&typeof state.shop==="object"?state.shop:{};
+  const rows=[
+    ["🏪","Shop Name",shop.name||"Not added","gold"],
+    ["▤","Shop Type",shop.shopType||shop.type||"General Store","blue"],
+    ["👤","Owner Name",shop.owner||"Not added","red"],
+    ["☎","Contact Number",shop.phone||"Not added","green"],
+    ["₹","UPI ID",shop.upi||"Not added","purple"],
+    ["📍","Shop Address",shop.address||"Not added","blue"]
+  ];
+  const details=rows.filter(r=>r[1]!=="Shop Type"||shop.shopType||shop.type).map(r=>'<div class="dk-profile-info-row dk-profile-'+r[3]+'"><span class="dk-profile-info-icon">'+r[0]+'</span><span class="dk-profile-info-label">'+r[1]+'</span><strong>'+esc(r[2])+'</strong></div>').join("");
+  const pic=shop.profilePic?'<img src="'+esc(shop.profilePic)+'" alt="Shop profile picture">':'<span>🏪</span>';
+  modal('<div class="dk-modal dk-shop-profile-page"><div class="dk-profile-page-head"><div class="dk-profile-page-title"><span class="dk-profile-page-icon">▣</span><div><h2>Shop Profile</h2><p>Manage your shop details</p></div></div><button type="button" class="dk-profile-edit-button" onclick="openShopProfileEditor()" aria-label="Edit shop profile">✎</button></div><div class="dk-profile-summary-card"><div class="dk-profile-shop-picture">'+pic+'</div><div class="dk-profile-summary-text"><h3>'+esc(shop.name||"My Dukaan")+'</h3><p>'+esc(shop.shopType||shop.type||"Your Shop")+'</p><span class="dk-profile-summary-status">● Shop profile</span></div></div><div class="dk-profile-info-card">'+details+'</div><div class="dk-profile-page-actions"><button type="button" class="dk-shop-profile-save-neon" onclick="openShopProfileEditor()">✎ &nbsp; Edit Shop Profile</button></div></div>');
+}
+function openShopProfileEditor(){
+  const shop=state.shop&&typeof state.shop==="object"?state.shop:{};
   window.__shopProfilePicDraft=shop.profilePic||"";
-  modal('<div class="dk-modal dk-shop-profile-neon"><div class="dk-shop-profile-heading"><div class="dk-shop-profile-mark">🏪</div><div><h2>Shop Profile</h2><p>Update your shop details</p></div></div><div class="dk-shop-profile-list">'+
-    '<label class="dk-shop-profile-row dk-shop-row-gold"><span class="dk-shop-row-icon">🏪</span><span class="dk-shop-row-content"><b>Shop Name</b><input id="shopName" type="text" autocomplete="organization" placeholder="Enter shop name" value="'+esc(shop.name||"")+'"></span><span class="dk-shop-row-edit">✎</span></label>'+
-    '<label class="dk-shop-profile-row dk-shop-row-blue"><span class="dk-shop-row-icon">📍</span><span class="dk-shop-row-content"><b>Shop Address</b><input id="shopAddress" type="text" autocomplete="street-address" placeholder="Enter shop address" value="'+esc(shop.address||"")+'"></span><span class="dk-shop-row-edit">✎</span></label>'+
-    '<label class="dk-shop-profile-row dk-shop-row-green"><span class="dk-shop-row-icon">☎</span><span class="dk-shop-row-content"><b>Contact Number</b><input id="shopPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Enter contact number" value="'+esc(shop.phone||"")+'"></span><span class="dk-shop-row-edit">✎</span></label>'+
-    '<label class="dk-shop-profile-row dk-shop-row-red"><span class="dk-shop-row-icon">👤</span><span class="dk-shop-row-content"><b>Owner Name</b><input id="shopOwner" type="text" autocomplete="name" placeholder="Enter owner name" value="'+esc(shop.owner||"")+'"></span><span class="dk-shop-row-edit">✎</span></label>'+
-    '<label class="dk-shop-profile-row dk-shop-row-purple"><span class="dk-shop-row-icon">₹</span><span class="dk-shop-row-content"><b>UPI ID</b><input id="shopUpi" type="text" inputmode="email" autocomplete="off" placeholder="Enter UPI ID" value="'+esc(shop.upi||"")+'"></span><span class="dk-shop-row-edit">✎</span></label>'+
-    '</div><button type="button" class="dk-shop-profile-save-neon" onclick="saveShopSettings()">▣ &nbsp; Save Profile</button><p class="dk-shop-profile-foot">Your shop details are saved when you tap Save Profile.</p></div>');
-}function openShopBackgroundTheme(){
+  modal('<div class="dk-modal dk-shop-profile-neon"><div class="dk-shop-profile-heading"><div class="dk-shop-profile-mark">🏪</div><div><h2>Edit Shop Profile</h2><p>Update your shop details</p></div></div><div class="dk-shop-profile-list">'+
+    '<label class="dk-shop-profile-row dk-shop-row-gold"><span class="dk-shop-row-icon">🏪</span><span class="dk-shop-row-content"><b>Shop Name</b><input id="shopName" type="text" autocomplete="organization" placeholder="Enter shop name" value="'+esc(shop.name||"")+'"></span></label>'+
+    '<label class="dk-shop-profile-row dk-shop-row-blue"><span class="dk-shop-row-icon">📍</span><span class="dk-shop-row-content"><b>Shop Address</b><input id="shopAddress" type="text" autocomplete="street-address" placeholder="Enter shop address" value="'+esc(shop.address||"")+'"></span></label>'+
+    '<label class="dk-shop-profile-row dk-shop-row-green"><span class="dk-shop-row-icon">☎</span><span class="dk-shop-row-content"><b>Contact Number</b><input id="shopPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Enter contact number" value="'+esc(shop.phone||"")+'"></span></label>'+
+    '<label class="dk-shop-profile-row dk-shop-row-red"><span class="dk-shop-row-icon">👤</span><span class="dk-shop-row-content"><b>Owner Name</b><input id="shopOwner" type="text" autocomplete="name" placeholder="Enter owner name" value="'+esc(shop.owner||"")+'"></span></label>'+
+    '<label class="dk-shop-profile-row dk-shop-row-purple"><span class="dk-shop-row-icon">₹</span><span class="dk-shop-row-content"><b>UPI ID</b><input id="shopUpi" type="text" inputmode="email" autocomplete="off" placeholder="Enter UPI ID" value="'+esc(shop.upi||"")+'"></span></label>'+
+    '</div><button type="button" class="dk-shop-profile-save-neon" onclick="saveShopSettings()">▣ &nbsp; Save Profile</button><p class="dk-shop-profile-foot">Your details are saved when you tap Save Profile.</p></div>');
+}
+function openShopBackgroundTheme(){
   window.__shopProfileDraft={name:document.getElementById("shopName")?.value??state.shop.name??"",owner:document.getElementById("shopOwner")?.value??state.shop.owner??"",phone:document.getElementById("shopPhone")?.value??state.shop.phone??"",upi:document.getElementById("shopUpi")?.value??state.shop.upi??"",address:document.getElementById("shopAddress")?.value??state.shop.address??""};
   window.__returnToShopProfileAfterTheme=true;
   openBackgroundTheme();
