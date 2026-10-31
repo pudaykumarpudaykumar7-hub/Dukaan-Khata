@@ -577,7 +577,7 @@ function createTrackedQR(customerId){
   const link="upi://pay?pa="+encodeURIComponent(upi)+"&pn="+encodeURIComponent(state.shop.name||"Dukaan Khata")+"&cu=INR"+(amount>0?"&am="+amount.toFixed(2):"");
   if(box){box.innerHTML="";if(window.QRCode)new QRCode(box,{text:link,width:220,height:220});else box.innerHTML='<div class="qr-empty">QR library is loading. Please reopen Dukaan Pay.</div>';}
   if(cap)cap.textContent=amount>0?"Pay "+money(amount)+" • UPI QR":"UPI: "+upi;
-  if(status)status.innerHTML='<div class="payment-waiting">🟢 UPI QR ready.<small>Customer scans with any UPI app. This QR pays directly to your saved UPI ID.</small></div>';
+  if(status)status.innerHTML="";
 }
 function createCashfreeQR(customerId){createTrackedQR(customerId)}
 function openReceive(customerId=""){
