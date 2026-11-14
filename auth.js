@@ -568,8 +568,8 @@
 
   let portalPublishTimer=null, portalPublishSnapshot=null, portalPublishing=false;
   window.dkPublishCustomerPortalSnapshot=function(snapshot){
-    // Local-only privacy mode: do not publish customer records to the remote portal.
-    if(window.DukaanKhataMode!=="cloud"||!snapshot||typeof snapshot!=="object")return;
+    // Publish only the filtered customer-facing projection from this device; the full owner ledger remains local on desktop.
+    if(!snapshot||typeof snapshot!=="object")return;
     portalPublishSnapshot=snapshot;
     clearTimeout(portalPublishTimer);
     portalPublishTimer=setTimeout(async()=>{
@@ -593,7 +593,7 @@
       });
       portalPublishing=true;
       try{
-        const response=await fetch(SUPABASE_URL+"/functions/v1/customer-pin-portal",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({action:"publish",records})});
+        const response=await fetch(SUPABASE_URL+"/functions/v1/customer-pin-portal",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({action:"publish",sourceId:(()=>{let id=localStorage.getItem("dk_customer_portal_source_id");if(!id){id=crypto.randomUUID();localStorage.setItem("dk_customer_portal_source_id",id)}return id})(),records})});
         const result=await response.json().catch(()=>({}));
         if(!response.ok)throw new Error(result.error||"Customer portal publish failed");
         console.info("Customer portal records updated:",result.published);
@@ -670,7 +670,7 @@
   let lastPortalSnapshotSignature = "";
   let portalWatchStarted = false;
   function startCustomerPortalWatch() {
-    if (window.DukaanKhataMode!=="cloud" || portalWatchStarted) return;
+    if (portalWatchStarted) return;
     portalWatchStarted = true;
     const readSnapshot = () => {
       if (document.visibilityState === "hidden" || !window.state || !window.dkPublishCustomerPortalSnapshot) return;
