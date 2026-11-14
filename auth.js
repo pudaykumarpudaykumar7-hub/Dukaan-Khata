@@ -875,13 +875,25 @@ async function openOwnerLogin(){
     panel.querySelector("#dkCustomerNotificationClose")?.addEventListener("click",()=>panel.remove());
     const pushToggle=panel.querySelector("#dkCustomerNotificationEnable");
     const pushLabel=panel.querySelector("#dkPushStateLabel");
-    const syncPushToggle=()=>{let saved=null;try{saved=localStorage.getItem("dk_customer_push_enabled");}catch(e){}const permission=window.Notification?.permission;const on=permission==="granted"&&saved!=="off";pushToggle?.setAttribute("aria-checked",String(on));pushToggle?.classList.toggle("is-on",on);if(pushLabel)pushLabel.textContent=on?"On · saved on this device":(permission==="denied"?"Blocked in browser settings":"Off · tap to enable");};
+    const syncPushToggle=()=>{let saved=null;try{saved=localStorage.getItem("dk_customer_push_enabled");}catch(e){}const permission=window.Notification?.permission;const on=permission==="granted"&&saved==="on";pushToggle?.setAttribute("aria-checked",String(on));pushToggle?.classList.toggle("is-on",on);if(pushLabel)pushLabel.textContent=on?"On · this device will receive alerts":(permission==="denied"?"Blocked in browser settings · allow it there to turn on":"Off · tap to enable");};
     syncPushToggle();
     pushToggle?.addEventListener("click",async()=>{
-      if(window.Notification?.permission==="granted"){let saved="on";try{saved=localStorage.getItem("dk_customer_push_enabled")||"on";}catch(e){}if(saved==="on"){status.textContent="Phone notifications are already enabled. To disable them, use Android Settings → Apps → Chrome → Notifications.";return;}try{localStorage.setItem("dk_customer_push_enabled","on");}catch(e){}syncPushToggle();status.textContent="Phone notifications are on.";return;}
-      status.textContent="Requesting notification permission…";
-      try{if(!window.dkEnableCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");await window.dkEnableCustomerNotifications(customerPhone,customerPin);try{localStorage.setItem("dk_customer_push_enabled","on");}catch(e){}status.textContent="Notifications are enabled on this device and this preference is saved.";syncPushToggle();}
-      catch(e){status.textContent=e.message||"Could not enable phone notifications.";syncPushToggle();}
+      if(pushToggle.disabled)return;
+      pushToggle.disabled=true;
+      const currentlyOn=pushToggle.getAttribute("aria-checked")==="true";
+      status.textContent=currentlyOn?"Turning phone notifications off…":"Requesting notification permission…";
+      try{
+        if(currentlyOn){
+          if(!window.dkDisableCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");
+          await window.dkDisableCustomerNotifications(customerPhone,customerPin);
+          status.textContent="Phone notifications are off on this device. You can turn them on again anytime.";
+        }else{
+          if(!window.dkEnableCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");
+          await window.dkEnableCustomerNotifications(customerPhone,customerPin);
+          status.textContent="Phone notifications are on for this device.";
+        }
+      }catch(e){status.textContent=e.message||"Could not update phone notification settings.";}
+      finally{pushToggle.disabled=false;syncPushToggle();}
     });
     const loadNotifications=async()=>{
       try{
