@@ -159,12 +159,12 @@ html body #uvmsLaunchSplash .uvms-launch-frame{z-index:3!important;}
 <script>(()=>{const h=new Date().getHours();const e=document.getElementById("greeting");if(e)e.textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+" 🙏";const d=document.getElementById("todayLabel");if(d)d.textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});})();</script>
 <script src="app.js?v=digital-shop-type-popup-20261031" defer></script>
 <script src="notifications.js?v=20261031-supabase-notification-delete-clear-v3" defer></script>
-<script src="auth.js?v=customer-notification-supabase-delete-clear-20261031" defer></script>
+<script src="auth.js?v=nationwide-customer-portal-20261114" defer></script>
 
 <script src="i18n.js?v=shared-sync-20261030a" defer></script>
 <script src="more-routing.js?v=20261021-editorial-ivory-pass-v24" defer></script>
 </div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=shop-profile-refresh-20261030c",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=nationwide-customer-portal-20261114",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
 <script>
 (()=>{let deferredPrompt=null;const btn=()=>document.getElementById("pwaInstallBtn");
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=btn();if(b)b.hidden=false;});
