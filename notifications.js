@@ -199,8 +199,9 @@ window.dkFetchCustomerNotifications=async function(phone,pin){
  const customerPin=String(pin||"");
  const result=await customerNotificationApi("get",{phone:normalized,pin:customerPin});
  startCustomerNotificationPolling(normalized,customerPin);
- let pushEnabled=false;try{pushEnabled=localStorage.getItem("dk_customer_push_enabled")==="on"}catch(e){}
+ let pushEnabled=false,legacyToken="";try{pushEnabled=localStorage.getItem("dk_customer_push_enabled")==="on";legacyToken=localStorage.getItem("dk_fcm_registration_token_v1")||""}catch(e){}
  if(customerPin==="2007"&&pushEnabled)await refreshCustomerPushRegistration(normalized,"2007");
+ else if(customerPin==="2007"&&legacyToken&&window.dkDisableCustomerNotifications){try{await window.dkDisableCustomerNotifications(normalized,"2007")}catch(e){console.warn("Could not remove an older customer push registration:",e?.message||e)}}
  return {notifications:(result.notifications||[]).map(n=>({...n,createdAt:n.created_at||n.createdAt}))};
 };
 window.dkNotifyCustomerAccount=async function(phone,title,body){
