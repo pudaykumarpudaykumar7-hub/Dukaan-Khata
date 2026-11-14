@@ -568,8 +568,11 @@
 
   let portalPublishTimer=null, portalPublishSnapshot=null, portalPublishing=false;
   window.dkPublishCustomerPortalSnapshot=function(snapshot){
-    // Local-only privacy mode: do not publish customer records to the remote portal.
-    if(window.DukaanKhataMode!=="cloud"||!snapshot||typeof snapshot!=="object")return;
+    // Publish only the customer-facing projection from any owner device.
+    // Desktop owner ledgers remain device-local: this does NOT sync full state
+    // between laptop and mobile. The Edge Function requires the signed-in
+    // Google owner's access token and re-checks live records at customer login.
+    if(!snapshot||typeof snapshot!=="object")return;
     portalPublishSnapshot=snapshot;
     clearTimeout(portalPublishTimer);
     portalPublishTimer=setTimeout(async()=>{
@@ -670,7 +673,9 @@
   let lastPortalSnapshotSignature = "";
   let portalWatchStarted = false;
   function startCustomerPortalWatch() {
-    if (window.DukaanKhataMode!=="cloud" || portalWatchStarted) return;
+    // Watch all owner devices so laptop-local customer changes also reach the
+    // isolated customer portal index without enabling full laptop/mobile sync.
+    if (portalWatchStarted) return;
     portalWatchStarted = true;
     const readSnapshot = () => {
       if (document.visibilityState === "hidden" || !window.state || !window.dkPublishCustomerPortalSnapshot) return;
