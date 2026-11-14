@@ -164,8 +164,20 @@ window.dkEnableCustomerNotifications=async function(phone,pin){
  if(!token)throw new Error("This phone did not receive a push token. Check browser notification settings and try again.");
  try{localStorage.setItem("dk_fcm_registration_token_v1",token)}catch(e){}
  await registerCustomerPushDevice(normalized,"2007",token);
+ try{localStorage.setItem("dk_customer_push_enabled","on")}catch(e){}
  startCustomerNotificationPolling(normalized,"2007");
  return {ok:true,mode:"push-enabled",message:"Customer notifications are enabled on this phone. New customer alerts can now be delivered by push when the browser supports background notifications."};
+};
+window.dkDisableCustomerNotifications=async function(phone,pin){
+ const normalized=normalizeCustomerPhoneForPush(phone);
+ if(!normalized)throw new Error("Enter the registered 10-digit mobile number.");
+ if(String(pin||"")!=="2007")throw new Error("Customer PIN is incorrect.");
+ let token="";
+ try{token=localStorage.getItem("dk_fcm_registration_token_v1")||""}catch(e){}
+ if(!token)throw new Error("This phone has no saved push registration. Notifications are already off.");
+ await customerNotificationApi("unregister-device",{phone:normalized,pin:"2007",token});
+ try{localStorage.setItem("dk_customer_push_enabled","off")}catch(e){}
+ return {ok:true,mode:"push-disabled",message:"Phone notifications are off on this device."};
 };
 async function refreshCustomerPushRegistration(phone,pin){
  try{
@@ -187,7 +199,8 @@ window.dkFetchCustomerNotifications=async function(phone,pin){
  const customerPin=String(pin||"");
  const result=await customerNotificationApi("get",{phone:normalized,pin:customerPin});
  startCustomerNotificationPolling(normalized,customerPin);
- if(customerPin==="2007")await refreshCustomerPushRegistration(normalized,"2007");
+ let pushEnabled=false;try{pushEnabled=localStorage.getItem("dk_customer_push_enabled")==="on"}catch(e){}
+ if(customerPin==="2007"&&pushEnabled)await refreshCustomerPushRegistration(normalized,"2007");
  return {notifications:(result.notifications||[]).map(n=>({...n,createdAt:n.created_at||n.createdAt}))};
 };
 window.dkNotifyCustomerAccount=async function(phone,title,body){
