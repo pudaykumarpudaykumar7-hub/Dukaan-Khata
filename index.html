@@ -85,31 +85,7 @@
 </style>
 
 <style id="dk-family-digital-pass-distinct">
-/* More menu: two feature tiles with their own visual identities */
-#tools .tools-grid [data-more-feature="family-card"]{
- background:linear-gradient(145deg,#101d37 0%,#18365b 58%,#24618a 100%)!important;
- color:#f5fbff!important;border:1px solid #3d7297!important;
- box-shadow:0 12px 28px #10274424!important;position:relative;overflow:hidden;
-}
-#tools .tools-grid [data-more-feature="family-card"]::after{
- content:"FAMILY";position:absolute;right:12px;top:12px;font-size:8px;
- letter-spacing:1.7px;font-weight:900;color:#a8dfff;border:1px solid #6ba4ca;
- border-radius:20px;padding:4px 7px;
-}
-#tools .tools-grid [data-more-feature="family-card"] b{color:#fff!important}
-#tools .tools-grid [data-more-feature="family-card"] small{color:#c3d9ec!important}
-#tools .tools-grid [data-more-feature="digital-app-pass"]{
- background:linear-gradient(145deg,#171717 0%,#302719 58%,#59421f 100%)!important;
- color:#f8e8bd!important;border:1px solid #b18b45!important;
- box-shadow:0 12px 28px #4c351b22!important;position:relative;overflow:hidden;
-}
-#tools .tools-grid [data-more-feature="digital-app-pass"]::after{
- content:"GOLD EDITION";position:absolute;right:12px;top:12px;font-size:8px;
- letter-spacing:1.4px;font-weight:900;color:#f3d58e;border:1px solid #a8874c;
- border-radius:20px;padding:4px 7px;
-}
-#tools .tools-grid [data-more-feature="digital-app-pass"] b{color:#fff1cc!important}
-#tools .tools-grid [data-more-feature="digital-app-pass"] small{color:#e2d0a9!important}
+/* Family and Digital Pass More tiles use the same shared luxury-tool style as Smart Receive, Shop Profile and Language. */
 /* Dukaan Family Card: midnight blue, cyan accents, member tiles */
 #modal.dk-family-fullscreen,#modal.dk-family-fullscreen .sheet{background:#071426!important}
 .dk-family-screen{background:radial-gradient(ellipse at 90% 0%,#183b60 0%,#071426 48%,#071426 100%)!important;color:#eaf5ff!important}
@@ -171,35 +147,7 @@
 </style>
 
 <style id="dk-family-pass-visual-refresh-20261119">
-/* New More cards: vivid family identity + luxury shop pass */
-#tools .tools-grid [data-more-feature="family-card"]{
- background:radial-gradient(circle at 90% 0%,#a78bfa 0,transparent 36%),linear-gradient(135deg,#17165c 0%,#3530a8 52%,#7026b9 100%)!important;
- color:#fff!important;border:1px solid #8d7cf4!important;border-radius:22px!important;
- box-shadow:0 14px 30px #33208c38!important;position:relative;overflow:hidden;
-}
-#tools .tools-grid [data-more-feature="family-card"]::before{
- content:"👨‍👩‍👧";position:absolute;right:15px;bottom:12px;font-size:31px;opacity:.22;
-}
-#tools .tools-grid [data-more-feature="family-card"]::after{
- content:"FAMILY";position:absolute;right:12px;top:12px;font-size:8px;letter-spacing:1.5px;
- font-weight:900;color:#fff;border:1px solid #c4b5fd;border-radius:20px;padding:4px 8px;
-}
-#tools .tools-grid [data-more-feature="family-card"] b{color:#fff!important}
-#tools .tools-grid [data-more-feature="family-card"] small{color:#e2dcff!important}
-#tools .tools-grid [data-more-feature="digital-app-pass"]{
- background:radial-gradient(circle at 90% 0%,#9a7437 0,transparent 35%),linear-gradient(140deg,#090909 0%,#211a10 58%,#49351a 100%)!important;
- color:#f8e8bd!important;border:1px solid #c6a45e!important;border-radius:22px!important;
- box-shadow:0 14px 30px #5b431c30!important;position:relative;overflow:hidden;
-}
-#tools .tools-grid [data-more-feature="digital-app-pass"]::before{
- content:"✦";position:absolute;right:20px;bottom:7px;font-size:48px;color:#e8c878;opacity:.22;
-}
-#tools .tools-grid [data-more-feature="digital-app-pass"]::after{
- content:"GOLD PASS";position:absolute;right:12px;top:12px;font-size:8px;letter-spacing:1.4px;
- font-weight:900;color:#f7dfa2;border:1px solid #b89553;border-radius:20px;padding:4px 8px;
-}
-#tools .tools-grid [data-more-feature="digital-app-pass"] b{color:#fff1cc!important}
-#tools .tools-grid [data-more-feature="digital-app-pass"] small{color:#e6d5ad!important}
+/* More menu tiles intentionally inherit the shared luxury-tool styling. */
 /* Family screen: vibrant indigo-violet with luminous cyan and white cards */
 #modal.dk-family-fullscreen,#modal.dk-family-fullscreen .sheet{background:#100d38!important}
 .dk-family-screen{
@@ -358,14 +306,14 @@ html body #uvmsLaunchSplash .uvms-launch-frame{z-index:3!important;}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js" defer></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js" defer></script>
 <script>(()=>{const h=new Date().getHours();const e=document.getElementById("greeting");if(e)e.textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+" 🙏";const d=document.getElementById("todayLabel");if(d)d.textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});})();</script>
-<script src="app.js?v=family-pass-visual-refresh-20261119" defer></script>
+<script src="app.js?v=more-uniform-20261119" defer></script>
 <script src="notifications.js?v=customer-push-toggle-20261114b" defer></script>
 <script src="auth.js?v=dukaan-family-control-20261119b" defer></script>
 
 <script src="i18n.js?v=shared-sync-20261030a" defer></script>
 <script src="more-routing.js?v=family-pass-visual-refresh-20261119" defer></script>
 </div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=family-pass-visual-refresh-20261119",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=more-uniform-20261119",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
 <script>
 (()=>{let deferredPrompt=null;const btn=()=>document.getElementById("pwaInstallBtn");
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=btn();if(b)b.hidden=false;});
