@@ -5874,3 +5874,47 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
   color:#64748b!important;
   opacity:1!important;
 }
+
+
+/* Customer login / My Shops & Khata: replace washed-out white and pale text
+   on light cards with readable dark ink; keep the dark identity banner light. */
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen
+ :where(h1,h2,h3,h4,p,span,small,b,strong,label,li){
+  color:#263b36!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-exec-hero
+ :where(span,small,b,strong,h1,h2,h3,p){
+  color:#f5fff9!important;
+  opacity:1!important;
+}
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-exec-identity>span{
+  color:#c8f5df!important;
+}
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-exec-identity h2{
+  color:#ffe29a!important;
+}
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-exec-identity small{
+  color:#f5fff9!important;
+}
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-exec-summary small,
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-exec-section-title small,
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-record-main small,
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-record-items,
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-muted-note,
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-customer-shop-row small,
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-customer-item-card small{
+  color:#52665f!important;
+  opacity:1!important;
+}
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-record-amount,
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-customer-item-card strong{
+  color:#173e30!important;
+}
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-customer-contact-actions a{
+  color:#145c3d!important;
+}
+#modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-exec-private{
+  color:#43574f!important;
+}
