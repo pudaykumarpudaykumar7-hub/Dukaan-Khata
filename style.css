@@ -5920,3 +5920,10 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 #modal:has(.dk-customer-detail) .dk-customer-history-payment small{font-size:13px!important;line-height:1.45!important}
 #modal:has(.dk-customer-detail) .dk-customer-history-payment>b{font-size:15px!important}
 #modal:has(.dk-customer-detail) .dk-customer-delete{font-size:15px!important}
+
+
+/* Customer details popup: slightly smaller frame while retaining readable text and scrolling. */
+#modal:has(.dk-customer-detail) .sheet{width:min(calc(100% - 28px),640px)!important;max-height:88dvh!important;border-radius:18px!important}
+@media(max-width:600px){
+ #modal:has(.dk-customer-detail) .sheet{width:calc(100% - 24px)!important;max-height:90dvh!important;margin:0 auto!important;border-radius:18px!important}
+}
