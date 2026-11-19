@@ -5935,3 +5935,11 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 @media(max-width:600px){
  #modal:has(.dk-customer-detail) .sheet{width:calc(100% - 40px)!important;max-height:76dvh!important;margin:auto!important;border-radius:20px!important}
 }
+
+
+/* Match the customer popup to the supplied floating-card reference. */
+#modal:has(.dk-customer-detail){align-items:center!important;justify-content:center!important}
+#modal:has(.dk-customer-detail) .sheet{box-sizing:border-box!important;width:calc(100% - 40px)!important;max-width:640px!important;height:auto!important;max-height:73dvh!important;min-height:0!important;margin:auto!important;border-radius:24px!important;overflow-x:hidden!important;overflow-y:auto!important}
+@media(max-width:600px){
+ #modal:has(.dk-customer-detail) .sheet{width:calc(100% - 40px)!important;max-height:73dvh!important;border-radius:24px!important}
+}
