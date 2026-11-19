@@ -5832,3 +5832,45 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 /* Keep long-press deletion active without displaying its instruction text. */
 #modal .dk-customer-detail [data-long-delete] .long-press-hint,
 #modal .dk-customer-detail .dk-long-press-hint{display:none!important}
+
+
+/* App-wide readability pass: high-contrast labels and totals */
+.khata-total-card,
+#modal .khata-total-card{
+  color:#ffffff!important;
+  background:linear-gradient(120deg,#052b24 0%,#075b43 55%,#08734d 100%)!important;
+  border:1.5px solid #72e6b0!important;
+  box-shadow:0 10px 26px #002b1d55!important;
+}
+.khata-total-card span,
+#modal .khata-total-card span{
+  color:#ffffff!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  text-shadow:0 1px 3px #001b14!important;
+}
+.khata-total-card strong,
+#modal .khata-total-card strong{
+  color:#fff2a8!important;
+  font-size:27px!important;
+  font-weight:950!important;
+  text-shadow:0 2px 5px #001b14!important;
+}
+:where(.card,.stat,.customer,.bill,.item,.activity,.sheet,.dk-modal,.dk-access-shell) :where(.muted,small,.hint,.helper-text,.subtext,.description,.empty-state){
+  color:#d5e2ed!important;
+  opacity:1!important;
+}
+:where(.card,.stat,.customer,.bill,.item,.activity,.sheet,.dk-modal,.dk-access-shell) :where(label,.field-label,.section-label){
+  color:#f1f5f9!important;
+  opacity:1!important;
+}
+:where(.card,.stat,.customer,.bill,.item,.activity,.sheet,.dk-modal,.dk-access-shell) :where(p,li){
+  text-shadow:0 1px 1px #00000018;
+}
+:where(.card,.stat,.customer,.bill,.item,.activity,.sheet,.dk-modal,.dk-access-shell) :where(input,select,textarea){
+  color:#111827!important;
+}
+:where(.card,.stat,.customer,.bill,.item,.activity,.sheet,.dk-modal,.dk-access-shell) :where(input,select,textarea)::placeholder{
+  color:#64748b!important;
+  opacity:1!important;
+}
