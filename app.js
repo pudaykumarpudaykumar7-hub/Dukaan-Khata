@@ -438,11 +438,11 @@ function addManyRow(name="",price=""){
   name=typeof name==="string"?name:"";price=typeof price==="string"||typeof price==="number"?price:"";
  const box=document.getElementById("manyRows");if(!box)return;
  const row=document.createElement("div");row.className="khata-item-row many-row";
- row.innerHTML='<div class="khata-item-number"></div><div class="khata-item-fields"><label>Item name<input class="many-name" placeholder="Item name" autocomplete="off"></label><label>Amount (₹)<input class="many-price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></label></div><button class="khata-row-mic many-mic" type="button" title="Speak this item">🎙️</button><button class="khata-row-remove many-remove" type="button" aria-label="Remove item">×</button>';
+ row.innerHTML='<div class="khata-item-number"></div><div class="khata-item-fields"><label>Item name<input class="many-name" placeholder="Item name" autocomplete="off" enterkeyhint="next"></label><label>Amount (₹)<input class="many-price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" enterkeyhint="next"></label></div><button class="khata-row-mic many-mic" type="button" title="Speak this item">🎙️</button><button class="khata-row-remove many-remove" type="button" aria-label="Remove item">×</button>';
  box.appendChild(row);row.querySelector(".many-name").value=name;row.querySelector(".many-price").value=price;
- row.querySelector(".many-price")?.addEventListener("input",recalcManyItems);
+ row.querySelector(".many-price")?.addEventListener("input",recalcManyItems);\n  row.querySelector(".many-name")?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();row.querySelector(".many-price")?.focus()}});\n  row.querySelector(".many-price")?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();const nextRow=addManyRow();nextRow?.querySelector(".many-name")?.focus()}});
  row.querySelector(".many-mic")?.addEventListener("click",()=>speakManyItem(row));
- row.querySelector(".many-remove")?.addEventListener("click",()=>{row.remove();renumberManyRows();recalcManyItems()});
+ row.querySelector(".many-remove")?.addEventListener("click",()=>{row.remove();renumberManyRows();recalcManyItems();return row});
  renumberManyRows();recalcManyItems()
 }
 function renumberManyRows(){document.querySelectorAll("#manyRows .many-row").forEach((r,i)=>{const n=r.querySelector(".khata-item-number");if(n)n.textContent=String(i+1).padStart(2,"0")})}
