@@ -5896,3 +5896,27 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 #modal:has(.dk-customer-detail) .dk-customer-detail{display:block!important;min-height:min-content!important;overflow:visible!important;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))!important}
 #modal:has(.dk-customer-detail) .dk-customer-detail>*{max-width:100%!important}
 @media(max-width:600px){#modal:has(.dk-customer-detail) .sheet{width:100%!important;max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 10px)!important;border-radius:18px 18px 0 0!important}}
+
+
+/* Customer details: moderate text-size increase for easier reading. */
+#modal:has(.dk-customer-detail) .dk-customer-detail{font-size:15px!important;line-height:1.5!important}
+#modal:has(.dk-customer-detail) .dk-customer-detail h2{font-size:23px!important;line-height:1.28!important}
+#modal:has(.dk-customer-detail) .dk-customer-detail>p{font-size:15px!important;line-height:1.5!important}
+#modal:has(.dk-customer-detail) .dk-customer-due-line{font-size:25px!important;line-height:1.3!important}
+#modal:has(.dk-customer-detail) .dk-customer-due-line small{font-size:15px!important}
+#modal:has(.dk-customer-detail) .dk-customer-add-items{font-size:16px!important}
+#modal:has(.dk-customer-detail) .dk-customer-detail h3{font-size:18px!important;line-height:1.35!important}
+#modal:has(.dk-customer-detail) .dk-customer-khata-item{font-size:15px!important;line-height:1.5!important}
+#modal:has(.dk-customer-detail) .dk-customer-khata-item small{font-size:13px!important;line-height:1.45!important}
+#modal:has(.dk-customer-detail) .dk-customer-khata-item>b{font-size:15px!important}
+#modal:has(.dk-customer-detail) .dk-customer-action-row .btn{font-size:13.5px!important}
+#modal:has(.dk-customer-detail) .dk-customer-reminder label{font-size:14px!important;line-height:1.45!important}
+#modal:has(.dk-customer-detail) .dk-customer-reminder small{font-size:13px!important;line-height:1.5!important}
+#modal:has(.dk-customer-detail) .dk-customer-history-sale{font-size:14px!important;line-height:1.45!important}
+#modal:has(.dk-customer-detail) .dk-customer-history-sale .line,
+#modal:has(.dk-customer-detail) .dk-customer-history-sale .line b{font-size:15px!important;line-height:1.45!important}
+#modal:has(.dk-customer-detail) .dk-customer-history-sale small{font-size:13px!important;line-height:1.5!important}
+#modal:has(.dk-customer-detail) .dk-customer-history-payment{font-size:14px!important;line-height:1.5!important}
+#modal:has(.dk-customer-detail) .dk-customer-history-payment small{font-size:13px!important;line-height:1.45!important}
+#modal:has(.dk-customer-detail) .dk-customer-history-payment>b{font-size:15px!important}
+#modal:has(.dk-customer-detail) .dk-customer-delete{font-size:15px!important}
