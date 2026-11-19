@@ -574,19 +574,26 @@ async function openFamilyControl(){
  dkRenderFamilyControl();
 }
 function dkRenderFamilyControl(){
- const groups=Array.isArray(state.familyAccounts)?state.familyAccounts:[];
- const limit=dkFamilyPlanLimit(),month=dkFamilyMonthKey();
- const cards=groups.map(g=>{
-  const spent=dkFamilyGroupSpend(g);
-  const members=(g.members||[]).map(m=>{
-   const c=state.customers.find(x=>String(x.id)===String(m.customerId));
-   return `<div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid #e5e7eb"><span>${esc(c?.name||m.name||"Member")}<small style="display:block;color:#64748b">${esc(c?.phone||"")} · ${m.canPurchase===false?"Purchases off":"Purchases on"}</small></span><b>${money(dkFamilySpent(m.customerId))}</b></div>`;
-  }).join("");
-  return `<article class="card" style="padding:14px;margin:10px 0"><div style="display:flex;justify-content:space-between;gap:10px;align-items:start"><div><h3 style="margin:0 0 4px">${esc(g.name)}</h3><small class="muted">${(g.members||[]).length} members · ${month}</small></div><b>${money(spent)} / ${money(g.monthlyLimit)}</b></div><div style="height:8px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin:10px 0"><div style="height:100%;width:${Math.min(100,g.monthlyLimit?spent/g.monthlyLimit*100:0)}%;background:#16835e"></div></div>${members}<div class="row" style="margin-top:10px"><button class="btn" type="button" onclick="dkFamilyEdit('${esc(g.id)}')">Edit</button><button class="btn danger" type="button" onclick="dkFamilyDelete('${esc(g.id)}')">Delete</button></div></article>`;
- }).join("")||'<div class="card"><p>No family accounts created for this shop yet.</p></div>';
- modal(`<div><span class="eyebrow">OWNER TOOLS · THIS SHOP ONLY</span><h2>👨‍👩‍👧‍👦 Dukaan Family Control</h2><p class="muted">Each shop manages its own family accounts. Customers can see their family accounts separately under every registered shop.</p><div class="card" style="padding:12px;margin:12px 0"><b>Plan allowance</b><p style="margin:5px 0">${groups.length} / ${limit===Infinity?"Unlimited":limit} family accounts</p><small class="muted">Free: 50 · Pro ₹49: 150 · Premium ₹99: 250 · VIP ₹149: Unlimited</small></div><button class="btn primary" id="dkFamilyCreate" style="width:100%">＋ Create family account</button><h3 style="margin-top:18px">This shop's family accounts</h3>${cards}<button class="btn" style="width:100%" onclick="closeModal()">Close</button></div>`);
- document.getElementById("dkFamilyCreate")?.addEventListener("click",()=>dkFamilyEdit(""));
-}
+  const groups=Array.isArray(state.familyAccounts)?state.familyAccounts:[];
+  const limit=dkFamilyPlanLimit(),month=dkFamilyMonthKey();
+  const spentAll=groups.reduce((n,g)=>n+dkFamilyGroupSpend(g),0);
+  const cards=groups.map(g=>{
+   const spent=dkFamilyGroupSpend(g),cap=Math.max(0,Number(g.monthlyLimit)||0);
+   const members=(g.members||[]).map(m=>{
+    const c=state.customers.find(x=>String(x.id)===String(m.customerId));
+    const memberSpent=dkFamilySpent(m.customerId);
+    return `<div class="dk-family-member"><span class="dk-family-avatar">${esc(String(c?.name||m.name||"M").trim().slice(0,1).toUpperCase())}</span><span class="dk-family-member-info"><b>${esc(c?.name||m.name||"Member")}</b><small>${esc(c?.phone||"")}</small><small class="dk-family-permission ${m.canPurchase===false?"off":"on"}">${m.canPurchase===false?"Purchases disabled":"Purchases allowed"}</small></span><strong>${money(memberSpent)}</strong></div>`;
+   }).join("");
+   const pct=cap?Math.min(100,spent/cap*100):0;
+   return `<article class="dk-family-card"><div class="dk-family-card-top"><div><span class="dk-family-kicker">FAMILY ACCOUNT</span><h3>${esc(g.name)}</h3><small>${(g.members||[]).length} members</small></div><div class="dk-family-total"><b>${money(spent)}</b><small>of ${money(cap)}</small></div></div><div class="dk-family-progress"><span style="width:${pct}%"></span></div><div class="dk-family-progress-label"><span>Monthly spending</span><b>${Math.round(pct)}%</b></div><div class="dk-family-members">${members||'<p class="dk-family-empty">No members added</p>'}</div><div class="dk-family-actions"><button type="button" onclick="dkFamilyEdit('${esc(g.id)}')">Edit account</button><button type="button" class="delete" onclick="dkFamilyDelete('${esc(g.id)}')">Delete</button></div></article>`;
+  }).join("")||'<div class="dk-family-empty-state"><div>👨‍👩‍👧‍👦</div><h3>No family accounts yet</h3><p>Create an account to manage shared monthly spending.</p></div>';
+  const m=document.getElementById("modal"),b=document.getElementById("modalBody");
+  if(!m||!b)return;
+  m.classList.add("dk-family-fullscreen");
+  b.innerHTML=`<div class="dk-family-screen"><header class="dk-family-header"><button class="dk-family-back" type="button" onclick="closeModal();showPage('tools')">← <span>More</span></button><div class="dk-family-heading"><span class="dk-family-heading-icon">✦</span><div><h2>Family Control</h2><small>${esc(state.shop?.name||"My shop")}</small></div></div><button class="dk-family-add" id="dkFamilyCreate" type="button">＋ <span>Create</span></button></header><section class="dk-family-overview"><div><span>FAMILY ACCOUNTS</span><strong>${groups.length} <small>/ ${limit===Infinity?"∞":limit}</small></strong></div><div><span>THIS MONTH</span><strong>${money(spentAll)}</strong></div><div><span>MONTH</span><strong>${esc(month)}</strong></div></section><div class="dk-family-list-head"><h3>Your families</h3><span>${groups.length} total</span></div><section class="dk-family-list">${cards}</section></div>`;
+  document.getElementById("dkFamilyCreate")?.addEventListener("click",()=>dkFamilyEdit(""));
+  m.classList.remove("hidden");
+ }
 function dkFamilyEdit(id){
  const groups=Array.isArray(state.familyAccounts)?state.familyAccounts:[];
  const existing=groups.find(g=>String(g.id)===String(id));
