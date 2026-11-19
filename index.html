@@ -424,14 +424,14 @@ html body #uvmsLaunchSplash .uvms-launch-frame{z-index:3!important;}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js" defer></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js" defer></script>
 <script>(()=>{const h=new Date().getHours();const e=document.getElementById("greeting");if(e)e.textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+" 🙏";const d=document.getElementById("todayLabel");if(d)d.textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});})();</script>
-<script src="app.js?v=more-uniform-20261119" defer></script>
+<script src="app.js?v=family-carnival-20261119" defer></script>
 <script src="notifications.js?v=customer-push-toggle-20261114b" defer></script>
 <script src="auth.js?v=dukaan-family-control-20261119b" defer></script>
 
 <script src="i18n.js?v=shared-sync-20261030a" defer></script>
 <script src="more-routing.js?v=family-pass-visual-refresh-20261119" defer></script>
 </div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=more-uniform-20261119",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=family-carnival-20261119",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
 <script>
 (()=>{let deferredPrompt=null;const btn=()=>document.getElementById("pwaInstallBtn");
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=btn();if(b)b.hidden=false;});
@@ -628,6 +628,65 @@ window.openAppInstall=async function(){
 #modal:not(.dk-family-fullscreen) #modalBody select,
 #modal:not(.dk-family-fullscreen) #modalBody textarea{background:#fff!important;color:#172b3a!important;border:1px solid #8799a8!important;font-size:15px!important}
 #modal:not(.dk-family-fullscreen) #modalBody input::placeholder{color:#667784!important;opacity:1}
+</style>
+
+
+<style id="dk-family-fresh-carnival-20261119">
+/* Dukaan Family — fresh saffron, berry and ink dashboard; visual-only refresh */
+#modal.dk-family-fullscreen,#modal.dk-family-fullscreen .sheet{background:#f7f3ff!important}
+#modal.dk-family-fullscreen .dk-family-screen{
+ background:radial-gradient(ellipse at 8% 0%,#ffe5b8 0%,transparent 31%),linear-gradient(160deg,#fbf8ff 0%,#f2edfb 58%,#fff5e8 100%)!important;
+ color:#251b36!important;padding-top:calc(14px + env(safe-area-inset-top))!important
+}
+#modal.dk-family-fullscreen .dk-family-header{border:0!important;padding:8px 0 18px!important}
+#modal.dk-family-fullscreen .dk-family-back{background:#fff!important;color:#592b72!important;border:1px solid #e5d7ef!important;border-radius:15px!important;box-shadow:0 5px 16px #3a214010!important}
+#modal.dk-family-fullscreen .dk-family-heading-icon{background:linear-gradient(145deg,#6b3488,#a44c8c)!important;color:#fff!important;border-radius:15px!important;box-shadow:0 8px 20px #7a3d8d35!important}
+#modal.dk-family-fullscreen .dk-family-heading h2{color:#291b3d!important;font-size:21px!important;letter-spacing:-.5px!important}
+#modal.dk-family-fullscreen .dk-family-heading small{color:#756783!important}
+#modal.dk-family-fullscreen .dk-family-add{background:linear-gradient(110deg,#f2a93b,#e97843)!important;color:#321d29!important;border:0!important;border-radius:14px!important;box-shadow:0 8px 20px #e78b4035!important}
+#modal.dk-family-fullscreen .dk-family-overview{gap:12px!important;margin:18px 0 28px!important}
+#modal.dk-family-fullscreen .dk-family-overview>div{background:#fff!important;border:1px solid #e9def1!important;border-radius:21px!important;box-shadow:0 10px 26px #43245b0d!important;padding:18px!important}
+#modal.dk-family-fullscreen .dk-family-overview-main{background:linear-gradient(135deg,#55266f,#7b397f 62%,#a44b76)!important;border:0!important;box-shadow:0 14px 28px #65327630!important}
+#modal.dk-family-fullscreen .dk-family-overview-main :is(span,strong,small){color:#fff!important}
+#modal.dk-family-fullscreen .dk-family-overview-side :is(span,strong,small){color:#3b2948!important}
+#modal.dk-family-fullscreen .dk-family-section-label{color:#a35a35!important;font-size:10px!important;letter-spacing:1.6px!important}
+#modal.dk-family-fullscreen .dk-family-list-head h3{color:#291b3d!important;font-size:21px!important}
+#modal.dk-family-fullscreen .dk-family-count{color:#756783!important}
+#modal.dk-family-fullscreen .dk-family-list{gap:15px!important}
+#modal.dk-family-fullscreen .dk-family-card{position:relative!important;overflow:hidden!important;background:#fff!important;border:1px solid #e9def1!important;border-radius:21px!important;padding:17px!important;box-shadow:0 12px 28px #43245b10!important}
+#modal.dk-family-fullscreen .dk-family-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,#f1ad45,#a64c83)!important}
+#modal.dk-family-fullscreen .dk-family-kicker{color:#986c9e!important;font-weight:900!important}
+#modal.dk-family-fullscreen .dk-family-card h3{color:#2c1e3c!important;font-size:19px!important}
+#modal.dk-family-fullscreen .dk-family-card-top small,#modal.dk-family-fullscreen .dk-family-total small{color:#766b7f!important}
+#modal.dk-family-fullscreen .dk-family-total b,#modal.dk-family-fullscreen .dk-family-member>strong{color:#8a3f78!important}
+#modal.dk-family-fullscreen .dk-family-progress{height:9px!important;background:#eee6f3!important;border-radius:30px!important}
+#modal.dk-family-fullscreen .dk-family-progress span{background:linear-gradient(90deg,#f0a83d,#d96b55,#8d4386)!important;border-radius:30px!important}
+#modal.dk-family-fullscreen .dk-family-progress-label{color:#71677b!important}
+#modal.dk-family-fullscreen .dk-family-progress-label b{color:#8a3f78!important}
+#modal.dk-family-fullscreen .dk-family-member{border-color:#eee7f2!important;padding:11px 0!important}
+#modal.dk-family-fullscreen .dk-family-avatar{background:linear-gradient(145deg,#fbe7c4,#f3d8e9)!important;color:#713d70!important;width:38px!important;height:38px!important}
+#modal.dk-family-fullscreen .dk-family-member-info b{color:#30243d!important;font-size:14px!important}
+#modal.dk-family-fullscreen .dk-family-member-info small{color:#766b7f!important;font-size:13px!important}
+#modal.dk-family-fullscreen .dk-family-permission.on{color:#18734d!important;font-weight:800!important}
+#modal.dk-family-fullscreen .dk-family-permission.off{color:#b12f42!important;font-weight:800!important}
+#modal.dk-family-fullscreen .dk-family-actions{gap:9px!important;margin-top:13px!important}
+#modal.dk-family-fullscreen .dk-family-actions button{background:#f5eff9!important;color:#623a78!important;border:1px solid #e7d8ef!important;border-radius:12px!important;min-height:42px!important}
+#modal.dk-family-fullscreen .dk-family-actions button.delete{background:#fff0ed!important;color:#a83235!important;border-color:#f1d1cb!important}
+#modal.dk-family-fullscreen .dk-family-empty-state{background:#fff!important;border:1px dashed #d5bde1!important;border-radius:22px!important;box-shadow:0 10px 25px #43245b0b!important}
+#modal.dk-family-fullscreen .dk-family-empty-icon{background:#f5e8f5!important;color:#713d83!important;border-radius:18px!important}
+#modal.dk-family-fullscreen .dk-family-empty-state h3{color:#291b3d!important}
+#modal.dk-family-fullscreen .dk-family-empty-state p,#modal.dk-family-fullscreen .dk-family-empty{color:#6f6478!important}
+#modal.dk-family-fullscreen .dk-family-empty-state button{background:linear-gradient(110deg,#6b3488,#a44c8c)!important;color:#fff!important;border-radius:13px!important}
+#modal.dk-family-fullscreen .dk-family-footer{border-color:#e4d9ec!important;color:#756783!important}
+#modal.dk-family-fullscreen .dk-family-footer span:first-child{color:#8a477e!important}
+#modal.dk-family-fullscreen input,#modal.dk-family-fullscreen select,#modal.dk-family-fullscreen textarea{background:#fff!important;color:#291b3d!important;border:1px solid #d9c8e4!important}
+#modal.dk-family-fullscreen label{color:#594968!important}
+@media(max-width:420px){
+ #modal.dk-family-fullscreen .dk-family-screen{padding-left:13px!important;padding-right:13px!important}
+ #modal.dk-family-fullscreen .dk-family-overview>div{padding:14px!important}
+ #modal.dk-family-fullscreen .dk-family-card{padding:15px!important}
+ #modal.dk-family-fullscreen .dk-family-heading h2{font-size:18px!important}
+}
 </style>
 
 </body>
