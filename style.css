@@ -5943,3 +5943,10 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 @media(max-width:600px){
  #modal:has(.dk-customer-detail) .sheet{width:calc(100% - 40px)!important;max-height:73dvh!important;border-radius:24px!important}
 }
+
+
+/* Customer popup reference: centered floating white card with blurred backdrop. */
+#modal.dk-customer-modal{position:fixed!important;inset:0!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;background:rgba(9,20,28,.22)!important;backdrop-filter:blur(12px) saturate(125%)!important;-webkit-backdrop-filter:blur(12px) saturate(125%)!important;overflow:hidden!important}
+#modal.dk-customer-modal .sheet{width:calc(100% - 40px)!important;max-width:640px!important;height:auto!important;max-height:74dvh!important;min-height:0!important;margin:auto!important;padding:22px 18px 24px!important;border-radius:24px!important;background:#fff!important;color:#17212b!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;box-shadow:0 18px 55px rgba(0,0,0,.22)!important}
+#modal.dk-customer-modal .dk-customer-detail{padding-bottom:14px!important}
+@media(max-width:600px){#modal.dk-customer-modal .sheet{width:calc(100% - 40px)!important;max-height:74dvh!important;padding:20px 16px 22px!important;border-radius:24px!important}}
