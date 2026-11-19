@@ -1,5 +1,5 @@
 importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js","https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js");
-firebase.initializeApp({apiKey:"AIzaSyCaNvRS-tiVHWP6zFlxPlUMxRZoUGg2Fi0",authDomain:"dukaan-khata-a517c.firebaseapp.com",projectId:"dukaan-khata-a517c",storageBucket:"dukaan-khata-a517c.firebasestorage.app",messagingSenderId:"320689548893",appId:"1:320689548893:web:4bd715518e9c9052a4",measurementId:"G-WREN34MCQD"});
+firebase.initializeApp({apiKey:"AIzaSyCaNvRS-tiVHWP6zFlxPlUMxRZoUGg2Fi0",authDomain:"dukaan-khata-customer-detail-compact-v187",projectId:"dukaan-khata-a517c",storageBucket:"dukaan-khata-a517c.firebasestorage.app",messagingSenderId:"320689548893",appId:"1:320689548893:web:4bd715518e9c9052a4",measurementId:"G-WREN34MCQD"});
 const messaging=firebase.messaging();
 messaging.onBackgroundMessage(payload=>{
  // FCM automatically displays payloads that include `notification` while the app is in the background.
