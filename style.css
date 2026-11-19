@@ -5927,3 +5927,11 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 @media(max-width:600px){
  #modal:has(.dk-customer-detail) .sheet{width:calc(100% - 24px)!important;max-height:90dvh!important;margin:0 auto!important;border-radius:18px!important}
 }
+
+
+/* Customer details popup: compact floating dialog. */
+#modal:has(.dk-customer-detail){align-items:center!important;justify-content:center!important}
+#modal:has(.dk-customer-detail) .sheet{width:min(calc(100% - 64px),560px)!important;max-height:76dvh!important;margin:auto!important;border-radius:20px!important;overflow-y:auto!important}
+@media(max-width:600px){
+ #modal:has(.dk-customer-detail) .sheet{width:calc(100% - 40px)!important;max-height:76dvh!important;margin:auto!important;border-radius:20px!important}
+}
