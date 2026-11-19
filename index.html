@@ -16,7 +16,7 @@
 <meta property="og:url" content="https://pudaykumarpudaykumar7-hub.github.io/Dukaan-Khata/">
 <meta name="google-site-verification" content="9TJR6x5ShPc2EcFDK1DGejwwnXdzMP5_U1Ne_iRlhpg" />
 <link rel="manifest" href="manifest.json?v=cloud-sync-release-20261029a"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="icon" type="image/svg+xml" href="favicon.svg?v=uvms-brand-v2"><link rel="shortcut icon" href="favicon.svg?v=uvms-brand-v2"><link rel="apple-touch-icon" href="favicon.svg?v=uvms-brand-v2">
-<link rel="stylesheet" href="style.css?v=family-pass-mix-force-20261119">
+<link rel="stylesheet" href="style.css?v=family-pass-inline-mix-v186">
 <title>UVMS Dukaan Khata - Digital Khata &amp; Shop Management App</title>
 <script type="application/ld+json">
 {
@@ -410,8 +410,8 @@ html body #uvmsLaunchSplash .uvms-launch-frame{z-index:3!important;}
 <button class="luxury-tool" data-more-feature="customer-contact" onclick="openCustomerHub()">👥<b>Customer Contact</b><small>WhatsApp • Call • SMS • Due reminders</small></button>
 <button class="luxury-tool" data-more-feature="subscription-plans" onclick="openSubscriptionPlans()">₹<b>Subscriptions</b><small>Free • Pro ₹50 • Premium ₹100 • Ultra Premium ₹149 / month</small></button>
 <button class="luxury-tool" data-more-feature="login-access" onclick="openDukaanLogin()">🔐<b>Login Access</b><small>Google login • Mobile cloud backup • Laptop local only</small></button>
-<button class="luxury-tool" data-more-feature="digital-app-pass" onclick="openDigitalPass()">🎫<b>Digital App Pass</b><small>Premium shop identity • QR • Owner details</small></button>
-<button class="luxury-tool" data-more-feature="family-card" onclick="openFamilyControl()">👨‍👩‍👧‍👦<b>Dukaan Family Card</b><small>Family accounts • Monthly limits • Member permissions</small></button>
+<button class="luxury-tool" data-more-feature="digital-app-pass" style="background:linear-gradient(120deg,#dce9ff 0%,#c9d5ff 32%,#e7caff 66%,#ffd8ec 100%)!important;border:1.5px solid #aeb9f2!important;color:#29245f!important;box-shadow:0 12px 28px #5546a52b!important" onclick="openDigitalPass()">🎫<b>Digital App Pass</b><small>Premium shop identity • QR • Owner details</small></button>
+<button class="luxury-tool" data-more-feature="family-card" style="background:linear-gradient(120deg,#ffe0d2 0%,#ffd0ce 32%,#f5c8e7 66%,#e5d5ff 100%)!important;border:1.5px solid #e8b2cf!important;color:#64284d!important;box-shadow:0 12px 28px #a4437430!important" onclick="openFamilyControl()">👨‍👩‍👧‍👦<b>Dukaan Family Card</b><small>Family accounts • Monthly limits • Member permissions</small></button>
 
 
 
@@ -424,14 +424,14 @@ html body #uvmsLaunchSplash .uvms-launch-frame{z-index:3!important;}
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js" defer></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js" defer></script>
 <script>(()=>{const h=new Date().getHours();const e=document.getElementById("greeting");if(e)e.textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+" 🙏";const d=document.getElementById("todayLabel");if(d)d.textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"});})();</script>
-<script src="app.js?v=family-carnival-contrastfix-20261119" defer></script>
+<script src="app.js?v=family-pass-inline-mix-v186" defer></script>
 <script src="notifications.js?v=customer-push-toggle-20261114b" defer></script>
 <script src="auth.js?v=dukaan-family-control-20261119b" defer></script>
 
 <script src="i18n.js?v=shared-sync-20261030a" defer></script>
 <script src="more-routing.js?v=family-pass-visual-refresh-20261119" defer></script>
 </div>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=family-carnival-contrastfix-20261119",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",async()=>{try{const reg=await navigator.serviceWorker.register("./sw.js?v=family-pass-inline-mix-v186",{updateViaCache:"none"});await reg.update();}catch(e){}});}</script>
 <script>
 (()=>{let deferredPrompt=null;const btn=()=>document.getElementById("pwaInstallBtn");
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;const b=btn();if(b)b.hidden=false;});
