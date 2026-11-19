@@ -5782,3 +5782,27 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 #modal button.dsp-banner{width:100%!important;min-height:74px!important;appearance:none!important;-webkit-appearance:none!important;text-align:left!important;font:inherit!important;cursor:pointer!important;touch-action:manipulation!important;position:relative!important;z-index:5!important}
 #modal button.dsp-banner:focus-visible{outline:3px solid #26d5f2!important;outline-offset:3px!important}
 #modal button.dsp-banner:active,#modal button.dsp-banner.dsp-banner-activated{transform:translateY(1px);box-shadow:0 0 20px #25d5f266!important}
+
+
+/* More menu only: fresh mixed-colour tiles for Digital App Pass and Dukaan Family Card.
+   These selectors are deliberately scoped to #tools; modal interiors are untouched. */
+#tools [data-more-feature="digital-app-pass"]{
+ background-image:linear-gradient(125deg,#d9e8ff 0%,#c8d7ff 36%,#e7caff 70%,#ffd9e8 100%)!important;
+ background-color:#d9e8ff!important;border:1.5px solid #b6b9f4!important;
+ color:#29245f!important;box-shadow:0 12px 28px #5546a51f,inset 0 1px #ffffffd9!important;
+ background-size:220% 220%!important;animation:dkLiveShimmer 12s ease-in-out infinite,dkLiveBorder 8s ease-in-out infinite;
+}
+#tools [data-more-feature="digital-app-pass"] b{color:#28245f!important;font-weight:900!important}
+#tools [data-more-feature="digital-app-pass"] small{color:#4c477d!important;opacity:1!important;filter:none!important}
+#tools [data-more-feature="digital-app-pass"]::before{background:linear-gradient(145deg,#536be8,#9c5de5 58%,#dc78b5)!important;color:#fff!important;box-shadow:0 7px 18px #6852c344!important}
+#tools [data-more-feature="family-card"]{
+ background-image:linear-gradient(125deg,#ffe0d2 0%,#ffd1c9 34%,#f8c9e5 68%,#e8d5ff 100%)!important;
+ background-color:#ffe0d2!important;border:1.5px solid #edb6d0!important;
+ color:#64284d!important;box-shadow:0 12px 28px #a4437420,inset 0 1px #ffffffd9!important;
+ background-size:220% 220%!important;animation:dkLiveShimmer 12s ease-in-out infinite,dkLiveBorder 8s ease-in-out infinite;
+}
+#tools [data-more-feature="family-card"] b{color:#632747!important;font-weight:900!important}
+#tools [data-more-feature="family-card"] small{color:#854c70!important;opacity:1!important;filter:none!important}
+#tools [data-more-feature="family-card"]::before{background:linear-gradient(145deg,#ec7897,#bb5bb2 58%,#805be2)!important;color:#fff!important;box-shadow:0 7px 18px #b4519640!important}
+#tools [data-more-feature="digital-app-pass"]:hover,#tools [data-more-feature="family-card"]:hover{transform:translateY(-3px)!important;filter:saturate(1.08)!important}
+@media(prefers-reduced-motion:reduce){#tools [data-more-feature="digital-app-pass"],#tools [data-more-feature="family-card"]{animation:none!important}}
