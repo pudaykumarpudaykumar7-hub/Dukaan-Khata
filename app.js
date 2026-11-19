@@ -4,20 +4,23 @@ try{localStorage.removeItem("dukaan_payment_api");localStorage.removeItem("dukaa
 let state=loadState(),khataFilter="all",customerStatusFilter="all",longPress=null,suppressClickUntil=0;
 Object.defineProperty(window,"state",{configurable:true,get:()=>state,set:v=>{state=v}});
 
-function defaults(){return{shop:{name:"My Dukaan",owner:"Shop Owner",phone:"",upi:"",address:""},customers:[],tx:[],expenses:[],returns:[],reminders:[],deletedCustomerIds:[],deletedRecordIds:{tx:[],expenses:[],returns:[],reminders:[]},settings:{theme:"light",language:"English"}}}
+function defaults(){return{shop:{name:"My Dukaan",owner:"Shop Owner",phone:"",upi:"",address:""},customers:[],tx:[],expenses:[],returns:[],reminders:[],familyAccounts:[],deletedCustomerIds:[],deletedFamilyAccountIds:[],deletedRecordIds:{tx:[],expenses:[],returns:[],reminders:[]},settings:{theme:"light",language:"English"}}}
 function loadState(){
   try{
     const raw=localStorage.getItem(KEY)||localStorage.getItem("dukaan_khata_infinity_v1");
     const x=raw?JSON.parse(raw):{};
     const savedTheme=localStorage.getItem("dukaan_khata_background_theme");
     const deletedCustomerIds=Array.from(new Set((Array.isArray(x.deletedCustomerIds)?x.deletedCustomerIds:[]).map(String)));
+    const deletedFamilyAccountIds=Array.from(new Set((Array.isArray(x.deletedFamilyAccountIds)?x.deletedFamilyAccountIds:[]).map(String)));
+    const deletedFamilies=new Set(deletedFamilyAccountIds);
+    const familyAccounts=(Array.isArray(x.familyAccounts)?x.familyAccounts:[]).filter(f=>!deletedFamilies.has(String(f?.id)));
     const deleted=new Set(deletedCustomerIds);
     const deletedRecordIds={...(x.deletedRecordIds||{})};
     for(const k of ["tx","expenses","returns","reminders"])deletedRecordIds[k]=Array.from(new Set((Array.isArray(deletedRecordIds[k])?deletedRecordIds[k]:[]).map(String)));
     const customers=(Array.isArray(x.customers)?x.customers:[]).filter(c=>!deleted.has(String(c?.id)));
     const tx=(Array.isArray(x.tx)?x.tx:[]).filter(t=>!deleted.has(String(t?.customerId??t?.customer_id??"")));
     const reminders=(Array.isArray(x.reminders)?x.reminders:[]).filter(r=>!deleted.has(String(r?.customerId??r?.customer_id??"")));
-    return {...defaults(),...x,shop:{...defaults().shop,...(x.shop||{})},settings:{...defaults().settings,...(x.settings||{}),theme:(savedTheme==="dark"||savedTheme==="light")?savedTheme:((x.settings||{}).theme==="dark"?"dark":"light")},customers,tx,
+    return {...defaults(),...x,shop:{...defaults().shop,...(x.shop||{})},settings:{...defaults().settings,...(x.settings||{}),theme:(savedTheme==="dark"||savedTheme==="light")?savedTheme:((x.settings||{}).theme==="dark"?"dark":"light")},customers,tx,familyAccounts,deletedFamilyAccountIds,
       expenses:(Array.isArray(x.expenses)?x.expenses:[]).filter(v=>!deletedRecordIds.expenses.includes(String(v?.id))),returns:(Array.isArray(x.returns)?x.returns:[]).filter(v=>!deletedRecordIds.returns.includes(String(v?.id))),reminders:reminders.filter(v=>!deletedRecordIds.reminders.includes(String(v?.id))),tx:tx.filter(v=>!deletedRecordIds.tx.includes(String(v?.id))),deletedRecordIds,deletedCustomerIds};
   }catch(e){return defaults()}
 }
@@ -541,7 +544,85 @@ function speakAllManyItems(){
   },btn)
 }
 function recalcManyItems(){let total=0;document.querySelectorAll("#manyRows .many-row").forEach(r=>total+=Math.max(0,Number(r.querySelector(".many-price")?.value)||0));const e=document.getElementById("manyTotal");if(e)e.textContent=money(total)}
-function saveManyItems(customerId){if(!dkCheckSubscription("bill"))return;const lines=[];document.querySelectorAll("#manyRows .many-row").forEach(r=>{const name=(r.querySelector(".many-name")?.value||"").trim(),price=Number(r.querySelector(".many-price")?.value)||0;if(name&&price>0)lines.push({name,qty:1,price,total:price})});if(!lines.length)return toast("Add item name and price");const total=lines.reduce((s,x)=>s+x.total,0);state.tx.unshift({id:uid(),type:"sale",customerId,total,paid:0,mode:"credit",lines,date:new Date().toISOString()});saveState();closeModal();render();toast("Items saved to Khata");const billCustomer=state.customers.find(x=>x.id===customerId);window.dkNotify?.("New bill saved",(billCustomer?.name||"Customer")+" • "+money(total))}
+function saveManyItems(customerId){if(!dkCheckSubscription("bill"))return;const lines=[];document.querySelectorAll("#manyRows .many-row").forEach(r=>{const name=(r.querySelector(".many-name")?.value||"").trim(),price=Number(r.querySelector(".many-price")?.value)||0;if(name&&price>0)lines.push({name,qty:1,price,total:price})});if(!lines.length)return toast("Add item name and price");const total=lines.reduce((s,x)=>s+x.total,0);if(!dkFamilyPurchaseAllowed(customerId,total))return;state.tx.unshift({id:uid(),type:"sale",customerId,total,paid:0,mode:"credit",lines,date:new Date().toISOString()});saveState();closeModal();render();toast("Items saved to Khata");const billCustomer=state.customers.find(x=>x.id===customerId);window.dkNotify?.("New bill saved",(billCustomer?.name||"Customer")+" • "+money(total))}
+
+
+function dkFamilyMonthKey(){return new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit"}).format(new Date())}
+function dkFamilySpent(customerId){
+ const month=dkFamilyMonthKey();
+ return (Array.isArray(state.tx)?state.tx:[]).filter(t=>t.type==="sale"&&String(t.customerId??t.customer_id??"")===String(customerId)&&(()=>{const d=new Date(t.date||t.createdAt||t.created||0);return !Number.isNaN(d.getTime())&&new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit"}).format(d)===month})()).reduce((sum,t)=>sum+Math.max(0,Number(t.total)||0),0);
+}
+function dkFamilyGroupSpend(group){return (Array.isArray(group?.members)?group.members:[]).reduce((sum,m)=>sum+dkFamilySpent(m.customerId),0)}
+function dkFamilyPlanLimit(){const plan=String(state.settings?.subscriptionPlan||"free");return plan==="pro"?5:plan==="premium"?25:plan==="ultra-premium"?Infinity:1}
+function dkFamilyPurchaseAllowed(customerId,amount){
+ if(!customerId)return true;
+ const group=(Array.isArray(state.familyAccounts)?state.familyAccounts:[]).find(g=>(Array.isArray(g.members)?g.members:[]).some(m=>String(m.customerId)===String(customerId)));
+ if(!group)return true;
+ const member=group.members.find(m=>String(m.customerId)===String(customerId));
+ if(member?.canPurchase===false){toast("Family Control: this member's purchase permission is disabled. Ask the shop owner.");return false}
+ const memberSpent=dkFamilySpent(customerId),familySpent=dkFamilyGroupSpend(group),memberLimit=Math.max(0,Number(member?.individualLimit)||0),familyLimit=Math.max(0,Number(group.monthlyLimit)||0);
+ const warnings=[];
+ if(memberLimit>0&&memberSpent+amount>memberLimit)warnings.push("This member will exceed their monthly limit of "+money(memberLimit)+".");
+ if(familyLimit>0&&familySpent+amount>familyLimit)warnings.push("This family will exceed its monthly limit of "+money(familyLimit)+".");
+ if(warnings.length&&!window.confirm("Family Control warning\n"+warnings.join("\n")+"\n\nContinue and record this Khata purchase anyway?"))return false;
+ return true;
+}
+async function openFamilyControl(){
+ const sb=window.dkSupabase;
+ if(!sb){toast("Owner login is required to manage Family Control.");window.openDukaanLogin?.();return}
+ try{const {data:{session}}=await sb.auth.getSession();if(!session?.user){toast("Please sign in as the shop owner first.");window.openDukaanLogin?.();return}}catch(e){toast("Could not verify owner login. Please try again.");return}
+ dkRenderFamilyControl();
+}
+function dkRenderFamilyControl(){
+ const groups=Array.isArray(state.familyAccounts)?state.familyAccounts:[];
+ const limit=dkFamilyPlanLimit(),month=dkFamilyMonthKey();
+ const cards=groups.map(g=>{
+  const spent=dkFamilyGroupSpend(g),members=(g.members||[]).map(m=>{const c=state.customers.find(x=>String(x.id)===String(m.customerId));return '<div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid #e5e7eb"><span>'+esc(c?.name||m.name||"Member")+'<small style="display:block;color:#64748b">'+esc(c?.phone||"")+' · '+(m.canPurchase===false?"Purchases off":"Purchases on")+'</small></span><b>'+money(dkFamilySpent(m.customerId))+'</b></div>'}).join("");
+  return '<article class="card" style="padding:14px;margin:10px 0"><div style="display:flex;justify-content:space-between;gap:10px;align-items:start"><div><h3 style="margin:0 0 4px">'+esc(g.name)+'</h3><small class="muted">'+(g.members||[]).length+' members · '+month+'</small></div><b>'+money(spent)+' / '+money(g.monthlyLimit)+'</b></div><div style="height:8px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin:10px 0"><div style="height:100%;width:'+Math.min(100,g.monthlyLimit?spent/g.monthlyLimit*100:0)+'%;background:#16835e"></div></div>'+members+'<div class="row" style="margin-top:10px"><button class="btn" type="button" onclick="dkFamilyEdit(\''+esc(g.id)+'\')">Edit</button><button class="btn danger" type="button" onclick="dkFamilyDelete(\''+esc(g.id)+'\')">Delete</button></div></article>';
+ }).join("")||'<div class="card"><p>No family accounts created for this shop yet.</p></div>';
+ modal('<div><span class="eyebrow">OWNER TOOLS · THIS SHOP ONLY</span><h2>👨‍👩‍👧‍👦 Dukaan Family Control</h2><p class="muted">Each shop manages its own family accounts. Customers can see their family accounts separately under every registered shop.</p><div class="card" style="padding:12px;margin:12px 0"><b>Plan allowance</b><p style="margin:5px 0">'+groups.length+' / '+(limit===Infinity?"Unlimited":limit)+' family accounts</p><small class="muted">Free: 1 · Pro: 5 · Premium: 25 · VIP: Unlimited</small></div><button class="btn primary" id="dkFamilyCreate" style="width:100%">＋ Create family account</button><h3 style="margin-top:18px">This shop's family accounts</h3>'+cards+'<button class="btn" style="width:100%" onclick="closeModal()">Close</button></div>');
+ document.getElementById("dkFamilyCreate")?.addEventListener("click",()=>dkFamilyEdit(""));
+}
+function dkFamilyEdit(id){
+ const groups=Array.isArray(state.familyAccounts)?state.familyAccounts:[];
+ const existing=groups.find(g=>String(g.id)===String(id));
+ const limit=dkFamilyPlanLimit();
+ if(!existing&&groups.length>=limit){toast("Your plan's family-account limit is reached. Upgrade to add more.");return}
+ const current=new Map((existing?.members||[]).map(m=>[String(m.customerId),m]));
+ const blocked=new Set(groups.filter(g=>String(g.id)!==String(id)).flatMap(g=>(g.members||[]).map(m=>String(m.customerId))));
+ const customers=state.customers.filter(c=>String(c.phone||"").replace(/\D/g,"").slice(-10).length===10&&!blocked.has(String(c.id)));
+ const memberRows=customers.map(c=>{
+  const m=current.get(String(c.id)),checked=!!m;
+  return '<label style="display:grid;grid-template-columns:24px minmax(0,1fr) 112px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #e5e7eb"><input type="checkbox" data-family-member="'+esc(c.id)+'" '+(checked?"checked":"")+' style="width:20px;height:20px"><span><b>'+esc(c.name)+'</b><small style="display:block;color:#64748b">'+esc(c.phone)+'</small></span><input type="number" min="0" step="1" data-family-limit="'+esc(c.id)+'" value="'+(Number(m?.individualLimit)||0)+'" placeholder="No cap" aria-label="Individual monthly limit for '+esc(c.name)+'" style="width:100%;min-width:0;padding:9px;border:1px solid #d1d5db;border-radius:9px"></label>';
+ }).join("")||'<p class="muted">Add customers with valid mobile numbers before creating a family account.</p>';
+ modal('<div><span class="eyebrow">FAMILY ACCOUNT · '+esc(state.shop.name||"THIS SHOP")+'</span><h2>'+(existing?"Edit":"Create")+' Family Account</h2><label>Family name<input id="dkFamilyName" class="search" maxlength="80" value="'+esc(existing?.name||"")+'" placeholder="Example: Sharma Family"></label><label>Monthly family spending limit (₹)<input id="dkFamilyMonthlyLimit" class="search" type="number" min="1" step="1" value="'+(Number(existing?.monthlyLimit)||"")+'" placeholder="Example: 5000"></label><h3>Choose registered family members</h3><p class="muted">Select customers already registered in this shop. Set an optional individual monthly limit (₹); 0 means no individual limit.</p><div style="max-height:42vh;overflow:auto;padding:0 4px">'+memberRows+'</div><label style="display:flex;gap:9px;align-items:start;margin:14px 0"><input type="checkbox" id="dkFamilyConsent" style="width:20px;height:20px;margin-top:2px"><span>I confirm these customers have agreed to be linked and to share the family spending summary with the selected members.</span></label><button class="btn primary" id="dkFamilySave" style="width:100%">Save family account</button><button class="btn" style="width:100%;margin-top:8px" onclick="dkRenderFamilyControl()">Cancel</button></div>');
+ document.getElementById("dkFamilySave")?.addEventListener("click",()=>{
+  const name=String(document.getElementById("dkFamilyName")?.value||"").trim(),monthlyLimit=Number(document.getElementById("dkFamilyMonthlyLimit")?.value)||0;
+  const consent=!!document.getElementById("dkFamilyConsent")?.checked;
+  const selected=[...document.querySelectorAll("[data-family-member]:checked")];
+  if(!name){toast("Enter a family account name");return}
+  if(!(monthlyLimit>0)){toast("Enter a monthly family spending limit");return}
+  if(!selected.length){toast("Select at least one family member");return}
+  if(!consent){toast("Please confirm family members' consent before saving");return}
+  const members=selected.map(box=>{
+   const customer=state.customers.find(c=>String(c.id)===String(box.dataset.familyMember));
+   const individualLimit=Number(document.querySelector('[data-family-limit="'+CSS.escape(box.dataset.familyMember)+'"]')?.value)||0;
+   return {customerId:String(customer.id),name:String(customer.name||"Customer"),phone:String(customer.phone||""),individualLimit:Math.max(0,individualLimit),canPurchase:current.get(String(customer.id))?.canPurchase!==false};
+  });
+  const next={id:existing?.id||uid(),name,monthlyLimit,members,createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
+  state.familyAccounts=groups.filter(g=>String(g.id)!==String(next.id)).concat(next);
+  state.deletedFamilyAccountIds=(state.deletedFamilyAccountIds||[]).filter(x=>String(x)!==String(next.id));
+  saveState();toast("Family account saved");dkRenderFamilyControl();
+ });
+}
+function dkFamilyDelete(id){
+ const group=(state.familyAccounts||[]).find(g=>String(g.id)===String(id));if(!group)return;
+ deleteConfirm("Delete the "+group.name+" family account from this shop? Customer khata records will not be deleted.",()=>{
+  state.familyAccounts=state.familyAccounts.filter(g=>String(g.id)!==String(id));
+  state.deletedFamilyAccountIds=Array.from(new Set([...(state.deletedFamilyAccountIds||[]).map(String),String(id)]));
+  saveState();toast("Family account deleted");dkRenderFamilyControl();
+ });
+}
 
 function customerView(id){
  const c=state.customers.find(x=>x.id===id);if(!c)return;
