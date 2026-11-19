@@ -5889,3 +5889,10 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
  #modal .dk-customer-detail h2{font-size:21px!important}
  #modal .dk-customer-detail .dk-customer-action-row .btn{font-size:12.5px!important}
 }
+
+/* Customer details: reliable full-screen scrolling on mobile and desktop. */
+#modal:has(.dk-customer-detail){position:fixed!important;inset:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
+#modal:has(.dk-customer-detail) .sheet{box-sizing:border-box!important;width:min(100%,680px)!important;max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 16px)!important;height:auto!important;min-height:0!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;scrollbar-width:thin!important}
+#modal:has(.dk-customer-detail) .dk-customer-detail{display:block!important;min-height:min-content!important;overflow:visible!important;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))!important}
+#modal:has(.dk-customer-detail) .dk-customer-detail>*{max-width:100%!important}
+@media(max-width:600px){#modal:has(.dk-customer-detail) .sheet{width:100%!important;max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 10px)!important;border-radius:18px 18px 0 0!important}}
