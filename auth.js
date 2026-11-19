@@ -67,6 +67,12 @@
     ].map(String)));
     const deleted=new Set(deletedCustomerIds);
     out.deletedCustomerIds=deletedCustomerIds;
+    const deletedFamilyAccountIds=Array.from(new Set([
+      ...(Array.isArray(a.deletedFamilyAccountIds)?a.deletedFamilyAccountIds:[]),
+      ...(Array.isArray(b.deletedFamilyAccountIds)?b.deletedFamilyAccountIds:[])
+    ].map(String)));
+    const deletedFamilies=new Set(deletedFamilyAccountIds);
+    out.deletedFamilyAccountIds=deletedFamilyAccountIds;
     const deletedRecordIds={...(b.deletedRecordIds||{}),...(a.deletedRecordIds||{})};
     for(const key of ["tx","expenses","returns","reminders"]){
       deletedRecordIds[key]=Array.from(new Set([
@@ -75,7 +81,7 @@
       ].map(String)));
     }
     out.deletedRecordIds=deletedRecordIds;
-    for(const key of ["customers","tx","expenses","returns","reminders"]){
+    for(const key of ["customers","tx","expenses","returns","reminders","familyAccounts"]){
       const first=Array.isArray(a[key])?a[key]:[];
       const second=Array.isArray(b[key])?b[key]:[];
       const map=new Map();
@@ -84,6 +90,7 @@
       out[key]=Array.from(map.values());
     }
     out.customers=out.customers.filter(item=>!deleted.has(String(item?.id)));
+    out.familyAccounts=out.familyAccounts.filter(item=>!deletedFamilies.has(String(item?.id)));
     for(const key of ["tx","expenses","returns","reminders"]){
       const ids=new Set(deletedRecordIds[key]);
       out[key]=out[key].filter(item=>!ids.has(String(item?.id)));
@@ -115,7 +122,7 @@
     const l=local&&typeof local==="object"?local:{};
     const c=cloud&&typeof cloud==="object"?cloud:{};
     const out=mergeStates(c,l);
-    for(const key of ["customers","tx","expenses","returns","reminders"]){
+    for(const key of ["customers","tx","expenses","returns","reminders","familyAccounts"]){
       const bm=new Map((Array.isArray(b[key])?b[key]:[]).map(item=>[String(item?.id??JSON.stringify(item)),item]));
       const lm=new Map((Array.isArray(l[key])?l[key]:[]).map(item=>[String(item?.id??JSON.stringify(item)),item]));
       const cm=new Map((Array.isArray(c[key])?c[key]:[]).map(item=>[String(item?.id??JSON.stringify(item)),item]));
@@ -591,9 +598,17 @@
         const reminders=(Array.isArray(snap.reminders)?snap.reminders:[]).filter(r=>String(r?.customerId??r?.customer_id??"")===id);
         return {customerId:id,phone:normalizePhone(c.phone),customerName:String(c.name||"Customer").slice(0,120),shopName:String(snap.shop?.name||"Dukaan").slice(0,120),shopOwner:String(snap.shop?.owner||"Shop Owner").slice(0,120),shopPhone:normalizePhone(snap.shop?.phone),shopAddress:String(snap.shop?.address||"").slice(0,240),transactions,reminders};
       });
+      const monthKey=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit"}).format(new Date());
+      const familyAccounts=(Array.isArray(snap.familyAccounts)?snap.familyAccounts:[]).filter(g=>g?.id&&Array.isArray(g.members)).map(g=>({
+        id:String(g.id),name:String(g.name||"Family Account").slice(0,100),monthlyLimit:Math.max(0,Number(g.monthlyLimit)||0),
+        members:g.members.filter(m=>customers.some(c=>String(c.id)===String(m.customerId)&&normalizePhone(c.phone))).map(m=>({
+          customerId:String(m.customerId),individualLimit:Math.max(0,Number(m.individualLimit)||0),canPurchase:m.canPurchase!==false,
+          currentMonthSpend:(Array.isArray(snap.tx)?snap.tx:[]).filter(t=>t.type==="sale"&&String(t.customerId??t.customer_id??"")===String(m.customerId)&&(()=>{const d=new Date(t.date||t.createdAt||t.created||0);return !Number.isNaN(d.getTime())&&new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit"}).format(d)===monthKey})()).reduce((sum,t)=>sum+Math.max(0,Number(t.total)||0),0)
+        }))
+      })).filter(g=>g.monthlyLimit>0&&g.members.length);
       portalPublishing=true;
       try{
-        const response=await fetch(SUPABASE_URL+"/functions/v1/customer-pin-portal",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({action:"publish",sourceId:(()=>{let id=localStorage.getItem("dk_customer_portal_source_id");if(!id){id=crypto.randomUUID();localStorage.setItem("dk_customer_portal_source_id",id)}return id})(),records})});
+        const response=await fetch(SUPABASE_URL+"/functions/v1/customer-pin-portal",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({action:"publish",sourceId:(()=>{let id=localStorage.getItem("dk_customer_portal_source_id");if(!id){id=crypto.randomUUID();localStorage.setItem("dk_customer_portal_source_id",id)}return id})(),shop:{name:String(snap.shop?.name||"Dukaan"),phone:normalizePhone(snap.shop?.phone),address:String(snap.shop?.address||"")},records,familyAccounts})});
         const result=await response.json().catch(()=>({}));
         if(!response.ok)throw new Error(result.error||"Customer portal publish failed");
         console.info("Customer portal records updated:",result.published);
