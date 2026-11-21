@@ -10,8 +10,10 @@ export default async function handler(req,res){
   const secret=process.env.RAZORPAY_KEY_SECRET;
   if(!secret||!process.env.RAZORPAY_KEY_ID)return res.status(503).json({error:"Razorpay verification is not configured on the server."});
   const planId=String(req.body?.plan_id||"");
-  const planAmounts={pro:4900,premium:9900,"ultra-premium":14900};
-  const expectedPlanAmount=planAmounts[planId];
+  const billingPeriod=String(req.body?.billing_period||"monthly")==="yearly"?"yearly":"monthly";
+  const monthlyPlanAmounts={pro:4900,premium:9900,"ultra-premium":14900};
+  const basePlanAmount=monthlyPlanAmounts[planId];
+  const expectedPlanAmount=basePlanAmount*(billingPeriod==="yearly"?12:1);
   if(!expectedPlanAmount)return res.status(400).json({error:"Invalid plan selected."});
   const orderId=String(req.body?.razorpay_order_id||"");
   const paymentId=String(req.body?.razorpay_payment_id||"");
