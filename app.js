@@ -957,8 +957,20 @@ function renderKhata(){
   if(allBtn)allBtn.textContent="All ("+state.customers.length+")";
   if(dueBtn)dueBtn.innerHTML="Due ("+dueCustomers.length+") • <span class=\"khata-filter-due\" style=\"color:#dc2626!important;-webkit-text-fill-color:#dc2626!important;font-weight:900\">"+money(dueTotal)+"</span>";
   if(paidBtn)paidBtn.innerHTML="Paid ("+paidCustomers.length+") • <span class=\"khata-filter-paid\" style=\"color:#16a34a!important;-webkit-text-fill-color:#16a34a!important;font-weight:900\">"+money(paidTotal)+"</span>";
-  // Keep the newest customer at the top of Khata, regardless of cloud-merge array order.
+  // Sort Khata by each customer's most recent bill activity (new bills/updated bill timestamps).
+  const latestBillActivity=(customerId)=>{
+    let latest=0;
+    for(const tx of (Array.isArray(state.tx)?state.tx:[])){
+      if(tx?.type!=="sale"||String(tx.customerId)!==String(customerId))continue;
+      const raw=tx.updatedAt||tx.date||tx.createdAt||tx.created;
+      const stamp=raw?Date.parse(raw):0;
+      if(Number.isFinite(stamp)&&stamp>latest)latest=stamp;
+    }
+    return latest;
+  };
   const newestFirst=[...state.customers].sort((a,b)=>{
+    const billDiff=latestBillActivity(b.id)-latestBillActivity(a.id);
+    if(billDiff!==0)return billDiff;
     const at=Date.parse(a.created||a.createdAt||a.addedAt||"")||0;
     const bt=Date.parse(b.created||b.createdAt||b.addedAt||"")||0;
     return bt-at;
