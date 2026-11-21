@@ -9,7 +9,11 @@ export default async function handler(req,res){
   if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});
   const secret=process.env.RAZORPAY_KEY_SECRET;
   if(!secret)return res.status(503).json({error:"Razorpay verification is not configured on the server."});
-  const planId=String(req.body?.plan_id||"");\n  const planAmounts={pro:4900,premium:9900,"ultra-premium":14900};\n  const expectedPlanAmount=planAmounts[planId];\n  if(!expectedPlanAmount)return res.status(400).json({error:"Invalid plan selected."});\n  const orderId=String(req.body?.razorpay_order_id||"");
+  const planId=String(req.body?.plan_id||"");
+  const planAmounts={pro:4900,premium:9900,"ultra-premium":14900};
+  const expectedPlanAmount=planAmounts[planId];
+  if(!expectedPlanAmount)return res.status(400).json({error:"Invalid plan selected."});
+  const orderId=String(req.body?.razorpay_order_id||"");
   const paymentId=String(req.body?.razorpay_payment_id||"");
   const signature=String(req.body?.razorpay_signature||"");
   if(!orderId||!paymentId||!signature)return res.status(400).json({error:"Missing payment verification fields."});
