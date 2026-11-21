@@ -345,38 +345,32 @@ function dkCheckSubscription(kind){
   toast(kind==="customer"?"Free customer limit reached. Open Subscriptions to view plans.":"Monthly bill limit reached. Open Subscriptions to view plans.");
   openSubscriptionPlans();return false;
 }
-function dkStartSubscription(planId){
+function dkStartSubscription(planId,billingPeriod="monthly"){
   const plan=String(planId||"");
-  if(plan==="free"){
-    state.settings=state.settings||{};
-    state.settings.subscriptionPlan="free";
-    saveState();closeModal();dkSyncAssistantAccess();
-    toast("Free plan selected. UVMS Assistant is available on Premium and VIP only.");return;
-  }
-  const plans={pro:{name:"Pro",price:49},premium:{name:"Premium",price:99},"ultra-premium":{name:"VIP",price:149}};
+  billingPeriod=billingPeriod==="yearly"?"yearly":"monthly";
+  if(plan==="free"){state.settings=state.settings||{};state.settings.subscriptionPlan="free";saveState();closeModal();dkSyncAssistantAccess();toast("Free plan selected. UVMS Assistant is available on Premium and VIP only.");return;}
+  const plans={pro:{name:"Pro",monthly:49},premium:{name:"Premium",monthly:99},"ultra-premium":{name:"VIP",monthly:149}};
   const selected=plans[plan];if(!selected){toast("Please select a valid plan.");return;}
+  selected.price=selected.monthly*(billingPeriod==="yearly"?12:1);selected.periodLabel=billingPeriod==="yearly"?"year":"month";
   if(!window.Razorpay){toast("Payment window is unavailable. Refresh and try again.");return;}
-  modal('<div style="padding:8px 2px;color:#202720"><h2>'+selected.name+' · ₹'+selected.price+'/month</h2><p>Secure payment through Razorpay. Your plan will update only after payment verification.</p><button type="button" class="btn primary" id="dkCheckoutPay">Pay ₹'+selected.price+'</button><button type="button" class="btn" id="dkCheckoutCancel">Cancel</button><p id="dkCheckoutMessage" style="font-size:12px"></p></div>');
+  modal('<div style="padding:8px 2px;color:#202720"><h2>'+selected.name+' · ₹'+selected.price+'/'+selected.periodLabel+'</h2><p>'+(billingPeriod==="yearly"?"12 months of access, paid upfront.":"Monthly access.")+' Secure payment through Razorpay. Your plan will update only after payment verification.</p><button type="button" class="btn primary" id="dkCheckoutPay">Pay ₹'+selected.price+'</button><button type="button" class="btn" id="dkCheckoutCancel">Cancel</button><p id="dkCheckoutMessage" style="font-size:12px"></p></div>');
   const payBtn=document.getElementById("dkCheckoutPay"),msg=document.getElementById("dkCheckoutMessage");
   document.getElementById("dkCheckoutCancel")?.addEventListener("click",closeModal);
   payBtn?.addEventListener("click",async()=>{
     payBtn.disabled=true;payBtn.textContent="Opening secure checkout…";
     try{
-      const orderResponse=await fetch("https://dukaan-khata-pudaykumarpudaykumar7-hub.vercel.app/api/create-order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount:selected.price*100})});
-      const order=await orderResponse.json();
-      if(!orderResponse.ok||!order.order_id)throw new Error(order.error||"Could not create payment order.");
-      const checkout=new Razorpay({key:order.key_id,amount:order.amount,currency:order.currency,order_id:order.order_id,name:"UVMS Dukaan Khata",description:selected.name+" monthly subscription",theme:{color:"#d7ad48"},modal:{ondismiss:()=>{payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;}},handler:async response=>{
+      const orderResponse=await fetch("https://dukaan-khata-pudaykumarpudaykumar7-hub.vercel.app/api/create-order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount:selected.price*100,plan_id:plan,billing_period:billingPeriod})});
+      const order=await orderResponse.json();if(!orderResponse.ok||!order.order_id)throw new Error(order.error||"Could not create payment order.");
+      const checkout=new Razorpay({key:order.key_id,amount:order.amount,currency:order.currency,order_id:order.order_id,name:"UVMS Dukaan Khata",description:selected.name+" "+billingPeriod+" plan",theme:{color:"#d7ad48"},modal:{ondismiss:()=>{payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;}},handler:async response=>{
         if(msg)msg.textContent="Verifying payment…";
         try{
-          const verifyResponse=await fetch("https://dukaan-khata-pudaykumarpudaykumar7-hub.vercel.app/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({razorpay_payment_id:response.razorpay_payment_id,razorpay_order_id:response.razorpay_order_id,razorpay_signature:response.razorpay_signature,plan_id:plan})});
-          const verified=await verifyResponse.json();
-          if(!verifyResponse.ok||!verified.verified)throw new Error(verified.error||"Payment verification failed.");
-          state.settings=state.settings||{};state.settings.subscriptionPlan=plan;state.settings.subscriptionActivatedAt=new Date().toISOString();state.settings.subscriptionPaymentId=verified.payment_id;
+          const verifyResponse=await fetch("https://dukaan-khata-pudaykumarpudaykumar7-hub.vercel.app/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({razorpay_payment_id:response.razorpay_payment_id,razorpay_order_id:response.razorpay_order_id,razorpay_signature:response.razorpay_signature,plan_id:plan,billing_period:billingPeriod})});
+          const verified=await verifyResponse.json();if(!verifyResponse.ok||!verified.verified)throw new Error(verified.error||"Payment verification failed.");
+          state.settings=state.settings||{};state.settings.subscriptionPlan=plan;state.settings.subscriptionBillingPeriod=billingPeriod;state.settings.subscriptionActivatedAt=new Date().toISOString();state.settings.subscriptionPaymentId=verified.payment_id;
           saveState();closeModal();dkSyncAssistantAccess();render();toast(selected.name+" plan activated after payment verification ✓");
         }catch(err){if(msg)msg.textContent=err.message||"Verification failed. Contact support with your payment receipt.";toast("Payment verification failed. Do not retry until checking the receipt.");}
       }});
-      checkout.on("payment.failed",event=>{if(msg)msg.textContent=event?.error?.description||"Payment failed. Please try again.";payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;toast("Payment failed. Please try again.");});
-      checkout.open();
+      checkout.on("payment.failed",event=>{if(msg)msg.textContent=event?.error?.description||"Payment failed. Please try again.";payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;toast("Payment failed. Please try again.");});checkout.open();
     }catch(err){if(msg)msg.textContent=err.message||"Checkout could not start.";payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;toast(err.message||"Checkout setup failed.");}
   });
 }
@@ -434,7 +428,7 @@ function openSubscriptionPlans(){
   billingAnnual?.addEventListener("click",()=>setBillingPeriod(true));
   billingToggle?.addEventListener("click",()=>setBillingPeriod(!annualBilling));
   document.getElementById("dkCloseSubscriptions")?.addEventListener("click",closeModal);
-  document.querySelectorAll("[data-subscribe-plan]").forEach(button=>button.addEventListener("click",()=>dkStartSubscription(button.getAttribute("data-subscribe-plan"))));
+  document.querySelectorAll("[data-subscribe-plan]").forEach(button=>button.addEventListener("click",()=>dkStartSubscription(button.getAttribute("data-subscribe-plan"),annualBilling?"yearly":"monthly")));
 }
 function addCustomer(mode=""){if(!dkCheckSubscription("customer"))return;modal('<h2>New Customer</h2><form id="newCustomerForm" autocomplete="on"><input id="cname" name="name" placeholder="Customer name" autocomplete="name" enterkeyhint="next" required><input id="cphone" name="tel" type="tel" inputmode="tel" placeholder="Mobile / WhatsApp number" autocomplete="tel" enterkeyhint="next"><input id="caddress" name="address" type="text" placeholder="Address (optional)" autocomplete="street-address" enterkeyhint="done"><button class="btn primary" id="saveCustomerBtn" type="submit">Save Customer</button></form>');const form=document.getElementById("newCustomerForm");form?.addEventListener("submit",e=>{e.preventDefault();saveCustomer(mode)});const name=document.getElementById("cname"),phone=document.getElementById("cphone"),address=document.getElementById("caddress");name?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();phone?.focus()}});phone?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();address?.focus()}});address?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();saveCustomer(mode)}});setTimeout(()=>name?.focus(),80)}
 function saveCustomer(mode=""){const name=(document.getElementById("cname")?.value||"").trim();if(!name)return toast("Enter customer name");const c={id:uid(),name,phone:(document.getElementById("cphone")?.value||"").trim(),address:(document.getElementById("caddress")?.value||"").trim(),created:new Date().toISOString()};state.customers.unshift(c);const saved=saveState();if(!saved){state.customers=state.customers.filter(x=>String(x.id)!==String(c.id));return}closeModal();render();toast("Customer saved on this device");if(typeof window.dkSyncNow==="function")window.dkSyncNow().catch(e=>console.error("Customer cloud sync failed:",e));if(mode==="many")openManyItems(c.id);if(mode==="many-picker")openManyItems()}
