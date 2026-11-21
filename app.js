@@ -990,10 +990,20 @@ function renderCustomers(){
   const clearBtn=document.getElementById("customerClearFilter");
   if(dueBtn){dueBtn.innerHTML='<b id="customerDueCount">'+dueCount+'</b> with due';dueBtn.classList.toggle("active",customerStatusFilter==="due");dueBtn.setAttribute("aria-pressed",String(customerStatusFilter==="due"))}
   if(clearBtn){clearBtn.innerHTML='<b id="customerPaidCount">'+clearCount+'</b> clear';clearBtn.classList.toggle("active",customerStatusFilter==="clear");clearBtn.setAttribute("aria-pressed",String(customerStatusFilter==="clear"))}
+  const lastBillActivity=(customerId)=>{
+    let latest=0;
+    for(const tx of (Array.isArray(state.tx)?state.tx:[])){
+      if(tx?.type!=="sale"||String(tx.customerId)!==String(customerId))continue;
+      const raw=tx.date||tx.createdAt||tx.created;
+      const stamp=raw?new Date(raw).getTime():0;
+      if(Number.isFinite(stamp)&&stamp>latest)latest=stamp;
+    }
+    return latest;
+  };
   const customers=state.customers.filter(c=>{
     const b=balance(c.id),matches=(c.name+" "+c.phone).toLowerCase().includes(q);
     return matches&&(customerStatusFilter==="all"||(customerStatusFilter==="due"&&b>0)||(customerStatusFilter==="clear"&&b<=0));
-  });
+  }).sort((a,b)=>lastBillActivity(b.id)-lastBillActivity(a.id));
   box.innerHTML=customers.map(c=>
     '<div class="customer" data-long-delete data-delete-type="customer" data-delete-id="'+esc(c.id)+'" data-customer-open="'+esc(c.id)+'">'+
       '<div><h3>'+esc(c.name)+'</h3><small>'+esc(c.phone||"No phone")+'</small></div>'+
