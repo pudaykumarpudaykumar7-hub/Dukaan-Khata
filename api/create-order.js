@@ -9,7 +9,7 @@ export default async function handler(req,res){
   const keyId=process.env.RAZORPAY_KEY_ID, keySecret=process.env.RAZORPAY_KEY_SECRET;
   if(!keyId||!keySecret)return res.status(503).json({error:"Razorpay is not configured on the server."});
   const amount=Number(req.body?.amount);
-  if(!Number.isInteger(amount)||amount<100)return res.status(400).json({error:"Amount must be at least 100 paise and a whole number of paise."});
+  if(![4900,9900,14900].includes(amount))return res.status(400).json({error:"Only approved subscription amounts ₹49, ₹99 and ₹149 are accepted."});
   const receipt="dk_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,9);
   try{
     const response=await fetch("https://api.razorpay.com/v1/orders",{method:"POST",headers:{Authorization:"Basic "+Buffer.from(keyId+":"+keySecret).toString("base64"),"Content-Type":"application/json"},body:JSON.stringify({amount,currency:"INR",receipt,notes:{source:"uvms-dukaan-khata"}})});
