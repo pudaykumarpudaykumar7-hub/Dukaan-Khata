@@ -36,6 +36,17 @@ function saveSharedPreference(key,value){
 function saveState(){
   let previous=null;
   try{previous=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
+  // Mark edited transaction records with a fresh activity timestamp so Khata can sort
+  // the customer's latest bill/payment record to the top even if the original date stays unchanged.
+  if(previous&&Array.isArray(state.tx)&&Array.isArray(previous.tx)){
+    const priorById=new Map(previous.tx.map(t=>[String(t?.id),t]));
+    const stamp=new Date().toISOString();
+    state.tx=state.tx.map(t=>{
+      const prior=priorById.get(String(t?.id));
+      if(prior&&JSON.stringify(prior)!==JSON.stringify(t)&&!t.updatedAt)t={...t,updatedAt:stamp};
+      return t;
+    });
+  }
   try{
     localStorage.setItem(KEY,JSON.stringify(state));
     // Publish only the customer portal projection; do not sync the full owner ledger.
