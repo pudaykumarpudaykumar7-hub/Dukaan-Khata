@@ -16,5 +16,10 @@ export default async function handler(req,res){
   const expected=crypto.createHmac("sha256",secret).update(orderId+"|"+paymentId).digest("hex");
   const a=Buffer.from(expected),b=Buffer.from(signature);
   if(a.length!==b.length||!crypto.timingSafeEqual(a,b))return res.status(400).json({verified:false,error:"Payment signature did not match. Payment has not been verified."});
-  try{\n    const response=await fetch("https://api.razorpay.com/v1/payments/"+encodeURIComponent(paymentId),{headers:{Authorization:"Basic "+Buffer.from(process.env.RAZORPAY_KEY_ID+":"+secret).toString("base64")}});\n    const payment=await response.json().catch(()=>({}));\n    if(!response.ok||payment.status!=="captured"||payment.order_id!==orderId||![4900,9900,14900].includes(Number(payment.amount)))return res.status(400).json({verified:false,error:"Payment is not captured for a valid subscription order."});\n    return res.status(200).json({verified:true,order_id:orderId,payment_id:paymentId,amount:payment.amount,currency:payment.currency});\n  }catch(e){console.error("Payment API confirmation failed",e?.message||"");return res.status(502).json({verified:false,error:"Unable to confirm payment status with Razorpay."})}
+  try{
+    const response=await fetch("https://api.razorpay.com/v1/payments/"+encodeURIComponent(paymentId),{headers:{Authorization:"Basic "+Buffer.from(process.env.RAZORPAY_KEY_ID+":"+secret).toString("base64")}});
+    const payment=await response.json().catch(()=>({}));
+    if(!response.ok||payment.status!=="captured"||payment.order_id!==orderId||![4900,9900,14900].includes(Number(payment.amount)))return res.status(400).json({verified:false,error:"Payment is not captured for a valid subscription order."});
+    return res.status(200).json({verified:true,order_id:orderId,payment_id:paymentId,amount:payment.amount,currency:payment.currency});
+  }catch(e){console.error("Payment API confirmation failed",e?.message||"");return res.status(502).json({verified:false,error:"Unable to confirm payment status with Razorpay."})}
 }
