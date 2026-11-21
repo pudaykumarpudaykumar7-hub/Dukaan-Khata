@@ -362,13 +362,13 @@ function dkStartSubscription(planId){
   payBtn?.addEventListener("click",async()=>{
     payBtn.disabled=true;payBtn.textContent="Opening secure checkout…";
     try{
-      const orderResponse=await fetch("https://dukaan-khata-seven.vercel.app/api/create-order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount:selected.price*100})});
+      const orderResponse=await fetch("https://dukaan-khata-pudaykumarpudaykumar7-hub.vercel.app/api/create-order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount:selected.price*100})});
       const order=await orderResponse.json();
       if(!orderResponse.ok||!order.order_id)throw new Error(order.error||"Could not create payment order.");
       const checkout=new Razorpay({key:order.key_id,amount:order.amount,currency:order.currency,order_id:order.order_id,name:"UVMS Dukaan Khata",description:selected.name+" monthly subscription",theme:{color:"#d7ad48"},handler:async response=>{
         if(msg)msg.textContent="Verifying payment…";
         try{
-          const verifyResponse=await fetch("https://dukaan-khata-seven.vercel.app/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({razorpay_payment_id:response.razorpay_payment_id,razorpay_order_id:response.razorpay_order_id,razorpay_signature:response.razorpay_signature})});
+          const verifyResponse=await fetch("https://dukaan-khata-pudaykumarpudaykumar7-hub.vercel.app/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({razorpay_payment_id:response.razorpay_payment_id,razorpay_order_id:response.razorpay_order_id,razorpay_signature:response.razorpay_signature})});
           const verified=await verifyResponse.json();
           if(!verifyResponse.ok||!verified.verified)throw new Error(verified.error||"Payment verification failed.");
           state.settings=state.settings||{};state.settings.subscriptionPlan=plan;state.settings.subscriptionActivatedAt=new Date().toISOString();state.settings.subscriptionPaymentId=verified.payment_id;
