@@ -368,7 +368,7 @@ function dkStartSubscription(planId){
       const checkout=new Razorpay({key:order.key_id,amount:order.amount,currency:order.currency,order_id:order.order_id,name:"UVMS Dukaan Khata",description:selected.name+" monthly subscription",theme:{color:"#d7ad48"},modal:{ondismiss:()=>{payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;}},handler:async response=>{
         if(msg)msg.textContent="Verifying payment…";
         try{
-          const verifyResponse=await fetch("https://dukaan-khata-pudaykumarpudaykumar7-hub.vercel.app/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({razorpay_payment_id:response.razorpay_payment_id,razorpay_order_id:response.razorpay_order_id,razorpay_signature:response.razorpay_signature})});
+          const verifyResponse=await fetch("https://dukaan-khata-pudaykumarpudaykumar7-hub.vercel.app/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({razorpay_payment_id:response.razorpay_payment_id,razorpay_order_id:response.razorpay_order_id,razorpay_signature:response.razorpay_signature,plan_id:plan})});
           const verified=await verifyResponse.json();
           if(!verifyResponse.ok||!verified.verified)throw new Error(verified.error||"Payment verification failed.");
           state.settings=state.settings||{};state.settings.subscriptionPlan=plan;state.settings.subscriptionActivatedAt=new Date().toISOString();state.settings.subscriptionPaymentId=verified.payment_id;
