@@ -350,17 +350,36 @@ function dkStartSubscription(planId){
   if(plan==="free"){
     state.settings=state.settings||{};
     state.settings.subscriptionPlan="free";
-    saveState();
-    closeModal();
-    dkSyncAssistantAccess();
-    toast("Free plan selected. UVMS Assistant is available on Premium and VIP only.");
-    return;
+    saveState();closeModal();dkSyncAssistantAccess();
+    toast("Free plan selected. UVMS Assistant is available on Premium and VIP only.");return;
   }
-  const names={"pro":"Pro","premium":"Premium","ultra-premium":"VIP"};
-  const prices={"pro":49,"premium":99,"ultra-premium":149};
-  if(!names[plan]){toast("Please select a valid plan.");return;}
-  modal('<div style="padding:8px 2px;color:#202720"><h2 style="margin:0 0 10px"> '+names[plan]+' plan · ₹'+prices[plan]+'/month</h2><p style="line-height:1.6">Secure payment setup is not complete yet. This action will not charge you or activate a paid plan. Your current plan and records remain unchanged.</p><button type="button" class="btn primary" id="dkPaidPlanStatusClose">OK</button></div>');
-  document.getElementById("dkPaidPlanStatusClose")?.addEventListener("click",closeModal);
+  const plans={pro:{name:"Pro",price:49},premium:{name:"Premium",price:99},"ultra-premium":{name:"VIP",price:149}};
+  const selected=plans[plan];if(!selected){toast("Please select a valid plan.");return;}
+  if(!window.Razorpay){toast("Payment window is unavailable. Refresh and try again.");return;}
+  modal('<div style="padding:8px 2px;color:#202720"><h2>'+selected.name+' · ₹'+selected.price+'/month</h2><p>Secure payment through Razorpay. Your plan will update only after payment verification.</p><button type="button" class="btn primary" id="dkCheckoutPay">Pay ₹'+selected.price+'</button><button type="button" class="btn" id="dkCheckoutCancel">Cancel</button><p id="dkCheckoutMessage" style="font-size:12px"></p></div>');
+  const payBtn=document.getElementById("dkCheckoutPay"),msg=document.getElementById("dkCheckoutMessage");
+  document.getElementById("dkCheckoutCancel")?.addEventListener("click",closeModal);
+  payBtn?.addEventListener("click",async()=>{
+    payBtn.disabled=true;payBtn.textContent="Opening secure checkout…";
+    try{
+      const orderResponse=await fetch("https://dukaan-khata-seven.vercel.app/api/create-order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount:selected.price*100})});
+      const order=await orderResponse.json();
+      if(!orderResponse.ok||!order.order_id)throw new Error(order.error||"Could not create payment order.");
+      const checkout=new Razorpay({key:order.key_id,amount:order.amount,currency:order.currency,order_id:order.order_id,name:"UVMS Dukaan Khata",description:selected.name+" monthly subscription",theme:{color:"#d7ad48"},handler:async response=>{
+        if(msg)msg.textContent="Verifying payment…";
+        try{
+          const verifyResponse=await fetch("https://dukaan-khata-seven.vercel.app/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({razorpay_payment_id:response.razorpay_payment_id,razorpay_order_id:response.razorpay_order_id,razorpay_signature:response.razorpay_signature})});
+          const verified=await verifyResponse.json();
+          if(!verifyResponse.ok||!verified.verified)throw new Error(verified.error||"Payment verification failed.");
+          state.settings=state.settings||{};state.settings.subscriptionPlan=plan;state.settings.subscriptionActivatedAt=new Date().toISOString();state.settings.subscriptionPaymentId=verified.payment_id;
+          saveState();closeModal();dkSyncAssistantAccess();render();toast(selected.name+" plan activated after payment verification ✓");
+        }catch(err){if(msg)msg.textContent=err.message||"Verification failed. Contact support with your payment receipt.";toast("Payment verification failed. Do not retry until checking the receipt.");}
+      }});
+      checkout.on("payment.failed",event=>{if(msg)msg.textContent=event?.error?.description||"Payment failed. Please try again.";payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;toast("Payment failed. Please try again.");});
+      checkout.on("dismiss",()=>{payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;});
+      checkout.open();
+    }catch(err){if(msg)msg.textContent=err.message||"Checkout could not start.";payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;toast(err.message||"Checkout setup failed.");}
+  });
 }
 function openSubscriptionPlans(){
   const u=dkSubscriptionUsage();
