@@ -365,7 +365,7 @@ function dkStartSubscription(planId){
       const orderResponse=await fetch("https://dukaan-khata-pudaykumarpudaykumar7-hub.vercel.app/api/create-order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({amount:selected.price*100})});
       const order=await orderResponse.json();
       if(!orderResponse.ok||!order.order_id)throw new Error(order.error||"Could not create payment order.");
-      const checkout=new Razorpay({key:order.key_id,amount:order.amount,currency:order.currency,order_id:order.order_id,name:"UVMS Dukaan Khata",description:selected.name+" monthly subscription",theme:{color:"#d7ad48"},handler:async response=>{
+      const checkout=new Razorpay({key:order.key_id,amount:order.amount,currency:order.currency,order_id:order.order_id,name:"UVMS Dukaan Khata",description:selected.name+" monthly subscription",theme:{color:"#d7ad48"},modal:{ondismiss:()=>{payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;}},handler:async response=>{
         if(msg)msg.textContent="Verifying payment…";
         try{
           const verifyResponse=await fetch("https://dukaan-khata-pudaykumarpudaykumar7-hub.vercel.app/api/verify-payment",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({razorpay_payment_id:response.razorpay_payment_id,razorpay_order_id:response.razorpay_order_id,razorpay_signature:response.razorpay_signature})});
@@ -376,7 +376,6 @@ function dkStartSubscription(planId){
         }catch(err){if(msg)msg.textContent=err.message||"Verification failed. Contact support with your payment receipt.";toast("Payment verification failed. Do not retry until checking the receipt.");}
       }});
       checkout.on("payment.failed",event=>{if(msg)msg.textContent=event?.error?.description||"Payment failed. Please try again.";payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;toast("Payment failed. Please try again.");});
-      checkout.on("dismiss",()=>{payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;});
       checkout.open();
     }catch(err){if(msg)msg.textContent=err.message||"Checkout could not start.";payBtn.disabled=false;payBtn.textContent="Pay ₹"+selected.price;toast(err.message||"Checkout setup failed.");}
   });
