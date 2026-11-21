@@ -636,7 +636,7 @@ function dkFamilyDelete(id){
 
 function customerView(id){
  const c=state.customers.find(x=>x.id===id);if(!c)return;
- const b=balance(id),tx=state.tx.filter(t=>t.customerId===id).slice(0,50),items=[];
+ const b=balance(id),tx=state.tx.filter(t=>String(t.customerId)===String(id)).slice().sort((a,b)=>(Date.parse(b.date||b.createdAt||b.created||0)||0)-(Date.parse(a.date||a.createdAt||a.created||0)||0)).slice(0,50),items=[];
  tx.filter(t=>t.type==="sale").forEach(t=>(t.lines||[]).forEach((l,i)=>items.push('<div class="line khata-deletable-item dk-customer-khata-item" data-long-delete data-delete-type="sale-item" data-delete-id="'+esc(t.id)+'" data-delete-index="'+i+'"><span style="display:flex;flex-direction:column;gap:3px;min-width:0">🧾 '+esc(l.name)+' × '+(Number(l.qty)||1)+'<small class="muted">Added: '+esc(dkRecordDate(t.date||t.createdAt||t.created))+'</small></span><b>'+money(l.total)+'</b></div>')));
  const history=tx.map(t=>t.type==="sale"
   ?'<div class="card dk-customer-history-sale" data-long-delete data-delete-type="transaction" data-delete-id="'+esc(t.id)+'"><div class="line"><span>Sale</span><b>'+money(t.total)+'</b></div><small class="muted">'+esc(dkRecordDate(t.date||t.createdAt||t.created))+'</small><small class="dk-history-items">'+esc((t.lines||[]).map(l=>l.name+" × "+l.qty).join(" • "))+'</small></div>'
@@ -1016,6 +1016,7 @@ function deleteSaleItem(id,index){
       state.tx=state.tx.filter(x=>String(x.id)!==String(id));
     }else{
       tx.total=tx.lines.reduce((sum,line)=>sum+(Number(line.total)||((Number(line.price)||0)*(Number(line.qty)||1))),0);
+      tx.date=new Date().toISOString();
     }
     saveState();render();
     const customerId=tx.customerId;
