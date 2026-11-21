@@ -8,7 +8,7 @@ export default async function handler(req,res){
   if(req.method==="OPTIONS")return res.status(204).end();
   if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});
   const secret=process.env.RAZORPAY_KEY_SECRET;
-  if(!secret)return res.status(503).json({error:"Razorpay verification is not configured on the server."});
+  if(!secret||!process.env.RAZORPAY_KEY_ID)return res.status(503).json({error:"Razorpay verification is not configured on the server."});
   const planId=String(req.body?.plan_id||"");
   const planAmounts={pro:4900,premium:9900,"ultra-premium":14900};
   const expectedPlanAmount=planAmounts[planId];
