@@ -9,7 +9,7 @@ export default async function handler(req,res){
   if(req.method!=="POST")return res.status(405).json({error:"Method not allowed"});
   const secret=process.env.RAZORPAY_KEY_SECRET;
   if(!secret)return res.status(503).json({error:"Razorpay verification is not configured on the server."});
-  const orderId=String(req.body?.razorpay_order_id||"");
+  const planId=String(req.body?.plan_id||"");\n  const planAmounts={pro:4900,premium:9900,"ultra-premium":14900};\n  const expectedPlanAmount=planAmounts[planId];\n  if(!expectedPlanAmount)return res.status(400).json({error:"Invalid plan selected."});\n  const orderId=String(req.body?.razorpay_order_id||"");
   const paymentId=String(req.body?.razorpay_payment_id||"");
   const signature=String(req.body?.razorpay_signature||"");
   if(!orderId||!paymentId||!signature)return res.status(400).json({error:"Missing payment verification fields."});
@@ -19,7 +19,7 @@ export default async function handler(req,res){
   try{
     const response=await fetch("https://api.razorpay.com/v1/payments/"+encodeURIComponent(paymentId),{headers:{Authorization:"Basic "+Buffer.from(process.env.RAZORPAY_KEY_ID+":"+secret).toString("base64")}});
     const payment=await response.json().catch(()=>({}));
-    if(!response.ok||payment.status!=="captured"||payment.order_id!==orderId||![4900,9900,14900].includes(Number(payment.amount)))return res.status(400).json({verified:false,error:"Payment is not captured for a valid subscription order."});
+    if(!response.ok||payment.status!=="captured"||payment.order_id!==orderId||Number(payment.amount)!==expectedPlanAmount)return res.status(400).json({verified:false,error:"Payment is not captured for a valid subscription order."});
     return res.status(200).json({verified:true,order_id:orderId,payment_id:paymentId,amount:payment.amount,currency:payment.currency});
   }catch(e){console.error("Payment API confirmation failed",e?.message||"");return res.status(502).json({verified:false,error:"Unable to confirm payment status with Razorpay."})}
 }
