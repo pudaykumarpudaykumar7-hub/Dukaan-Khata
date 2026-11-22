@@ -430,10 +430,11 @@ function openSubscriptionPlans(){
   const root=document.getElementById("modalBody");
   const panel=root?.firstElementChild;
   const modalEl=document.getElementById("modal");
-  modalEl?.classList.remove("dk-subscription-fullscreen");
-  if(modalEl){modalEl.style.cssText="";modalEl.style.zIndex="100000";}
-  if(panel){panel.style.maxWidth="560px";panel.style.width="94vw";panel.style.height="auto";panel.style.maxHeight="78vh";panel.style.minHeight="0";panel.style.margin="auto";panel.style.borderRadius="22px";panel.style.padding="14px";panel.style.overflowY="auto";panel.style.overflowX="hidden";panel.style.display="block";panel.style.flexDirection="initial";panel.style.boxShadow="0 25px 80px #0005";panel.style.paddingBottom="28px";}
-  if(root){root.style.height="auto";root.style.minHeight="0";root.style.maxHeight="78vh";root.style.flex="initial";root.style.overflowY="auto";root.style.overflowX="hidden";root.style.overscrollBehavior="contain";root.style.webkitOverflowScrolling="touch";root.style.scrollPaddingBottom="calc(90px + env(safe-area-inset-bottom))";root.style.paddingBottom="0";}
+  modalEl?.classList.add("dk-subscription-fullscreen");
+  if(modalEl){modalEl.style.position="fixed";modalEl.style.inset="0";modalEl.style.zIndex="999999";modalEl.style.display="flex";modalEl.style.alignItems="stretch";modalEl.style.justifyContent="stretch";modalEl.style.overflow="hidden";modalEl.style.touchAction="pan-y";}
+  if(panel){panel.style.maxWidth="none";panel.style.width="100%";panel.style.height="100dvh";panel.style.maxHeight="100dvh";panel.style.minHeight="0";panel.style.margin="0";panel.style.borderRadius="0";panel.style.padding="0";panel.style.overflow="hidden";panel.style.display="flex";panel.style.flexDirection="column";panel.style.boxShadow="none";}
+  if(root){root.style.height="0";root.style.minHeight="0";root.style.maxHeight="none";root.style.flex="1 1 auto";root.style.overflowY="auto";root.style.overflowX="hidden";root.style.overscrollBehavior="contain";root.style.webkitOverflowScrolling="touch";root.style.scrollPaddingBottom="calc(120px + env(safe-area-inset-bottom))";root.style.paddingBottom="0";root.style.touchAction="pan-y";}
+  if(panel){panel.style.paddingBottom="0";}
   const grid=root?.querySelector("div[style*='grid-template-columns:repeat(4']");
   if(grid){grid.style.gridTemplateColumns="minmax(0,1fr)";grid.style.gap="14px";}
   let annualBilling=false;
