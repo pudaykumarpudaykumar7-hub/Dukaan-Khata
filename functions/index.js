@@ -207,6 +207,20 @@ exports.registerCustomerPushDevice = onRequest({ region: "us-central1", maxInsta
   } catch (error) { sendError(res, error); }
 });
 
+/** Unregister one customer's push token on this device. */
+exports.unregisterCustomerPushDevice = onRequest({ region: "us-central1", maxInstances: 10 }, async (req, res) => {
+  if (applyCors(req, res)) return;
+  try {
+    const phone = normalizeCustomerPhone(req.body?.phone);
+    verifySharedCustomerPin(req.body?.pin);
+    const token = cleanToken(req.body?.token);
+    const customerId = customerDocId(phone);
+    const tokenId = crypto.createHash("sha256").update(token).digest("hex");
+    await db.collection("customerPush").doc(customerId).collection("devices").doc(tokenId).delete();
+    res.status(200).json({ ok: true });
+  } catch (error) { sendError(res, error); }
+});
+
 /** Read a customer's notification inbox with the agreed common PIN. */
 exports.getCustomerNotifications = onRequest({ region: "us-central1", maxInstances: 10 }, async (req, res) => {
   if (applyCors(req, res)) return;
