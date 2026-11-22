@@ -103,27 +103,39 @@ window.dkOpenNotifications=function(){const list=read();list.forEach(x=>x.read=t
 window.dkClearNotifications=function(){try{localStorage.removeItem(KEY)}catch(e){}dot();window.dkOpenNotifications()};
 window.addEventListener("DOMContentLoaded",dot);window.addEventListener("storage",e=>{if(e.key===KEY)dot()});if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{if(e.data?.type==="DK_NOTIFICATION_CLICK")window.dkOpenNotifications?.()});
 
-/* Customer notification client helpers: customer inbox + FCM registration. */
+/* Customer notifications use Supabase Edge Functions as the backend.
+   Firebase remains the Web Push token provider; Firebase Cloud Functions are not used. */
 const CUSTOMER_LOCAL_PREFIX="dk_customer_local_notifications_v2:";
-function normalizeCustomerPhone(value){let d=String(value||"").replace(/\D/g,"");if(d.length===12&&d.startsWith("91"))d=d.slice(2);if(d.length===13&&d.startsWith("0091"))d=d.slice(4);return /^\d{10}$/.test(d)?d:null}
+const SUPABASE_EDGE_URL="https://nzsldzyjpxwyyrdwkphp.supabase.co/functions/v1/customer-notifications";
+const SUPABASE_PUBLIC_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
+function normalizeCustomerPhone(value){let d=String(value||"").replace(/\D/g,"");if(d.length===12&&d.startsWith("91"))d=d.slice(2);if(d.length===14&&d.startsWith("0091"))d=d.slice(4);if(d.length===13&&d.startsWith("0091"))d=d.slice(4);return /^\d{10}$/.test(d)?d:null}
 function customerLocalKey(phone){return CUSTOMER_LOCAL_PREFIX+normalizeCustomerPhone(phone)}
 function customerLocalRead(phone){try{const key=customerLocalKey(phone);return key?JSON.parse(localStorage.getItem(key)||"[]").filter(x=>x&&x.id):[]}catch(e){return[]}}
 function customerLocalWrite(phone,list){try{const key=customerLocalKey(phone);if(key)localStorage.setItem(key,JSON.stringify(list.slice(0,100)))}catch(e){}}
-function customerLocalAdd(phone,item){const p=normalizeCustomerPhone(phone);if(!p)return;const list=customerLocalRead(p);list.unshift(item);customerLocalWrite(p,list)}
-async function customerApi(endpoint,payload){const url=PUSH_API+"/"+endpoint;const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});let data={};try{data=await response.json()}catch(e){}if(!response.ok)throw new Error(data.error||"Customer notification service is unavailable.");return data}
+async function customerApi(endpoint,payload){
+ const actions={getCustomerNotifications:"get",deleteCustomerNotification:"delete",clearCustomerNotifications:"clear",registerCustomerPushDevice:"register-device",unregisterCustomerPushDevice:"unregister-device"};
+ const action=actions[endpoint];if(!action)throw new Error("Unknown notification action.");
+ const response=await fetch(SUPABASE_EDGE_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLIC_KEY},body:JSON.stringify({...payload,action})});
+ let data={};try{data=await response.json()}catch(e){}
+ if(!response.ok)throw new Error(data.error||"Customer notification service is unavailable.");
+ return data;
+}
+async function customerOwnerApi(action,payload){
+ const token=await supabaseAccessToken();if(!token)throw new Error("Owner login is required to send customer notifications.");
+ const response=await fetch(SUPABASE_EDGE_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLIC_KEY,"Authorization":"Bearer "+token},body:JSON.stringify({...payload,action})});
+ let data={};try{data=await response.json()}catch(e){}
+ if(!response.ok)throw new Error(data.error||"Customer notification service is unavailable.");
+ return data;
+}
 window.dkNotifyCustomerAccount=async function(phone,title,body){
  const p=normalizeCustomerPhone(phone);if(!p)return null;
- const item={id:"localc"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),title:String(title||"Shop account updated").slice(0,100),body:String(body||"Your shop account was updated.").slice(0,350),createdAt:new Date().toISOString(),read:false,localOnly:true};
- customerLocalAdd(p,item);
- if(localStorage.getItem("dk_customer_push_enabled")==="on"&&typeof Notification!=="undefined"&&Notification.permission==="granted")await systemNotice(item);
- try{await pushApiCall("sendCustomerAccountNotification",{phone:p,title:item.title,body:item.body});}catch(e){console.warn("Customer remote inbox delivery is unavailable:",e?.message||e)}
- return item;
+ try{return await customerOwnerApi("send",{phone:p,title:String(title||"Shop account updated").slice(0,120),body:String(body||"Your shop account was updated.").slice(0,500)});}
+ catch(e){console.warn("Customer notification backend unavailable:",e?.message||e);return {ok:false,error:e?.message||"Notification failed"}}
 };
 window.dkFetchCustomerNotifications=async function(phone,pin){
  const p=normalizeCustomerPhone(phone);if(!p)throw new Error("Enter a valid customer mobile number.");
- let remote=[];
- try{const data=await customerApi("getCustomerNotifications",{phone:p,pin:String(pin||"")});remote=Array.isArray(data.notifications)?data.notifications:[];}
- catch(e){console.warn("Customer notification inbox is unavailable; showing saved device notices.",e?.message||e)}
+ const data=await customerApi("getCustomerNotifications",{phone:p,pin:String(pin||"")});
+ const remote=Array.isArray(data.notifications)?data.notifications.map(x=>({...x,createdAt:x.createdAt||x.created_at,read:!!x.read})):[];
  const local=customerLocalRead(p);
  const seen=new Set(remote.map(x=>String(x.id||"")));
  const merged=remote.concat(local.filter(x=>!seen.has(String(x.id||""))));
@@ -132,15 +144,15 @@ window.dkFetchCustomerNotifications=async function(phone,pin){
 };
 window.dkDeleteCustomerNotification=async function(phone,pin,id){
  const p=normalizeCustomerPhone(phone);if(!p)throw new Error("Enter a valid customer mobile number.");
- const local=customerLocalRead(p).filter(x=>String(x.id)!==String(id));customerLocalWrite(p,local);
- try{await customerApi("deleteCustomerNotification",{phone:p,pin:String(pin||""),notificationId:String(id)});}catch(e){if(!String(id).startsWith("localc"))throw e;}
- return {ok:true};
+ if(String(id).startsWith("localc")){customerLocalWrite(p,customerLocalRead(p).filter(x=>String(x.id)!==String(id)));return {ok:true,localOnly:true};}
+ const result=await customerApi("deleteCustomerNotification",{phone:p,pin:String(pin||""),notificationId:String(id)});
+ return result;
 };
 window.dkClearCustomerNotifications=async function(phone,pin){
  const p=normalizeCustomerPhone(phone);if(!p)throw new Error("Enter a valid customer mobile number.");
+ const result=await customerApi("clearCustomerNotifications",{phone:p,pin:String(pin||"")});
  customerLocalWrite(p,[]);
- await customerApi("clearCustomerNotifications",{phone:p,pin:String(pin||"")});
- return {ok:true};
+ return result;
 };
 window.dkEnableCustomerNotifications=async function(phone,pin){
  const p=normalizeCustomerPhone(phone);if(!p)throw new Error("Enter a valid customer mobile number.");
@@ -163,5 +175,4 @@ window.dkDisableCustomerNotifications=async function(phone,pin){
  try{localStorage.setItem("dk_customer_push_enabled","off");localStorage.removeItem("dk_customer_fcm_token_v1")}catch(e){}
  return {ok:true};
 };
-
 })();
