@@ -114,6 +114,24 @@ exports.registerSupabasePushToken = onRequest({ region: "us-central1", maxInstan
   }
 });
 
+// Legacy endpoint name retained for the restored notification client.
+exports.registerPushToken = onRequest({ region: "us-central1", maxInstances: 10 }, async (req, res) => {
+  if (applyCors(req, res)) return;
+  try {
+    const user = await requireSupabaseUser(req);
+    const token = cleanToken(req.body?.token);
+    const tokenId = crypto.createHash("sha256").update(token).digest("hex");
+    await db.collection("pushTokens").doc(user.id).collection("devices").doc(tokenId).set({
+      token,
+      platform: String(req.body?.platform || "web").slice(0, 30),
+      updatedAt: FieldValue.serverTimestamp()
+    }, { merge: true });
+    res.status(200).json({ ok: true });
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
 /**
  * Send a bill/payment notification only to devices registered to the verified
  * caller. The client cannot choose another recipient or arbitrary message.
