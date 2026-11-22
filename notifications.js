@@ -103,15 +103,23 @@ window.dkOpenNotifications=function(){const list=read();list.forEach(x=>x.read=t
 window.dkClearNotifications=function(){try{localStorage.removeItem(KEY)}catch(e){}dot();window.dkOpenNotifications()};
 window.addEventListener("DOMContentLoaded",dot);window.addEventListener("storage",e=>{if(e.key===KEY)dot()});if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{if(e.data?.type==="DK_NOTIFICATION_CLICK")window.dkOpenNotifications?.()});
 
-const CUSTOMER_NOTIFICATION_API="https://nzsldzyjpxwyyrdwkphp.supabase.co/functions/v1/customer-notifications";
-const DK_SUPABASE_PUBLISHABLE_KEY="sb_publishable_k3ZPG1Wuqm3KFzoQAXnByA_YTMLkUG-";
+const CUSTOMER_NOTIFICATION_API="https://us-central1-dukaan-khata-a517c.cloudfunctions.net";
+const CUSTOMER_NOTIFICATION_ENDPOINTS={
+ get:"getCustomerNotifications",
+ "register-device":"registerCustomerPushDevice",
+ "unregister-device":"unregisterCustomerPushDevice",
+ delete:"deleteCustomerNotification",
+ clear:"clearCustomerNotifications",
+ send:"sendCustomerAccountNotification"
+};
 async function customerNotificationApi(action,payload,ownerAuth=false){
+ const endpoint=CUSTOMER_NOTIFICATION_ENDPOINTS[action];
+ if(!endpoint)throw new Error("Unsupported customer notification action.");
  const headers={"Content-Type":"application/json"};
- if(ownerAuth){const token=await supabaseAccessToken();if(!token)throw new Error("Sign in with Google as the shop owner before sending customer alerts.");headers.Authorization="Bearer "+token;}
- headers.apikey=DK_SUPABASE_PUBLISHABLE_KEY;
+ if(ownerAuth||action==="send"){const token=await supabaseAccessToken();if(!token)throw new Error("Sign in with Google as the shop owner before sending customer alerts.");headers.Authorization="Bearer "+token;}
  let response;
- try{response=await fetch(CUSTOMER_NOTIFICATION_API,{method:"POST",headers,body:JSON.stringify({...payload,action})})}
- catch(e){throw new Error("Could not reach the free customer notification service. Check your internet connection and try again.");}
+ try{response=await fetch(CUSTOMER_NOTIFICATION_API+"/"+endpoint,{method:"POST",headers,body:JSON.stringify(payload)})}
+ catch(e){throw new Error("Could not reach the customer push service. Check your internet connection and try again.");}
  let data={};try{data=await response.json()}catch(e){}
  if(!response.ok)throw new Error(data.error||("Notification service returned HTTP "+response.status+"."));
  return data;
