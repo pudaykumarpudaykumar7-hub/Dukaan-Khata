@@ -5918,3 +5918,10 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 #modal:has(.dk-customer-fullscreen) .dk-customer-fullscreen .dk-exec-private{
   color:#43574f!important;
 }
+
+/* Fix: subscription modal must scroll vertically on mobile so restore/usage content is reachable. */
+#modal.dk-subscription-fullscreen{display:flex!important;overflow:hidden!important;touch-action:pan-y!important}
+#modal.dk-subscription-fullscreen .sheet{display:flex!important;flex-direction:column!important;overflow:hidden!important;touch-action:pan-y!important}
+#modal.dk-subscription-fullscreen #modalBody{flex:1 1 auto!important;min-height:0!important;height:0!important;max-height:none!important;overflow-x:hidden!important;overflow-y:scroll!important;touch-action:pan-y!important;overscroll-behavior-y:contain!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:auto!important}
+#modal.dk-subscription-fullscreen #modalBody>div{min-height:0!important;height:auto!important;max-height:none!important;overflow:visible!important;touch-action:pan-y!important}
+#modal.dk-subscription-fullscreen #modalBody>div>div[style*="grid-template-columns:repeat(4"]{grid-template-columns:minmax(0,1fr)!important}
