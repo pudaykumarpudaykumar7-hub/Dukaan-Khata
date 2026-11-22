@@ -115,7 +115,7 @@ window.dkNotifyCustomerAccount=async function(phone,title,body){
  const p=normalizeCustomerPhone(phone);if(!p)return null;
  const item={id:"localc"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),title:String(title||"Shop account updated").slice(0,100),body:String(body||"Your shop account was updated.").slice(0,350),createdAt:new Date().toISOString(),read:false,localOnly:true};
  customerLocalAdd(p,item);
- if(localStorage.getItem("dk_customer_push_enabled")==="on"&&Notification?.permission==="granted")await systemNotice(item);
+ if(localStorage.getItem("dk_customer_push_enabled")==="on"&&typeof Notification!=="undefined"&&Notification.permission==="granted")await systemNotice(item);
  try{await pushApiCall("sendCustomerAccountNotification",{phone:p,title:item.title,body:item.body});}catch(e){console.warn("Customer remote inbox delivery is unavailable:",e?.message||e)}
  return item;
 };
