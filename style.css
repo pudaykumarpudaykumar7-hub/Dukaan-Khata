@@ -5935,3 +5935,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 #modal.dk-subscription-fullscreen .sheet{z-index:99999!important;position:fixed!important;inset:0!important;height:100dvh!important;max-height:100dvh!important;padding-bottom:0!important}
 #modal.dk-subscription-fullscreen #modalBody{height:0!important;min-height:0!important;flex:1 1 auto!important;overflow-y:auto!important;overflow-x:hidden!important;padding-bottom:0!important;scroll-padding-bottom:calc(130px + env(safe-area-inset-bottom))!important;-webkit-overflow-scrolling:touch!important}
 #modal.dk-subscription-fullscreen #modalBody>div{padding-bottom:calc(150px + env(safe-area-inset-bottom))!important;min-height:0!important;height:auto!important;overflow:visible!important}
+
+/* Subscription modal scrolling is enforced inline by openSubscriptionPlans. Hide app nav underneath. */
+body:has(#modal.dk-subscription-fullscreen:not(.hidden)) .bottom-nav,
+body:has(#modal.dk-subscription-fullscreen:not(.hidden)) .top-menu{display:none!important}
