@@ -15,20 +15,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install Firebase Functions dependencies
-        working-directory: functions
-        run: npm install --no-audit --no-fund
-      - name: Validate functions
-        working-directory: functions
-        run: npm run lint
+
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DUKAAN_KHATA_A517C }}
-      - name: Install Firebase CLI
-        run: npm install --global firebase-tools
-      - name: Deploy Firebase Functions and Firestore rules
-        run: firebase deploy --only functions,firestore:rules --project dukaan-khata-a517c --non-interactive
+
+      - name: Deploy Firestore rules
+        run: firebase deploy --only firestore:rules --project dukaan-khata-a517c --non-interactive
