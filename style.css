@@ -5929,3 +5929,9 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 /* Subscription plans: mobile scrolling fix and compact restore controls */
 @media(max-width:760px){#modal.dk-subscription-fullscreen #modalBody{overflow-y:scroll!important;touch-action:pan-y!important;height:100dvh!important;max-height:100dvh!important;position:relative!important}#modal.dk-subscription-fullscreen #modalBody>div{padding-bottom:calc(36px + env(safe-area-inset-bottom))!important}#modal.dk-subscription-fullscreen .dk-plan-card{min-width:0!important}}
 #dkRestoreToggle:focus-visible,#dkRestorePaidPlan:focus-visible{outline:2px solid #fff4b0;outline-offset:2px}
+
+/* Final fix: subscription overlay must cover bottom navigation and leave scroll room for the usage panel */
+#modal.dk-subscription-fullscreen{z-index:99999!important;position:fixed!important;inset:0!important;display:flex!important;overflow:hidden!important}
+#modal.dk-subscription-fullscreen .sheet{z-index:99999!important;position:fixed!important;inset:0!important;height:100dvh!important;max-height:100dvh!important;padding-bottom:0!important}
+#modal.dk-subscription-fullscreen #modalBody{height:0!important;min-height:0!important;flex:1 1 auto!important;overflow-y:auto!important;overflow-x:hidden!important;padding-bottom:0!important;scroll-padding-bottom:calc(130px + env(safe-area-inset-bottom))!important;-webkit-overflow-scrolling:touch!important}
+#modal.dk-subscription-fullscreen #modalBody>div{padding-bottom:calc(150px + env(safe-area-inset-bottom))!important;min-height:0!important;height:auto!important;overflow:visible!important}
