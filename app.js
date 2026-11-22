@@ -431,8 +431,10 @@ function openSubscriptionPlans(){
   const panel=root?.firstElementChild;
   const modalEl=document.getElementById("modal");
   modalEl?.classList.add("dk-subscription-fullscreen");
-  if(panel){panel.style.maxWidth="none";panel.style.width="100%";panel.style.height="100%";panel.style.maxHeight="100dvh";panel.style.margin="0";panel.style.borderRadius="0";panel.style.padding="0";panel.style.overflow="hidden";panel.style.boxShadow="none";}
-  if(root){root.style.height="100%";root.style.maxHeight="100dvh";root.style.overflow="auto";root.style.overscrollBehavior="contain";root.style.paddingBottom="env(safe-area-inset-bottom)";}
+  if(modalEl){modalEl.style.position="fixed";modalEl.style.inset="0";modalEl.style.zIndex="999999";modalEl.style.display="flex";modalEl.style.overflow="hidden";modalEl.style.alignItems="stretch";modalEl.style.justifyContent="stretch";modalEl.style.touchAction="pan-y";}
+  if(panel){panel.style.maxWidth="none";panel.style.width="100%";panel.style.height="100dvh";panel.style.maxHeight="100dvh";panel.style.minHeight="0";panel.style.margin="0";panel.style.borderRadius="0";panel.style.padding="0";panel.style.overflow="hidden";panel.style.display="flex";panel.style.flexDirection="column";panel.style.boxShadow="none";}
+  if(root){root.style.height="0";root.style.minHeight="0";root.style.maxHeight="none";root.style.flex="1 1 auto";root.style.overflowY="auto";root.style.overflowX="hidden";root.style.overscrollBehavior="contain";root.style.webkitOverflowScrolling="touch";root.style.scrollPaddingBottom="calc(140px + env(safe-area-inset-bottom))";root.style.paddingBottom="0";}
+  if(panel){panel.style.paddingBottom="calc(150px + env(safe-area-inset-bottom))";}
   const grid=root?.querySelector("div[style*='grid-template-columns:repeat(4']");
   if(grid){grid.style.gridTemplateColumns="minmax(0,1fr)";grid.style.gap="14px";}
   let annualBilling=false;
