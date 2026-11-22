@@ -892,7 +892,7 @@ async function openOwnerLogin(){
       dialog.addEventListener("click",event=>{if(event.target===dialog)finish(false)});
       panel.appendChild(dialog);
     });
-    panel.querySelector("#dkCustomerNotificationClose")?.addEventListener("click",()=>panel.remove());
+    let customerNotificationPoll=null;panel.querySelector("#dkCustomerNotificationClose")?.addEventListener("click",()=>{if(customerNotificationPoll)clearInterval(customerNotificationPoll);customerNotificationPoll=null;panel.remove();});
     const pushToggle=panel.querySelector("#dkCustomerNotificationEnable");
     const pushLabel=panel.querySelector("#dkPushStateLabel");
     const syncPushToggle=()=>{let saved=null;try{saved=localStorage.getItem("dk_customer_push_enabled");}catch(e){}const permission=window.Notification?.permission;const on=permission==="granted"&&saved==="on";pushToggle?.setAttribute("aria-checked",String(on));pushToggle?.classList.toggle("is-on",on);if(pushLabel)pushLabel.textContent=on?"On · this device will receive alerts":(permission==="denied"?"Blocked in browser settings · allow it there to turn on":"Off · tap to enable");};
@@ -915,10 +915,10 @@ async function openOwnerLogin(){
       }catch(e){status.textContent=e.message||"Could not update phone notification settings.";}
       finally{pushToggle.disabled=false;syncPushToggle();}
     });
-    const loadNotifications=async()=>{
+    const loadNotifications=async(silent=false)=>{
       try{
         if(!window.dkFetchCustomerNotifications)throw new Error("Notification service is still loading. Refresh and try again.");
-        status.textContent="Loading notifications…";
+        if(!silent)status.textContent="Loading notifications…";
         const result=await window.dkFetchCustomerNotifications(customerPhone,customerPin);
         const list=Array.isArray(result.notifications)?result.notifications:[];
         status.textContent=list.length?list.length+" notification(s)":"No notifications yet.";
@@ -953,9 +953,9 @@ async function openOwnerLogin(){
           ["pointerup","pointerleave","pointercancel"].forEach(event=>card.addEventListener(event,cancelPress));
           card.addEventListener("contextmenu",event=>event.preventDefault());
         });
-      }catch(e){status.textContent=e.message||"Could not load notifications."}
+      }catch(e){if(!silent)status.textContent=e.message||"Could not load notifications."}
     };
-    loadNotifications();
+    loadNotifications();customerNotificationPoll=setInterval(()=>{if(document.getElementById("dkCustomerNotificationPanel"))loadNotifications(true);else{clearInterval(customerNotificationPoll);customerNotificationPoll=null;}},8000);
   }
 
   document.addEventListener("click",function(e){if(e.target?.id==="dkCustomerNotificationsBell")openCustomerNotificationPanel(window.__dkCustomerPhoneForNotifications,window.__dkCustomerPinForNotifications)});
