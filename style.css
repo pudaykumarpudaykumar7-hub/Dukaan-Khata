@@ -5925,3 +5925,7 @@ html::-webkit-scrollbar,body::-webkit-scrollbar,main::-webkit-scrollbar,
 #modal.dk-subscription-fullscreen #modalBody{flex:1 1 auto!important;min-height:0!important;height:0!important;max-height:none!important;overflow-x:hidden!important;overflow-y:scroll!important;touch-action:pan-y!important;overscroll-behavior-y:contain!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:auto!important}
 #modal.dk-subscription-fullscreen #modalBody>div{min-height:0!important;height:auto!important;max-height:none!important;overflow:visible!important;touch-action:pan-y!important}
 #modal.dk-subscription-fullscreen #modalBody>div>div[style*="grid-template-columns:repeat(4"]{grid-template-columns:minmax(0,1fr)!important}
+
+/* Subscription plans: mobile scrolling fix and compact restore controls */
+@media(max-width:760px){#modal.dk-subscription-fullscreen #modalBody{overflow-y:scroll!important;touch-action:pan-y!important;height:100dvh!important;max-height:100dvh!important;position:relative!important}#modal.dk-subscription-fullscreen #modalBody>div{padding-bottom:calc(36px + env(safe-area-inset-bottom))!important}#modal.dk-subscription-fullscreen .dk-plan-card{min-width:0!important}}
+#dkRestoreToggle:focus-visible,#dkRestorePaidPlan:focus-visible{outline:2px solid #fff4b0;outline-offset:2px}
