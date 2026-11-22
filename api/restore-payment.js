@@ -23,7 +23,11 @@ export default async function handler(req,res){
     const monthlyAmounts={pro:4900,premium:9900,"ultra-premium":14900};
     const baseAmount=monthlyAmounts[planId];
     const expectedAmount=baseAmount*(billingPeriod==="yearly"?12:1);
+    const paidAt=Number(payment.created_at||0);
+    const durationSeconds=billingPeriod==="yearly"?365*24*60*60:30*24*60*60;
+    const expiresAt=paidAt?new Date((paidAt+durationSeconds)*1000).toISOString():null;
+    if(!paidAt||Date.now()>=((paidAt+durationSeconds)*1000))return res.status(410).json({verified:false,expired:true,expires_at:expiresAt,error:"This subscription has expired. Restore is available only during the paid subscription period."});
     if(!expectedAmount||Number(payment.amount)!==expectedAmount||Number(order.amount)!==expectedAmount||order.currency!=="INR")return res.status(400).json({verified:false,error:"Payment amount does not match a valid Dukaan Khata plan."});
-    return res.status(200).json({verified:true,plan_id:planId,billing_period:billingPeriod,payment_id:paymentId,paid_at:payment.created_at?new Date(payment.created_at*1000).toISOString():null});
+    return res.status(200).json({verified:true,plan_id:planId,billing_period:billingPeriod,payment_id:paymentId,paid_at:new Date(paidAt*1000).toISOString(),expires_at:expiresAt});
   }catch(error){console.error("Subscription restore check failed",error?.message||"");return res.status(502).json({verified:false,error:"Could not verify your payment with Razorpay right now."})}
 }
