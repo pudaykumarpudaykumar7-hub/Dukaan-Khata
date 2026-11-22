@@ -20,7 +20,7 @@ jobs:
           node-version: 20
       - name: Install Firebase Functions dependencies
         working-directory: functions
-        run: npm ci
+        run: npm install --no-audit --no-fund
       - name: Validate functions
         working-directory: functions
         run: npm run lint
