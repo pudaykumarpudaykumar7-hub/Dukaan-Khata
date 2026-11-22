@@ -102,4 +102,66 @@ window.dkRequestNotifications=async function(){
 window.dkOpenNotifications=function(){const list=read();list.forEach(x=>x.read=true);try{localStorage.setItem(KEY,JSON.stringify(list))}catch(e){}dot();const t=tr();const rows=list.length?list.map(x=>'<article class="dk-notice-row"><span class="dk-notice-icon">'+(/bill|బిల్లు|बिल|बिल्|બિલ|ಬಿಲ್|বিল|பில்|ബിൽ/.test(x.title)?"▤":/payment|చెల్లింపు|भुगतान|ಪಾವತಿ|பணம்|ચુકવણી|পেমেন্ট/.test(x.title)?"↗":"✦")+'</span><div class="dk-notice-copy"><b>'+esc(x.title)+'</b><p>'+esc(x.body)+'</p><small>'+esc(new Date(x.date).toLocaleString())+'</small></div></article>').join(""):'<div class="dk-notice-empty"><span class="dk-notice-empty-icon">✓</span><h3>'+esc(t[4])+'</h3><p>'+esc(t[5])+'</p></div>';if(typeof window.modal==="function")window.modal('<div class="dk-notice-panel" lang="'+esc(lang())+'"><div class="dk-notice-head"><div class="dk-notice-emblem">✦</div><div class="dk-notice-heading"><h2>'+esc(t[0])+'</h2><p>'+esc(t[1])+'</p></div><button class="dk-notice-enable" type="button" onclick="dkRequestNotifications()">♧ '+esc(t[2])+'</button></div><div class="dk-notice-list">'+rows+'</div><div class="dk-notice-actions"><button class="dk-notice-clear" type="button" onclick="dkClearNotifications()">'+esc(t[3])+'</button></div></div>')};
 window.dkClearNotifications=function(){try{localStorage.removeItem(KEY)}catch(e){}dot();window.dkOpenNotifications()};
 window.addEventListener("DOMContentLoaded",dot);window.addEventListener("storage",e=>{if(e.key===KEY)dot()});if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{if(e.data?.type==="DK_NOTIFICATION_CLICK")window.dkOpenNotifications?.()});
+
+/* Customer notification client helpers: customer inbox + FCM registration. */
+const CUSTOMER_LOCAL_PREFIX="dk_customer_local_notifications_v2:";
+function normalizeCustomerPhone(value){let d=String(value||"").replace(/\D/g,"");if(d.length===12&&d.startsWith("91"))d=d.slice(2);if(d.length===13&&d.startsWith("0091"))d=d.slice(4);return /^\d{10}$/.test(d)?d:null}
+function customerLocalKey(phone){return CUSTOMER_LOCAL_PREFIX+normalizeCustomerPhone(phone)}
+function customerLocalRead(phone){try{const key=customerLocalKey(phone);return key?JSON.parse(localStorage.getItem(key)||"[]").filter(x=>x&&x.id):[]}catch(e){return[]}}
+function customerLocalWrite(phone,list){try{const key=customerLocalKey(phone);if(key)localStorage.setItem(key,JSON.stringify(list.slice(0,100)))}catch(e){}}
+function customerLocalAdd(phone,item){const p=normalizeCustomerPhone(phone);if(!p)return;const list=customerLocalRead(p);list.unshift(item);customerLocalWrite(p,list)}
+async function customerApi(endpoint,payload){const url=PUSH_API+"/"+endpoint;const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});let data={};try{data=await response.json()}catch(e){}if(!response.ok)throw new Error(data.error||"Customer notification service is unavailable.");return data}
+window.dkNotifyCustomerAccount=async function(phone,title,body){
+ const p=normalizeCustomerPhone(phone);if(!p)return null;
+ const item={id:"localc"+Date.now().toString(36)+Math.random().toString(36).slice(2,7),title:String(title||"Shop account updated").slice(0,100),body:String(body||"Your shop account was updated.").slice(0,350),createdAt:new Date().toISOString(),read:false,localOnly:true};
+ customerLocalAdd(p,item);
+ if(localStorage.getItem("dk_customer_push_enabled")==="on"&&Notification?.permission==="granted")await systemNotice(item);
+ try{await pushApiCall("sendCustomerAccountNotification",{phone:p,title:item.title,body:item.body});}catch(e){console.warn("Customer remote inbox delivery is unavailable:",e?.message||e)}
+ return item;
+};
+window.dkFetchCustomerNotifications=async function(phone,pin){
+ const p=normalizeCustomerPhone(phone);if(!p)throw new Error("Enter a valid customer mobile number.");
+ let remote=[];
+ try{const data=await customerApi("getCustomerNotifications",{phone:p,pin:String(pin||"")});remote=Array.isArray(data.notifications)?data.notifications:[];}
+ catch(e){console.warn("Customer notification inbox is unavailable; showing saved device notices.",e?.message||e)}
+ const local=customerLocalRead(p);
+ const seen=new Set(remote.map(x=>String(x.id||"")));
+ const merged=remote.concat(local.filter(x=>!seen.has(String(x.id||""))));
+ merged.sort((a,b)=>new Date(b.createdAt||b.date||0)-new Date(a.createdAt||a.date||0));
+ return {notifications:merged,localOnly:remote.length===0};
+};
+window.dkDeleteCustomerNotification=async function(phone,pin,id){
+ const p=normalizeCustomerPhone(phone);if(!p)throw new Error("Enter a valid customer mobile number.");
+ const local=customerLocalRead(p).filter(x=>String(x.id)!==String(id));customerLocalWrite(p,local);
+ try{await customerApi("deleteCustomerNotification",{phone:p,pin:String(pin||""),notificationId:String(id)});}catch(e){if(!String(id).startsWith("localc"))throw e;}
+ return {ok:true};
+};
+window.dkClearCustomerNotifications=async function(phone,pin){
+ const p=normalizeCustomerPhone(phone);if(!p)throw new Error("Enter a valid customer mobile number.");
+ customerLocalWrite(p,[]);
+ await customerApi("clearCustomerNotifications",{phone:p,pin:String(pin||"")});
+ return {ok:true};
+};
+window.dkEnableCustomerNotifications=async function(phone,pin){
+ const p=normalizeCustomerPhone(phone);if(!p)throw new Error("Enter a valid customer mobile number.");
+ if(!("Notification"in window))throw new Error("Notifications are not supported in this browser.");
+ if(!("serviceWorker"in navigator)||!window.isSecureContext)throw new Error("Open Dukaan Khata over HTTPS to enable phone notifications.");
+ const permission=await Notification.requestPermission();if(permission!=="granted")throw new Error("Allow notifications in browser or phone settings.");
+ if(!window.firebase?.messaging)throw new Error("Firebase messaging SDK did not load. Refresh and try again.");
+ if(!window.firebase.apps.length)window.firebase.initializeApp(DK_FIREBASE_CONFIG);
+ const reg=await navigator.serviceWorker.ready;
+ const token=await window.firebase.messaging().getToken({vapidKey:DK_VAPID_KEY,serviceWorkerRegistration:reg});
+ if(!token)throw new Error("Firebase did not return a device token.");
+ try{localStorage.setItem("dk_customer_fcm_token_v1",token);localStorage.setItem("dk_customer_push_enabled","on");}catch(e){}
+ await customerApi("registerCustomerPushDevice",{phone:p,pin:String(pin||""),token,platform:"web"});
+ return {ok:true};
+};
+window.dkDisableCustomerNotifications=async function(phone,pin){
+ const p=normalizeCustomerPhone(phone);if(!p)throw new Error("Enter a valid customer mobile number.");
+ let token=null;try{token=localStorage.getItem("dk_customer_fcm_token_v1")}catch(e){}
+ if(token)await customerApi("unregisterCustomerPushDevice",{phone:p,pin:String(pin||""),token});
+ try{localStorage.setItem("dk_customer_push_enabled","off");localStorage.removeItem("dk_customer_fcm_token_v1")}catch(e){}
+ return {ok:true};
+};
+
 })();
