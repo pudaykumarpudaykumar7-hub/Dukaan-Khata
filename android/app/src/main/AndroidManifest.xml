@@ -6,7 +6,16 @@
         android:label="UVMS DUKAAN KHATA"
         android:icon="@drawable/ic_launcher"
         android:allowBackup="false"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:manageSpaceActivity="com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity">
+
+        <activity
+            android:name="com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.customtabs.trusted.MANAGE_SPACE_URL"
+                android:value="https://pudaykumarpudaykumar7-hub.github.io/Dukaan-Khata/" />
+        </activity>
 
         <activity
             android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
